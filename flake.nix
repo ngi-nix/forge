@@ -45,6 +45,7 @@
       imports = [
         (import ./forge/flake-module.nix { inherit inputs; })
         ./flake/develop.nix
+        ./flake/packages.nix
         ./flake/checks.nix
         ./flake/templates.nix
       ];
