@@ -1,5 +1,6 @@
 result
-ui/elm-stuff/*
+**/elm-stuff/
+**/build/
 ui/src/main.js
 ui/src/options.js
 *.qcow2
