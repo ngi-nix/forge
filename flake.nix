@@ -25,6 +25,11 @@
     #   url = "github:cachix/git-hooks.nix";
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
+
+    nimi.url = "github:ju1m/nimi/perf-evalNimiModule";
+    nimi.inputs.nixpkgs.follows = "nixpkgs";
+    nimi-def.url = "github:ju1m/nimi/perf-evalNimiModule";
+    nimi-def.flake = false;
   };
 
   outputs =
