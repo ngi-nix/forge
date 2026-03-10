@@ -36,6 +36,11 @@ jobs:
       - name: Install nix
         uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31.10.0
 
+      - uses: cachix/cachix-action@v16
+        with:
+          name: flake-forge
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
