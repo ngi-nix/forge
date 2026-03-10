@@ -25,6 +25,6 @@ initSelect _ =
 getConfig : Cmd UpdateSelect
 getConfig =
     Http.get
-        { url = "forge-config.json"
+        { url = "/forge-config.json"
         , expect = Http.expectJson UpdateSelect_GetConfig configDecoder
         }
