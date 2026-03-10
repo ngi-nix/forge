@@ -46,6 +46,7 @@ symlinkJoin {
 
     # Rename minimized Elm outputs
     mv $out/main.min.js $out/main.js
+    ln -s $out/main.js $out/Elm.js
   '';
   passthru = { inherit bootstrapCss; };
 }
