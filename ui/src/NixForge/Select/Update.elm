@@ -6,7 +6,7 @@ import NixForge.Clipboard exposing (copyToClipboard)
 import NixForge.Config exposing (..)
 import NixForge.Config.App exposing (..)
 import NixForge.Config.Package exposing (..)
-import NixForge.HTTP as Http
+import NixForge.Http as Http
 import NixForge.Output exposing (..)
 import NixForge.Route exposing (..)
 import NixForge.Select.Model exposing (..)
@@ -57,9 +57,6 @@ updateSelect msg model =
             case route of
                 Route_Select r ->
                     Updater_Cmd (routeSelect r model)
-
-                _ ->
-                    Updater_Route route
 
         UpdateSelect_Package pkg ->
             Updater_Model

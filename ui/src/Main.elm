@@ -6,10 +6,6 @@ import Html exposing (Html)
 import NixForge.Config exposing (..)
 import NixForge.Config.App exposing (..)
 import NixForge.Config.Package exposing (..)
-import NixForge.Create exposing (..)
-import NixForge.Create.Model exposing (..)
-import NixForge.Create.Update exposing (..)
-import NixForge.Create.View exposing (..)
 import NixForge.Model exposing (..)
 import NixForge.Route exposing (..)
 import NixForge.Select exposing (..)
@@ -48,8 +44,5 @@ init inp url navKey =
 view : Model -> Html Update
 view model =
     case model of
-        Model_Create m ->
-            m |> viewCreate |> Html.map Update_Create
-
         Model_Select m ->
             m |> viewSelect |> Html.map Update_Select

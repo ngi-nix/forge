@@ -36,11 +36,6 @@ viewSelect model =
                     ]
                     [ div [ class "flex-grow-1" ]
                         (viewSearch model.searchString)
-                    , button
-                        [ class "btn btn-primary"
-                        , onClick (UpdateSelect_Route (Route_Create RouteCreate_List))
-                        ]
-                        [ text "New recipe" ]
                     ]
                 , div [ class "d-flex btn-group align-items-center" ]
                     (viewOuputs [ OutputCategory_Packages, OutputCategory_Applications ] model.selectedOutput)

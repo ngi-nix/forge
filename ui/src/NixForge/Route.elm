@@ -12,16 +12,11 @@ type Updater model cmd
 
 type Route
     = Route_Select RouteSelect
-    | Route_Create RouteCreate
 
 
 type RouteSelect
     = RouteSelect_List
     | RouteSelect_Package Package.PackageName
-
-
-type RouteCreate
-    = RouteCreate_List
 
 
 type Slug
@@ -42,9 +37,6 @@ fromAppUrl url =
                 Nothing ->
                     Nothing
 
-        [ "create" ] ->
-            Just (Route_Create RouteCreate_List)
-
         _ ->
             Nothing
 
@@ -59,11 +51,6 @@ toAppUrl page =
 
                 RouteSelect_Package (Package.PackageName pkg) ->
                     AppUrl.fromPath [ "package", pkg ]
-
-        Route_Create rt ->
-            case rt of
-                RouteCreate_List ->
-                    AppUrl.fromPath [ "create" ]
 
 
 toString : Route -> String
