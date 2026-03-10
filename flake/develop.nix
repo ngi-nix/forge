@@ -25,6 +25,7 @@
             nodejs
             self'.packages.elm-watch
             systemd-manager-tui
+            watchman
           ];
           shellHook = ''
             PATH="$PWD/bin:$PATH"
