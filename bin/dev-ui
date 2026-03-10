@@ -84,6 +84,7 @@ systemd-run --user --slice "$slice" -u ${unit}-esbuild \
   --outdir=build \
   --serve="${listenPort}" \
   --servedir=build \
+  --serve-fallback=src/index.html \
   --sourcemap=external \
   --watch=forever \
   src/**/*.css \
