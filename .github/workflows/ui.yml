@@ -40,7 +40,7 @@ jobs:
 
       - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
         with:
-          name: ngi-forge
+          name: loudgolem-nur-pkgs-0
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Setup GitHub Pages
@@ -48,14 +48,13 @@ jobs:
 
       - name: Encode version information
         run: |
-          commit="$(git rev-parse HEAD)"
-          commit=${commit:-master}
+          commit="$(git rev-parse --short HEAD~1)"
           sed -i "s/master/$commit/g" ui/src/Main/Config.elm
 
       - name: Configure the baseUrl
         run: |
           set -x
-          deploy_root="/"
+          deploy_root="/nix-forge/"
           sed -i "s|:baseUrl|$deploy_root|g" ui/src/Main/Model/Route.elm
           sed -i "s|<base href=\"/\"|<base href=\"$deploy_root\"|g" ui/src/index.html
 
