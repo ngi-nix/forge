@@ -1,4 +1,4 @@
-module NixForge.Option exposing (Option, OptionsData, optionsDecoder)
+module AppStore.Option exposing (Option, OptionsData, optionsDecoder)
 
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder, field, string)

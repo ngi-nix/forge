@@ -1,4 +1,4 @@
-module NixForge.Http exposing (..)
+module AppStore.Http exposing (..)
 
 import Http
 import String

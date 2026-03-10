@@ -1,4 +1,4 @@
-module NixForge.Format exposing (format)
+module AppStore.Format exposing (format)
 
 
 format : String -> List String -> String

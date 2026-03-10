@@ -1,15 +1,15 @@
-module NixForge.Select.View.Applications exposing (..)
+module AppStore.Select.View.Applications exposing (..)
 
+import AppStore.Config exposing (..)
+import AppStore.Config.App as App exposing (..)
+import AppStore.Route exposing (..)
+import AppStore.Select.Model exposing (..)
+import AppStore.Select.Update exposing (..)
+import AppStore.Select.View.Instructions exposing (..)
 import Dict exposing (Dict)
 import Html exposing (Html, a, div, h5, p, small, span, text)
 import Html.Attributes exposing (class, href, name, style)
 import Html.Events exposing (onClick)
-import NixForge.Config exposing (..)
-import NixForge.Config.App as App exposing (..)
-import NixForge.Route exposing (..)
-import NixForge.Select.Model exposing (..)
-import NixForge.Select.Update exposing (..)
-import NixForge.Select.View.Instructions exposing (..)
 
 
 viewApps : Dict String App -> Maybe App -> String -> List (Html UpdateSelect)

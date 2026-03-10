@@ -1,13 +1,13 @@
-module NixForge.Select.Update exposing (..)
+module AppStore.Select.Update exposing (..)
 
+import AppStore.Clipboard exposing (copyToClipboard)
+import AppStore.Config exposing (..)
+import AppStore.Config.App exposing (..)
+import AppStore.Http as Http
+import AppStore.Route exposing (..)
+import AppStore.Select.Model exposing (..)
 import Dict
 import Http
-import NixForge.Clipboard exposing (copyToClipboard)
-import NixForge.Config exposing (..)
-import NixForge.Config.App exposing (..)
-import NixForge.Http as Http
-import NixForge.Route exposing (..)
-import NixForge.Select.Model exposing (..)
 
 
 type UpdateSelect

@@ -1,8 +1,8 @@
-module NixForge.Select.Model exposing (..)
+module AppStore.Select.Model exposing (..)
 
+import AppStore.Config exposing (..)
+import AppStore.Config.App exposing (..)
 import Dict exposing (Dict)
-import NixForge.Config exposing (..)
-import NixForge.Config.App exposing (..)
 
 
 type alias ModelSelect =

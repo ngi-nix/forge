@@ -1,13 +1,13 @@
-module NixForge.Update exposing (..)
+module AppStore.Update exposing (..)
 
+import AppStore.Config exposing (..)
+import AppStore.Config.App exposing (..)
+import AppStore.Model exposing (..)
+import AppStore.Route exposing (..)
+import AppStore.Select exposing (..)
+import AppStore.Select.Model exposing (..)
+import AppStore.Select.Update exposing (..)
 import Browser
-import NixForge.Config exposing (..)
-import NixForge.Config.App exposing (..)
-import NixForge.Model exposing (..)
-import NixForge.Route exposing (..)
-import NixForge.Select exposing (..)
-import NixForge.Select.Model exposing (..)
-import NixForge.Select.Update exposing (..)
 import Url
 
 

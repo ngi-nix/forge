@@ -2,8 +2,8 @@
 set -u
 rootDir=$(realpath "${0%/*}"/..)
 cd "$rootDir"
-slice=session-ngi_nix_app_store-dev
-unit=ngi-nix-app-store
+unit=ngi_nix_app_store_dev
+slice=session-${unit}
 function clean {
   set +e
   systemctl --user stop ${slice}.slice
@@ -29,9 +29,9 @@ mkdir -p "$rootDir/ui/build/resources"
 ln -s "$(
   nix build \
     --print-out-paths --no-link \
-    -f "$rootDir" "_forge-ui.passthru.bootstrapCss" \
-  )/css/bootstrap.min.css" \
-"$rootDir/ui/build/resources/bootstrap.min.css"
+    -f "$rootDir" "_forge-ui.passthru.bootstrapCss"
+)/css/bootstrap.min.css" \
+  "$rootDir/ui/build/resources/bootstrap.min.css"
 
 # Note: using `watchman watch-project`
 # would not support working in a non-default git-worktree or jj-workspace.
@@ -92,5 +92,5 @@ systemd-run --user --slice "$slice" -u ${unit}-esbuild \
   src/**/*.js
 
 journalctl --since "-5s" --user -f \
-  -u nix-forge-dev-config.service \
+  -u ${unit}-config.service \
   -u ${slice}.slice

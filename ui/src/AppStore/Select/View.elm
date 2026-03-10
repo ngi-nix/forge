@@ -1,15 +1,15 @@
-module NixForge.Select.View exposing (..)
+module AppStore.Select.View exposing (..)
 
+import AppStore.Config exposing (..)
+import AppStore.Config.App exposing (..)
+import AppStore.Route exposing (..)
+import AppStore.Select.Model exposing (..)
+import AppStore.Select.Update exposing (..)
+import AppStore.Select.View.Applications exposing (..)
+import AppStore.Select.View.Instructions exposing (..)
 import Html exposing (Html, button, div, hr, input, text)
 import Html.Attributes exposing (class, placeholder, value)
 import Html.Events exposing (onClick, onInput)
-import NixForge.Config exposing (..)
-import NixForge.Config.App exposing (..)
-import NixForge.Route exposing (..)
-import NixForge.Select.Model exposing (..)
-import NixForge.Select.Update exposing (..)
-import NixForge.Select.View.Applications exposing (..)
-import NixForge.Select.View.Instructions exposing (..)
 
 
 viewSelect : ModelSelect -> Html UpdateSelect

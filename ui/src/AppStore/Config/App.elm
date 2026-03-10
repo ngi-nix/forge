@@ -1,4 +1,4 @@
-module NixForge.Config.App exposing (..)
+module AppStore.Config.App exposing (..)
 
 import Dict exposing (Dict)
 import Json.Decode as Decode

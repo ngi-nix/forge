@@ -1,12 +1,12 @@
-module NixForge.Select.View.Instructions exposing (..)
+module AppStore.Select.View.Instructions exposing (..)
 
+import AppStore.Config.App as App exposing (App)
+import AppStore.Format exposing (format)
 import Dict
-import Html exposing (Html, a, br, button, code, div, h2, h3, hr, p, pre, span, text)
+import Html exposing (Html, a, button, code, div, h2, h3, hr, p, pre, span, text)
 import Html.Attributes exposing (class, href, style, target)
 import Html.Events exposing (onClick)
 import Markdown
-import NixForge.Config.App as App exposing (App)
-import NixForge.Format exposing (format)
 
 
 repositoryToGithubUrl : String -> String
