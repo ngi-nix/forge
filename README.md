@@ -1,11 +1,6 @@
-# Nix Forge
+# NGI App Store
 
 **WARNING: this sofware is currently in alpha state of development.**
-
-Nix Forge is lowering the barrier and learning curve required for packaging,
-distributing and software deployment with Nix, enforcing best practices and
-unlocking the superpowers of Nix to the ordinary humans.
-
 
 ## Features
 
@@ -13,15 +8,11 @@ unlocking the superpowers of Nix to the ordinary humans.
   **mutli-component applications** using
   [module system](https://nix.dev/tutorials/module-system/index.html)
 
-* [Web UI](https://imincik.github.io/nix-forge)
-
-* [Built-in packaging wizard](https://imincik.github.io/nix-forge/options.html)
+* [Web UI](https://ngi-nix.github.io/app-store)
 
 * [LLMs support](./AGENTS.md)
 
 * Easy [self hosting](#self-hosting)
-
-* [Container registry](https://github.com/imincik/nix-forge-registry)
 
 
 ### Conceptual diagram
@@ -52,7 +43,7 @@ graph TB
         AO3[NixOS VM<br/>for Multi-component services]
     end
 
-    NFR[Nix Forge Registry]
+    REG[App Store Registry]
 
     subgraph Deployment["Deployment"]
         SHELL[Shell Environment<br/>for CLI and GUI components]
@@ -68,20 +59,20 @@ graph TB
     APP --> AO2
     APP --> AO3
 
-    PO3 --> NFR
-    AO2 --> NFR
+    PO3 --> REG
+    AO2 --> REG
 
     AO1 --> SHELL
     AO3 --> NIXOS
-    NFR --> K8S
+    REG --> K8S
 ```
 
 ## Self hosting
 
-* Initiate new Nix Forge instance from template
+* Initiate new App Store instance from template
 
 ```bash
-nix flake init --template github:imincik/nix-forge#example
+nix flake init --template github:ngi-nix/app-store#example
 ```
 
 * Set `repositoryUrl` attribute in `flake.nix` to your repository
@@ -96,7 +87,7 @@ nix flake init --template github:imincik/nix-forge#example
 LLM agents, read [these instructions](./AGENTS.md) first.
 
 
-## Commercial support
+## Credits
 
-Considering [Nix/NixOS](https://nixos.org/) or already using it and need expert
-help? Get in touch with [me](https://www.imincik.com).
+This software was originally started as a fork of
+[imincik/nix-forge](https://github.com/imincik/nix-forge).
