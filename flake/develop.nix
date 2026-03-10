@@ -12,7 +12,8 @@
 
     {
       devShells = {
-        default = pkgs.mkShell {
+        default = pkgs.mkShellNoCC {
+          allowSubstitutes = false;
           packages = with pkgs; [
             elmPackages.elm
             elmPackages.elm-format
