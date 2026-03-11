@@ -10,6 +10,7 @@ import Main.Route as Route exposing (..)
 import Main.Select.Model exposing (..)
 import Main.Select.Update exposing (..)
 import Main.Select.View.Instructions exposing (..)
+import Markdown
 
 
 viewer : ModelSelect -> Html UpdateSelect
@@ -89,7 +90,7 @@ viewerFocus model =
                     ]
                 , div
                     []
-                    [ text app.usage
+                    [ Markdown.toHtml [ class "markdown-content" ] (String.trim app.usage)
                     ]
                 ]
 
