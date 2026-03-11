@@ -37,8 +37,12 @@
               # self.outPath gives us the flake root directory
               dirPath = self.outPath + "/${dir}";
 
-              # Use bundled import-tree from nix-forge inputs
-              recipeFiles = (inputs.import-tree.withLib lib).leafs dirPath;
+              recipeFiles = lib.pipe dirPath [
+                # Use bundled import-tree from nix-forge inputs
+                (inputs.import-tree.withLib lib).leafs
+                # Exclude non-recipe files
+                (lib.filter (file: lib.hasSuffix "/recipe.nix" file))
+              ];
 
               # Extend pkgs with mypkgs containing all Nix Forge packages
               # This allows recipes to reference other packages via mypkgs
