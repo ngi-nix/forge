@@ -19,6 +19,7 @@
             elmPackages.elm-format
             elmPackages.elm-language-server
             elmPackages.elm-review
+            elmPackages.elm-test
             elmPackages.elm-test-rs
             esbuild
             json-diff
