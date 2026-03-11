@@ -34,7 +34,12 @@ in
             apps = lib.mkOption {
               default = [ ];
               description = "List of applications.";
-              type = lib.types.listOf (lib.types.submodule ./app.nix);
+              type = lib.types.listOf (
+                lib.types.submoduleWith {
+                  specialArgs = { inherit inputs pkgs; };
+                  modules = [ ./app.nix ];
+                }
+              );
             };
           };
         };
