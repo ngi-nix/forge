@@ -39,24 +39,19 @@
     ];
   };
 
-  containers = {
+  container = {
     enable = true;
-    images = [
-      {
-        name = "api";
-        requirements = [ pkgs.mypkgs.python-web ];
-        config.CMD = [
-          "python-web"
-        ];
-      }
+    name = "api";
+    requirements = [ pkgs.mypkgs.python-web ];
+    imageConfig.CMD = [
+      "python-web"
     ];
-    composeFile = ./compose.yaml;
   };
 
-  vm = {
+  nixos = {
     enable = true;
     name = "database";
-    config.system = {
+    extraConfig = {
       # database service
       services.postgresql.enable = true;
       services.postgresql.enableTCPIP = true;
@@ -71,7 +66,7 @@
         "multi-user.target"
       ];
     };
-    config.ports = [
+    vm.forwardPorts = [
       "5000:5000"
     ];
   };

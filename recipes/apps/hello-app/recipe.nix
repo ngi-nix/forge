@@ -30,38 +30,4 @@
       pkgs.mypkgs.hello
     ];
   };
-
-  containers = {
-    enable = true;
-    images = [
-      {
-        name = "hello-english";
-        requirements = [ pkgs.mypkgs.hello ];
-        config.CMD = [
-          "hello"
-          "--greeting"
-          "Hello"
-        ];
-      }
-      {
-        name = "hello-italian";
-        requirements = [ pkgs.mypkgs.hello ];
-        config.CMD = [
-          "hello"
-          "--greeting"
-          "Ciao"
-        ];
-      }
-      {
-        name = "hello-spanish";
-        requirements = [ pkgs.mypkgs.hello ];
-        config.CMD = [
-          "hello"
-          "--greeting"
-          "Hola"
-        ];
-      }
-    ];
-    composeFile = ./compose.yaml;
-  };
 }
