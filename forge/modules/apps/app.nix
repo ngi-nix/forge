@@ -75,14 +75,6 @@
       description = "Container configuration.";
     };
 
-    containers = lib.mkOption {
-      type = lib.types.submodule {
-        imports = [ ./containers ];
-      };
-      default = { };
-      description = "Container configuration.";
-    };
-
     # NixOS/VM configuration
     nixos = lib.mkOption {
       type = lib.types.submodule {
@@ -93,16 +85,6 @@
       };
       default = { };
       description = "NixOS system configuration.";
-    };
-
-    # TODO: replace with NixOS
-    # Virtual machine
-    vm = lib.mkOption {
-      type = lib.types.submodule {
-        imports = [ ./vm ];
-      };
-      default = { };
-      description = "NixOS VM configuration.";
     };
   };
 }

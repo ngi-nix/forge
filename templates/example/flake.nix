@@ -20,6 +20,7 @@
       url = "github:imincik/nix-utils";
       flake = false;
     };
+    nimi.url = "github:weyl-ai/nimi";
   };
 
   outputs =
@@ -29,8 +30,10 @@
       imports = [ nix-forge.flakeModules.default ];
 
       perSystem =
-        { ... }:
+        { system, ... }:
         {
+          _module.args.nimi = inputs.nimi.packages.${system}.nimi;
+
           forge = {
             repositoryUrl = "github:me/my-forge";
             recipeDirs = {
