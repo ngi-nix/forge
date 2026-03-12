@@ -1,5 +1,7 @@
 {
   lib,
+  pkgs,
+  inputs,
   ...
 }:
 {
@@ -21,6 +23,33 @@
       type = lib.types.str;
       default = "";
       description = "Application usage description in markdown format.";
+    };
+
+    # Portable services configuration
+    # https://nixos.org/manual/nixos/unstable/#modular-services
+    services = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submoduleWith {
+          specialArgs = { inherit pkgs inputs; };
+          modules = [ ./services ];
+        }
+      );
+      default = { };
+      description = "Portable services.";
+      # map user-config to a format which can be used by modular services
+      apply =
+        self:
+        lib.mapAttrs (
+          _name: value:
+          let
+            command = if lib.isDerivation value.command then value.command.meta.mainProgram else value.command;
+          in
+          {
+            process.argv = [ command ] ++ value.argv;
+            configData = value.configData;
+            # TODO: env vars
+          }
+        ) self;
     };
 
     # Programs shell configuration

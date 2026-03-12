@@ -1,9 +1,6 @@
-{
-  lib,
-  self,
-  inputs, # nix-forge's inputs (import-tree, nix-utils)
-  ...
-}:
+{ inputs }: # nix-forge's inputs (import-tree, nix-utils)
+
+{ lib, self, ... }:
 
 {
   # Import the core forge modules

@@ -43,14 +43,13 @@
       ];
 
       imports = [
-        ./forge/flake-module.nix
+        (import ./forge/flake-module.nix { inherit inputs; })
         ./flake/develop.nix
         ./flake/checks.nix
         ./flake/templates.nix
       ];
 
       _module.args.rootPath = ./.;
-      _module.args.inputs = inputs;
 
       # Export flake module for use in other projects
       flake.flakeModules.default = import ./forge/flake-module.nix { inherit inputs; };
