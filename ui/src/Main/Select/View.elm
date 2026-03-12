@@ -75,23 +75,7 @@ viewerFocus model =
                 )
 
         ModelSelectFocus_App { app } ->
-            div [ class "" ]
-                [ h2
-                    []
-                    [ text app.name
-                    ]
-                , div
-                    []
-                    [ text app.version
-                    ]
-                , div
-                    []
-                    [ text app.description
-                    ]
-                , div
-                    [ class "markdown-content" ]
-                    (Markdown.toHtml Nothing (String.trim app.usage))
-                ]
+            viewerAppPage app
 
         ModelSelectFocus_Error { msg } ->
             div []
@@ -145,6 +129,35 @@ viewerSearchResult model app =
                 )
             ]
         ]
+
+
+
+-- app page --
+
+
+viewerAppPage : App -> Html msg
+viewerAppPage app =
+    div [ class "" ]
+        [ h2
+            []
+            [ text app.name
+            ]
+        , div
+            []
+            [ text app.version
+            ]
+        , div
+            []
+            [ text app.description
+            ]
+        , div
+            [ class "markdown-content" ]
+            (Markdown.toHtml Nothing (String.trim app.usage))
+        ]
+
+
+
+-- footer --
 
 
 viewerPoweredBy : Html msg
