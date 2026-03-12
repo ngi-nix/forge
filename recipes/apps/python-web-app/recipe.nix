@@ -41,7 +41,7 @@
 
   container = {
     enable = true;
-    name = "api";
+    name = "python-web";
     requirements = [ pkgs.mypkgs.python-web ];
     imageConfig.CMD = [
       "python-web"
@@ -50,7 +50,7 @@
 
   nixos = {
     enable = true;
-    name = "database";
+    name = "python-web";
     extraConfig = {
       # database service
       services.postgresql.enable = true;
