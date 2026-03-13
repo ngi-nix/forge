@@ -1,7 +1,7 @@
 module Main.Select.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, div, footer, h1, h2, h4, h5, header, hr, input, li, main_, nav, p, section, small, span, text, ul)
+import Html exposing (Html, a, div, footer, h2, h3, h4, h5, header, hr, input, li, main_, nav, p, section, small, span, text, ul)
 import Html.Attributes exposing (class, href, id, name, placeholder, style, tabindex, target, value)
 import Html.Events exposing (onClick, onInput)
 import Main.Config exposing (..)
@@ -30,9 +30,16 @@ viewer model =
 
 viewerTitle : Html msg
 viewerTitle =
-    h1
+    h3
         []
-        [ text "NGI Nix Forge" ]
+        [ a
+            [ href "/"
+            , style "color" "inherit"
+            , style "text-decoration" "none"
+            , style "cursor" "pointer"
+            ]
+            [ text "ngi-nix forge" ]
+        ]
 
 
 viewerSearchInput : ModelSelect -> Html UpdateSelect
