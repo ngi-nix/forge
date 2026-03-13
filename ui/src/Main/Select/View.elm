@@ -241,8 +241,6 @@ viewerAppPage appState =
             ]
         , div [ class "lead mb-4" ]
             [ text app.description ]
-        , div [ class "markdown-content" ]
-            (Markdown.toHtml Nothing (String.trim app.usage))
         , viewerAppModal appState
         ]
 
