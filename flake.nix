@@ -64,7 +64,7 @@
         { ... }:
         {
           forge = {
-            repositoryUrl = "github:imincik/nix-forge";
+            repositoryUrl = "github:ngi-nix/ngi-nix-forge";
             recipeDirs = {
               packages = "recipes/packages";
               apps = "recipes/apps";
