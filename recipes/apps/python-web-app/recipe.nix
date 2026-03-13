@@ -61,9 +61,9 @@
         host all all 0.0.0.0/0 trust
         host all all ::0/0 trust
       '';
-      # api service
-      systemd.services.api.script = "${pkgs.mypkgs.python-web}/bin/python-web";
-      systemd.services.api.wantedBy = [
+      # python-web service
+      systemd.services.python-web.script = "${pkgs.mypkgs.python-web}/bin/python-web";
+      systemd.services.python-web.wantedBy = [
         "multi-user.target"
       ];
     };
