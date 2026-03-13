@@ -5,7 +5,7 @@ import Html.Attributes exposing (class, href, style, target)
 import Html.Events exposing (onClick)
 import Main.Config.App exposing (App)
 import Main.Format exposing (format)
-import Markdown
+import Main.Select.Model exposing (ModalTab(..))
 
 
 repositoryToGithubUrl : String -> String
@@ -35,9 +35,11 @@ codeBlock onCopy content =
 
 installNixCmd : String
 installNixCmd =
-    """curl --proto '=https' --tlsv1.2 -sSf \\
-    -L https://install.determinate.systems/nix \\
-    | sh -s -- install
+    """
+curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install
+
+# to uninstall, run:
+$ /nix/nix-installer uninstall
 """
 
 
@@ -63,13 +65,15 @@ installInstructionsHtml onCopy =
 
 runAppShellCmd : String -> App -> String
 runAppShellCmd repositoryUrl app =
-    format """nix shell {0}#{1}
+    format """
+nix shell {0}#{1}
 """ [ repositoryUrl, app.name ]
 
 
 runAppContainerCmd : String -> App -> String
 runAppContainerCmd repositoryUrl app =
-    format """nix build {0}#{1}.container
+    format """
+nix build {0}#{1}.container
 
 for image in ./result/*.tar.gz; do
     podman load < $image
@@ -81,58 +85,61 @@ podman-compose --profile services --file $(pwd)/result/compose.yaml up
 
 runAppVmCmd : String -> App -> String
 runAppVmCmd repositoryUrl app =
-    format """nix run {0}#{1}.vm
+    format """
+nix run {0}#{1}.vm
 """ [ repositoryUrl, app.name ]
 
 
-appInstructionsHtml : String -> String -> (String -> msg) -> Maybe App -> List (Html msg)
-appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp =
+appInstructionsHtml : String -> String -> (String -> msg) -> Maybe App -> ModalTab -> List (Html msg)
+appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp modalTab =
     case maybeApp of
         Nothing ->
             [ text "No application is selected."
             ]
 
         Just app ->
-            [ h2 [] [ text app.name ]
-            , hr [] []
-            , h3 [] [ text "USAGE" ]
-            , if not (String.isEmpty app.usage) then
-                div [ class "markdown-content" ]
-                    (Markdown.toHtml Nothing (String.trim app.usage)
-                        ++ [ hr [] [] ]
-                    )
+            let
+                instructions =
+                    case modalTab of
+                        Programs ->
+                            if app.programs.enable then
+                                div []
+                                    [ p [ style "margin-bottom" "0em" ] [ text "Run application programs (CLI, GUI) in a shell environment" ]
+                                    , hr [] []
+                                    , codeBlock onCopy (runAppShellCmd repositoryUrl app)
+                                    ]
 
-              else
-                text ""
-            , if not app.programs.enable && not app.container.enable && not app.vm.enable then
+                            else
+                                text ""
+
+                        Container ->
+                            if app.container.enable then
+                                div []
+                                    [ p [ style "margin-bottom" "0em" ] [ text "Run application services using OCI containers" ]
+                                    , hr [] []
+                                    , codeBlock onCopy (runAppContainerCmd repositoryUrl app)
+                                    ]
+
+                            else
+                                text ""
+
+                        VM ->
+                            if app.vm.enable then
+                                div []
+                                    [ p [ style "margin-bottom" "0em" ] [ text "Run application services in Nixos vm" ]
+                                    , hr [] []
+                                    , codeBlock onCopy (runAppVmCmd repositoryUrl app)
+                                    ]
+
+                            else
+                                text ""
+            in
+            [ if not app.programs.enable && not app.container.enable && not app.vm.enable then
                 p [ style "color" "red" ] [ text "No output is enabled for this app. Enable at least one of the - programs, container or nixos vm - in recipe file." ]
 
               else
                 text ""
-            , if app.programs.enable then
-                div []
-                    [ p [ style "margin-bottom" "0em" ] [ text "Run application programs (CLI, GUI) in a shell environment" ]
-                    , codeBlock onCopy (runAppShellCmd repositoryUrl app)
-                    ]
-
-              else
-                text ""
-            , if app.container.enable then
-                div []
-                    [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI container" ]
-                    , codeBlock onCopy (runAppContainerCmd repositoryUrl app)
-                    ]
-
-              else
-                text ""
-            , if app.vm.enable then
-                div []
-                    [ p [ style "margin-bottom" "0em" ] [ text "Run application services in Nixos vm" ]
-                    , codeBlock onCopy (runAppVmCmd repositoryUrl app)
-                    ]
-
-              else
-                text ""
+            , instructions
             , hr [] []
             , text "Recipe: "
             , a
@@ -140,9 +147,4 @@ appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp =
                 , target "_blank"
                 ]
                 [ text (recipeDirApps ++ "/" ++ app.name ++ "/recipe.nix") ]
-            , a
-                [ href "options.html"
-                , target "_blank"
-                ]
-                [ text " (configuration options)" ]
             ]

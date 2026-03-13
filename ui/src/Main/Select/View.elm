@@ -84,8 +84,8 @@ viewerFocus model =
                     |> List.map (viewerSearchResult model)
                 )
 
-        ModelSelectFocus_App state ->
-            viewerAppPage state
+        ModelSelectFocus_App appState ->
+            viewerAppPage model appState
 
         ModelSelectFocus_Error { msg } ->
             div [ class "alert alert-danger" ]
@@ -133,7 +133,7 @@ viewerSearchResult model app =
                       else
                         []
                     , if app.vm.enable then
-                        [ span [ class "badge bg-secondary" ] [ text "nixos-vm" ] ]
+                        [ span [ class "badge bg-secondary" ] [ text "vm" ] ]
 
                       else
                         []
@@ -143,8 +143,8 @@ viewerSearchResult model app =
         ]
 
 
-viewerAppModal : { app : App, showRunModal : Bool, activeModalTab : ModalTab } -> Html UpdateSelect
-viewerAppModal appState =
+viewerAppModal : ModelSelect -> { app : App, showRunModal : Bool, activeModalTab : ModalTab } -> Html UpdateSelect
+viewerAppModal model appState =
     if not appState.showRunModal then
         text ""
 
@@ -167,19 +167,22 @@ viewerAppModal appState =
                                 []
                             ]
                         , div [ class "modal-body" ]
-                            [ ul [ class "nav nav-pills mb-4" ]
-                                [ viewTab Programs "Programs" appState.activeModalTab
-                                , viewTab Container "Container" appState.activeModalTab
-                                , viewTab VM "VM" appState.activeModalTab
-                                ]
+                            [ viewModalTabs appState
                             , div [ class "tab-content mb-5 p-3 border rounded bg-light" ]
-                                [ viewTabContent appState.activeModalTab appState.app ]
-                            , hr [] []
-                            , div [ id "usage", class "mt-4" ]
-                                [ h4 [ class "mb-3" ] [ text "Usage Instructions" ]
-                                , div [ class "markdown-content" ]
-                                    (Markdown.toHtml Nothing (String.trim appState.app.usage))
-                                ]
+                                [ viewTabContent model appState.activeModalTab appState.app ]
+                            , if not (String.isEmpty appState.app.usage) then
+                                div [ id "usage", class "mt-4" ]
+                                    [ hr [] []
+                                    , h4 [ class "mb-3" ] [ text "Usage Instructions" ]
+                                    , div [ class "markdown-content" ]
+                                        (Markdown.toHtml
+                                            Nothing
+                                            (String.trim appState.app.usage)
+                                        )
+                                    ]
+
+                              else
+                                text ""
                             ]
                         ]
                     ]
@@ -187,15 +190,51 @@ viewerAppModal appState =
             ]
 
 
-viewTab : ModalTab -> String -> ModalTab -> Html UpdateSelect
-viewTab targetTab label currentTab =
+viewModalTabs : { app : App, showRunModal : Bool, activeModalTab : ModalTab } -> Html UpdateSelect
+viewModalTabs appState =
+    let
+        enabled : ModalTab -> Bool
+        enabled tab =
+            case tab of
+                Programs ->
+                    appState.app.programs.enable
+
+                Container ->
+                    appState.app.container.enable
+
+                VM ->
+                    appState.app.vm.enable
+
+        panes =
+            [ Programs, Container, VM ]
+    in
+    ul [ class "nav nav-pills mb-4" ]
+        (panes
+            |> List.filter enabled
+            |> List.map (\tab -> viewTab tab appState)
+        )
+
+
+viewTab : ModalTab -> { app : App, showRunModal : Bool, activeModalTab : ModalTab } -> Html UpdateSelect
+viewTab targetTab appState =
     let
         activeClass =
-            if targetTab == currentTab then
+            if targetTab == appState.activeModalTab then
                 " active"
 
             else
                 ""
+
+        targetKey =
+            case targetTab of
+                Programs ->
+                    "programs"
+
+                Container ->
+                    "container"
+
+                VM ->
+                    "vm"
     in
     li [ class "nav-item" ]
         [ Html.button
@@ -204,25 +243,17 @@ viewTab targetTab label currentTab =
             , style "border" "none"
             , onClick (UpdateSelect_SetModalTab targetTab)
             ]
-            [ text label ]
+            [ text targetKey ]
         ]
 
 
-viewTabContent : ModalTab -> App -> Html UpdateSelect
-viewTabContent activeTab app =
-    case activeTab of
-        Programs ->
-            div [] [ text "Programs configuration and run commands go here." ]
-
-        Container ->
-            div [] [ text "Docker/Podman container run commands go here." ]
-
-        VM ->
-            div [] [ text "Virtual Machine configuration goes here." ]
+viewTabContent : ModelSelect -> ModalTab -> App -> Html UpdateSelect
+viewTabContent model activeModalTab app =
+    div [] (appInstructionsHtml model.repositoryUrl model.recipeDirApps UpdateSelect_CopyCode (Just app) activeModalTab)
 
 
-viewerAppPage : { app : App, showRunModal : Bool, activeModalTab : ModalTab } -> Html UpdateSelect
-viewerAppPage appState =
+viewerAppPage : ModelSelect -> { app : App, showRunModal : Bool, activeModalTab : ModalTab } -> Html UpdateSelect
+viewerAppPage model appState =
     let
         { app } =
             appState
@@ -248,7 +279,7 @@ viewerAppPage appState =
             ]
         , div [ class "lead mb-4" ]
             [ text app.description ]
-        , viewerAppModal appState
+        , viewerAppModal model appState
         ]
 
 
