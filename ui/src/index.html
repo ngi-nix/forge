@@ -69,9 +69,15 @@
 <body>
   <div id="elm-main"></div>
   <script src="/Elm.js"></script>
+  <script src="/Navigation.js"></script>
   <script>
     var app = Elm.Main.init({
-      node: document.getElementById('elm-main')
+      node: document.getElementById('elm-main'),
+      flags: location.href,
+    });
+    window.Navigation.init({
+      navCmd: app.ports.navCmd,
+      onNavEvent: app.ports.onNavEvent,
     });
 
     // Handle copy to clipboard

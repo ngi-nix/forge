@@ -14,6 +14,7 @@
             "elm/url": "1.0.0",
             "elmcraft/core-extra": "2.3.0",
             "lydell/elm-app-url": "1.0.4",
+            "mpizenberg/elm-url-navigation-port": "1.1.0",
             "pablohirafuji/elm-markdown": "2.0.6",
             "pablohirafuji/elm-syntax-highlight": "3.7.1"
         },
