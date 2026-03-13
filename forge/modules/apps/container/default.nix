@@ -45,6 +45,12 @@
       '';
     };
 
+    composeFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "Path to the application container's compose file.";
+    };
+
     result = {
       nimi = lib.mkOption {
         internal = true;
