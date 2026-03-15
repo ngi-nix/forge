@@ -1,0 +1,64 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+#elm-main {
+  height: 100vh;
+}
+
+/* Markdown content styling */
+.markdown-content pre {
+  background-color: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.markdown-content code {
+  color: #ffc107;
+  background-color: transparent;
+}
+
+.markdown-content pre code {
+  display: block;
+  color: #ffc107;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.markdown-content p code {
+  background-color: #2d2d2d;
+  color: #ffc107;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  background-color: transparent;
+  color: white !important;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 5px;
+  border: solid 1px gray;
+  background-color: gray;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.button.copy:before {
+  content: "⿻ Copy";
+}
+
+.button.copy.active:before {
+  content: "⿻ Copied ✓";
+}
+
+.button.copy:hover {
+  background-color: darkgrey;
+}

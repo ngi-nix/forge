@@ -25,15 +25,17 @@ set -ex
 listenPort="${listenPort:-3000}"
 
 # symlink bootstrap css
-mkdir -p "$rootDir/ui/build/resources"
+mkdir -p "$rootDir/ui/build/css" "$rootDir/ui/build/js"
 ln -s "$(
   nix build \
     --print-out-paths --no-link \
     -f "$rootDir" "_forge-ui.passthru.bootstrapCss"
 )/css/bootstrap.min.css" \
-  "$rootDir/ui/build/resources/bootstrap.min.css"
+  "$rootDir/ui/build/css/bootstrap.min.css"
 
-# Note: using `watchman watch-project`
+ln -s "$rootDir/ui/build/Elm.js" "$rootDir/ui/build/js/Elm.js"
+
+# Note: using `watchman cwatch-project`
 # would not support working in a non-default git-worktree or jj-workspace.
 # Remark(resiliency): if the systemd unit in watchman fails,
 # `systemctl --user reset-failed`

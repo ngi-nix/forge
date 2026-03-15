@@ -1,99 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>NGI Nix Forge</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/resources/bootstrap.min.css">
-  <style>
-    html, body { height: 100%; margin: 0; }
-    #elm-main { height: 100vh; }
-
-    /* Markdown content styling */
-    .markdown-content pre {
-      background-color: #1e1e1e;
-      border: 1px solid #444;
-      border-radius: 0.375rem;
-      padding: 1rem;
-      overflow-x: auto;
-    }
-
-    .markdown-content code {
-      color: #ffc107;
-      background-color: transparent;
-    }
-
-    .markdown-content pre code {
-      display: block;
-      color: #ffc107;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.95em;
-      line-height: 1.5;
-    }
-
-    .markdown-content p code {
-      background-color: #2d2d2d;
-      color: #ffc107;
-      padding: 0.2em 0.4em;
-      border-radius: 0.25rem;
-      font-size: 0.9em;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 0.1em 0.4em;
-      background-color: transparent;
-      color: white !important;
-      text-align: center;
-      text-decoration: none;
-      border-radius: 5px;
-      border: solid 1px gray;
-      background-color: gray;
-      margin: 0;
-      font-size: 0.8rem;
-    }
-
-    .button.copy:before {
-      content: "⿻ Copy";
-    }
-
-    .button.copy.active:before {
-      content: "⿻ Copied ✓";
-    }
-
-    .button.copy:hover {
-      background-color: darkgrey;
-    }
-  </style>
-</head>
-<body>
-  <div id="elm-main"></div>
-  <script src="/Elm.js"></script>
-  <script src="/Navigation.js"></script>
-  <script>
-    var app = Elm.Main.init({
-      node: document.getElementById('elm-main'),
-      flags: location.href,
-    });
-    window.Navigation.init({
-      navCmd: app.ports.navCmd,
-      onNavEvent: app.ports.onNavEvent,
-    });
-
-    // Handle copy to clipboard
-    app.ports.copyToClipboard.subscribe((text) => {
-      navigator.clipboard.writeText(text).then(() => {
-        var button = document.activeElement;
-        if (button) {
-          button.classList.add("active");
-          setTimeout(() => {
-            button.classList.remove("active");
-          }, 2000);
-        }
-      }).catch((err) => {
-        console.error('Failed to copy to clipboard:', err);
-      });
-    });
-  </script>
-</body>
+	<head>
+		<meta charset="UTF-8">
+		<title>NGI Nix Forge</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/css/main.css">
+	</head>
+	<body>
+		<div id="elm-main"></div>
+		<script src="/js/Elm.js" type="text/javascript"></script>
+		<script src="/js/main.js" type="module"></script>
+	</body>
 </html>

@@ -15,7 +15,7 @@ let
     src = ./.;
     elmLock = ./elm.lock;
     entry = [ "src/Main.elm" ];
-    output = "main.js";
+    output = "js/Elm.js";
     doMinification = true;
     enableOptimizations = true;
   };
@@ -31,25 +31,22 @@ let
 in
 symlinkJoin {
   name = "forge-ui";
-  paths = [
-    main
-  ];
+  paths = [ main ];
   postBuild = ''
     pushd $out
 
     # Copy static files
     cp ${./src/index.html} index.html
-    mkdir -p resources
-    chmod -R u+w resources
-    cp ${bootstrapCss}/css/bootstrap.min.css resources/bootstrap.min.css
-    cp ${agentsFile} resources/AGENTS.md
+    cp -aR ${./src/css}/. css
+    cp -aR ${./src/js}/. js
+    chmod -R u+w css js
+    cp ${bootstrapCss}/css/bootstrap.min.css css/bootstrap.min.css
 
     # Symlink config files
     ln -s ${_forge-config} forge-config.json
 
-    # Rename minimized Elm outputs
-    mv main.min.js main.js
-    ln -s main.js Elm.js
+    # Rename minimized Elm output
+    mv js/Elm.min.js js/Elm.js
 
     # github pages SPA workaround for routing
     for app in $(${jq}/bin/jq '.apps.[].name' -r forge-config.json); do
