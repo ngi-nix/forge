@@ -1,11 +1,11 @@
-module Main.Select.View.Instructions exposing (..)
+module Main.View.Instructions exposing (..)
 
 import Html exposing (Html, a, button, code, div, h2, h3, hr, p, pre, text)
 import Html.Attributes exposing (class, href, style, target)
 import Html.Events exposing (onClick)
 import Main.Config.App exposing (App)
 import Main.Format exposing (format)
-import Main.Select.Model exposing (ModalTab(..))
+import Main.Model exposing (ModalTab(..))
 
 
 repositoryToGithubUrl : String -> String
@@ -67,7 +67,7 @@ runAppShellCmd : String -> App -> String
 runAppShellCmd repositoryUrl app =
     format """
 nix shell {0}#{1}
-""" [ repositoryUrl, app.name ]
+""" [ repositoryUrl, app.app_name ]
 
 
 runAppContainerCmd : String -> App -> String
@@ -78,14 +78,14 @@ nix build {0}#{1}.container && ./result/bin/build-oci
 podman load < *.tar
 
 podman-compose --profile services --file $(pwd)/result/compose.yaml up --force-recreate
-""" [ repositoryUrl, app.name ]
+""" [ repositoryUrl, app.app_name ]
 
 
 runAppVmCmd : String -> App -> String
 runAppVmCmd repositoryUrl app =
     format """
 nix run {0}#{1}.vm
-""" [ repositoryUrl, app.name ]
+""" [ repositoryUrl, app.app_name ]
 
 
 appInstructionsHtml : String -> String -> (String -> msg) -> Maybe App -> ModalTab -> List (Html msg)
@@ -100,7 +100,7 @@ appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp modalTab =
                 instructions =
                     case modalTab of
                         Programs ->
-                            if app.programs.enable then
+                            if app.app_programs.enable then
                                 div []
                                     [ p [ style "margin-bottom" "0em" ] [ text "Run application programs (CLI, GUI) in a shell environment" ]
                                     , hr [] []
@@ -111,7 +111,7 @@ appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp modalTab =
                                 text ""
 
                         Container ->
-                            if app.container.enable then
+                            if app.app_container.enable then
                                 div []
                                     [ p [ style "margin-bottom" "0em" ] [ text "Run application services using OCI containers" ]
                                     , hr [] []
@@ -122,7 +122,7 @@ appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp modalTab =
                                 text ""
 
                         VM ->
-                            if app.vm.enable then
+                            if app.app_vm.enable then
                                 div []
                                     [ p [ style "margin-bottom" "0em" ] [ text "Run application services in Nixos vm" ]
                                     , hr [] []
@@ -132,8 +132,8 @@ appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp modalTab =
                             else
                                 text ""
             in
-            [ if not app.programs.enable && not app.container.enable && not app.vm.enable then
-                p [ style "color" "red" ] [ text "No output is enabled for this app. Enable at least one of the - programs, container or nixos vm - in recipe file." ]
+            [ if not app.app_programs.enable && not app.app_container.enable && not app.app_vm.enable then
+                p [ style "color" "red" ] [ text "No output is enabled for this app.app_ Enable at least one of the - programs, container or nixos vm - in recipe file." ]
 
               else
                 text ""
@@ -141,8 +141,8 @@ appInstructionsHtml repositoryUrl recipeDirApps onCopy maybeApp modalTab =
             , hr [] []
             , text "Recipe: "
             , a
-                [ href (repositoryToGithubUrl repositoryUrl ++ "/blob/master/" ++ recipeDirApps ++ "/" ++ app.name ++ "/recipe.nix")
+                [ href (repositoryToGithubUrl repositoryUrl ++ "/blob/master/" ++ recipeDirApps ++ "/" ++ app.app_name ++ "/recipe.nix")
                 , target "_blank"
                 ]
-                [ text (recipeDirApps ++ "/" ++ app.name ++ "/recipe.nix") ]
+                [ text (recipeDirApps ++ "/" ++ app.app_name ++ "/recipe.nix") ]
             ]

@@ -1,16 +1,17 @@
 module Main.Config.App exposing (..)
 
 import Json.Decode as Decode
+import Json.Encode as Encode
 
 
 type alias App =
-    { name : AppName
-    , description : String
-    , version : String
-    , usage : String
-    , programs : AppPrograms
-    , container : AppContainer
-    , vm : AppNixosVm
+    { app_name : AppName
+    , app_description : String
+    , app_version : String
+    , app_usage : String
+    , app_programs : AppPrograms
+    , app_container : AppContainer
+    , app_vm : AppNixosVm
     }
 
 
