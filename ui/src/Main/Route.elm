@@ -60,7 +60,7 @@ toAppUrl route =
         Route_Search pattern ->
             case pattern of
                 "" ->
-                    [ "app" ] |> AppUrl.fromPath
+                    [ "" ] |> AppUrl.fromPath
 
                 _ ->
                     { path = [ "app" ]
