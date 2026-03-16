@@ -10,7 +10,7 @@ import Main.Config.App exposing (..)
 import Main.Model exposing (..)
 import Main.Route as Route exposing (..)
 import Main.Update exposing (..)
-import Main.View.Instructions exposing (appInstructionsHtml)
+import Main.View.Instructions exposing (viewInstructionsApp)
 import Markdown
 
 
@@ -247,13 +247,13 @@ viewTab targetTab model =
 
         targetKey =
             case targetTab of
-                Programs ->
+                ModalTab_Programs ->
                     "programs"
 
-                Container ->
+                ModalTab_Container ->
                     "container"
 
-                VM ->
+                ModalTab_VM ->
                     "vm"
     in
     li [ class "nav-item" ]
@@ -273,17 +273,17 @@ viewModalTabs model =
         enabled : ModalTab -> Bool
         enabled tab =
             case tab of
-                Programs ->
+                ModalTab_Programs ->
                     model.modelFocusApp_app.app_programs.enable
 
-                Container ->
+                ModalTab_Container ->
                     model.modelFocusApp_app.app_container.enable
 
-                VM ->
+                ModalTab_VM ->
                     model.modelFocusApp_app.app_vm.enable
 
         panes =
-            [ Programs, Container, VM ]
+            [ ModalTab_Programs, ModalTab_Container, ModalTab_VM ]
     in
     ul [ class "nav nav-pills mb-4" ]
         (panes
@@ -295,7 +295,7 @@ viewModalTabs model =
 viewTabContent : String -> ModelFocusApp -> Html Update
 viewTabContent repositoryUrl model =
     div []
-        (appInstructionsHtml
+        (viewInstructionsApp
             repositoryUrl
             "recipes/apps"
             Update_CopyCode
