@@ -27,46 +27,6 @@ in
             packagesFilter = lib.mkOption {
               internal = true;
               type = lib.types.attrsOf (lib.types.listOf lib.types.str);
-              default = {
-                standardBuilder = [
-                  "packages.*.name"
-                  "packages.*.version"
-                  "packages.*.source.git"
-                  "packages.*.source.patches"
-                  "packages.*.build.standardBuilder.enable"
-                  "packages.*.build.standardBuilder.requirements.native"
-                  "packages.*.build.standardBuilder.requirements.build"
-                  "packages.*.test.script"
-                ];
-                pythonAppBuilder = [
-                  "packages.*.name"
-                  "packages.*.version"
-                  "packages.*.source.git"
-                  "packages.*.source.patches"
-                  "packages.*.build.pythonAppBuilder.enable"
-                  "packages.*.build.pythonAppBuilder.requirements.build-system"
-                  "packages.*.build.pythonAppBuilder.requirements.dependencies"
-                  "packages.*.build.pythonAppBuilder.requirements.optional-dependencies"
-                  "packages.*.build.pythonAppBuilder.importsCheck"
-                  "packages.*.build.pythonAppBuilder.relaxDeps"
-                  "packages.*.build.pythonAppBuilder.disabledTests"
-                  "packages.*.test.script"
-                ];
-                pythonPackageBuilder = [
-                  "packages.*.name"
-                  "packages.*.version"
-                  "packages.*.source.git"
-                  "packages.*.source.patches"
-                  "packages.*.build.pythonPackageBuilder.enable"
-                  "packages.*.build.pythonPackageBuilder.requirements.build-system"
-                  "packages.*.build.pythonPackageBuilder.requirements.dependencies"
-                  "packages.*.build.pythonPackageBuilder.requirements.optional-dependencies"
-                  "packages.*.build.pythonPackageBuilder.importsCheck"
-                  "packages.*.build.pythonPackageBuilder.relaxDeps"
-                  "packages.*.build.pythonPackageBuilder.disabledTests"
-                  "packages.*.test.script"
-                ];
-              };
               description = ''
                 Defines which configuration options are relevant for each builder type.
 
