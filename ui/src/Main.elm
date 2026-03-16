@@ -30,7 +30,7 @@ init href =
             { model_config = Main.Config.initConfig
             , model_search = ""
             , model_route = Route_Search ""
-            , model_focus = ModelFocus_Error { msg = "Invalid address: " ++ href }
+            , model_focus = ModelFocus_Search
             }
     in
     case href |> Url.fromString of
