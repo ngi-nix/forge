@@ -2,8 +2,8 @@ module Main.View exposing (..)
 
 import Browser.Events
 import Dict
-import Html exposing (Attribute, Html, a, div, footer, h2, h3, h4, h5, header, hr, input, li, main_, nav, p, section, small, span, text, ul)
-import Html.Attributes exposing (class, href, id, name, placeholder, style, tabindex, target, value)
+import Html exposing (Attribute, Html, a, div, footer, h2, h3, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
+import Html.Attributes exposing (class, href, name, placeholder, style, tabindex, target, value)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -11,8 +11,7 @@ import Main.Config.App exposing (..)
 import Main.Model exposing (..)
 import Main.Route as Route exposing (..)
 import Main.Update exposing (..)
-import Main.View.Instructions exposing (viewInstructionsApp)
-import Markdown
+import Main.View.Instructions exposing (usageInstructions, viewInstructionsApp)
 
 
 view : Model -> Html Update
@@ -217,19 +216,7 @@ viewAppModal repositoryUrl model =
                             [ viewModalTabs model
                             , div [ class "tab-content mb-5 p-3 border rounded bg-light" ]
                                 [ viewTabContent repositoryUrl model ]
-                            , if not (String.isEmpty model.modelFocusApp_app.app_usage) then
-                                div [ id "usage", class "mt-4" ]
-                                    [ hr [] []
-                                    , h4 [ class "mb-3" ] [ text "Usage Instructions" ]
-                                    , div [ class "markdown-content" ]
-                                        (Markdown.toHtml
-                                            Nothing
-                                            (String.trim model.modelFocusApp_app.app_usage)
-                                        )
-                                    ]
-
-                              else
-                                text ""
+                            , usageInstructions model
                             ]
                         ]
                     ]

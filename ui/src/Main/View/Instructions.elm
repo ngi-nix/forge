@@ -1,11 +1,12 @@
 module Main.View.Instructions exposing (..)
 
-import Html exposing (Html, a, button, code, div, h2, hr, p, pre, text)
-import Html.Attributes exposing (class, href, style, target)
+import Html exposing (Html, a, button, code, div, h2, h4, hr, p, pre, text)
+import Html.Attributes exposing (class, href, id, style, target)
 import Html.Events exposing (onClick)
 import Main.Config.App exposing (App)
 import Main.Helpers.Format exposing (dedent, format)
-import Main.Model exposing (ModalTab(..))
+import Main.Model exposing (ModalTab(..), ModelFocusApp)
+import Markdown
 
 
 repositoryToGithubUrl : String -> String
@@ -127,3 +128,20 @@ viewInstructionsApp repositoryUrl recipeDirApps onCopy maybeApp modalTab =
                 ]
                 [ text (recipeDirApps ++ "/" ++ app.app_name ++ "/recipe.nix") ]
             ]
+
+
+usageInstructions : ModelFocusApp -> Html msg
+usageInstructions model =
+    if not (String.isEmpty model.modelFocusApp_app.app_usage) then
+        div [ id "usage", class "mt-4" ]
+            [ hr [] []
+            , h4 [ class "mb-3" ] [ text "Usage Instructions" ]
+            , div [ class "markdown-content" ]
+                (Markdown.toHtml
+                    Nothing
+                    (String.trim model.modelFocusApp_app.app_usage)
+                )
+            ]
+
+    else
+        text ""
