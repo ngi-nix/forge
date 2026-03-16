@@ -75,10 +75,7 @@ viewFocus model =
     case model.model_focus of
         ModelFocus_Search ->
             div
-                [ class "list-group gap-3"
-                , style "flex-wrap" "wrap"
-                , style "flex-direction" "row"
-                , style "justify-content" "space-between"
+                [ class "container m-app-grid"
                 ]
                 (model.model_config.config_apps
                     |> Dict.values
@@ -114,12 +111,8 @@ viewSearchResult : Model -> App -> Html Update
 viewSearchResult model app =
     a
         [ href (Route_App app.app_name |> Route.toString)
-        , class "list-group-item list-group-item-action"
-        , style "flex-direction" "column"
-        , style "align-items" "start"
-        , style "flex-shrink" "1"
-        , style "flex-grow" "1"
-        , style "flex-basis" "20em"
+        , class "card m-app-card shadow-sm p-3"
+        , style "text-decoration" "none"
         , onClickPreventDefault (Update_Route (Route_App app.app_name))
         ]
         [ div
@@ -129,7 +122,11 @@ viewSearchResult model app =
             , style "justify-content" "space-between"
             ]
             [ h5 [ class "mb-1" ] [ text app.app_name ]
-            , small [] [ text ("v" ++ app.app_version) ]
+            , small
+                [ class "text-muted"
+                , style "font-style" "italic"
+                ]
+                [ text ("v" ++ app.app_version) ]
             ]
         , p
             [ class "mb-1"

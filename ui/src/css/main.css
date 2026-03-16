@@ -62,3 +62,32 @@ body {
 .button.copy:hover {
   background-color: darkgrey;
 }
+
+.m-app-card {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.m-app-card:hover {
+  background-color: #f8f9fa;
+}
+
+/* Default: small screens */
+.m-app-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(max(200px, 100%), 1fr)); /* 1 column */
+}
+
+/* 320px+ allow multiple and allow them to stretch to full width */
+@media (min-width: 321px) {
+    .m-app-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+
+/* for large screens use auto-fill to avoid auto-fit stretching each app card too wide */
+@media (min-width: 900px) {
+    .m-app-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
