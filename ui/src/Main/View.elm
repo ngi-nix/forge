@@ -94,7 +94,27 @@ viewFocus model =
                                 identity
 
                             _ ->
-                                List.filter (\app -> String.contains model.model_search app.app_name)
+                                List.filter
+                                    (\app ->
+                                        let
+                                            -- Case Insensitive search
+                                            model_search =
+                                                String.toLower model.model_search
+
+                                            app_name =
+                                                String.toLower app.app_name
+
+                                            app_description =
+                                                String.toLower app.app_description
+
+                                            name_matches =
+                                                String.contains model_search app_name
+
+                                            desc_matches =
+                                                String.contains model_search app_description
+                                        in
+                                        name_matches || desc_matches
+                                    )
                        )
                     |> List.map (viewSearchResult model)
                 )
