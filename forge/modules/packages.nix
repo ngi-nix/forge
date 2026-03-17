@@ -266,15 +266,19 @@ in
                     Available options: source.git, source.url, or source.path.
                   '';
                 }
-                {
-                  condition =
-                    pkg.build.standardBuilder.enable
-                    || pkg.build.pythonAppBuilder.enable
-                    || pkg.build.pythonPackageBuilder.enable;
-                  message = ''
-                    Package '${pkg.name}': one of builder options must be enabled.
-                    Available options: build.standardBuilder, build.pythonAppBuilder, or build.pythonPackageBuilder.'';
-                }
+                (
+                  let
+                    builders = lib.filterAttrs (name: _: lib.hasSuffix "Builder" name) pkg.build;
+                    builderNames = map (name: "build." + name) (lib.attrNames builders);
+                  in
+                  {
+                    condition = lib.any (b: b.enable) (lib.attrValues builders);
+                    message = ''
+                      Package '${pkg.name}': one of builder options must be enabled.
+                      Available options: ${lib.concatStringsSep ", " builderNames}.
+                    '';
+                  }
+                )
               ]) cfg
             );
 
