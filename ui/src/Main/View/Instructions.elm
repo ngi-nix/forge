@@ -1,7 +1,7 @@
 module Main.View.Instructions exposing (..)
 
-import Html exposing (Html, a, div, h2, h4, hr, p, text)
-import Html.Attributes exposing (class, href, id, style, target)
+import Html exposing (Html, a, br, details, div, h2, h4, hr, li, p, small, summary, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, style, target)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
@@ -28,26 +28,37 @@ viewInstructionsUsage model pageApp =
 
 viewInstructionsNixInstall : Model -> Html Update
 viewInstructionsNixInstall _ =
-    div []
-        [ h2 [] [ text "QUICK START" ]
-        , p [ style "margin-bottom" "0em" ]
-            [ text "1. Install Nix "
-            , a [ href "https://zero-to-nix.com/start/install", target "_blank" ]
-                [ text "(learn more about this installer)." ]
+    div [ class "accordion" ]
+        [ details [ class "accordion-item", attribute "open" "" ]
+            [ summary [ class "accordion-button accordion-header fw-bold" ]
+                [ text "Prerequisites" ]
+            , div [ class "accordion-body" ]
+                [ p [ class "mb-1" ]
+                    [ text "1. Install Nix "
+                    , a [ href "https://github.com/NixOS/nix-installer#nix-installer", target "_blank" ]
+                        [ text "(learn more about this installer)." ]
+                    ]
+                , codeBlock Update_CopyCode <|
+                    String.join "\n"
+                        [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
+                , small [ class "mb-1" ]
+                    [ text "to uninstall, run:" ]
+                , codeBlock Update_CopyCode <|
+                    "/nix/nix-installer uninstall"
+                , p [ class "mt-3 mb-1" ]
+                    [ text "2. Accept binaries pre-built by Nix Forge (optional, highly recommended) " ]
+                , codeBlock Update_CopyCode <|
+                    String.join "\n"
+                        [ "export NIX_CONFIG='accept-flake-config = true'" ]
+                , p [ class "mt-3 mb-1" ]
+                    [ text "3. Configure substitutors (optional, highly recommended)" ]
+                , codeBlock Update_CopyCode <|
+                    String.join "\n"
+                        [ "export NIX_CONFIG='substituters = https://cache.nixos.org/ https://ngi.cachix.org/"
+                        , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi.cachix.org-1:n+CAL72ROC3qQuLxIHpV+Tw5t42WhXmMhprAGkRSrOw='"
+                        ]
+                ]
             ]
-        , codeBlock Update_CopyCode <|
-            String.join "\n"
-                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install"
-                , ""
-                , "# to uninstall, run:"
-                , "$ /nix/nix-installer uninstall"
-                ]
-        , text "2. Accept binaries pre-built by Nix Forge (optional, highly recommended) "
-        , codeBlock Update_CopyCode <|
-            String.join "\n"
-                [ "export NIX_CONFIG='accept-flake-config = true'"
-                ]
-        , p [ style "margin-bottom" "0em" ] [ text "and select an application to see the usage instructions." ]
         ]
 
 
@@ -66,7 +77,7 @@ viewPageAppInstructions model pageApp =
                                 if pageApp.pageApp_app.app_programs.enable then
                                     div []
                                         [ p [ style "margin-bottom" "0em" ] [ text "Create and enter a shell environment for (CLI, GUI) programs." ]
-                                        , hr [] []
+                                        , br [] []
                                         , codeBlock Update_CopyCode <|
                                             String.join "\n"
                                                 [ "nix shell \\"
@@ -87,7 +98,7 @@ viewPageAppInstructions model pageApp =
                                 if pageApp.pageApp_app.app_container.enable then
                                     div []
                                         [ p [ style "margin-bottom" "0em" ] [ text "Run application services using OCI containers." ]
-                                        , hr [] []
+                                        , br [] []
                                         , codeBlock Update_CopyCode <|
                                             String.join "\n"
                                                 [ "nix build \\"
@@ -116,7 +127,7 @@ viewPageAppInstructions model pageApp =
                                 if pageApp.pageApp_app.app_vm.enable then
                                     div []
                                         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM." ]
-                                        , hr [] []
+                                        , br [] []
                                         , codeBlock Update_CopyCode <|
                                             String.join "\n"
                                                 [ "nix run \\"
@@ -142,5 +153,7 @@ viewPageAppInstructions model pageApp =
 
           else
             text ""
+        , viewInstructionsNixInstall model
+        , hr [ ] [ ]
         , instructions
         ]

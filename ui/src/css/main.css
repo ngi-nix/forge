@@ -104,3 +104,25 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
+
+/* hide the native summary icon */
+details.accordion-item > summary {
+  list-style: none;
+}
+details.accordion-item > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* remove the default blue outline on click */
+details.accordion-item > summary:focus {
+  box-shadow: none;
+}
+
+/* make the Bootstrap arrow react to the native <details> open/closed state */
+details.accordion-item:not([open]) > summary.accordion-button::after {
+  transform: none;
+}
+
+details.accordion-item[open] > summary.accordion-button::after {
+  transform: rotate(-180deg); /* Points up when open */
+}
