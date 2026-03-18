@@ -1,8 +1,8 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, div, footer, h2, h3, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
-import Html.Attributes exposing (class, href, name, placeholder, style, tabindex, target, value)
+import Html exposing (Html, a, button, div, footer, form, h2, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
+import Html.Attributes exposing (class, href, name, placeholder, style, tabindex, target, type_, value)
 import Html.Events exposing (onInput, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -24,10 +24,13 @@ view model =
         ]
         [ header
             [ class "py-3" ]
-            [ viewTitle ]
-        , nav
-            [ class "mb-4" ]
-            [ model |> viewSearchInput ]
+            [ nav
+                [ class "navbar navbar-expand-lg"
+                ]
+                [ viewTitle
+                , model |> viewSearchInput
+                ]
+            ]
         , div []
             (model.model_errors
                 |> List.map
@@ -47,35 +50,39 @@ view model =
 
 viewTitle : Html Update
 viewTitle =
-    h3
-        []
-        [ a
-            [ href "/"
-            , style "color" "inherit"
-            , style "text-decoration" "none"
-            , style "cursor" "pointer"
-            , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
-            ]
-            [ text "NGI Nix Forge" ]
+    a
+        [ href "/"
+        , style "color" "inherit"
+        , style "text-decoration" "none"
+        , style "cursor" "pointer"
+        , class "navbar-brand px-2"
+        , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
         ]
+        [ text "NGI Nix Forge" ]
 
 
 viewSearchInput : Model -> Html Update
 viewSearchInput model =
     div
-        [ class "name gap-2"
+        [ class "name px-2"
         , style "display" "flex"
         , style "justify-content" "between"
         , style "align-items" "center"
         ]
-        [ div [ style "flex-grow" "1" ]
+        [ form [ class "d-flex" ]
             [ input
-                [ class "form-control form-control-lg py-2 my-2"
-                , placeholder "Search applications by name"
+                [ class "form-control me-2"
+                , type_ "search"
+                , placeholder "Search"
                 , value model.model_search
                 , onInput (\search -> Update_Route (Route_Search { routeSearch_pattern = search }))
                 ]
                 []
+            , button
+                [ class "btn btn-outline-success"
+                , type_ "submit"
+                ]
+                [ text "Search" ]
             ]
         ]
 
@@ -233,7 +240,7 @@ viewPageAppRun model pageApp =
                     , stopPropagationOn "click" (Decode.succeed ( Update_NoOp, True ))
                     ]
                     [ div [ class "modal-content" ]
-                        [ div [ class "modal-header bg-light" ]
+                        [ div [ class "modal-header" ]
                             [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_route.routeApp_name) ]
                             , Html.button
                                 [ class "btn-close"
@@ -247,7 +254,7 @@ viewPageAppRun model pageApp =
                             ]
                         , div [ class "modal-body" ]
                             [ viewPageAppRunOuputs model pageApp
-                            , div [ class "tab-content mb-5 p-3 border rounded bg-light" ]
+                            , div [ class "tab-content mb-5 p-3 border rounded" ]
                                 [ viewPageAppInstructions model pageApp ]
                             ]
                         ]
