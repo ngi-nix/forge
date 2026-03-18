@@ -1,7 +1,7 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, div, footer, h2, h3, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
+import Html exposing (Html, a, div, footer, h3, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, name, placeholder, style, tabindex, target, title, type_, value)
 import Html.Events exposing (onInput, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
@@ -403,6 +403,7 @@ viewPoweredBy =
                 [ text "Nixpkgs" ]
             , text " and "
             , a [ href "https://elm-lang.org", target "_blank" ] [ text "Elm" ]
+            , text "."
             ]
         , span []
             [ text "Developed by "
@@ -411,6 +412,7 @@ viewPoweredBy =
                 , target "_blank"
                 ]
                 [ text "Nix@NGI team" ]
+            , text "."
             ]
         , span []
             [ text " Contribute or report issues at "
@@ -419,6 +421,7 @@ viewPoweredBy =
                 , target "_blank"
                 ]
                 [ text "ngi-nix/ngi-nix-forge" ]
+            , text "."
             ]
         , let
             commit =
@@ -432,6 +435,7 @@ viewPoweredBy =
                     , target "_blank"
                     ]
                     [ text commit ]
+                , text "."
                 ]
 
           else
