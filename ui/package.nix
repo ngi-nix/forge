@@ -53,6 +53,8 @@ symlinkJoin {
       mkdir -p "app/$app"
       ln -s $out/index.html "app/$app/index.html"
     done
+    # search route
+    ln -s $out/index.html "app/index.html"
 
     popd
   '';
