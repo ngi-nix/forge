@@ -58,8 +58,3 @@ export function init(ports) {
     sendNavigation(event.state);
   });
 }
-
-// Explanation(compatibility): when using `esbuild --bundle`
-// functions are no longer exported, hence not `import`-able.
-// Therefore export instead through `window`.
-window.NavigationPort = { init: init };

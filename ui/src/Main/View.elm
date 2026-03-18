@@ -1,16 +1,19 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, div, footer, h2, h3, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
-import Html.Attributes exposing (class, href, name, placeholder, style, tabindex, target, value)
-import Html.Events exposing (onInput, stopPropagationOn)
+import Html exposing (Html, a, div, footer, h3, h5, header, input, li, main_, nav, p, section, small, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, name, placeholder, style, tabindex, target, title, type_, value)
+import Html.Events exposing (onInput, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Error
 import Main.Helpers.Html exposing (..)
+import Main.Icons exposing (circleHalf, moonStarsFill, search, sunFill)
 import Main.Model exposing (..)
+import Main.Nix exposing (showNixUrl)
 import Main.Route as Route exposing (..)
+import Main.Theme exposing (Theme(..))
 import Main.Update exposing (..)
 import Main.View.Instructions exposing (..)
 
@@ -18,16 +21,23 @@ import Main.View.Instructions exposing (..)
 view : Model -> Html Update
 view model =
     div
-        [ class "min-vh-100 container"
-        , style "display" "flex"
-        , style "flex-direction" "column"
+        [ class "min-vh-100 container d-flex flex-column"
         ]
         [ header
-            [ class "py-3" ]
-            [ viewTitle ]
-        , nav
-            [ class "mb-4" ]
-            [ model |> viewSearchInput ]
+            [ class "py-3 d-flex align-items-center justify-content-between"
+            ]
+            [ div
+                [ class "d-flex gap-3 align-items-center flex-grow-1"
+                ]
+                [ viewTitle
+                , model |> viewSearchInput
+                ]
+            , nav
+                [ class "navbar navbar-expand-lg ms-3"
+                ]
+                [ model |> viewThemeToggle
+                ]
+            ]
         , div []
             (model.model_errors
                 |> List.map
@@ -47,36 +57,75 @@ view model =
 
 viewTitle : Html Update
 viewTitle =
-    h3
-        []
-        [ a
-            [ href "/"
-            , style "color" "inherit"
-            , style "text-decoration" "none"
-            , style "cursor" "pointer"
-            , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
-            ]
-            [ text "NGI Nix Forge" ]
+    a
+        [ href "/"
+        , style "color" "inherit"
+        , style "text-decoration" "none"
+        , style "cursor" "pointer"
+        , class "navbar-brand px-2"
+        , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
         ]
+        [ text "NGI Nix Forge" ]
 
 
 viewSearchInput : Model -> Html Update
 viewSearchInput model =
     div
-        [ class "name gap-2"
+        [ class "name position-relative px-2 flex-grow-1"
+        , style "max-width" "600px"
         , style "display" "flex"
         , style "justify-content" "between"
         , style "align-items" "center"
         ]
-        [ div [ style "flex-grow" "1" ]
-            [ input
-                [ class "form-control form-control-lg py-2 my-2"
-                , placeholder "Search applications by name"
-                , value model.model_search
-                , onInput (\search -> Update_Route (Route_Search { routeSearch_pattern = search }))
-                ]
-                []
+        [ div
+            [ class "position-absolute top-50 start-0 translate-middle-y text-secondary"
+            , style "pointer-events" "none"
+            , style "margin-left" "1.2rem"
             ]
+            [ search ]
+        , input
+            [ class "form-control bg-transparent"
+            , style "padding-left" "2.2rem"
+            , style "padding-top" "0.5rem"
+            , style "border-radius" "30px"
+            , type_ "search"
+            , placeholder "Search apps"
+            , value model.model_search
+            , id "main-search-bar"
+            , onInput Update_SearchInput
+            , preventDefaultOn "keydown"
+                (Decode.field "key" Decode.string
+                    |> Decode.andThen
+                        (\key ->
+                            if key == "Escape" then
+                                Decode.succeed ( Update_CancelSearch, True )
+
+                            else
+                                Decode.fail "Not Escape"
+                        )
+                )
+            ]
+            []
+        ]
+
+
+viewThemeToggle : Model -> Html Update
+viewThemeToggle model =
+    span
+        [ class "d-flex align-items-center ms-3"
+        , title "Toggle dark mode"
+        , attribute "aria-label" "Toggle dark mode"
+        , onClick Update_CycleTheme
+        ]
+        [ case model.model_theme of
+            Theme_Auto ->
+                circleHalf
+
+            Theme_Dark ->
+                moonStarsFill
+
+            Theme_Light ->
+                sunFill
         ]
 
 
@@ -191,8 +240,11 @@ viewPageApp model pageApp =
             , style "padding-bottom" "0.5rem"
             ]
             [ div []
-                [ h2 [ style "margin" "0" ] [ text pageApp.pageApp_route.routeApp_name ]
-                , text ("v" ++ pageApp.pageApp_app.app_version)
+                [ h3 [ style "margin" "0" ] [ text pageApp.pageApp_route.routeApp_name ]
+                , small
+                    [ class "text-muted"
+                    ]
+                    [ text ("version: " ++ "v" ++ pageApp.pageApp_app.app_version) ]
                 ]
             , Html.button
                 [ class "btn btn-success"
@@ -204,9 +256,30 @@ viewPageApp model pageApp =
                 ]
                 [ text "Run" ]
             ]
-        , div [ class "lead mb-4" ]
+        , div [ class "mb-4" ]
             [ text pageApp.pageApp_app.app_description ]
+        , viewRecipeLink model pageApp
         , viewPageAppRun model pageApp
+        ]
+
+
+viewRecipeLink : Model -> PageApp -> Html update
+viewRecipeLink model pageApp =
+    div []
+        [ text "Recipe: "
+        , a
+            [ href
+                (String.join "/"
+                    [ model.model_config.config_repository |> showNixUrl
+                    , "blob/master"
+                    , model.model_config.config_recipe.configRecipe_apps
+                    , pageApp.pageApp_app.app_name
+                    , "recipe.nix"
+                    ]
+                )
+            , target "_blank"
+            ]
+            [ text (model.model_config.config_recipe.configRecipe_apps ++ "/" ++ pageApp.pageApp_app.app_name ++ "/recipe.nix") ]
         ]
 
 
@@ -233,7 +306,7 @@ viewPageAppRun model pageApp =
                     , stopPropagationOn "click" (Decode.succeed ( Update_NoOp, True ))
                     ]
                     [ div [ class "modal-content" ]
-                        [ div [ class "modal-header bg-light" ]
+                        [ div [ class "modal-header" ]
                             [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_route.routeApp_name) ]
                             , Html.button
                                 [ class "btn-close"
@@ -247,7 +320,7 @@ viewPageAppRun model pageApp =
                             ]
                         , div [ class "modal-body" ]
                             [ viewPageAppRunOuputs model pageApp
-                            , div [ class "tab-content mb-5 p-3 border rounded bg-light" ]
+                            , div [ class "tab-content mb-5 p-3 border rounded" ]
                                 [ viewPageAppInstructions model pageApp ]
                             ]
                         ]
@@ -330,6 +403,7 @@ viewPoweredBy =
                 [ text "Nixpkgs" ]
             , text " and "
             , a [ href "https://elm-lang.org", target "_blank" ] [ text "Elm" ]
+            , text "."
             ]
         , span []
             [ text "Developed by "
@@ -338,6 +412,7 @@ viewPoweredBy =
                 , target "_blank"
                 ]
                 [ text "Nix@NGI team" ]
+            , text "."
             ]
         , span []
             [ text " Contribute or report issues at "
@@ -346,6 +421,7 @@ viewPoweredBy =
                 , target "_blank"
                 ]
                 [ text "ngi-nix/ngi-nix-forge" ]
+            , text "."
             ]
         , let
             commit =
@@ -359,6 +435,7 @@ viewPoweredBy =
                     , target "_blank"
                     ]
                     [ text commit ]
+                , text "."
                 ]
 
           else

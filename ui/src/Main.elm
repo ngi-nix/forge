@@ -8,12 +8,19 @@ import Main.Config.App exposing (..)
 import Main.Model exposing (..)
 import Main.Route exposing (..)
 import Main.Subscriptions
+import Main.Theme exposing (themeFromString)
 import Main.Update exposing (..)
 import Main.View
 import Url
 
 
-main : Program String Model Update
+type alias Flags =
+    { href : String
+    , theme : String
+    }
+
+
+main : Program Flags Model Update
 main =
     Browser.element
         { init = init
@@ -23,17 +30,18 @@ main =
         }
 
 
-init : String -> ( Model, Cmd Update )
-init href =
+init : Flags -> ( Model, Cmd Update )
+init flags =
     let
         model =
             { model_config = Main.Config.initConfig
             , model_search = ""
             , model_page = Page_Search
             , model_errors = []
+            , model_theme = themeFromString flags.theme
             }
     in
-    case href |> Url.fromString of
+    case flags.href |> Url.fromString of
         Nothing ->
             ( model, Cmd.none )
 

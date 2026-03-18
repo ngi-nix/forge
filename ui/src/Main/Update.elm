@@ -1,5 +1,6 @@
 module Main.Update exposing (..)
 
+import Browser.Dom as Dom
 import Dict
 import Http
 import Main.Config exposing (..)
@@ -8,8 +9,11 @@ import Main.Error exposing (..)
 import Main.Model exposing (..)
 import Main.Ports.Clipboard as Clipboard
 import Main.Ports.Navigation
+import Main.Ports.ThemeSwitch as ThemeSwitch
 import Main.Route as Route exposing (..)
+import Main.Theme exposing (cycleTheme, themeToString)
 import Navigation
+import Task
 
 
 type alias Updater =
@@ -23,7 +27,19 @@ type Update
     | Update_Navigation Navigation.Event
     | Update_Route Route
     | Update_Updater Updater
+    | Update_CycleTheme
+    | Update_FocusResult (Result Dom.Error ())
+    | Update_AmbientKeyPress AmbientKeyState
+    | Update_SearchInput String
+    | Update_CancelSearch
     | Update_NoOp
+
+
+type alias AmbientKeyState =
+    { key : String
+    , focusedTyping : Bool
+    , hasModifier : Bool
+    }
 
 
 update : Update -> Updater
@@ -59,6 +75,53 @@ update upd model =
             ( model
             , Clipboard.copyToClipboard code
             )
+
+        Update_CycleTheme ->
+            let
+                nextTheme =
+                    cycleTheme model.model_theme
+            in
+            ( { model | model_theme = nextTheme }
+            , ThemeSwitch.saveTheme (themeToString nextTheme)
+            )
+
+        Update_CancelSearch ->
+            ( { model | model_search = "" }
+            , Task.attempt Update_FocusResult (Dom.blur "main-search-bar")
+            )
+
+        Update_SearchInput search ->
+            ( { model | model_search = search }
+            , Navigation.pushUrl Main.Ports.Navigation.navCmd (Route_Search { routeSearch_pattern = search } |> Route.toAppUrl)
+            )
+
+        Update_AmbientKeyPress input ->
+            if input.key == "Escape" then
+                ( { model | model_search = "" }
+                , Task.attempt Update_FocusResult (Dom.blur "main-search-bar")
+                )
+
+            else if not input.focusedTyping && not input.hasModifier then
+                if input.key == "/" then
+                    ( model
+                    , Task.attempt Update_FocusResult (Dom.focus "main-search-bar")
+                    )
+
+                else if (String.length input.key == 1) && (String.toList input.key |> List.all Char.isAlphaNum) then
+                    ( { model | model_search = input.key }
+                    , Task.attempt Update_FocusResult (Dom.focus "main-search-bar")
+                    )
+
+                else
+                    ( model, Cmd.none )
+
+            else
+                ( model, Cmd.none )
+
+        Update_FocusResult _ ->
+            -- Dom.focus and Dom.blur return a Result.
+            -- We don't need to do anything if they succeed or fail.
+            ( model, Cmd.none )
 
         Update_Config res ->
             case res of

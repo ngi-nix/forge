@@ -14,6 +14,7 @@ subscriptions : Model -> Sub Update
 subscriptions model =
     Sub.batch
         [ Navigation.onEvent Main.Ports.Navigation.onNavEvent Update_Navigation
+        , Browser.Events.onKeyDown decodeAmbientKeyPress
         , case model.model_page of
             Page_App pageApp ->
                 if pageApp.pageApp_route.routeApp_runShown then
@@ -48,3 +49,31 @@ decodeEscapeKey =
                 else
                     Decode.fail "Not escape"
             )
+
+
+decodeAmbientKeyPress : Decode.Decoder Update
+decodeAmbientKeyPress =
+    Decode.map3
+        (\key node modifier ->
+            Update_AmbientKeyPress
+                { key = key
+                , focusedTyping =
+                    List.member node
+                        -- When typing into some actual input fields
+                        [ "INPUT"
+                        , "TEXTAREA"
+                        , "SELECT"
+
+                        -- When run modal is open
+                        , "DIV"
+                        ]
+                , hasModifier = modifier
+                }
+        )
+        (Decode.field "key" Decode.string)
+        (Decode.at [ "target", "nodeName" ] Decode.string)
+        (Decode.oneOf
+            [ Decode.field "ctrlKey" Decode.bool
+            , Decode.field "metaKey" Decode.bool
+            ]
+        )

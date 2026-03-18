@@ -1,28 +1,22 @@
-import { init } from './Navigation.js';
+import { init as initNavigationPort } from "./Navigation.js";
+import { getInitialTheme, initThemePorts } from "./ThemeSwitch.js";
+import { initClipboardListener } from "./Clipboard.js";
 
-var app = Elm.Main.init({
+const startingTheme = getInitialTheme();
+
+const app = Elm.Main.init({
   node: document.getElementById("elm-main"),
-  flags: location.href,
+  flags: {
+    href: location.href,
+    theme: startingTheme,
+  },
 });
-window.NavigationPort.init({
+
+initNavigationPort({
   navCmd: app.ports.navCmd,
   onNavEvent: app.ports.onNavEvent,
 });
 
-// Handle copy to clipboard
-app.ports.copyToClipboard.subscribe((text) => {
-  navigator.clipboard
-    .writeText(text)
-    .then(() => {
-      var button = document.activeElement;
-      if (button) {
-        button.classList.add("active");
-        setTimeout(() => {
-          button.classList.remove("active");
-        }, 2000);
-      }
-    })
-    .catch((err) => {
-      console.error("Failed to copy to clipboard:", err);
-    });
-});
+initThemePorts(app);
+
+initClipboardListener(app);

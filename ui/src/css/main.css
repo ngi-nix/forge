@@ -71,23 +71,58 @@ body {
   background-color: #f8f9fa;
 }
 
+[data-bs-theme="dark"] .m-app-card:hover {
+  background-color: #2a3036;
+}
+
+/* Hide the annoying border around search bar that bootstrap adds */
+.form-control:focus {
+  box-shadow: none !important;
+  border-color: royalblue;
+}
+
 /* Default: small screens */
 .m-app-grid {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(max(200px, 100%), 1fr)); /* 1 column */
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(max(200px, 100%), 1fr)
+  ); /* 1 column */
 }
 
 /* 320px+ allow multiple and allow them to stretch to full width */
 @media (min-width: 321px) {
-    .m-app-grid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    }
+  .m-app-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 /* for large screens use auto-fill to avoid auto-fit stretching each app card too wide */
 @media (min-width: 900px) {
-    .m-app-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    }
+  .m-app-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+/* hide the native summary icon */
+details.accordion-item > summary {
+  list-style: none;
+}
+details.accordion-item > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* remove the default blue outline on click */
+details.accordion-item > summary:focus {
+  box-shadow: none;
+}
+
+/* make the Bootstrap arrow react to the native <details> open/closed state */
+details.accordion-item:not([open]) > summary.accordion-button::after {
+  transform: none;
+}
+
+details.accordion-item[open] > summary.accordion-button::after {
+  transform: rotate(-180deg); /* Points up when open */
 }
