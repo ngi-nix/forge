@@ -14,8 +14,7 @@ viewInstructionsUsage : Model -> PageApp -> Html Update
 viewInstructionsUsage model pageApp =
     if not (String.isEmpty pageApp.pageApp_app.app_usage) then
         div [ id "usage", class "mt-4" ]
-            [ hr [] []
-            , h4 [ class "mb-3" ] [ text "Usage Instructions" ]
+            [ h4 [ class "mb-3" ] [ text "Usage Instructions" ]
             , div [ class "markdown-content" ]
                 (pageApp.pageApp_app.app_usage
                     |> Markdown.render Update_CopyCode
@@ -29,9 +28,9 @@ viewInstructionsUsage model pageApp =
 viewInstructionsNixInstall : Model -> Html Update
 viewInstructionsNixInstall _ =
     div [ class "accordion" ]
-        [ details [ class "accordion-item", attribute "open" "" ]
+        [ details [ class "accordion-item" ]
             [ summary [ class "accordion-button accordion-header fw-bold" ]
-                [ text "Prerequisites" ]
+                [ text "Install Nix" ]
             , div [ class "accordion-body" ]
                 [ p [ class "mb-1" ]
                     [ text "1. Install Nix "
@@ -131,7 +130,6 @@ viewPageAppInstructions model pageApp =
 
                                 else
                                     text ""
-                        , viewInstructionsUsage model pageApp
                         ]
     in
     div []

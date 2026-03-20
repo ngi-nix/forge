@@ -260,6 +260,7 @@ viewPageApp model pageApp =
             , style "padding-bottom" "0.5rem"
             ]
             [ text pageApp.pageApp_app.app_description ]
+        , viewInstructionsUsage model pageApp
         , viewRecipeLink model pageApp
         , viewPageAppRun model pageApp
         ]
