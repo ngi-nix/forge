@@ -8,13 +8,13 @@ import Json.Decode
 
 codeBlock : (String -> update) -> String -> Html update
 codeBlock onCopy content =
-    div [ class "position-relative" ]
+    div [ class "markdown-content position-relative" ]
         [ button
             [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
             , onClick (onCopy content)
             ]
             [ text "" ]
-        , pre [ class "bg-dark text-light p-3 rounded border border-secondary" ]
+        , pre [ class "p-3 rounded border border-secondary" ]
             [ code [] [ text content ] ]
         ]
 
