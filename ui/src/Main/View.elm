@@ -63,7 +63,7 @@ viewTitle =
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
-        , class "navbar-brand px-2"
+        , class "navbar-brand"
         , style "font-size" "1.5rem"
         , style "font-weight" "bold"
         , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
@@ -74,7 +74,7 @@ viewTitle =
 viewSearchInput : Model -> Html Update
 viewSearchInput model =
     div
-        [ class "name position-relative px-2 flex-grow-1"
+        [ class "name position-relative flex-grow-1"
         , style "max-width" "600px"
         , style "display" "flex"
         , style "justify-content" "between"
@@ -88,7 +88,7 @@ viewSearchInput model =
             [ search ]
         , input
             [ class "form-control bg-transparent"
-            , style "padding-left" "2.2rem"
+            , style "padding-left" "2.5rem"
             , style "padding-top" "0.5rem"
             , style "border-radius" "30px"
             , type_ "search"
@@ -138,7 +138,7 @@ viewPage model =
 viewPageSearch : Model -> Html Update
 viewPageSearch model =
     div
-        [ class "container m-app-grid"
+        [ class "m-app-grid"
         ]
         (model.model_config.config_apps
             |> Dict.values
