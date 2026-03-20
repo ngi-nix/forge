@@ -231,16 +231,17 @@ viewPageApp model pageApp =
             [ style "display" "flex"
             , style "justify-content" "space-between"
             , style "align-items" "center"
-            , style "margin-bottom" "1rem"
-            , style "border-bottom" "1px solid #dee2e6"
-            , style "padding-bottom" "0.5rem"
             ]
             [ div []
-                [ h3 [ style "margin" "0" ] [ text pageApp.pageApp_route.routeApp_name ]
-                , small
-                    [ class "text-muted"
+                [ h3 [ style "margin" "0" ]
+                    [ text pageApp.pageApp_route.routeApp_name
+                    , text " "
+                    , small
+                        [ class "text-muted"
+                        , style "font-size" "0.875rem"
+                        ]
+                        [ text ("v" ++ pageApp.pageApp_app.app_version) ]
                     ]
-                    [ text ("version: " ++ "v" ++ pageApp.pageApp_app.app_version) ]
                 ]
             , Html.button
                 [ class "btn btn-success"
@@ -252,7 +253,12 @@ viewPageApp model pageApp =
                 ]
                 [ text "Run" ]
             ]
-        , div [ class "mb-4" ]
+        , div
+            [ class "mb-4"
+            , style "margin-bottom" "1rem"
+            , style "border-bottom" "1px solid #dee2e6"
+            , style "padding-bottom" "0.5rem"
+            ]
             [ text pageApp.pageApp_app.app_description ]
         , viewRecipeLink model pageApp
         , viewPageAppRun model pageApp
