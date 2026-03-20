@@ -59,7 +59,7 @@ jobs:
             deploy_root="/$repo_name/"
           fi
           sed -i "s|:baseUrl|$deploy_root|g" ui/src/Main/Route.elm
-          sed -i "s|:baseUrl|$deploy_root|g" ui/src/index.html
+          sed -i "s|<base href=\"/\"|<base href=\"$deploy_root\"|g" ui/src/index.html
 
       - name: Build UI
         run: nix build .#_forge-ui --accept-flake-config
