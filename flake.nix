@@ -1,5 +1,5 @@
 {
-  description = "NGI Nix Forge";
+  description = "NGI Forge";
 
   nixConfig = {
     extra-substituters = [ "" ];

@@ -1,4 +1,4 @@
-# NGI Nix Forge
+# NGI Forge
 
 **WARNING: this sofware is currently in alpha state of development.**
 

@@ -68,7 +68,7 @@ viewTitle =
         , style "font-weight" "bold"
         , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
         ]
-        [ text "NGI Nix Forge" ]
+        [ text "NGI Forge" ]
 
 
 viewSearchInput : Model -> Html Update
