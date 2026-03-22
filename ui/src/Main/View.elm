@@ -420,10 +420,10 @@ viewPoweredBy =
         , span []
             [ text " Contribute or report issues at "
             , a
-                [ href "https://github.com/ngi-nix/ngi-nix-forge"
+                [ href "https://github.com/ngi-nix/forge"
                 , target "_blank"
                 ]
-                [ text "ngi-nix/ngi-nix-forge" ]
+                [ text "ngi-nix/forge" ]
             , text "."
             ]
         , let
@@ -434,7 +434,7 @@ viewPoweredBy =
             span []
                 [ text " Version "
                 , a
-                    [ href ("https://github.com/ngi-nix/ngi-nix-forge/commit/" ++ commit)
+                    [ href ("https://github.com/ngi-nix/forge/commit/" ++ commit)
                     , target "_blank"
                     ]
                     [ text commit ]

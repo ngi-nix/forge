@@ -11,7 +11,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    nix-forge.url = "github:ngi-nix/ngi-nix-forge";
+    nix-forge.url = "github:ngi-nix/forge";
     elm2nix = {
       url = "github:dwayne/elm2nix";
       inputs.nixpkgs.follows = "nixpkgs";

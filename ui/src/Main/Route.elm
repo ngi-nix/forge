@@ -43,7 +43,7 @@ initRouteApp name =
 
 
 {-| BUILD TIME CONFIG:
-replaced with deployment root in github workflow script eg. "/ngi-nix-forge/"
+replaced with deployment root in github workflow script eg. "/forge/"
 -}
 deployRoot : String
 deployRoot =

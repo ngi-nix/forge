@@ -8,7 +8,7 @@
   **mutli-component applications** using
   [module system](https://nix.dev/tutorials/module-system/index.html)
 
-* [Web UI](https://ngi-nix.github.io/ngi-nix-forge)
+* [Web UI](https://ngi-nix.github.io/forge)
 
 * [LLMs support](./AGENTS.md)
 
@@ -70,7 +70,7 @@ graph TB
 * Initiate new Nix Forge instance from template
 
 ```bash
-nix flake init --template github:ngi-nix/ngi-nix-forge#example
+nix flake init --template github:ngi-nix/forge#example
 ```
 
 * Set `repositoryUrl` attribute in `flake.nix` to your repository
