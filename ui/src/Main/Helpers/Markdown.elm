@@ -1,24 +1,32 @@
 module Main.Helpers.Markdown exposing (..)
 
 import Html exposing (Html, text)
-import Main.Helpers.Html as Html
+import Main.Helpers.Html exposing (..)
+import Main.Update exposing (..)
 import Markdown.Parser
 import Markdown.Renderer exposing (Renderer, defaultHtmlRenderer)
 
 
-render : (String -> update) -> String -> List (Html update)
-render onCopy markdownStr =
-    markdownStr
+render : String -> List (Html Update)
+render input =
+    input
         |> Markdown.Parser.parse
-        |> Result.mapError (\_ -> "Failed to parse markdown")
-        |> Result.andThen (Markdown.Renderer.render (customRenderer onCopy))
+        |> Result.mapError
+            (\err ->
+                "Failed to parse markdown: "
+                    ++ (err
+                            |> List.map Markdown.Parser.deadEndToString
+                            |> String.join "\n"
+                       )
+            )
+        |> Result.andThen (Markdown.Renderer.render renderer)
         |> Result.withDefault [ text "Error rendering markdown." ]
 
 
-customRenderer : (String -> update) -> Renderer (Html update)
-customRenderer onCopy =
+renderer : Renderer (Html Update)
+renderer =
     { defaultHtmlRenderer
         | codeBlock =
             \block ->
-                block.body |> Html.codeBlock onCopy
+                block.body |> codeBlock
     }

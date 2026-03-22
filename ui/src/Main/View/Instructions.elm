@@ -17,7 +17,7 @@ viewInstructionsUsage model pageApp =
             [ h4 [ class "mb-3" ] [ text "Usage Instructions" ]
             , div [ class "markdown-content" ]
                 (pageApp.pageApp_app.app_usage
-                    |> Markdown.render Update_CopyCode
+                    |> Markdown.render
                 )
             ]
 
@@ -37,16 +37,16 @@ viewInstructionsNixInstall _ =
                     , a [ href "https://github.com/NixOS/nix-installer#nix-installer", target "_blank" ]
                         [ text "(learn more about this installer)." ]
                     ]
-                , codeBlock Update_CopyCode <|
+                , codeBlock <|
                     String.join "\n"
                         [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
                 , small [ class "mb-1" ]
                     [ text "to uninstall, run:" ]
-                , codeBlock Update_CopyCode <|
+                , codeBlock <|
                     "/nix/nix-installer uninstall"
                 , p [ class "mt-3 mb-1" ]
                     [ text "2. Accept binaries pre-built by Nix Forge (optional, highly recommended) " ]
-                , codeBlock Update_CopyCode <|
+                , codeBlock <|
                     String.join "\n"
                         [ "export NIX_CONFIG='accept-flake-config = true'" ]
                 ]
@@ -70,7 +70,7 @@ viewPageAppInstructions model pageApp =
                                     div []
                                         [ p [ style "margin-bottom" "0em" ] [ text "Enter a shell environment with CLI and GUI programs." ]
                                         , br [] []
-                                        , codeBlock Update_CopyCode <|
+                                        , codeBlock <|
                                             String.concat
                                                 [ "nix shell "
                                                 , model.model_config.config_repository
@@ -87,7 +87,7 @@ viewPageAppInstructions model pageApp =
                                     div []
                                         [ p [ style "margin-bottom" "0em" ] [ text "Run application services using OCI containers." ]
                                         , br [] []
-                                        , codeBlock Update_CopyCode <|
+                                        , codeBlock <|
                                             String.join "\n"
                                                 [ String.concat
                                                     [ "nix build "
@@ -112,7 +112,7 @@ viewPageAppInstructions model pageApp =
                                     div []
                                         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM." ]
                                         , br [] []
-                                        , codeBlock Update_CopyCode <|
+                                        , codeBlock <|
                                             String.concat
                                                 [ "nix run "
                                                 , model.model_config.config_repository
@@ -133,6 +133,6 @@ viewPageAppInstructions model pageApp =
           else
             text ""
         , viewInstructionsNixInstall model
-        , hr [ ] [ ]
+        , hr [] []
         , instructions
         ]

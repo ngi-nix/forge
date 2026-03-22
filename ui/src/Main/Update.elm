@@ -22,7 +22,7 @@ type alias Updater =
 
 type Update
     = Update_Chain (List Update)
-    | Update_CopyCode String
+    | Update_CopyToClipboard String
     | Update_Config (Result Http.Error Config)
     | Update_Navigation Navigation.Event
     | Update_Route Route
@@ -71,7 +71,7 @@ update upd model =
             , Navigation.pushUrl Main.Ports.Navigation.navCmd (route |> Route.toAppUrl)
             )
 
-        Update_CopyCode code ->
+        Update_CopyToClipboard code ->
             ( model
             , Clipboard.copyToClipboard code
             )

@@ -4,14 +4,15 @@ import Html exposing (Attribute, Html, button, code, div, pre, text)
 import Html.Attributes exposing (class)
 import Html.Events
 import Json.Decode
+import Main.Update exposing (..)
 
 
-codeBlock : (String -> update) -> String -> Html update
-codeBlock onCopy content =
+codeBlock : String -> Html Update
+codeBlock content =
     div [ class "markdown-content position-relative" ]
         [ button
             [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
-            , onClick (onCopy content)
+            , onClick (Update_CopyToClipboard content)
             ]
             [ text "" ]
         , pre [ class "p-3 rounded border border-secondary" ]
