@@ -40,7 +40,7 @@ symlinkJoin {
     cp -aR ${./src/css}/. css
     cp -aR ${./src/js}/. js
     chmod -R u+w css js
-    cp ${bootstrapCss}/css/bootstrap.min.css css/bootstrap.min.css
+    install -D ${bootstrapCss}/css/bootstrap.min.css bootstrap/css/bootstrap.min.css
 
     # Symlink config files
     ln -s ${_forge-config} forge-config.json

@@ -24,14 +24,18 @@ clean
 set -ex
 listenPort="${listenPort:-3000}"
 
-# symlink bootstrap css
-mkdir -p "$rootDir/ui/build/css" "$rootDir/ui/build/js"
-ln -s "$(
-  nix build \
-    --print-out-paths --no-link \
-    -f "$rootDir" "_forge-ui.passthru.bootstrapCss"
-)/css/bootstrap.min.css" \
-  "$rootDir/ui/build/css/bootstrap.min.css"
+mkdir -p "$rootDir/ui/build/js"
+
+# Warning(correctness): when using `nix build`,
+# be careful to either register the resulting output(s)
+# in $rootDir/ui/build as roots to nix's garbage-collector (GC)
+# by using `-o`, or to copy files out of the Nix store.
+# Otherwise the GC can remove the results at any moment.
+
+nix build \
+  -f "$rootDir" \
+  -o "$rootDir/ui/build/bootstrap" \
+  _forge-ui.passthru.bootstrapCss
 
 # Note: using `watchman watch-project`
 # would not support working in a non-default git-worktree or jj-workspace.
