@@ -24,7 +24,7 @@ type alias Config =
 
 initConfig : Config
 initConfig =
-    { config_repository = "github:imincik/nix-forge"
+    { config_repository = "github:ngi-nix/forge"
     , config_recipe = initRecipe
     , config_apps = Dict.empty
     }
