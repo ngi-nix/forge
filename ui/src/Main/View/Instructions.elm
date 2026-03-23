@@ -90,12 +90,13 @@ viewPageAppInstructions model pageApp =
                                         , codeBlock Update_CopyCode <|
                                             String.join "\n"
                                                 [ String.concat
-                                                    [ "nix run "
+                                                    [ "nix build "
                                                     , model.model_config.config_repository
                                                     , "#"
                                                     , pageApp.pageApp_app.app_name
                                                     , ".container"
                                                     ]
+                                                , "./result/bin/build-oci"
                                                 , ""
                                                 , "podman load < *.tar"
                                                 , ""
