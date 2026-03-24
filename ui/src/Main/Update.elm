@@ -48,7 +48,8 @@ type UpdateSearchInput
     | -- Like `UpdateSearchInput_Set s` but without actually changing the `model_page` and URL,
       -- in order to let the Escape key clear the search and remain on the same `model_page`.
       UpdateSearchInput_PreSet String
-    | -- Set the search pattern and update the `model_page` and URL.
+    | -- Set the search pattern, and update the `model_page` and URL
+      -- according to the current `model_page`.
       UpdateSearchInput_Set String
 
 
@@ -105,28 +106,42 @@ update upd model =
         Update_SearchInput usi ->
             case usi of
                 UpdateSearchInput_PreClear ->
-                    ( { model | model_search = "" }
-                    , Task.attempt Update_FocusResult (Dom.blur "main-search-bar")
-                    )
+                    model
+                        |> updateRoute
+                            (case model.model_page of
+                                Page_RecipeOptions _ ->
+                                    Route_RecipeOptions { routeRecipeOptions_pattern = Nothing }
+
+                                _ ->
+                                    Route_Search { routeSearch_pattern = "" }
+                            )
+                        |> (\( m, c ) -> ( { m | model_page = model.model_page }, c ))
+                        |> Cmd.append (Task.attempt Update_FocusResult (Dom.blur "main-search-bar"))
 
                 UpdateSearchInput_PreSet search ->
-                    ( { model | model_search = search }
-                    , Cmd.none
-                    )
+                    model
+                        |> updateRoute
+                            (case model.model_page of
+                                Page_RecipeOptions _ ->
+                                    Route_RecipeOptions { routeRecipeOptions_pattern = Just search }
+
+                                _ ->
+                                    Route_Search { routeSearch_pattern = search }
+                            )
+                        |> (\( m, c ) -> ( { m | model_page = model.model_page }, c ))
 
                 UpdateSearchInput_Set search ->
-                    ( { model | model_search = search }
-                    , Navigation.pushUrl Main.Ports.Navigation.navCmd
-                        ((case model.model_page of
-                            Page_RecipeOptions _ ->
-                                Route_RecipeOptions { routeRecipeOptions_pattern = Just search }
+                    model
+                        |> update
+                            (Update_Route
+                                (case model.model_page of
+                                    Page_RecipeOptions _ ->
+                                        Route_RecipeOptions { routeRecipeOptions_pattern = Just search }
 
-                            _ ->
-                                Route_Search { routeSearch_pattern = search }
-                         )
-                            |> Route.toAppUrl
-                        )
-                    )
+                                    _ ->
+                                        Route_Search { routeSearch_pattern = search }
+                                )
+                            )
 
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then
@@ -139,7 +154,7 @@ update upd model =
                     , Task.attempt Update_FocusResult (Dom.focus "main-search-bar")
                     )
 
-                else if (String.length input.key == 1) && (String.toList input.key |> List.all Char.isAlphaNum) then
+                else if (String.length input.key == 1) && (input.key |> String.all Char.isAlphaNum) then
                     model
                         |> update (Update_SearchInput (UpdateSearchInput_PreSet input.key))
                         |> Cmd.append (Task.attempt Update_FocusResult (Dom.focus "main-search-bar"))
