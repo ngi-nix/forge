@@ -239,7 +239,7 @@ viewPageSearchApp model app =
             ]
             [ small []
                 (List.concat
-                    [ if app.app_programs.enable then
+                    [ if app.app_shell.enable then
                         [ span [ class "badge bg-secondary me-1" ] [ text "shell" ] ]
 
                       else
@@ -375,7 +375,7 @@ viewPageAppRunOutputs model pageApp =
         enabled tab =
             case tab of
                 AppOutput_Shell ->
-                    pageApp.pageApp_app.app_programs.enable
+                    pageApp.pageApp_app.app_shell.enable
 
                 AppOutput_Container ->
                     pageApp.pageApp_app.app_container.enable

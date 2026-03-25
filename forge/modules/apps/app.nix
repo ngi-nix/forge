@@ -71,11 +71,11 @@
         ) self;
     };
 
-    # Programs shell configuration
-    programs = lib.mkOption {
-      type = lib.types.submodule ./programs;
+    # Shell configuration
+    shell = lib.mkOption {
+      type = lib.types.submodule ./shell;
       default = { };
-      description = "Programs shell configuration.";
+      description = "Shell configuration.";
     };
 
     # Container configuration
@@ -110,7 +110,7 @@
           lib.mapAttrsToList (name: value: value.passthru.raw.command) config.services
         );
 
-        packages = service-packages ++ config.programs.requirements ++ config.container.requirements;
+        packages = service-packages ++ config.shell.requirements ++ config.container.requirements;
       in
       lib.pipe packages [
         # NOTE: `unique` has an O(n^2) complexity
