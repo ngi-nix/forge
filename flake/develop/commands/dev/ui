@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -u
-rootDir=$(realpath "${0%/*}"/..)
+rootDir="$(git rev-parse --show-toplevel)"
 cd "$rootDir"
 unit=ngi_nix_dev
 slice=session-${unit}
