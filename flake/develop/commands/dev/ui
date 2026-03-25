@@ -2,28 +2,25 @@
 set -u
 rootDir="$(git rev-parse --show-toplevel)"
 cd "$rootDir"
-unit=ngi_nix_dev
-slice=session-${unit}
+listenPort="${listenPort:-3000}"
+unit=ngi_nix_dev-"$listenPort"
+slice=session-"$unit"
 function clean {
   set +e
-  systemctl --user stop ${slice}.slice
-  systemctl --user reset-failed ${unit}-'*'.service
-  rm -rf ui/build
+  systemctl --user stop "$slice".slice
+  rm -f /run/user/"$UID"/systemd/user/"$unit"-*
+  rm -rf "$rootDir"/ui/build
 }
 function onExit {
   set +e
   clean
-  systemctl --user stop ${slice}.slice
-  systemctl --user reset-failed ${unit}-'*'.service
-  watchman trigger-del . "$unit-config"
-  watchman trigger-del . "$unit-options"
+  watchman trigger-del . "$unit"-backend
   watchman watch-del .
 }
 
 trap onExit EXIT
 clean
 set -ex
-listenPort="${listenPort:-3000}"
 
 mkdir -p "$rootDir/ui/build/js"
 
@@ -33,10 +30,59 @@ mkdir -p "$rootDir/ui/build/js"
 # by using `-o`, or to copy files out of the Nix store.
 # Otherwise the GC can remove the results at any moment.
 
-nix build \
-  -f "$rootDir" \
-  -o "$rootDir/ui/build/bootstrap" \
-  _forge-ui.passthru.bootstrapCss
+systemctl --user edit --runtime --force --full "$unit"-backend.service --stdin <<EOT
+[Unit]
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Slice=$slice.slice
+ExecStart=$(command -v nix) build -f "$rootDir" _forge-ui.passthru.bootstrapCss -o "$rootDir/ui/build/bootstrap" --show-trace
+ExecStart=$(command -v nix) build -f "$rootDir" _forge-config -o "$rootDir/ui/build/forge-config.json" --show-trace
+ExecStart=$(command -v nix) build -f "$rootDir" _forge-options -o "$rootDir/ui/build/forge-options.json" --show-trace
+EOT
+
+systemctl --user edit --runtime --force --full "$unit"-elm-watch.service --stdin <<EOT
+[Unit]
+After=$unit-backend.service
+Wants=$unit-backend.service
+
+[Service]
+Type=simple
+Slice=$slice.slice
+WorkingDirectory=$rootDir/ui
+Environment=ELM_WATCH_HOST="${ELM_WATCH_HOST:-"127.0.0.1"}"
+Environment=PATH=$(dirname "$(command -v elm-review)"):$PATH
+ExecStart=$(command -v elm-watch) hot
+EOT
+
+# Remark(correctness): --serve-fallback= prevents 404 errors
+# eg. on forge-config.json
+# but required to reload in the browser at non-root URLs.
+systemctl --user edit --runtime --force --full "$unit"-esbuild.service --stdin <<EOT
+[Unit]
+After=$unit-elm-watch.service
+Requires=$unit-elm-watch.service
+
+[Service]
+Type=simple
+Slice=$slice.slice
+WorkingDirectory=$rootDir/ui
+Environment=PATH=$PATH
+ExecStart=$SHELL -xc 'shopt -s nullglob; exec esbuild \\
+  --bundle \\
+  --loader:.html=copy \\
+  --outbase=src \\
+  --outdir=build \\
+  --serve=$listenPort \\
+  --servedir=build \\
+  --serve-fallback=src/index.html \\
+  --sourcemap=external \\
+  --watch=forever \\
+  src/**/*.css \\
+  src/**/*.html \\
+  src/**/*.js'
+EOT
 
 # Note: using `watchman watch-project`
 # would not support working in a non-default git-worktree or jj-workspace.
@@ -49,21 +95,14 @@ watchman -j <<EOT
 , "$PWD"
 , {
     "name": "$unit-config",
-    "command": [ "systemd-run", "--user", "--pipe", "--slice", "$slice", "-u", "${unit}-config"
-               , "nix", "build", "-f", "$rootDir", "_forge-config", "-o", "$rootDir/ui/build/forge-config.json", "--show-trace"
+    "command": [ "systemctl", "--user", "restart", "$unit-backend.service"
                ],
     "append_files": false,
     "expression": [
       "anyof",
       [
-        "match",
-        "forge/**/*.nix",
-        "wholename",
-        {"includedotfiles": false}
-      ],
-      [
-        "match",
-        "recipes/**/*.nix",
+        "pcre",
+        "^(forge|recipes)/.*\\\.nix\$",
         "wholename",
         {"includedotfiles": false}
       ]
@@ -71,51 +110,8 @@ watchman -j <<EOT
   }
 ]
 EOT
-watchman -j <<EOT
-[ "trigger"
-, "$PWD"
-, {
-    "name": "$unit-options",
-    "command": [ "systemd-run", "--user", "--pipe", "--slice", "$slice", "-u", "${unit}-options"
-               , "nix", "build", "-f", "$rootDir", "_forge-options", "-o", "$rootDir/ui/build/forge-options.json", "--show-trace"
-               ],
-    "append_files": false,
-    "expression": [
-      "match",
-      "forge/**/*.nix",
-      "wholename",
-      {"includedotfiles": false}
-    ]
-  }
-]
-EOT
 
-systemd-run --user --slice "$slice" -u ${unit}-elm-watch \
-  -p Environment=ELM_WATCH_HOST="${ELM_WATCH_HOST:-"127.0.0.1"}" \
-  -p Environment=PATH="$(dirname "$(which elm-review)"):$PATH" \
-  -p WorkingDirectory="$PWD/ui" \
-  elm-watch hot
-
-# Remark(correctness): esbuild never serves stale build results
-# https://esbuild.github.io/api/#serve
-#
-# Remark(correctness): --serve-fallback= prevents 404 errors
-# eg. on forge-config.json
-systemd-run --user --slice "$slice" -u ${unit}-esbuild \
-  -p WorkingDirectory="$PWD/ui" \
-  esbuild \
-  --bundle \
-  --loader:.html=copy \
-  --outbase=src \
-  --outdir=build \
-  --serve="${listenPort}" \
-  --servedir=build \
-  --serve-fallback=src/index.html \
-  --sourcemap=external \
-  --watch=forever \
-  src/**/*.css \
-  src/**/*.html \
-  src/**/*.js
-
+systemctl --user restart --no-block \
+  "$unit"-esbuild.service
 journalctl --since "-5s" --user -f \
-  -u ${unit}-"*".service
+  -u "$unit-*".service
