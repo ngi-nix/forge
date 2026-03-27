@@ -22,26 +22,31 @@ in
                 path = pkg: pkg.source.path;
 
                 git =
+                  pkg:
                   let
                     forges = {
                       # forge = fetchFunction
                       github = pkgs.fetchFromGitHub;
                       gitlab = pkgs.fetchFromGitLab;
                     };
-                  in
-                  pkg:
-                  let
-                    # Expected format: "forge:owner/repo/rev"
                     parts = lib.splitString ":" pkg.source.git;
                     forge = lib.elemAt parts 0;
                     pathParts = lib.splitString "/" (lib.elemAt parts 1);
+                    fetcher = forges.${forge} or null;
                   in
-                  forges.${forge} {
-                    owner = lib.elemAt pathParts 0;
-                    repo = lib.elemAt pathParts 1;
-                    rev = lib.elemAt pathParts 2;
-                    hash = pkg.source.hash;
-                  };
+                  if fetcher != null then
+                    fetcher {
+                      owner = lib.elemAt pathParts 0;
+                      repo = lib.elemAt pathParts 1;
+                      rev = lib.elemAt pathParts 2;
+                      hash = pkg.source.hash;
+                    }
+                  else
+                    pkgs.fetchgit {
+                      url = pkg.source.url;
+                      rev = lib.elemAt pathParts 2;
+                      hash = pkg.source.hash;
+                    };
 
                 url =
                   pkg:
