@@ -1,8 +1,8 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, code, div, footer, h3, h5, h6, header, input, li, main_, nav, p, section, small, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, name, placeholder, rel, style, tabindex, target, title, type_, value)
+import Html exposing (Html, a, button, code, div, footer, h3, h5, h6, header, img, input, li, main_, nav, p, section, small, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, name, placeholder, rel, src, style, tabindex, target, title, type_, value, width)
 import Html.Events exposing (onInput, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -76,7 +76,9 @@ viewTitle =
         , style "font-weight" "bold"
         , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
         ]
-        [ text "NGI Forge" ]
+        [ img [ src "favicon.svg", width 40, class "me-2" ] []
+        , text "NGI Forge"
+        ]
 
 
 viewSearchInput : Model -> Html Update
