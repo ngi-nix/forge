@@ -42,7 +42,8 @@ view model =
                 , style "flex-direction" "row"
                 , style "justify-content" "space-evenly"
                 ]
-                [ li [ class "nav-item me-3" ] [ viewRecipeOptionsLink ]
+                [ li [ class "nav-item me-3" ] [ viewPackagesLink ]
+                , li [ class "nav-item me-5" ] [ viewRecipeOptionsLink ]
                 , model |> viewThemeToggle
                 ]
             ]
@@ -130,7 +131,22 @@ viewRecipeOptionsLink =
         , attribute "aria-label" "View available recipe options"
         , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
         ]
-        [ iconBookHalf ]
+        [ text "Options" ]
+
+
+viewPackagesLink : Html Update
+viewPackagesLink =
+    a
+        [ href (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" } |> Route.toString)
+        , style "color" "inherit"
+        , style "text-decoration" "none"
+        , style "cursor" "pointer"
+        , class "nav-link"
+        , title "View available packages"
+        , attribute "aria-label" "View available packages"
+        , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
+        ]
+        [ text "Packages" ]
 
 
 viewThemeToggle : Model -> Html Update
@@ -249,124 +265,131 @@ viewPageSearchApp model app =
 
 viewPageApp : Model -> PageApp -> Html Update
 viewPageApp model pageApp =
-    div []
-        [ div
-            [ style "display" "flex"
-            , style "justify-content" "space-between"
-            , style "align-items" "center"
-            , class "mb-4"
+    div [ class "container" ]
+        [ div [ class "row" ]
+            [ div
+                [ class "col-12 col-lg-9" ]
+                [ viewPageAppHeader model pageApp
+                , viewDescription model pageApp
+                , viewPageAppRun model pageApp
+                ]
+            , div
+                [ class "col-12 col-lg-3 order-lg-first" ]
+                [ viewTabResources model pageApp
+                , viewTabNgiGrants model pageApp
+                ]
             ]
-            [ div []
-                [ h3 [ style "margin" "0" ]
-                    [ text pageApp.pageApp_route.routeApp_name
-                    ]
+        ]
+
+
+viewPageAppHeader : Model -> PageApp -> Html Update
+viewPageAppHeader model pageApp =
+    div
+        [ style "display" "flex"
+        , style "justify-content" "space-between"
+        , style "align-items" "center"
+        , class "my-4 mb-4"
+        ]
+        [ div []
+            [ h3 [ style "margin" "0" ]
+                [ text pageApp.pageApp_route.routeApp_name
                 ]
-            , button
-                [ class "btn btn-success"
-                , let
-                    route =
-                        pageApp.pageApp_route
-                  in
-                  onClick (Update_Route (Route_App { route | routeApp_runShown = True }))
-                ]
-                [ text "Run" ]
             ]
-        , viewPageAppTabs model pageApp
-        , viewPageAppTabContent model pageApp
-        , viewPageAppRun model pageApp
+        , button
+            [ class "btn btn-success"
+            , let
+                route =
+                    pageApp.pageApp_route
+              in
+              onClick (Update_Route (Route_App { route | routeApp_runShown = True }))
+            ]
+            [ text "Run" ]
         ]
 
 
-viewPageAppTabs : Model -> PageApp -> Html Update
-viewPageAppTabs model pageApp =
-    let
-        activeTab =
-            pageApp.pageApp_route.routeApp_activeTab
-
-        tabLink : AppTab -> String -> Html Update
-        tabLink tab label =
-            li [ class "nav-item" ]
-                [ Html.button
-                    [ class "nav-link"
-                    , class
-                        (if activeTab == Just tab then
-                            "active"
-
-                         else
-                            ""
-                        )
-                    , style "cursor" "pointer"
-                    , style "background" "transparent"
-                    , let
-                        route =
-                            pageApp.pageApp_route
-                      in
-                      onClick (Update_Route (Route_App { route | routeApp_activeTab = Just tab }))
-                    ]
-                    [ text label ]
-                ]
-    in
-    ul [ class "nav nav-underline mb-4" ]
-        [ tabLink AppTab_Description "Description"
-        , tabLink AppTab_Metadata "Metadata"
-        ]
-
-
-viewPageAppTabContent : Model -> PageApp -> Html Update
-viewPageAppTabContent model pageApp =
-    div [ class "tab-content mb-4" ]
-        [ case pageApp.pageApp_route.routeApp_activeTab of
-            Just tab ->
-                case tab of
-                    AppTab_Description ->
-                        viewTabDescription model pageApp
-
-                    AppTab_Metadata ->
-                        viewTabMetadata model pageApp
-
-            Nothing ->
-                viewTabDescription model pageApp
-        ]
-
-
-viewTabDescription : Model -> PageApp -> Html Update
-viewTabDescription model pageApp =
+viewDescription : Model -> PageApp -> Html Update
+viewDescription model pageApp =
     div []
         [ p [ class "lead" ] [ text pageApp.pageApp_app.app_description ]
         , viewInstructionsUsage model pageApp
         ]
 
 
-viewTabMetadata : Model -> PageApp -> Html Update
-viewTabMetadata model pageApp =
-    div [ class "row" ]
-        [ div [ class "col-md-6" ]
-            [ h5 [ class "mb-3" ] [ text "Resources" ]
-            , ul [ class "list-group list-group-flush" ]
-                [ li [ class "list-group-item bg-transparent px-0" ]
-                    [ a [ href "#", target "_blank" ] [ text "Homepage" ] ]
-                , li [ class "list-group-item bg-transparent px-0" ]
-                    [ a [ href "#", target "_blank" ] [ text "Documentation" ] ]
-                , li [ class "list-group-item bg-transparent px-0" ]
-                    [ a [ href "#", target "_blank" ] [ text "Source Repository" ] ]
-                , viewRecipeLink model pageApp
-                ]
+viewTabResources : Model -> PageApp -> Html Update
+viewTabResources model pageApp =
+    div [ class "box-container mb-3" ]
+        [ h6
+            [ class "mt-3 mb-3 ms-2"
+            , id "resources"
             ]
-        , div [ class "col-md-6" ]
-            [ h5
-                [ class "mb-3"
-                , id "funding"
+            [ text "Resources"
+            , a
+                [ class "anchor-link"
+                , href "/app/python-web-app?runOutput=shell#resources"
                 ]
-                [ text "Funding"
+                []
+            ]
+        , ul [ class "", style "padding-left" "10px" ]
+            [ li [ class "list-group-item bg-transparent px-0 mb-3" ]
+                [ a
+                    [ href "#"
+                    , target "_blank"
+                    , rel "noopener"
+                    ]
+                    [ text "Homepage" ]
+                ]
+            , li
+                [ class "list-group-item bg-transparent px-0 mb-3"
+                ]
+                [ a
+                    [ href "#"
+                    , target "_blank"
+                    , rel "noopener"
+                    ]
+                    [ text "Documentation" ]
+                ]
+            , li [ class "list-group-item bg-transparent px-0 mb-3" ]
+                [ a
+                    [ href "#"
+                    , target "_blank"
+                    , rel "noopener"
+                    ]
+                    [ text "Source Repository" ]
+                ]
+            , viewRecipeLink model pageApp
+            ]
+        ]
+
+
+viewTabNgiGrants : Model -> PageApp -> Html msg
+viewTabNgiGrants model pageApp =
+    let
+        subgrants =
+            pageApp.pageApp_app.app_grants
+    in
+    if hasAnyGrants subgrants then
+        div [ class "box-container mb-3" ]
+            [ h6
+                [ class "mt-3 mb-3 ms-2"
+                , id "grants"
+                ]
+                [ text "NGI Grants"
                 , a
                     [ class "anchor-link"
-                    , href "/app/python-web-app?runOutput=shell&tab=metadata#funding"
+                    , href "/app/python-web-app?runOutput=shell#grants"
                     ]
                     []
                 ]
-            , viewPageAppNgiSubgrants model pageApp
+            , div []
+                [ viewGrantCategory "Commons" subgrants.commons
+                , viewGrantCategory "Core" subgrants.core
+                , viewGrantCategory "Entrust" subgrants.entrust
+                , viewGrantCategory "Review" subgrants.review
+                ]
             ]
-        ]
+
+    else
+        text ""
 
 
 hasAnyGrants : AppNgiSubgrants -> Bool
@@ -383,12 +406,12 @@ viewGrantCategory categoryName grants =
         text ""
 
     else
-        div [ class "mb-3" ]
-            [ h6 [] [ text categoryName ]
-            , ul [ class "list-group" ]
+        div [ class "container row mb-1" ]
+            [ small [ class "col-6" ] [ text categoryName ]
+            , ul [ class "col" ]
                 (List.map
                     (\grantName ->
-                        li [ class "list-group-item" ]
+                        li [ class "list-group-item bg-transparent mb-1" ]
                             [ a
                                 [ href ("https://nlnet.nl/project/" ++ grantName ++ "/")
                                 , target "_blank"
@@ -400,63 +423,6 @@ viewGrantCategory categoryName grants =
                     grants
                 )
             ]
-
-
-viewPageAppNgiSubgrants : Model -> PageApp -> Html msg
-viewPageAppNgiSubgrants model pageApp =
-    let
-        subgrants =
-            pageApp.pageApp_app.app_grants
-    in
-    if hasAnyGrants subgrants then
-        div [ class "subgrants-container mt-4" ]
-            [ p [ style "font-size" "0.875rem" ] [ text "This project is funded by NLnet through these subgrants:" ]
-            , viewGrantCategory "Commons" subgrants.commons
-            , viewGrantCategory "Core" subgrants.core
-            , viewGrantCategory "Entrust" subgrants.entrust
-            , viewGrantCategory "Review" subgrants.review
-            ]
-
-    else
-        div [ class "alert alert-warning" ]
-            [ p [] [ text "Funding information is missing for this application." ]
-            , p []
-                [ text "Please file an issue in our "
-                , a
-                    [ -- href "https://github.com/ngi-nix/forge/issues/new/choose"
-                      href
-                        (let
-                            repo =
-                                "https://github.com/phanirithvij/phanirithvij.github.io"
-
-                            deploymentBase =
-                                "https://ngi-nix.github.io/forge"
-
-                            route =
-                                "/issues/new"
-
-                            template =
-                                "?template=bug-report-missing-funding.yml"
-
-                            title =
-                                "python-web-app: Funding information missing in homepage"
-
-                            -- NOTE: encodeURIComponent("#")
-                            pageUrl =
-                                "/app/python-web-app%23funding"
-                         in
-                         repo ++ route ++ template ++ "&title=" ++ title ++ "&page-url=" ++ deploymentBase ++ pageUrl
-                        )
-                    , target "_blank"
-                    ]
-                    [ text "repository" ]
-                , text ". (requires a microsoft github account)"
-                ]
-            ]
-
-
-
--- Hides the entire section (including intro text) if all arrays are empty
 
 
 viewRecipeLink : Model -> PageApp -> Html update
@@ -474,7 +440,7 @@ viewRecipeLink model pageApp =
                 )
             , target "_blank"
             ]
-            [ text "Recipe Definition" ]
+            [ text "Forge Recipe" ]
         ]
 
 

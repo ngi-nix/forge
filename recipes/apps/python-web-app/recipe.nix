@@ -32,7 +32,10 @@
   '';
 
   grants = {
-    Entrust = [ "Mox" ];
+    Entrust = [
+      "Mox"
+      "Mox-API"
+    ];
     Commons = [ "PdfDing" ];
     Core = [ "0WM" ];
     Review = [ "Mox-API" ];

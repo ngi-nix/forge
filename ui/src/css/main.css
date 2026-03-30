@@ -158,3 +158,16 @@ a:link {
   text-decoration: none;
   opacity: 1;
 }
+
+/* box containers */
+.box-container {
+  background-color: #f6f6ff;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 14px;
+  border-radius: 3px;
+}
+
+[data-bs-theme="dark"] .box-container {
+  background-color: #28283f;
+}
