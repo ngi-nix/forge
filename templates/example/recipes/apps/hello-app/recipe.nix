@@ -7,7 +7,6 @@
 
 {
   name = "hello-app";
-  version = "1.0.0";
   description = "Say hello to Nix.";
 
   programs = {

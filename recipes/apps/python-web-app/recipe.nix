@@ -7,7 +7,6 @@
 
 {
   name = "python-web-app";
-  version = "1.0.0";
   description = "Simple web application with database backend.";
   usage = ''
     This is a simple example app which provides a web API to manage a list of

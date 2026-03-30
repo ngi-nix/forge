@@ -59,7 +59,7 @@ in
               app:
               let
                 appDrv = pkgs.symlinkJoin {
-                  name = "${app.name}-${app.version}";
+                  name = "${app.name}";
                   paths = app.programs.requirements;
                 };
               in

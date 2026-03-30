@@ -6,7 +6,6 @@ import Json.Decode as Decode exposing (Decoder)
 type alias App =
     { app_name : AppName
     , app_description : String
-    , app_version : String
     , app_usage : String
     , app_programs : AppPrograms
     , app_container : AppContainer
@@ -35,10 +34,9 @@ type alias AppName =
 
 decodeApp : Decoder App
 decodeApp =
-    Decode.map7 App
+    Decode.map6 App
         (Decode.field "name" decodeAppName)
         (Decode.field "description" Decode.string)
-        (Decode.field "version" Decode.string)
         (Decode.field "usage" Decode.string)
         (Decode.field "programs" decodeAppPrograms)
         (Decode.field "container" decodeAppContainer)

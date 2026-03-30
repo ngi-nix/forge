@@ -7,7 +7,6 @@
 
 {
   name = "hello-nix";
-  version = "1.0.0";
   description = "Hello Nix package built from local source";
   homePage = "https://github.com/imincik/nix-forge";
   mainProgram = "hello";

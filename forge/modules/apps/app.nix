@@ -19,10 +19,6 @@
       type = lib.types.str;
       default = "";
     };
-    version = lib.mkOption {
-      type = lib.types.str;
-      default = "1.0.0";
-    };
     usage = lib.mkOption {
       type = lib.types.str;
       default = "";

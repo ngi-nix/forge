@@ -216,11 +216,6 @@ viewPageSearchApp model app =
             , style "justify-content" "space-between"
             ]
             [ h5 [ class "mb-1" ] [ text app.app_name ]
-            , small
-                [ class "text-muted"
-                , style "font-style" "italic"
-                ]
-                [ text ("v" ++ app.app_version) ]
             ]
         , p
             [ class "mb-1"
@@ -263,12 +258,6 @@ viewPageApp model pageApp =
             [ div []
                 [ h3 [ style "margin" "0" ]
                     [ text pageApp.pageApp_route.routeApp_name
-                    , text " "
-                    , small
-                        [ class "text-muted"
-                        , style "font-size" "0.875rem"
-                        ]
-                        [ text ("v" ++ pageApp.pageApp_app.app_version) ]
                     ]
                 ]
             , Html.button
