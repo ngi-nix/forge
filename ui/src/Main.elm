@@ -49,6 +49,7 @@ init flags =
                 { modelRecipeOptions_available = Dict.empty
                 , modelRecipeOptions_filtered = Dict.empty
                 }
+            , model_route = Route_Search { routeSearch_pattern = "" }
             }
     in
     case flags.href |> Url.fromString of

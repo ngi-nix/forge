@@ -18,6 +18,7 @@ type alias Model =
         , pref_flakes : Bool
         }
     , model_navbarExpanded : Bool
+    , model_route : Route
     , model_RecipeOptions : ModelRecipeOptions
     }
 

@@ -239,6 +239,7 @@ updateRoute route =
                     ( { model
                         | model_page = Page_Search
                         , model_search = routeSearch.routeSearch_pattern
+                        , model_route = route
                       }
                     , Cmd.none
                     )
@@ -277,6 +278,7 @@ updateRoute route =
                                                     }
                                                 , pageApp_app = app
                                                 }
+                                        , model_route = route
                                     }
 
                                 Just output ->
@@ -299,6 +301,7 @@ updateRoute route =
                                                     { pageApp_route = routeApp
                                                     , pageApp_app = app
                                                     }
+                                            , model_route = route
                                         }
 
                                     else
@@ -309,12 +312,14 @@ updateRoute route =
                                                     , pageApp_app = app
                                                     }
                                             , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NoSuchOutput output) ]
+                                            , model_route = route
                                         }
 
                         Nothing ->
                             { model
                                 | model_page = Page_Search
                                 , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NotFound routeApp.routeApp_name) ]
+                                , model_route = route
                             }
                     , Cmd.none
                     )
@@ -339,6 +344,7 @@ updateRoute route =
                                         recipeOptions.modelRecipeOptions_available
                                             |> Dict.filter (\name opt -> String.contains (search |> String.toLower) (name |> String.toLower))
                                 }
+                            , model_route = route
                           }
                         , Cmd.none
                         )
