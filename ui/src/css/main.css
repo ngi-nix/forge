@@ -169,3 +169,8 @@ details.accordion-item[open] > summary.accordion-button::after {
     margin-left: 0;
   }
 }
+
+/* remove bootstrap default behavior */
+[data-bs-theme="dark"] .navbar-toggler-icon {
+  --bs-navbar-toggler-icon-bg: "";
+}

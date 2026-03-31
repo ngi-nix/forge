@@ -49,7 +49,7 @@ view model =
                         )
                     , onClick Update_ToggleNavBar
                     ]
-                    [ span [ class "navbar-toggler-icon" ] []
+                    [ iconList [ "navbar-toggler-icon" ]
                     ]
                 ]
             , div
