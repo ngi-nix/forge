@@ -131,14 +131,25 @@ let
 
         callPackage' = pkgs.newScope { devshellEnv = final; };
 
-        # ./commands/<category>/<command.nix> - [category]
-        # ./commands/<command.nix>            - [[genral commands]]
         getCategory =
           file:
           let
             parentDir = dirOf file;
+            grandParentDir = dirOf parentDir;
+            isDefault = baseNameOf file == "default.nix";
           in
-          if parentDir == src then final.generalCategory else baseNameOf parentDir;
+          # ./commands/<command.nix>
+          if parentDir == src then
+            final.generalCategory
+          # ./commands/<command>/default.nix
+          else if isDefault && grandParentDir == src then
+            final.generalCategory
+          # ./commands/<category>/<command>/default.nix
+          else if isDefault then
+            baseNameOf grandParentDir
+          # ./commands/<category>/<command.nix>
+          else
+            baseNameOf parentDir;
 
         groupedFiles = builtins.groupBy getCategory files;
       in
