@@ -83,35 +83,29 @@ fromAppUrl url =
                     Err (ErrorRoute_Parsing (Json.Decode.errorToString e))
 
                 Ok name ->
+                    let
+                        ( isRunShown, runOutput ) =
+                            case url.fragment of
+                                Just "run-shell" ->
+                                    ( True, Just AppOutput_Shell )
+
+                                Just "run-container" ->
+                                    ( True, Just AppOutput_Container )
+
+                                Just "run-vm" ->
+                                    ( True, Just AppOutput_VM )
+
+                                Just "run" ->
+                                    ( True, Nothing )
+
+                                _ ->
+                                    ( False, Nothing )
+                    in
                     Ok
                         (Route_App
                             { routeApp_name = name
-                            , routeApp_runShown =
-                                case url.queryParameters |> Dict.get "showRun" |> Maybe.andThen List.uncons of
-                                    Nothing ->
-                                        False
-
-                                    Just _ ->
-                                        True
-                            , routeApp_runOutput =
-                                url.queryParameters
-                                    |> Dict.get "runOutput"
-                                    |> Maybe.andThen List.uncons
-                                    |> Maybe.map
-                                        (\( output, _ ) ->
-                                            case output of
-                                                "shell" ->
-                                                    AppOutput_Shell
-
-                                                "container" ->
-                                                    AppOutput_Container
-
-                                                "vm" ->
-                                                    AppOutput_VM
-
-                                                _ ->
-                                                    AppOutput_Shell
-                                        )
+                            , routeApp_runShown = isRunShown
+                            , routeApp_runOutput = runOutput
                             }
                         )
 
@@ -146,33 +140,30 @@ toAppUrl route =
 
         Route_App routeApp ->
             { path = deployPath ++ [ "app", routeApp.routeApp_name ]
-            , queryParameters =
-                [ ( "showRun"
-                  , if routeApp.routeApp_runShown then
-                        [ "" ]
+            , queryParameters = Dict.empty
+            , fragment =
+                if routeApp.routeApp_runShown then
+                    Just
+                        ("run"
+                            ++ (case routeApp.routeApp_runOutput of
+                                    Nothing ->
+                                        ""
 
-                    else
-                        []
-                  )
-                , ( "runOutput"
-                  , case routeApp.routeApp_runOutput of
-                        Nothing ->
-                            []
+                                    Just output ->
+                                        case output of
+                                            AppOutput_Shell ->
+                                                "-shell"
 
-                        Just output ->
-                            case output of
-                                AppOutput_Shell ->
-                                    [ "shell" ]
+                                            AppOutput_Container ->
+                                                "-container"
 
-                                AppOutput_Container ->
-                                    [ "container" ]
+                                            AppOutput_VM ->
+                                                "-vm"
+                               )
+                        )
 
-                                AppOutput_VM ->
-                                    [ "vm" ]
-                  )
-                ]
-                    |> Dict.fromList
-            , fragment = Nothing
+                else
+                    Nothing
             }
 
         Route_RecipeOptions routeRecipe ->
