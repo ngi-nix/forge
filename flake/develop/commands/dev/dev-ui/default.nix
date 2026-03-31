@@ -1,8 +1,6 @@
 # Usage:
 #   nix-shell --run 'dev-ui'
 {
-  lib,
-  which,
   replaceVarsWith,
   runtimeShell,
 }:
@@ -11,6 +9,10 @@
   isExecutable = true;
   dir = "bin";
   src = ./ui.sh;
-  replacements = { inherit runtimeShell; };
+  replacements = {
+    inherit runtimeShell;
+    defaultListenPort = 3000;
+    mockBackend = "false";
+  };
   meta.description = "UI dev script";
 })

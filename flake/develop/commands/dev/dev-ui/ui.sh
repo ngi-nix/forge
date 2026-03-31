@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 set -u
+
 rootDir="$(git rev-parse --show-toplevel)"
 cd "$rootDir"
-listenPort="${listenPort:-3000}"
+
+listenPort="${listenPort:-@defaultListenPort@}"
+
 unit=ngi_nix_dev-"$listenPort"
 slice=session-"$unit"
+
 function clean {
   set +e
   systemctl --user stop "$slice".slice
   rm -f /run/user/"$UID"/systemd/user/"$unit"-*
   rm -rf "$rootDir"/ui/build
 }
+
 function onExit {
   set +e
   clean
@@ -33,6 +38,13 @@ ln -s "$rootDir/ui/src/favicon.svg" "$rootDir/ui/build/favicon.svg"
 # by using `-o`, or to copy files out of the Nix store.
 # Otherwise the GC can remove the results at any moment.
 
+if [ @mockBackend@ = "true" ]; then
+  # Using the explicit path from your devshell environment
+  BACKEND_COMMAND="$DEVSHELL_DIR/bin/mock-forge-config 5000 \"$rootDir/ui/build/forge-config.json\""
+else
+  BACKEND_COMMAND="$(command -v nix) build -f \"$rootDir\" _forge-config -o \"$rootDir/ui/build/forge-config.json\" --show-trace"
+fi
+
 systemctl --user edit --runtime --force --full "$unit"-backend.service --stdin <<EOT
 [Unit]
 
@@ -41,8 +53,8 @@ Type=oneshot
 RemainAfterExit=yes
 Slice=$slice.slice
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-ui.passthru.bootstrapCss -o "$rootDir/ui/build/bootstrap" --show-trace
-ExecStart=$(command -v nix) build -f "$rootDir" _forge-config -o "$rootDir/ui/build/forge-config.json" --show-trace
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-options -o "$rootDir/ui/build/forge-options.json" --show-trace
+ExecStart=$BACKEND_COMMAND
 EOT
 
 systemctl --user edit --runtime --force --full "$unit"-elm-watch.service --stdin <<EOT
