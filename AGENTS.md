@@ -321,93 +321,213 @@ build.extraDrvAttrs = {
 ```nix
 {
   name = "app-name";
-  version = "1.0.0";
   description = "Application description.";
-  usage = "Usage instructions in markdown...";  # Optional but helpful
+  usage = ''
+    Usage instructions in markdown format.
+
+    Supports markdown formatting, code blocks, etc.
+  '';  # Optional but highly recommended
+
+  # Optional: Services configuration (portable services)
+  services = { ... };
 
   # Enable output types (at least one must be enabled):
   programs = { ... };    # Shell bundle
-  containers = { ... };  # Docker containers
-  vm = { ... };         # NixOS VM
+  container = { ... };   # OCI container image
+  nixos = { ... };       # NixOS VM
 }
 ```
 
-**IMPORTANT:** Apps are always included in the packages output. However, individual outputs (programs bundle, containers, VM) are only generated when their respective `enable` option is set to `true`. If all three options are disabled, the app package will be available but will have no functional outputs.
+**IMPORTANT:** Apps are always included in the packages output. However, individual outputs (programs bundle, container, VM) are only generated when their respective `enable` option is set to `true`. If all three options are disabled, the app package will be available but will have no functional outputs.
+
+### Services (Portable Services)
+Services define processes that run within the application. They can be used across all output types (container, VM, etc.):
+
+```nix
+services = {
+  my-service = {
+    command = pkgs.mypkgs.my-package;  # Package or string
+    argv = [ "--port" "8080" ];        # Additional arguments
+    environment = [                     # Environment variables
+      "DATABASE_URL=postgresql://localhost/db"
+      "LOG_LEVEL=info"
+    ];
+  };
+
+  another-service = {
+    command = "python";
+    argv = [ "-m" "http.server" "8000" ];
+  };
+};
+```
 
 ### Programs (Shell Bundle)
+Creates a shell bundle with all required packages available in PATH:
+
 ```nix
 programs = {
   enable = true;  # Set to true to enable programs bundle output
   requirements = [
     pkgs.mypkgs.my-package  # Reference packages from forge
     pkgs.curl
+    pkgs.jq
   ];
 };
 ```
 
-### Containers
+**Access:** `nix shell .#<app>` or `nix build .#<app>`
+
+### Container (OCI Image)
+Builds a single OCI-compliant container image:
+
 ```nix
-containers = {
-  enable = true;  # Set to true to enable container images output
-  images = [
-    {
-      name = "api-server";
-      requirements = [ pkgs.mypkgs.my-package ];
-      config.CMD = [ "my-package" "--serve" ];
-    }
+container = {
+  enable = true;  # Set to true to enable container image output
+  name = "my-app";
+  tag = "latest";  # Optional, defaults to "latest"
+
+  requirements = [
+    pkgs.mypkgs.my-package  # Packages to include in /bin
   ];
-  composeFile = ./compose.yaml;  # Optional
+
+  # OCI image configuration
+  # See: https://specs.opencontainers.org/image-spec/config/#properties
+  imageConfig = {
+    Cmd = [ "my-package" "--serve" ];  # Default command
+    Env = [                             # Environment variables
+      "PORT=8080"
+      "LOG_LEVEL=info"
+    ];
+    ExposedPorts = {
+      "8080/tcp" = { };
+    };
+    WorkingDir = "/app";
+  };
+
+  composeFile = ./compose.yaml;  # Optional: Docker Compose file
 };
 ```
 
-### Virtual Machine
+**Access:** `nix build .#<app>.container` to build the image script
+
+**Note:** Services defined in the `services` section are automatically included in the container configuration.
+
+### NixOS VM
+Builds a complete NixOS virtual machine:
+
 ```nix
-vm = {
+nixos = {
   enable = true;  # Set to true to enable VM output
   name = "my-vm";
-  requirements = [ pkgs.mypkgs.my-package ];
-  config = {
-    ports = [ "8080:8080" ];
-    system = {
-      services.postgresql.enable = true;
-      systemd.services.my-service = {
-        script = "${pkgs.mypkgs.my-package}/bin/my-package";
-        wantedBy = [ "multi-user.target" ];
-      };
+
+  # NixOS system configuration
+  # See: https://search.nixos.org/options
+  extraConfig = {
+    services.postgresql = {
+      enable = true;
+      enableTCPIP = true;
+      authentication = ''
+        local all all trust
+        host all all 0.0.0.0/0 trust
+      '';
     };
+
+    services.nginx.enable = true;
+  };
+
+  # VM-specific settings
+  vm = {
+    cores = 4;           # Number of CPU cores (default: 4)
+    memorySize = 2048;   # RAM in MiB (default: 2048)
+    diskSize = 4096;     # Disk size in MiB (default: 4096)
+    forwardPorts = [     # Port forwarding (HOST:GUEST)
+      "8080:80"
+      "5432:5432"
+    ];
   };
 };
 ```
+
+**Access:** `nix build .#<app>.vm` then run `./result/bin/run-*-vm`
+
+**Note:** Services defined in the `services` section are automatically configured as systemd services in the VM.
 
 ### Output Control
 
 Each app output type can be independently enabled or disabled:
 
-- **programs.enable**: Controls the base programs bundle (accessed via `nix build .#<app>`)
-- **containers.enable**: Controls the container images output (accessed via `nix build .#<app>.containers`)
-- **vm.enable**: Controls the virtual machine output (accessed via `nix build .#<app>.vm`)
+- **programs.enable**: Controls the shell bundle (accessed via `nix shell .#<app>`)
+- **container.enable**: Controls the container image (accessed via `nix build .#<app>.container`)
+- **nixos.enable**: Controls the virtual machine (accessed via `nix build .#<app>.vm`)
 
-**Example with selective outputs:**
+**Complete example with all outputs:**
 ```nix
 {
-  name = "my-app";
-  version = "1.0.0";
-  description = "Example app with selective outputs.";
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
+{
+  name = "python-web-app";
+  description = "Simple web application with database backend.";
+  usage = ''
+    This is a simple example app which provides a web API.
+
+    * Initialize database
+    ```
+    curl -X POST localhost:5000/init
+    ```
+
+    * Add a new user
+    ```
+    curl -X POST --header "Content-Type: application/json" \
+      --data '{"name":"username"}' localhost:5000/users
+    ```
+  '';
+
+  # Define the web service
+  services.python-web = {
+    command = pkgs.mypkgs.python-web;
+    argv = [ "--host" "0.0.0.0" ];
+    environment = [ "FLASK_ENV=production" ];
+  };
+
+  # Shell bundle with additional tools
   programs = {
-    enable = true;  # Programs bundle will be built
-    requirements = [ pkgs.hello ];
+    enable = true;
+    requirements = [
+      pkgs.mypkgs.python-web
+      pkgs.curl
+      pkgs.postgresql
+    ];
   };
 
-  containers = {
-    enable = false;  # Container images will NOT be built
-    images = [ /* ... */ ];
+  # Container image
+  container = {
+    enable = true;
+    name = "python-web";
+    tag = "latest";
+    requirements = [ pkgs.mypkgs.python-web ];
+    imageConfig = {
+      Env = [ "PORT=5000" ];
+      ExposedPorts = { "5000/tcp" = { }; };
+    };
+    composeFile = ./compose.yaml;
   };
 
-  vm = {
-    enable = true;  # VM will be built
-    name = "my-vm";
-    requirements = [ pkgs.hello ];
+  # VM with PostgreSQL
+  nixos = {
+    enable = true;
+    name = "python-web";
+    extraConfig = {
+      services.postgresql = {
+        enable = true;
+        enableTCPIP = true;
+      };
+    };
+    vm.forwardPorts = [ "5000:5000" ];
   };
 }
 ```
