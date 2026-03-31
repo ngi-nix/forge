@@ -44,6 +44,7 @@ init flags =
                 { pref_theme = themeFromString flags.theme
                 , pref_flakes = flags.prefersFlakes
                 }
+            , model_navbarExpanded = False
             , model_RecipeOptions =
                 { modelRecipeOptions_available = Dict.empty
                 , modelRecipeOptions_filtered = Dict.empty
