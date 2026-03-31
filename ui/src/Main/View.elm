@@ -1,8 +1,8 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, code, div, footer, h3, h5, h6, header, img, input, li, main_, nav, p, section, small, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, name, placeholder, rel, src, style, tabindex, target, title, type_, value, width)
+import Html exposing (Html, a, button, code, div, footer, h3, h5, header, img, input, li, main_, p, section, small, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, name, placeholder, src, style, tabindex, target, title, type_, value, width)
 import Html.Events exposing (onInput, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -23,27 +23,53 @@ import Main.View.Instructions exposing (..)
 view : Model -> Html Update
 view model =
     div
-        [ class "min-vh-100 container d-flex flex-column"
-        ]
+        [ class "min-vh-100 container d-flex flex-column" ]
         [ header
-            [ class "py-3 d-flex align-items-center justify-content-between"
-            ]
+            [ class "py-3" ]
             [ div
-                [ class "d-flex gap-3 flex-grow-1"
-                , style "align-items" "center"
-                ]
+                [ class "d-flex align-items-center gap-2 gap-md-3" ]
                 [ viewTitle
-                , model |> viewSearchInput
+                , div [ class "flex-grow-1" ]
+                    [ model |> viewSearchInput ]
+                , div
+                    [ class "d-none d-md-flex align-items-center gap-4" ]
+                    [ -- viewPackagesLink
+                      viewRecipeOptionsLink
+                    , model |> viewThemeToggle
+                    ]
+                , button
+                    [ class "navbar-toggler d-md-none border-0 p-1"
+                    , type_ "button"
+                    , attribute "aria-expanded"
+                        (if model.model_navbarExpanded then
+                            "true"
+
+                         else
+                            "false"
+                        )
+                    , onClick Update_ToggleNavBar
+                    ]
+                    [ span [ class "navbar-toggler-icon" ] []
+                    ]
                 ]
-            , nav
-                [ class "navbar-nav navbar-expand-lg ms-3"
-                , class "d-flex ms-3"
-                , style "align-items" "center"
-                , style "flex-direction" "row"
-                , style "justify-content" "space-evenly"
+            , div
+                [ class "collapse d-md-none mt-3"
+                , class
+                    (if model.model_navbarExpanded then
+                        " show"
+
+                     else
+                        ""
+                    )
                 ]
-                [ li [ class "nav-item me-3" ] [ viewRecipeOptionsLink ]
-                , model |> viewThemeToggle
+                [ div
+                    [ class "card card-body bg-body-tertiary shadow-sm" ]
+                    [ ul [ class "nav flex-column gap-2" ]
+                        [ -- li [ class "nav-item" ] [ viewPackagesLink ]
+                          li [ class "nav-item" ] [ viewRecipeOptionsLink ]
+                        , li [ class "nav-item mt-2 pt-2 border-top" ] [ model |> viewThemeToggle ]
+                        ]
+                    ]
                 ]
             ]
         , div []
@@ -67,16 +93,22 @@ viewTitle : Html Update
 viewTitle =
     a
         [ href (Route_Search { routeSearch_pattern = "" } |> Route.toString)
+        , class "d-flex align-items-center m-0"
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
-        , class "navbar-brand"
         , style "font-size" "1.5rem"
-        , style "font-weight" "bold"
+        , style "gap" ".5rem"
         , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
         ]
-        [ img [ src "favicon.svg", width 40, class "me-2" ] []
-        , text "NGI Forge"
+        [ img
+            [ src "favicon.svg"
+            , width 25
+            ]
+            []
+        , span
+            [ class "brand-text fw-bold" ]
+            [ text "NGI Forge" ]
         ]
 
 
@@ -127,18 +159,34 @@ viewRecipeOptionsLink =
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
-        , class "nav-link"
+        , class "nav-link px-0"
         , title "View available recipe options"
         , attribute "aria-label" "View available recipe options"
         , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
         ]
-        [ iconBookHalf ]
+        [ text "Options" ]
+
+
+viewPackagesLink : Html Update
+viewPackagesLink =
+    a
+        [ href (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" } |> Route.toString)
+        , style "color" "inherit"
+        , style "text-decoration" "none"
+        , style "cursor" "pointer"
+        , class "nav-link px-0"
+        , title "View available packages"
+        , attribute "aria-label" "View available packages"
+        , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
+        ]
+        [ text "Packages" ]
 
 
 viewThemeToggle : Model -> Html Update
 viewThemeToggle model =
     span
         [ class "nav-item"
+        , style "cursor" "pointer"
         , title "Toggle theme"
         , attribute "aria-label" "Toggle theme"
         , onClick Update_CycleTheme
@@ -262,7 +310,7 @@ viewPageApp model pageApp =
                     [ text pageApp.pageApp_route.routeApp_name
                     ]
                 ]
-            , Html.button
+            , button
                 [ class "btn btn-success"
                 , let
                     route =
@@ -329,7 +377,7 @@ viewPageAppRun model pageApp =
                     [ div [ class "modal-content" ]
                         [ div [ class "modal-header" ]
                             [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_route.routeApp_name) ]
-                            , Html.button
+                            , button
                                 [ class "btn-close"
                                 , let
                                     route =
@@ -378,7 +426,7 @@ viewPageAppRunOuputs model pageApp =
 viewPageAppRunOuput : Model -> PageApp -> AppOutput -> Html Update
 viewPageAppRunOuput model pageApp appOutput =
     li [ class "nav-item" ]
-        [ Html.button
+        [ a
             [ class
                 ([ "nav-link"
                  , if Just appOutput == pageApp.pageApp_route.routeApp_runOutput then

@@ -16,6 +16,7 @@ type alias Model =
     , model_preferences :
         { pref_theme : Theme
         }
+    , model_navbarExpanded : Bool
     , model_RecipeOptions : ModelRecipeOptions
     }
 

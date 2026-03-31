@@ -34,6 +34,7 @@ type Update
     | -- `Update_Updater up` simply applies `up` to the `Model`.
       -- Useful in a `Update_Chain` to defer `up` after some other updates.
       Update_Updater Updater
+    | Update_ToggleNavBar
     | Update_CycleTheme
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState
@@ -108,6 +109,9 @@ update upd model =
             ( { model | model_preferences = newPrefs }
             , ThemeSwitch.saveTheme (themeToString nextTheme)
             )
+
+        Update_ToggleNavBar ->
+            ( { model | model_navbarExpanded = not model.model_navbarExpanded }, Cmd.none )
 
         Update_SearchInput usi ->
             case usi of
