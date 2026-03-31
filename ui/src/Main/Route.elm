@@ -86,31 +86,28 @@ fromAppUrl url =
 
                 Ok name ->
                     let
-                        routeApp_runOutput =
+                        ( isRunShown, runOutput ) =
                             case url.fragment of
                                 Just "run-shell" ->
-                                    Just AppOutput_Shell
+                                    ( True, Just AppOutput_Shell )
 
                                 Just "run-container" ->
-                                    Just AppOutput_Container
+                                    ( True, Just AppOutput_Container )
 
                                 Just "run-vm" ->
-                                    Just AppOutput_VM
+                                    ( True, Just AppOutput_VM )
+
+                                Just "run" ->
+                                    ( True, Nothing )
 
                                 _ ->
-                                    Nothing
+                                    ( False, Nothing )
                     in
                     Ok
                         (Route_App
                             { routeApp_name = name
-                            , routeApp_runShown =
-                                case routeApp_runOutput of
-                                    Just _ ->
-                                        True
-
-                                    Nothing ->
-                                        False
-                            , routeApp_runOutput = routeApp_runOutput
+                            , routeApp_runShown = isRunShown
+                            , routeApp_runOutput = runOutput
                             }
                         )
 
@@ -178,19 +175,24 @@ toAppUrl route =
             , queryParameters = Dict.empty
             , fragment =
                 if routeApp.routeApp_runShown then
-                    routeApp.routeApp_runOutput
-                        |> Maybe.map
-                            (\output ->
-                                case output of
-                                    AppOutput_Shell ->
-                                        "run-shell"
+                    Just
+                        ("run"
+                            ++ (case routeApp.routeApp_runOutput of
+                                    Nothing ->
+                                        ""
 
-                                    AppOutput_Container ->
-                                        "run-container"
+                                    Just output ->
+                                        case output of
+                                            AppOutput_Shell ->
+                                                "-shell"
 
-                                    AppOutput_VM ->
-                                        "run-vm"
-                            )
+                                            AppOutput_Container ->
+                                                "-container"
+
+                                            AppOutput_VM ->
+                                                "-vm"
+                               )
+                        )
 
                 else
                     Nothing

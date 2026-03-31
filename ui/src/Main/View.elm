@@ -2,8 +2,8 @@ module Main.View exposing (..)
 
 import AppUrl
 import Dict
-import Html exposing (Html, a, button, code, div, footer, h2, h3, h5, header, img, input, li, main_, p, section, small, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, name, placeholder, src, style, tabindex, target, title, type_, value, width)
+import Html exposing (Html, a, button, code, div, footer, h2, h5, h6, header, img, input, li, main_, p, section, small, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, name, placeholder, rel, src, style, tabindex, target, title, type_, value, width)
 import Html.Events exposing (onInput, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -594,6 +594,7 @@ viewPageAppRunOutput model pageApp appOutput =
                 )
             , style "cursor" "pointer"
             , style "border" "none"
+            , id <| "run-" ++ (showAppOutput appOutput |> String.toLower)
             , let
                 route =
                     pageApp.pageApp_route
