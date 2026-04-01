@@ -230,7 +230,7 @@ source = {
 };
 ```
 
-**Supported forges**: github, gitlab
+**Supported forges**: github, gitlab, codeberg
 
 ### URL Sources
 ```nix

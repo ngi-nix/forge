@@ -25,6 +25,7 @@ in
                   let
                     forges = {
                       # forge = fetchFunction
+                      codeberg = pkgs.fetchFromCodeberg;
                       github = pkgs.fetchFromGitHub;
                       gitlab = pkgs.fetchFromGitLab;
                     };
