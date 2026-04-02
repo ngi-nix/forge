@@ -159,7 +159,7 @@ viewRecipeOptionsLink =
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
-        , class "nav-link px-0"
+        , class "nav-link px-0 fw-bold"
         , title "View available recipe options"
         , attribute "aria-label" "View available recipe options"
         , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
@@ -445,7 +445,7 @@ viewPageAppRunOuput model pageApp appOutput =
               in
               onClick (Update_Route (Route_App { route | routeApp_runOutput = Just appOutput }))
             ]
-            [ text <| showAppOutput appOutput
+            [ span [ class "fw-bold" ] [ text <| showAppOutput appOutput ]
             ]
         ]
 
