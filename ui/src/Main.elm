@@ -39,7 +39,10 @@ init flags =
             , model_search = ""
             , model_page = Page_Search
             , model_errors = []
-            , model_theme = themeFromString flags.theme
+            , model_preferences =
+                { pref_theme = themeFromString flags.theme
+                }
+            , model_navbarExpanded = False
             , model_RecipeOptions =
                 { modelRecipeOptions_available = Dict.empty
                 , modelRecipeOptions_filtered = Dict.empty

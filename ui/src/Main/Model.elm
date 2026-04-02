@@ -13,7 +13,10 @@ type alias Model =
     , model_search : String
     , model_page : Page
     , model_errors : List Error
-    , model_theme : Theme
+    , model_preferences :
+        { pref_theme : Theme
+        }
+    , model_navbarExpanded : Bool
     , model_RecipeOptions : ModelRecipeOptions
     }
 

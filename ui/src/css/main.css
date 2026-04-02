@@ -141,3 +141,36 @@ details.accordion-item:not([open]) > summary.accordion-button::after {
 details.accordion-item[open] > summary.accordion-button::after {
   transform: rotate(-180deg); /* Points up when open */
 }
+
+/* navbar */
+
+.brand-text {
+  max-width: 200px;
+  opacity: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-left: 0.5rem;
+}
+
+.navbar-toggler-icon {
+  transition:
+    transform 0.3s ease-in-out,
+    filter 0.3s ease-in-out;
+}
+
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  .brand-text {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+  }
+}
+
+/* remove bootstrap default behavior */
+[data-bs-theme="dark"] .navbar-toggler-icon {
+  --bs-navbar-toggler-icon-bg: "";
+}
