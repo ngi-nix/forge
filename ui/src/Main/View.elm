@@ -1,7 +1,7 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, code, div, footer, h3, h5, header, img, input, li, main_, p, section, small, span, text, ul)
+import Html exposing (Html, a, button, code, div, footer, h2, h3, h5, header, img, input, li, main_, p, section, small, span, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, name, placeholder, src, style, tabindex, target, title, type_, value, width)
 import Html.Events exposing (onInput, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
@@ -272,7 +272,7 @@ viewPageSearchApp model app =
             ]
             [ text app.app_description ]
         , p
-            [ class "mb-1 "
+            [ class "mb-1"
             ]
             [ small []
                 (List.concat
@@ -306,7 +306,9 @@ viewPageApp model pageApp =
             , style "align-items" "center"
             ]
             [ div []
-                [ h3 [ style "margin" "0" ]
+                [ h2
+                    [ class "mb-1 fw-bold"
+                    ]
                     [ text pageApp.pageApp_route.routeApp_name
                     ]
                 ]
