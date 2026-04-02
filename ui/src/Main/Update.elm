@@ -38,6 +38,7 @@ type Update
       Update_Updater Updater
     | Update_ToggleNavBar
     | Update_CycleTheme
+    | Update_Focus String
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState
     | Update_SearchInput UpdateSearchInput
@@ -203,6 +204,11 @@ update upd model =
 
             else
                 ( model, Cmd.none )
+
+        Update_Focus id ->
+            ( model
+            , Task.attempt Update_FocusResult (Dom.focus id)
+            )
 
         Update_FocusResult _ ->
             -- Dom.focus and Dom.blur return a Result.
@@ -370,7 +376,12 @@ updateRoute route =
                                             |> Maybe.withDefault []
                                 }
                           }
-                        , Cmd.none
+                        , case routeRecipe.routeRecipeOptions_option of
+                            Nothing ->
+                                Cmd.none
+
+                            Just id ->
+                                Task.attempt Update_FocusResult (Dom.focus id)
                         )
 
 

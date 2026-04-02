@@ -38,6 +38,7 @@ type alias RouteRecipeOptions =
     { routeRecipeOptions_pattern : Maybe NixName
     , routeRecipeOptions_page : Int
     , routeRecipeOptions_MaxResultsPerPage : Int
+    , routeRecipeOptions_option : Maybe String
     }
 
 
@@ -146,6 +147,8 @@ fromAppUrl url =
                                     else
                                         p
                                )
+                    , routeRecipeOptions_option =
+                        url.fragment
                     }
                 )
 
@@ -225,7 +228,7 @@ toAppUrl route =
                   )
                 ]
                     |> Dict.fromList
-            , fragment = Nothing
+            , fragment = routeRecipe.routeRecipeOptions_option
             }
 
 

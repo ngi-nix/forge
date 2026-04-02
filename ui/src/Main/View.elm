@@ -160,6 +160,7 @@ viewRecipeOptionsLink =
                 { routeRecipeOptions_pattern = Just ""
                 , routeRecipeOptions_page = 1
                 , routeRecipeOptions_MaxResultsPerPage = 10
+                , routeRecipeOptions_option = Nothing
                 }
     in
     a
@@ -516,13 +517,13 @@ viewPageRecipeOption model pageRecipeOptions ( optionName, option ) =
         onClickRoute =
             Route_RecipeOptions
                 { routeRecipeOptions
-                    | routeRecipeOptions_pattern = Just optionName
-                    , routeRecipeOptions_page = 1
+                    | routeRecipeOptions_option = Just optionName
                 }
     in
     a
-        [ class "list-group-item list-group-item-action flex-column align-items-start"
+        [ class "recipe-option list-group-item list-group-item-action flex-column align-items-start"
         , href (onClickRoute |> Route.toString)
+        , id optionName
         , onClick (Update_Route onClickRoute)
         ]
         [ div [ class "d-flex w-100 justify-content-between" ]
