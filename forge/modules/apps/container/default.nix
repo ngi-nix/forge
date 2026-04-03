@@ -38,6 +38,12 @@
       '';
     };
 
+    setup = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "Script to run once at startup.";
+    };
+
     composeFile = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
@@ -113,6 +119,10 @@
             envAttrsToList envList;
         };
       };
+
+      settings.startup.runOnStartup = lib.mkIf (config.setup != "") (
+        pkgs.writeShellScript "container-setup" config.setup
+      );
 
       services = lib.mapAttrs (serviceName: service: {
         imports = [

@@ -33,6 +33,12 @@
       '';
     };
 
+    setup = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "Script to run once at startup.";
+    };
+
     extraConfig = lib.mkOption {
       type = with lib.types; lazyAttrsOf (either attrs anything);
       default = { };
@@ -171,12 +177,18 @@
               # TODO: is there a more robust way of doing this?
               # configData."*".path -> remove
               (lib.filterAttrsRecursive (name: value: name != "path"))
-              # pass env vars to systemd; escape args
               (lib.mapAttrs (
                 _: service:
                 lib.recursiveUpdate service.result {
                   systemd.mainExecStart = lib.escapeShellArgs service.result.process.argv;
-                  systemd.service.environment = service.environment;
+                  systemd.service = {
+                    environment = service.environment;
+                  }
+                  // lib.optionalAttrs (config.setup != "") {
+                    # make sure services run after setup is done
+                    after = [ "${config.name}-setup.service" ];
+                    requires = [ "${config.name}-setup.service" ];
+                  };
                 }
               ))
             ];
@@ -184,6 +196,19 @@
 
           environment.variables = lib.concatMapAttrs (_: value: value.environment) app.services;
         }
+        (lib.mkIf (config.setup != "") {
+          systemd.services."${config.name}-setup" = {
+            description = "Setup service for ${config.name}.";
+            wantedBy = [ "multi-user.target" ];
+            before = [ "multi-user.target" ];
+            after = [ "network.target" ];
+            script = config.setup;
+            serviceConfig = {
+              Type = "oneshot";
+              RemainAfterExit = true;
+            };
+          };
+        })
         config.extraConfig
       ];
     };
