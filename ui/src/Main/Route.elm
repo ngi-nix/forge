@@ -28,16 +28,18 @@ type alias RouteSearch =
 
 
 type alias RouteApp =
-    { -- | Remark(simplicity): this should be `Either` instead of `Result`,
-      -- but this requires https://github.com/toastal/either
-      routeApp_name : AppName
+    { routeApp_name : AppName
     , routeApp_runShown : Bool
     , routeApp_runOutput : Maybe AppOutput
     }
 
 
 type alias RouteRecipeOptions =
-    { routeRecipeOptions_pattern : Maybe NixName }
+    { routeRecipeOptions_pattern : Maybe NixName
+    , routeRecipeOptions_page : Int
+    , routeRecipeOptions_MaxResultsPerPage : Int
+    , routeRecipeOptions_option : Maybe String
+    }
 
 
 initRouteApp : AppName -> RouteApp
@@ -83,35 +85,32 @@ fromAppUrl url =
                     Err (ErrorRoute_Parsing (Json.Decode.errorToString e))
 
                 Ok name ->
+                    let
+                        routeApp_runOutput =
+                            case url.fragment of
+                                Just "run-shell" ->
+                                    Just AppOutput_Shell
+
+                                Just "run-container" ->
+                                    Just AppOutput_Container
+
+                                Just "run-vm" ->
+                                    Just AppOutput_VM
+
+                                _ ->
+                                    Nothing
+                    in
                     Ok
                         (Route_App
                             { routeApp_name = name
                             , routeApp_runShown =
-                                case url.queryParameters |> Dict.get "showRun" |> Maybe.andThen List.uncons of
-                                    Nothing ->
-                                        False
-
+                                case routeApp_runOutput of
                                     Just _ ->
                                         True
-                            , routeApp_runOutput =
-                                url.queryParameters
-                                    |> Dict.get "runOutput"
-                                    |> Maybe.andThen List.uncons
-                                    |> Maybe.map
-                                        (\( output, _ ) ->
-                                            case output of
-                                                "shell" ->
-                                                    AppOutput_Shell
 
-                                                "container" ->
-                                                    AppOutput_Container
-
-                                                "vm" ->
-                                                    AppOutput_VM
-
-                                                _ ->
-                                                    AppOutput_Shell
-                                        )
+                                    Nothing ->
+                                        False
+                            , routeApp_runOutput = routeApp_runOutput
                             }
                         )
 
@@ -119,7 +118,37 @@ fromAppUrl url =
             Ok
                 (Route_RecipeOptions
                     { routeRecipeOptions_pattern =
-                        url.queryParameters |> Dict.get "q" |> Maybe.andThen List.head
+                        url.queryParameters
+                            |> Dict.get "q"
+                            |> Maybe.andThen List.head
+                    , routeRecipeOptions_page =
+                        url.queryParameters
+                            |> Dict.get "page"
+                            |> Maybe.andThen List.head
+                            |> Maybe.andThen String.toInt
+                            |> Maybe.withDefault 0
+                            |> (\p ->
+                                    if p < 1 then
+                                        1
+
+                                    else
+                                        p
+                               )
+                    , routeRecipeOptions_MaxResultsPerPage =
+                        url.queryParameters
+                            |> Dict.get "MaxResultsPerPage"
+                            |> Maybe.andThen List.head
+                            |> Maybe.andThen String.toInt
+                            |> Maybe.withDefault 10
+                            |> (\p ->
+                                    if p < 1 then
+                                        1
+
+                                    else
+                                        p
+                               )
+                    , routeRecipeOptions_option =
+                        url.fragment
                     }
                 )
 
@@ -146,33 +175,25 @@ toAppUrl route =
 
         Route_App routeApp ->
             { path = deployPath ++ [ "app", routeApp.routeApp_name ]
-            , queryParameters =
-                [ ( "showRun"
-                  , if routeApp.routeApp_runShown then
-                        [ "" ]
+            , queryParameters = Dict.empty
+            , fragment =
+                if routeApp.routeApp_runShown then
+                    routeApp.routeApp_runOutput
+                        |> Maybe.map
+                            (\output ->
+                                case output of
+                                    AppOutput_Shell ->
+                                        "run-shell"
 
-                    else
-                        []
-                  )
-                , ( "runOutput"
-                  , case routeApp.routeApp_runOutput of
-                        Nothing ->
-                            []
+                                    AppOutput_Container ->
+                                        "run-container"
 
-                        Just output ->
-                            case output of
-                                AppOutput_Shell ->
-                                    [ "shell" ]
+                                    AppOutput_VM ->
+                                        "run-vm"
+                            )
 
-                                AppOutput_Container ->
-                                    [ "container" ]
-
-                                AppOutput_VM ->
-                                    [ "vm" ]
-                  )
-                ]
-                    |> Dict.fromList
-            , fragment = Nothing
+                else
+                    Nothing
             }
 
         Route_RecipeOptions routeRecipe ->
@@ -189,9 +210,25 @@ toAppUrl route =
                         Just q ->
                             [ q ]
                   )
+                , ( "page"
+                  , case routeRecipe.routeRecipeOptions_page of
+                        1 ->
+                            []
+
+                        p ->
+                            [ p |> String.fromInt ]
+                  )
+                , ( "MaxResultsPerPage"
+                  , case routeRecipe.routeRecipeOptions_MaxResultsPerPage of
+                        1 ->
+                            []
+
+                        p ->
+                            [ p |> String.fromInt ]
+                  )
                 ]
                     |> Dict.fromList
-            , fragment = Nothing
+            , fragment = routeRecipe.routeRecipeOptions_option
             }
 
 

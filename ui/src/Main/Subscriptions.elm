@@ -35,7 +35,7 @@ subscriptions model =
                                         route =
                                             pageApp.pageApp_route
                                     in
-                                    Update_Route (Route_App { route | routeApp_runShown = showRun })
+                                    Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = showRun })
                                 )
                         )
 

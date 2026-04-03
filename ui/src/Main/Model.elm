@@ -45,10 +45,11 @@ type alias PageApp =
 
 type alias PageRecipeOptions =
     { pageRecipeOptions_route : RouteRecipeOptions
+    , pageRecipeOptions_LastPage : Int
     }
 
 
 type alias ModelRecipeOptions =
     { modelRecipeOptions_available : NixModuleOptions
-    , modelRecipeOptions_filtered : NixModuleOptions
+    , modelRecipeOptions_filtered : List ( NixName, NixModuleOption )
     }

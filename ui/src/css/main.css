@@ -7,6 +7,12 @@ body {
   height: 100vh;
 }
 
+.recipe-option:focus {
+  border:2px solid red;
+  scroll-behavior:smooth;
+  scroll-snap-type:y mandatory;
+}
+
 /* Markdown content styling */
 .markdown-content pre {
   background-color: #1e1e1e;

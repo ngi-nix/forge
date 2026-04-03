@@ -154,30 +154,48 @@ viewSearchInput model =
 
 viewRecipeOptionsLink : Html Update
 viewRecipeOptionsLink =
+    let
+        onClickRoute =
+            Route_RecipeOptions
+                { routeRecipeOptions_pattern = Just ""
+                , routeRecipeOptions_page = 1
+                , routeRecipeOptions_MaxResultsPerPage = 10
+                , routeRecipeOptions_option = Nothing
+                }
+    in
     a
-        [ href (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" } |> Route.toString)
+        [ href (onClickRoute |> Route.toString)
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
         , class "nav-link px-0"
         , title "View available recipe options"
         , attribute "aria-label" "View available recipe options"
-        , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
+        , onClick (Update_Route onClickRoute)
         ]
         [ text "Options" ]
 
 
 viewPackagesLink : Html Update
 viewPackagesLink =
+    let
+        onClickRoute =
+            Route_RecipeOptions
+                { routeRecipeOptions_pattern = Just ""
+                , routeRecipeOptions_page = 1
+                , routeRecipeOptions_MaxResultsPerPage = 10
+                , routeRecipeOptions_option = Nothing
+                }
+    in
     a
-        [ href (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" } |> Route.toString)
+        [ href (onClickRoute |> Route.toString)
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
         , class "nav-link px-0"
         , title "View available packages"
         , attribute "aria-label" "View available packages"
-        , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just "" }))
+        , onClick (Update_Route onClickRoute)
         ]
         [ text "Packages" ]
 
@@ -316,7 +334,7 @@ viewPageApp model pageApp =
                     route =
                         pageApp.pageApp_route
                   in
-                  onClick (Update_Route (Route_App { route | routeApp_runShown = True }))
+                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
                 ]
                 [ text "Run" ]
             ]
@@ -354,6 +372,13 @@ viewRecipeLink model pageApp =
 
 viewPageAppRun : Model -> PageApp -> Html Update
 viewPageAppRun model pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+
+        onClickRoute =
+            Route_App { routeApp | routeApp_runShown = False }
+    in
     if not pageApp.pageApp_route.routeApp_runShown then
         text ""
 
@@ -364,11 +389,7 @@ viewPageAppRun model pageApp =
                 , style "display" "block"
                 , tabindex -1
                 , style "background-color" "rgba(0,0,0,0.5)"
-                , let
-                    route =
-                        pageApp.pageApp_route
-                  in
-                  onClick (Update_Route (Route_App { route | routeApp_runShown = False }))
+                , onClick (Update_RouteWithoutHistory onClickRoute)
                 ]
                 [ div
                     [ class "modal-dialog modal-lg"
@@ -379,16 +400,12 @@ viewPageAppRun model pageApp =
                             [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_route.routeApp_name) ]
                             , button
                                 [ class "btn-close"
-                                , let
-                                    route =
-                                        pageApp.pageApp_route
-                                  in
-                                  onClick (Update_Route (Route_App { route | routeApp_runShown = False }))
+                                , onClick (Update_RouteWithoutHistory onClickRoute)
                                 ]
                                 []
                             ]
                         , div [ class "modal-body" ]
-                            [ viewPageAppRunOuputs model pageApp
+                            [ viewPageAppRunOutputs model pageApp
                             , div [ class "tab-content mb-5 p-3 border rounded" ]
                                 [ viewPageAppInstructions model pageApp ]
                             ]
@@ -398,8 +415,8 @@ viewPageAppRun model pageApp =
             ]
 
 
-viewPageAppRunOuputs : Model -> PageApp -> Html Update
-viewPageAppRunOuputs model pageApp =
+viewPageAppRunOutputs : Model -> PageApp -> Html Update
+viewPageAppRunOutputs model pageApp =
     let
         enabled : AppOutput -> Bool
         enabled tab =
@@ -419,12 +436,12 @@ viewPageAppRunOuputs model pageApp =
          , AppOutput_VM
          ]
             |> List.filter enabled
-            |> List.map (viewPageAppRunOuput model pageApp)
+            |> List.map (viewPageAppRunOutput model pageApp)
         )
 
 
-viewPageAppRunOuput : Model -> PageApp -> AppOutput -> Html Update
-viewPageAppRunOuput model pageApp appOutput =
+viewPageAppRunOutput : Model -> PageApp -> AppOutput -> Html Update
+viewPageAppRunOutput model pageApp appOutput =
     li [ class "nav-item" ]
         [ a
             [ class
@@ -443,7 +460,7 @@ viewPageAppRunOuput model pageApp appOutput =
                 route =
                     pageApp.pageApp_route
               in
-              onClick (Update_Route (Route_App { route | routeApp_runOutput = Just appOutput }))
+              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runOutput = Just appOutput }))
             ]
             [ text <| showAppOutput appOutput
             ]
@@ -452,19 +469,71 @@ viewPageAppRunOuput model pageApp appOutput =
 
 viewPageRecipeOptions : Model -> PageRecipeOptions -> Html Update
 viewPageRecipeOptions model pageRecipeOptions =
-    div [ class "list-group" ]
-        (model.model_RecipeOptions.modelRecipeOptions_filtered
-            |> Dict.toList
-            |> List.map (viewPageRecipeOption model pageRecipeOptions)
-        )
+    let
+        routeRecipeOptions =
+            pageRecipeOptions.pageRecipeOptions_route
+
+        routePagePrev =
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_page = routeRecipeOptions.routeRecipeOptions_page - 1
+                }
+
+        routePageNext =
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_page = routeRecipeOptions.routeRecipeOptions_page + 1
+                }
+    in
+    div []
+        [ div [ class "list-group" ]
+            (model.model_RecipeOptions.modelRecipeOptions_filtered
+                |> List.map (viewPageRecipeOption model pageRecipeOptions)
+            )
+        , div []
+            [ if 1 < routeRecipeOptions.routeRecipeOptions_page then
+                Html.button
+                    [ class "btn"
+                    , onClick (Update_Route routePagePrev)
+                    ]
+                    [ text "Prev" ]
+
+              else
+                text ""
+            , text "Page "
+            , text (pageRecipeOptions.pageRecipeOptions_route.routeRecipeOptions_page |> String.fromInt)
+            , text " / "
+            , text (pageRecipeOptions.pageRecipeOptions_LastPage |> String.fromInt)
+            , if routeRecipeOptions.routeRecipeOptions_page < pageRecipeOptions.pageRecipeOptions_LastPage then
+                Html.button
+                    [ class "btn"
+                    , onClick (Update_Route routePageNext)
+                    ]
+                    [ text "Next" ]
+
+              else
+                text ""
+            ]
+        ]
 
 
 viewPageRecipeOption : Model -> PageRecipeOptions -> ( NixName, NixModuleOption ) -> Html Update
 viewPageRecipeOption model pageRecipeOptions ( optionName, option ) =
+    let
+        routeRecipeOptions =
+            pageRecipeOptions.pageRecipeOptions_route
+
+        onClickRoute =
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_option = Just optionName
+                }
+    in
     a
-        [ class "list-group-item list-group-item-action flex-column align-items-start"
-        , href (Route_RecipeOptions { routeRecipeOptions_pattern = Just optionName } |> Route.toString)
-        , onClick (Update_Route (Route_RecipeOptions { routeRecipeOptions_pattern = Just optionName }))
+        [ class "recipe-option list-group-item list-group-item-action flex-column align-items-start"
+        , href (onClickRoute |> Route.toString)
+        , id optionName
+        , onClick (Update_Route onClickRoute)
         ]
         [ div [ class "d-flex w-100 justify-content-between" ]
             [ h5
