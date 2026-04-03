@@ -95,7 +95,10 @@ in
                             description = ''
                               Git repository URL with revision.
 
-                              Format: platform:owner/repo/revision
+                              Formats:
+                                - platform:owner/repo/revision
+                                - git:url?tag=version
+                                - git:url?rev=hash
                             '';
                             example = "github:my-user/my-repo/v1.0.0";
                           };
