@@ -226,11 +226,11 @@ a:link {
   background-color: #28283f;
 }
 
-.box-container:focus {
+.box-container {
   outline: none;
 }
 
-.box-container.target-highlight:focus {
+.box-container.target-highlight.trigger-pulse {
   animation: highlight-pulse 2s ease-out;
 }
 

@@ -5,6 +5,7 @@ import {
   getInitialFlakePreference,
   initFlakePreferencePort,
 } from "./FlakePreference.js";
+import { initSmoothScrollPort } from "./SmoothScroll.js";
 
 const startingFlakePreference = getInitialFlakePreference();
 const startingTheme = getInitialTheme();
@@ -41,5 +42,7 @@ initNavigationPort({
 });
 
 initFlakePreferencePort(app);
+
+initSmoothScrollPort(app);
 
 initThemePort(app);
