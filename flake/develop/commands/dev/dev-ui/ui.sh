@@ -29,9 +29,6 @@ set -ex
 
 mkdir -p "$rootDir/ui/build/js"
 
-# symlink the favicon to build
-ln -sf "$rootDir/ui/src/favicon.svg" "$rootDir/ui/build/favicon.svg"
-
 # Warning(correctness): when using `nix build`,
 # be careful to either register the resulting output(s)
 # in $rootDir/ui/build as roots to nix's garbage-collector (GC)
@@ -90,8 +87,8 @@ Environment=PATH=$PATH
 ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --bundle \\
   --loader:.html=copy \\
-  --loader:.svg=file \\
-  --loader:.png=file \\
+  --loader:.svg=copy \\
+  --loader:.png=copy \\
   --outbase=src \\
   --outdir=build \\
   --serve=$listenPort \\
@@ -99,6 +96,7 @@ ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --serve-fallback=src/index.html \\
   --sourcemap=external \\
   --watch=forever \\
+  src/favicon.svg \\
   src/**/*.css \\
   src/**/*.html \\
   src/**/*.js \\
