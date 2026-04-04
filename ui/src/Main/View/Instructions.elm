@@ -215,10 +215,6 @@ viewProgramsInstructions model pageApp =
     let
         flakes =
             model.model_preferences.pref_flakes
-
-        -- add -app suffix
-        app_name =
-            pageApp.pageApp_app.app_name ++ "-app"
     in
     div []
         [ p [ style "margin-bottom" "0em" ]
@@ -230,7 +226,7 @@ viewProgramsInstructions model pageApp =
                     [ "nix shell "
                     , nixFlakeForgeInput model
                     , "#"
-                    , app_name
+                    , pageApp.pageApp_app |> app_output
                     ]
 
                  else
@@ -238,7 +234,7 @@ viewProgramsInstructions model pageApp =
                     , nixShellForgeInput model
                     , "  -p '(import <forge> {})"
                     , "."
-                    , app_name
+                    , pageApp.pageApp_app |> app_output
                     , "' "
                     ]
                 )
@@ -250,10 +246,6 @@ viewContainerInstructions model pageApp =
     let
         flakes =
             model.model_preferences.pref_flakes
-
-        -- add -app suffix
-        app_name =
-            pageApp.pageApp_app.app_name ++ "-app"
     in
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI containers" ]
@@ -265,7 +257,7 @@ viewContainerInstructions model pageApp =
                         [ "nix build "
                         , nixFlakeForgeInput model
                         , "#"
-                        , app_name
+                        , pageApp.pageApp_app |> app_output
                         , ".container"
                         ]
 
@@ -275,7 +267,7 @@ viewContainerInstructions model pageApp =
                         , nixShellForgeInput model
                         , "  -E '(import <forge> {})"
                         , "."
-                        , app_name
+                        , pageApp.pageApp_app |> app_output
                         , ".container"
                         , "' "
                         ]
@@ -293,10 +285,6 @@ viewVMInstructions model pageApp =
     let
         flakes =
             model.model_preferences.pref_flakes
-
-        -- add -app suffix
-        app_name =
-            pageApp.pageApp_app.app_name ++ "-app"
     in
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM" ]
@@ -307,7 +295,7 @@ viewVMInstructions model pageApp =
                     [ "nix run "
                     , nixFlakeForgeInput model
                     , "#"
-                    , app_name
+                    , pageApp.pageApp_app |> app_output
                     , ".vm"
                     ]
 
@@ -318,7 +306,7 @@ viewVMInstructions model pageApp =
                         , nixShellForgeInput model
                         , "  -E '(import <forge> {})"
                         , "."
-                        , app_name
+                        , pageApp.pageApp_app |> app_output
                         , ".vm"
                         , "' "
                         ]
