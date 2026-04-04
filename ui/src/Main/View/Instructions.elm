@@ -2,7 +2,7 @@ module Main.View.Instructions exposing (..)
 
 import Html exposing (Html, a, br, button, details, div, h4, hr, li, p, small, summary, text, ul)
 import Html.Attributes exposing (class, href, id, style, target)
-import Main.Config exposing (commit)
+import Main.Config exposing (commit, shortCommit)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
@@ -194,7 +194,7 @@ viewFlakeNavItem model pageApp isFlakes =
 
 nixShellForgeInput : Model -> String
 nixShellForgeInput model =
-    "  -I forge=\"" ++ (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ commit ++ ".tar.gz\" \\\n"
+    "  -I forge=\"" ++ (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ shortCommit ++ ".tar.gz\" \\\n"
 
 
 nixFlakeForgeInput : Model -> String
@@ -202,7 +202,7 @@ nixFlakeForgeInput model =
     String.concat
         [ model.model_config.config_repository
         , if commit /= "master" then
-            "/" ++ commit
+            "/" ++ shortCommit
 
           else
             ""
