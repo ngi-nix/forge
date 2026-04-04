@@ -133,6 +133,7 @@ in
 
           pkgMeta = pkg: {
             description = pkg.description;
+            homepage = pkg.homePage;
             mainProgram = pkg.mainProgram;
             license = pkg.license;
           };
