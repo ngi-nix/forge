@@ -83,34 +83,29 @@ viewPageAppInstructions : Model -> PageApp -> Html Update
 viewPageAppInstructions model pageApp =
     let
         instructions =
-            case pageApp.pageApp_route.routeApp_runRuntime of
-                Nothing ->
-                    text "There is no such runtime for this application"
+            div []
+                [ case pageApp.pageApp_runtime of
+                    AppRuntime_Shell ->
+                        if pageApp.pageApp_app.app_programs.enable then
+                            viewProgramsInstructions model pageApp
 
-                Just appRuntime ->
-                    div []
-                        [ case appRuntime of
-                            AppRuntime_Shell ->
-                                if pageApp.pageApp_app.app_programs.enable then
-                                    viewProgramsInstructions model pageApp
+                        else
+                            text ""
 
-                                else
-                                    text ""
+                    AppRuntime_Container ->
+                        if pageApp.pageApp_app.app_container.enable then
+                            viewContainerInstructions model pageApp
 
-                            AppRuntime_Container ->
-                                if pageApp.pageApp_app.app_container.enable then
-                                    viewContainerInstructions model pageApp
+                        else
+                            text ""
 
-                                else
-                                    text ""
+                    AppRuntime_VM ->
+                        if pageApp.pageApp_app.app_vm.enable then
+                            viewVMInstructions model pageApp
 
-                            AppRuntime_VM ->
-                                if pageApp.pageApp_app.app_vm.enable then
-                                    viewVMInstructions model pageApp
-
-                                else
-                                    text ""
-                        ]
+                        else
+                            text ""
+                ]
     in
     div []
         [ if pageApp.pageApp_app |> listAppRuntimeAvailable |> List.isEmpty then

@@ -60,21 +60,27 @@ showErrorRoute err =
 
 type ErrorApp
     = ErrorApp_NoSuchRuntime AppRuntime
+    | ErrorApp_NoRuntime AppName
     | ErrorApp_NotFound AppName
 
 
 showErrorApp : ErrorApp -> String
 showErrorApp err =
-    case err of
-        ErrorApp_NoSuchRuntime runtime ->
-            String.concat
+    String.concat <|
+        case err of
+            ErrorApp_NoSuchRuntime runtime ->
                 [ "No such app runtime: "
                 , runtime |> showAppRuntime
                 , "."
                 ]
 
-        ErrorApp_NotFound appName ->
-            String.concat
+            ErrorApp_NoRuntime appName ->
+                [ "This application has no runtime: "
+                , appName
+                , "."
+                ]
+
+            ErrorApp_NotFound appName ->
                 [ "No such app: "
                 , appName
                 , "."

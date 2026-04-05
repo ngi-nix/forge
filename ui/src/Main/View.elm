@@ -579,12 +579,12 @@ viewPageAppRunOutputs model pageApp =
 
 
 viewPageAppRunOutput : Model -> PageApp -> AppRuntime -> Html Update
-viewPageAppRunOutput model pageApp appOutput =
+viewPageAppRunOutput model pageApp appRuntime =
     li [ class "nav-item" ]
         [ a
             [ class
                 ([ "nav-link"
-                 , if Just appOutput == pageApp.pageApp_route.routeApp_runRuntime then
+                 , if appRuntime == pageApp.pageApp_runtime then
                     "active"
 
                    else
@@ -594,14 +594,14 @@ viewPageAppRunOutput model pageApp appOutput =
                 )
             , style "cursor" "pointer"
             , style "border" "none"
-            , id <| "run-" ++ (showAppRuntime appOutput |> String.toLower)
+            , id <| "run-" ++ (showAppRuntime appRuntime |> String.toLower)
             , let
                 route =
                     pageApp.pageApp_route
               in
-              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runRuntime = Just appOutput }))
+              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runRuntime = Just appRuntime }))
             ]
-            [ span [ class "fw-bold" ] [ text <| showAppRuntime appOutput ]
+            [ span [ class "fw-bold" ] [ text <| showAppRuntime appRuntime ]
             ]
         ]
 

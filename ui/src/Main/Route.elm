@@ -30,6 +30,9 @@ type alias RouteSearch =
 type alias RouteApp =
     { routeApp_name : AppName
     , routeApp_runShown : Bool
+
+    -- `Nothing` means to select the first available `AppRuntime`.
+    -- The selected `AppRuntime` will then be in `pageApp_runtime`
     , routeApp_runRuntime : Maybe AppRuntime
     , routeApp_focusWidget : Maybe String
     }

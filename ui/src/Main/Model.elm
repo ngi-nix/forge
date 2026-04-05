@@ -38,6 +38,7 @@ type Page
 type alias PageApp =
     { pageApp_route : RouteApp
     , pageApp_app : App
+    , pageApp_runtime : AppRuntime
     }
 
 

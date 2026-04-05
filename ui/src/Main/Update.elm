@@ -292,20 +292,18 @@ updateRoute route =
                 \model ->
                     ( case model.model_config.config_apps |> Dict.get routeApp.routeApp_name of
                         Just app ->
-                            case routeApp.routeApp_runRuntime of
+                            case
+                                case routeApp.routeApp_runRuntime of
+                                    Just x ->
+                                        Just x
+
+                                    Nothing ->
+                                        app |> listAppRuntimeAvailable |> List.head
+                            of
                                 Nothing ->
                                     { model
-                                        | model_page =
-                                            Page_App
-                                                { pageApp_route =
-                                                    { routeApp
-                                                        | routeApp_runRuntime =
-                                                            app
-                                                                |> listAppRuntimeAvailable
-                                                                |> List.head
-                                                    }
-                                                , pageApp_app = app
-                                                }
+                                        | model_page = Page_Search
+                                        , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
                                     }
 
                                 Just requestedRuntime ->
@@ -314,6 +312,7 @@ updateRoute route =
                                             Page_App
                                                 { pageApp_route = routeApp
                                                 , pageApp_app = app
+                                                , pageApp_runtime = requestedRuntime
                                                 }
                                         , model_errors =
                                             model.model_errors
