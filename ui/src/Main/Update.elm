@@ -67,23 +67,29 @@ type alias AmbientKeyState =
 
 
 update : Update -> Updater
-update upd model =
+update upd modelInit =
+    let
+        model =
+            { modelInit | model_errors = [] }
+    in
     case upd of
         Update_Chain ups ->
             let
-                chain msg1 ( model1, cmds1 ) =
+                chain up ( model1, cmds1 ) =
                     let
                         ( model2, cmds2 ) =
-                            update msg1 model1
+                            update up model1
                     in
-                    ( model2, Cmd.batch [ cmds1, cmds2 ] )
+                    ( { model2 | model_errors = model1.model_errors ++ model2.model_errors }
+                    , Cmd.batch [ cmds1, cmds2 ]
+                    )
             in
-            ups |> List.foldl chain ( model, Cmd.none )
+            ups |> List.foldl chain ( { model | model_errors = [] }, Cmd.none )
 
         Update_Navigation event ->
             case event.appUrl |> Route.fromAppUrl of
                 Err err ->
-                    ( { model | model_errors = model.model_errors ++ [ Error_Route err ] }
+                    ( { model | model_errors = [ Error_Route err ] }
                     , Cmd.none
                     )
 
@@ -246,7 +252,7 @@ update upd model =
                     )
 
                 Err err ->
-                    ( { model | model_errors = model.model_errors ++ [ Error_Http err ] }
+                    ( { model | model_errors = [ Error_Http err ] }
                     , Cmd.none
                     )
 
@@ -263,7 +269,7 @@ update upd model =
                     )
 
                 Err err ->
-                    ( { model | model_errors = model.model_errors ++ [ Error_Http err ] }
+                    ( { model | model_errors = [ Error_Http err ] }
                     , Cmd.none
                     )
 
@@ -303,7 +309,7 @@ updateRoute route =
                                 Nothing ->
                                     { model
                                         | model_page = Page_Search
-                                        , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
+                                        , model_errors = [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
                                     }
 
                                 Just requestedRuntime ->
@@ -315,19 +321,17 @@ updateRoute route =
                                                 , pageApp_runtime = requestedRuntime
                                                 }
                                         , model_errors =
-                                            model.model_errors
-                                                ++ (if app |> hasAppRuntime requestedRuntime then
-                                                        []
+                                            if app |> hasAppRuntime requestedRuntime then
+                                                []
 
-                                                    else
-                                                        [ Error_App (ErrorApp_NoSuchRuntime requestedRuntime) ]
-                                                   )
+                                            else
+                                                [ Error_App (ErrorApp_NoSuchRuntime requestedRuntime) ]
                                     }
 
                         Nothing ->
                             { model
                                 | model_page = Page_Search
-                                , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NotFound routeApp.routeApp_name) ]
+                                , model_errors = [ Error_App (ErrorApp_NotFound routeApp.routeApp_name) ]
                             }
                     , let
                         isSameFocus =
