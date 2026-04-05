@@ -300,23 +300,8 @@ updateRoute route =
                                                 { pageApp_route =
                                                     { routeApp
                                                         | routeApp_runRuntime =
-                                                            [ if app.app_programs.enable then
-                                                                [ AppRuntime_Shell ]
-
-                                                              else
-                                                                []
-                                                            , if app.app_container.enable then
-                                                                [ AppRuntime_Container ]
-
-                                                              else
-                                                                []
-                                                            , if app.app_vm.enable then
-                                                                [ AppRuntime_VM ]
-
-                                                              else
-                                                                []
-                                                            ]
-                                                                |> List.concat
+                                                            app
+                                                                |> listAppRuntimeAvailable
                                                                 |> List.head
                                                     }
                                                 , pageApp_app = app

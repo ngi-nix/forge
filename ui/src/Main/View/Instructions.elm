@@ -85,7 +85,7 @@ viewPageAppInstructions model pageApp =
         instructions =
             case pageApp.pageApp_route.routeApp_runRuntime of
                 Nothing ->
-                    text "There is no such output for this application"
+                    text "There is no such runtime for this application"
 
                 Just appRuntime ->
                     div []
@@ -113,9 +113,9 @@ viewPageAppInstructions model pageApp =
                         ]
     in
     div []
-        [ if not pageApp.pageApp_app.app_programs.enable && not pageApp.pageApp_app.app_container.enable && not pageApp.pageApp_app.app_vm.enable then
+        [ if pageApp.pageApp_app |> listAppRuntimeAvailable |> List.isEmpty then
             div []
-                [ p [ class "text-danger" ] [ text "No output is enabled for this app." ]
+                [ p [ class "text-danger" ] [ text "No runtime is enabled for this app." ]
                 , p [] [ text "Enable at least one of the - programs, container or nixos vm - in recipe file." ]
                 ]
 

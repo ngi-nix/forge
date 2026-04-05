@@ -571,25 +571,9 @@ viewPageAppRun model pageApp =
 
 viewPageAppRunOutputs : Model -> PageApp -> Html Update
 viewPageAppRunOutputs model pageApp =
-    let
-        enabled : AppRuntime -> Bool
-        enabled tab =
-            case tab of
-                AppRuntime_Shell ->
-                    pageApp.pageApp_app.app_programs.enable
-
-                AppRuntime_Container ->
-                    pageApp.pageApp_app.app_container.enable
-
-                AppRuntime_VM ->
-                    pageApp.pageApp_app.app_vm.enable
-    in
     ul [ class "nav nav-pills mb-4" ]
-        ([ AppRuntime_Shell
-         , AppRuntime_Container
-         , AppRuntime_VM
-         ]
-            |> List.filter enabled
+        (pageApp.pageApp_app
+            |> listAppRuntimeAvailable
             |> List.map (viewPageAppRunOutput model pageApp)
         )
 
