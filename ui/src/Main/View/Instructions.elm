@@ -199,23 +199,6 @@ viewPreferencesInstall model pageApp preferencesInstall =
         ]
 
 
-nixShellForgeInput : Model -> String
-nixShellForgeInput model =
-    "  -I forge=\"" ++ (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ shortCommit ++ ".tar.gz\" \\\n"
-
-
-nixFlakeForgeInput : Model -> String
-nixFlakeForgeInput model =
-    String.concat
-        [ model.model_config.config_repository
-        , if commit /= "master" then
-            "/" ++ shortCommit
-
-          else
-            ""
-        ]
-
-
 viewProgramsInstructions : Model -> PageApp -> Html Update
 viewProgramsInstructions model pageApp =
     div []
@@ -227,14 +210,14 @@ viewProgramsInstructions model pageApp =
                 (case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
                         [ "nix shell "
-                        , nixFlakeForgeInput model
+                        , showForgeInputFlakes model
                         , "#"
                         , pageApp.pageApp_app |> app_output
                         ]
 
                     PreferencesInstall_NixTraditional ->
                         [ "nix-shell \\\n"
-                        , nixShellForgeInput model
+                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
                         , pageApp.pageApp_app |> app_output
@@ -255,7 +238,7 @@ viewContainerInstructions model pageApp =
                     PreferencesInstall_NixFlakes ->
                         String.concat
                             [ "nix build "
-                            , nixFlakeForgeInput model
+                            , showForgeInputFlakes model
                             , "#"
                             , pageApp.pageApp_app |> app_output
                             , ".container"
@@ -264,7 +247,7 @@ viewContainerInstructions model pageApp =
                     PreferencesInstall_NixTraditional ->
                         String.concat
                             [ "nix-build \\\n"
-                            , nixShellForgeInput model
+                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
                             , pageApp.pageApp_app |> app_output
@@ -290,7 +273,7 @@ viewVMInstructions model pageApp =
                 PreferencesInstall_NixFlakes ->
                     String.concat
                         [ "nix run "
-                        , nixFlakeForgeInput model
+                        , showForgeInputFlakes model
                         , "#"
                         , pageApp.pageApp_app |> app_output
                         , ".vm"
@@ -300,7 +283,7 @@ viewVMInstructions model pageApp =
                     String.join "\n"
                         [ String.concat
                             [ "nix-build \\\n"
-                            , nixShellForgeInput model
+                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
                             , pageApp.pageApp_app |> app_output
@@ -310,4 +293,27 @@ viewVMInstructions model pageApp =
                         , ""
                         , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
                         ]
+        ]
+
+
+showForgeInputTraditional : Model -> String
+showForgeInputTraditional model =
+    String.concat
+        [ model.model_config.config_repository |> showNixUrl
+        , "/archive/"
+        , shortCommit
+        , ".tar.gz\""
+        ]
+
+
+showForgeInputFlakes : Model -> String
+showForgeInputFlakes model =
+    String.concat
+        [ model.model_config.config_repository
+        , case commit of
+            "master" ->
+                ""
+
+            _ ->
+                "/" ++ shortCommit
         ]
