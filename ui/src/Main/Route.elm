@@ -64,15 +64,6 @@ defaultRouteRecipeOptions =
     }
 
 
-initRouteApp : AppName -> RouteApp
-initRouteApp name =
-    { routeApp_name = name
-    , routeApp_runShown = False
-    , routeApp_runRuntime = Nothing
-    , routeApp_focusWidget = Nothing
-    }
-
-
 {-| BUILD TIME CONFIG:
 replaced with deployment root in github workflow script eg. "/forge/"
 -}

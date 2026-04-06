@@ -274,10 +274,10 @@ viewPageAppSearch model =
 viewPageAppSearchApp : Model -> App -> Html Update
 viewPageAppSearchApp _ app =
     a
-        [ href (Route_App (initRouteApp app.app_name) |> Route.toString)
+        [ href (Route_App { defaultRouteApp | routeApp_name = app.app_name } |> Route.toString)
         , class "card m-app-card shadow-sm p-3"
         , style "text-decoration" "none"
-        , onClick (Update_Route (Route_App (initRouteApp app.app_name)))
+        , onClick (Update_Route (Route_App { defaultRouteApp | routeApp_name = app.app_name }))
         ]
         [ div
             [ class "w-100"
