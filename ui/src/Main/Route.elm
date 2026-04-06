@@ -2,12 +2,11 @@ module Main.Route exposing (..)
 
 import AppUrl exposing (AppUrl)
 import Dict
-import Json.Decode
-import Json.Encode
 import List.Extra as List
 import Main.Config.App exposing (..)
 import Main.Error exposing (..)
 import Main.Helpers.Nix exposing (..)
+import Main.Model.Preferences exposing (..)
 
 
 {-| Description: a route is an address.
@@ -34,7 +33,7 @@ type alias RouteApp =
     -- `Nothing` means to select the first available `AppRuntime`.
     -- The selected `AppRuntime` will then be in `pageApp_runtime`
     , routeApp_runRuntime : Maybe AppRuntime
-    , routeApp_focusWidget : Maybe String
+    , routeApp_focus : Maybe RouteAppFocus
     }
 
 
@@ -43,16 +42,42 @@ defaultRouteApp =
     { routeApp_name = ""
     , routeApp_runShown = False
     , routeApp_runRuntime = Nothing
-    , routeApp_focusWidget = Nothing
+    , routeApp_focus = Nothing
     }
+
+
+type RouteAppFocus
+    = RouteAppFocus_Resources
+    | RouteAppFocus_Grants
+
+
+showRouteAppFocus : RouteAppFocus -> String
+showRouteAppFocus x =
+    case x of
+        RouteAppFocus_Resources ->
+            "resources"
+
+        RouteAppFocus_Grants ->
+            "grants"
 
 
 type alias RouteRecipeOptions =
     { routeRecipeOptions_pattern : Maybe NixName
     , routeRecipeOptions_page : Maybe Int
     , routeRecipeOptions_MaxResultsPerPage : Maybe Int
-    , routeRecipeOptions_option : Maybe String
+    , routeRecipeOptions_focus : Maybe RouteRecipeOptionsFocus
     }
+
+
+type RouteRecipeOptionsFocus
+    = RouteRecipeOptionsFocus_Option String
+
+
+showRouteRecipeOptionsFocus : RouteRecipeOptionsFocus -> String
+showRouteRecipeOptionsFocus x =
+    case x of
+        RouteRecipeOptionsFocus_Option s ->
+            s
 
 
 defaultRouteRecipeOptions : RouteRecipeOptions
@@ -60,7 +85,7 @@ defaultRouteRecipeOptions =
     { routeRecipeOptions_pattern = Nothing
     , routeRecipeOptions_page = Nothing
     , routeRecipeOptions_MaxResultsPerPage = Nothing
-    , routeRecipeOptions_option = Nothing
+    , routeRecipeOptions_focus = Nothing
     }
 
 
@@ -124,11 +149,20 @@ fromAppUrl url =
                                 , routeApp_runShown = True
                             }
 
-                        Just targetId ->
+                        Just focusId ->
                             { defaultRouteApp
                                 | routeApp_name = appName
                                 , routeApp_runShown = False
-                                , routeApp_focusWidget = Just targetId
+                                , routeApp_focus =
+                                    case focusId of
+                                        "resources" ->
+                                            Just RouteAppFocus_Resources
+
+                                        "grants" ->
+                                            Just RouteAppFocus_Grants
+
+                                        _ ->
+                                            Nothing
                             }
 
                         Nothing ->
@@ -170,8 +204,14 @@ fromAppUrl url =
                                     else
                                         Just p
                                 )
-                    , routeRecipeOptions_option =
+                    , routeRecipeOptions_focus =
                         url.fragment
+                            |> Maybe.map
+                                (\fragment ->
+                                    case fragment of
+                                        optionId ->
+                                            RouteRecipeOptionsFocus_Option optionId
+                                )
                     }
                 )
 
@@ -221,7 +261,8 @@ toAppUrl route =
                         )
 
                 else
-                    Nothing
+                    routeApp.routeApp_focus
+                        |> Maybe.map showRouteAppFocus
             }
 
         Route_RecipeOptions routeRecipe ->
@@ -256,7 +297,14 @@ toAppUrl route =
                   )
                 ]
                     |> Dict.fromList
-            , fragment = routeRecipe.routeRecipeOptions_option
+            , fragment =
+                routeRecipe.routeRecipeOptions_focus
+                    |> Maybe.map
+                        (\focus ->
+                            case focus of
+                                RouteRecipeOptionsFocus_Option s ->
+                                    s
+                        )
             }
 
 

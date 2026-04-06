@@ -350,7 +350,7 @@ updateRoute route =
                         isSameFocus =
                             case model.model_page of
                                 Page_App oldPageApp ->
-                                    oldPageApp.pageApp_route.routeApp_focusWidget == routeApp.routeApp_focusWidget
+                                    oldPageApp.pageApp_route.routeApp_focus == routeApp.routeApp_focus
 
                                 _ ->
                                     False
@@ -359,9 +359,9 @@ updateRoute route =
                         Cmd.none
 
                       else
-                        case routeApp.routeApp_focusWidget of
-                            Just focusId ->
-                                scrollToAndHighlight focusId
+                        case routeApp.routeApp_focus of
+                            Just targetId ->
+                                scrollToAndHighlight (targetId |> showRouteAppFocus)
 
                             Nothing ->
                                 Cmd.none
@@ -416,7 +416,7 @@ updateRoute route =
                             isSameFocus =
                                 case model.model_page of
                                     Page_RecipeOptions oldRecipePage ->
-                                        oldRecipePage.pageRecipeOptions_route.routeRecipeOptions_option == routeRecipe.routeRecipeOptions_option
+                                        oldRecipePage.pageRecipeOptions_route.routeRecipeOptions_focus == routeRecipe.routeRecipeOptions_focus
 
                                     _ ->
                                         False
@@ -425,9 +425,9 @@ updateRoute route =
                             Cmd.none
 
                           else
-                            case routeRecipe.routeRecipeOptions_option of
-                                Just focusId ->
-                                    scrollToAndHighlight focusId
+                            case routeRecipe.routeRecipeOptions_focus of
+                                Just targetId ->
+                                    scrollToAndHighlight (targetId |> showRouteRecipeOptionsFocus)
 
                                 Nothing ->
                                     Cmd.none

@@ -56,16 +56,3 @@ type alias ModelRecipeOptions =
     { modelRecipeOptions_available : NixModuleOptions
     , modelRecipeOptions_filtered : List ( NixName, NixModuleOption )
     }
-
-
-modelToRoute : Model -> Route
-modelToRoute model =
-    case model.model_page of
-        Page_Search ->
-            Route_Search { routeSearch_pattern = model.model_search }
-
-        Page_App pageApp ->
-            Route_App pageApp.pageApp_route
-
-        Page_RecipeOptions pageRecipeOptions ->
-            Route_RecipeOptions pageRecipeOptions.pageRecipeOptions_route

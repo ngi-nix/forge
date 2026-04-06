@@ -74,7 +74,7 @@ viewPageRecipeOption _ pageRecipeOptions ( optionName, option ) =
         onClickRoute =
             Route_RecipeOptions
                 { routeRecipeOptions
-                    | routeRecipeOptions_option = Just optionName
+                    | routeRecipeOptions_focus = Just <| RouteRecipeOptionsFocus_Option optionName
                 }
     in
     a

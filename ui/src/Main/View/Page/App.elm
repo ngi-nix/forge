@@ -107,6 +107,10 @@ viewPageAppUsage _ pageApp =
 
 viewPageAppResources : Model -> PageApp -> Html Update
 viewPageAppResources model pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+    in
     div
         [ class "box-container target-highlight mb-3"
         , id "resources"
@@ -119,11 +123,9 @@ viewPageAppResources model pageApp =
             , a
                 [ class "anchor-link"
                 , href
-                    (model
-                        |> modelToRoute
-                        |> Route.toAppUrl
-                        |> AppUrl.setFragment (Just "resources")
-                        |> AppUrl.toString
+                    ({ routeApp | routeApp_focus = Just RouteAppFocus_Resources }
+                        |> Route_App
+                        |> Route.toString
                     )
                 ]
                 []
@@ -170,6 +172,10 @@ showAppRecipeLink model app =
 
 viewPageAppNgiGrants : Model -> PageApp -> Html msg
 viewPageAppNgiGrants model pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+    in
     if
         pageApp.pageApp_app.app_ngi.ngi_grants
             |> Dict.values
@@ -191,11 +197,9 @@ viewPageAppNgiGrants model pageApp =
                 , a
                     [ class "anchor-link"
                     , href
-                        (model
-                            |> modelToRoute
-                            |> Route.toAppUrl
-                            |> AppUrl.setFragment (Just "grants")
-                            |> AppUrl.toString
+                        ({ routeApp | routeApp_focus = Just RouteAppFocus_Grants }
+                            |> Route_App
+                            |> Route.toString
                         )
                     ]
                     []
