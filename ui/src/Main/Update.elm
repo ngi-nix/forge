@@ -298,35 +298,53 @@ updateRoute route =
                 \model ->
                     ( case model.model_config.config_apps |> Dict.get routeApp.routeApp_name of
                         Just app ->
-                            case
-                                case routeApp.routeApp_runRuntime of
-                                    Just x ->
-                                        Just x
+                            let
+                                requestedAppRuntime =
+                                    case routeApp.routeApp_runRuntime of
+                                        Just x ->
+                                            Just x
 
-                                    Nothing ->
-                                        app |> listAppRuntimeAvailable |> List.head
-                            of
+                                        Nothing ->
+                                            app |> listAppRuntimeAvailable |> List.head
+                            in
+                            case requestedAppRuntime of
                                 Nothing ->
-                                    { model
-                                        | model_page = Page_Search
-                                        , model_errors = [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
-                                    }
-
-                                Just requestedRuntime ->
                                     { model
                                         | model_page =
                                             Page_App
-                                                { pageApp_route = routeApp
+                                                { pageApp_route = { routeApp | routeApp_runShown = False }
                                                 , pageApp_app = app
-                                                , pageApp_runtime = requestedRuntime
+                                                , pageApp_runtime = Nothing
                                                 }
                                         , model_errors =
-                                            if app |> hasAppRuntime requestedRuntime then
-                                                []
+                                            if routeApp.routeApp_runShown then
+                                                [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
 
                                             else
-                                                [ Error_App (ErrorApp_NoSuchRuntime requestedRuntime) ]
+                                                []
                                     }
+
+                                Just selectedAppRuntime ->
+                                    if app |> hasAppRuntime selectedAppRuntime then
+                                        { model
+                                            | model_page =
+                                                Page_App
+                                                    { pageApp_route = routeApp
+                                                    , pageApp_app = app
+                                                    , pageApp_runtime = Just selectedAppRuntime
+                                                    }
+                                        }
+
+                                    else
+                                        { model
+                                            | model_page =
+                                                Page_App
+                                                    { pageApp_route = { routeApp | routeApp_runShown = False }
+                                                    , pageApp_app = app
+                                                    , pageApp_runtime = Just selectedAppRuntime
+                                                    }
+                                            , model_errors = [ Error_App (ErrorApp_NoSuchRuntime selectedAppRuntime) ]
+                                        }
 
                         Nothing ->
                             { model

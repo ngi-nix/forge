@@ -64,7 +64,13 @@ viewPageAppHeader _ pageApp =
                 ]
             ]
         , button
-            [ class "btn btn-success"
+            [ class "btn"
+            , case pageApp.pageApp_runtime of
+                Nothing ->
+                    class "btn-secondary"
+
+                Just _ ->
+                    class "btn-success"
             , let
                 route =
                     pageApp.pageApp_route

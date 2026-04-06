@@ -76,7 +76,7 @@ viewPageAppRunRuntime _ pageApp appRuntime =
         [ a
             [ class
                 ([ "nav-link"
-                 , if appRuntime == pageApp.pageApp_runtime then
+                 , if Just appRuntime == pageApp.pageApp_runtime then
                     "active"
 
                    else
@@ -100,10 +100,22 @@ viewPageAppRunRuntime _ pageApp appRuntime =
 
 viewPageAppRunInstructions : Model -> PageApp -> Html Update
 viewPageAppRunInstructions model pageApp =
-    let
-        instructions =
-            div []
-                [ case pageApp.pageApp_runtime of
+    div [] <|
+        case pageApp.pageApp_runtime of
+            Nothing ->
+                []
+
+            Just appRuntime ->
+                [ viewPageAppRunNixInstall model pageApp
+                , hr [] []
+                , ul
+                    [ class "nav nav-underline mb-1"
+                    ]
+                    (listPreferencesInstall
+                        |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
+                    )
+                , br [] []
+                , case appRuntime of
                     AppRuntime_Shell ->
                         if pageApp.pageApp_app.app_programs.enable then
                             viewPageAppRunShell model pageApp
@@ -125,28 +137,6 @@ viewPageAppRunInstructions model pageApp =
                         else
                             text ""
                 ]
-    in
-    div []
-        [ if pageApp.pageApp_app |> listAppRuntimeAvailable |> List.isEmpty then
-            div []
-                [ p [ class "text-danger" ] [ text "No runtime is enabled for this app." ]
-                , p [] [ text "Enable at least one of the - programs, container or nixos vm - in recipe file." ]
-                ]
-
-          else
-            div []
-                [ viewPageAppRunNixInstall model pageApp
-                , hr [] []
-                , ul
-                    [ class "nav nav-underline mb-1"
-                    ]
-                    (listPreferencesInstall
-                        |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
-                    )
-                , br [] []
-                , instructions
-                ]
-        ]
 
 
 viewPageAppRunNixInstall : Model -> PageApp -> Html Update

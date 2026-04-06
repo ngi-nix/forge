@@ -38,7 +38,9 @@ type Page
 type alias PageApp =
     { pageApp_route : RouteApp
     , pageApp_app : App
-    , pageApp_runtime : AppRuntime
+
+    -- `Nothing` means that the `App` provides no `AppRuntime` at all.
+    , pageApp_runtime : Maybe AppRuntime
     }
 
 
