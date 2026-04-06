@@ -1,16 +1,153 @@
-module Main.View.Instructions exposing (..)
+module Main.View.Page.App.Run exposing (..)
 
-import Html exposing (Html, a, br, button, details, div, h4, hr, li, p, small, summary, text, ul)
-import Html.Attributes exposing (class, href, id, style, target)
-import Main.Config exposing (commit, shortCommit)
+import Html exposing (Html, a, br, button, details, div, h4, h5, hr, li, p, small, span, summary, text, ul)
+import Html.Attributes exposing (class, href, id, style, tabindex, target)
+import Html.Events exposing (stopPropagationOn)
+import Json.Decode as Decode
+import Main.Config exposing (..)
 import Main.Config.App exposing (..)
+import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)
+import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Preferences exposing (..)
 import Main.Route exposing (..)
 import Main.Update exposing (..)
+
+
+viewPageAppRun : Model -> PageApp -> Html Update
+viewPageAppRun model pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+
+        onClickRoute =
+            Route_App { routeApp | routeApp_runShown = False }
+    in
+    if not pageApp.pageApp_route.routeApp_runShown then
+        text ""
+
+    else
+        div []
+            [ div
+                [ class "modal show"
+                , style "display" "block"
+                , tabindex -1
+                , style "background-color" "rgba(0,0,0,0.5)"
+                , onClick (Update_RouteWithoutHistory onClickRoute)
+                ]
+                [ div
+                    [ class "modal-dialog modal-lg"
+                    , stopPropagationOn "click" (Decode.succeed ( Update_NoOp, True ))
+                    ]
+                    [ div [ class "modal-content" ]
+                        [ div [ class "modal-header" ]
+                            [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_route.routeApp_name) ]
+                            , button
+                                [ class "btn-close"
+                                , onClick (Update_RouteWithoutHistory onClickRoute)
+                                ]
+                                []
+                            ]
+                        , div [ class "modal-body" ]
+                            [ viewPageAppRunRuntimes model pageApp
+                            , div [ class "tab-content mb-5 p-3 border rounded" ]
+                                [ viewPageAppInstructions model pageApp ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+
+
+viewPageAppRunRuntimes : Model -> PageApp -> Html Update
+viewPageAppRunRuntimes model pageApp =
+    ul [ class "nav nav-pills mb-4" ]
+        (pageApp.pageApp_app
+            |> listAppRuntimeAvailable
+            |> List.map (viewPageAppRunRuntime model pageApp)
+        )
+
+
+viewPageAppRunRuntime : Model -> PageApp -> AppRuntime -> Html Update
+viewPageAppRunRuntime _ pageApp appRuntime =
+    li [ class "nav-item" ]
+        [ a
+            [ class
+                ([ "nav-link"
+                 , if appRuntime == pageApp.pageApp_runtime then
+                    "active"
+
+                   else
+                    ""
+                 ]
+                    |> String.join " "
+                )
+            , style "cursor" "pointer"
+            , style "border" "none"
+            , id <| "run-" ++ (showAppRuntime appRuntime |> String.toLower)
+            , let
+                route =
+                    pageApp.pageApp_route
+              in
+              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runRuntime = Just appRuntime }))
+            ]
+            [ span [ class "fw-bold" ] [ text <| showAppRuntime appRuntime ]
+            ]
+        ]
+
+
+viewPageAppInstructions : Model -> PageApp -> Html Update
+viewPageAppInstructions model pageApp =
+    let
+        instructions =
+            div []
+                [ case pageApp.pageApp_runtime of
+                    AppRuntime_Shell ->
+                        if pageApp.pageApp_app.app_programs.enable then
+                            viewProgramsInstructions model pageApp
+
+                        else
+                            text ""
+
+                    AppRuntime_Container ->
+                        if pageApp.pageApp_app.app_container.enable then
+                            viewContainerInstructions model pageApp
+
+                        else
+                            text ""
+
+                    AppRuntime_VM ->
+                        if pageApp.pageApp_app.app_vm.enable then
+                            viewVMInstructions model pageApp
+
+                        else
+                            text ""
+                ]
+    in
+    div []
+        [ if pageApp.pageApp_app |> listAppRuntimeAvailable |> List.isEmpty then
+            div []
+                [ p [ class "text-danger" ] [ text "No runtime is enabled for this app." ]
+                , p [] [ text "Enable at least one of the - programs, container or nixos vm - in recipe file." ]
+                ]
+
+          else
+            div []
+                [ viewInstructionsNixInstall model pageApp
+                , hr [] []
+                , ul
+                    [ class "nav nav-underline mb-1"
+                    ]
+                    (listPreferencesInstall
+                        |> List.map (viewPreferencesInstall model pageApp)
+                    )
+                , br [] []
+                , instructions
+                ]
+        ]
 
 
 viewInstructionsUsage : Model -> PageApp -> Html Update
@@ -79,59 +216,8 @@ viewInstructionsNixInstall model pageApp =
         ]
 
 
-viewPageAppInstructions : Model -> PageApp -> Html Update
-viewPageAppInstructions model pageApp =
-    let
-        instructions =
-            div []
-                [ case pageApp.pageApp_runtime of
-                    AppRuntime_Shell ->
-                        if pageApp.pageApp_app.app_programs.enable then
-                            viewProgramsInstructions model pageApp
-
-                        else
-                            text ""
-
-                    AppRuntime_Container ->
-                        if pageApp.pageApp_app.app_container.enable then
-                            viewContainerInstructions model pageApp
-
-                        else
-                            text ""
-
-                    AppRuntime_VM ->
-                        if pageApp.pageApp_app.app_vm.enable then
-                            viewVMInstructions model pageApp
-
-                        else
-                            text ""
-                ]
-    in
-    div []
-        [ if pageApp.pageApp_app |> listAppRuntimeAvailable |> List.isEmpty then
-            div []
-                [ p [ class "text-danger" ] [ text "No runtime is enabled for this app." ]
-                , p [] [ text "Enable at least one of the - programs, container or nixos vm - in recipe file." ]
-                ]
-
-          else
-            div []
-                [ viewInstructionsNixInstall model pageApp
-                , hr [] []
-                , ul
-                    [ class "nav nav-underline mb-1"
-                    ]
-                    (listPreferencesInstall
-                        |> List.map (viewPreferencesInstall model pageApp)
-                    )
-                , br [] []
-                , instructions
-                ]
-        ]
-
-
 viewPreferencesInstall : Model -> PageApp -> PreferencesInstall -> Html Update
-viewPreferencesInstall model pageApp preferencesInstall =
+viewPreferencesInstall model _ preferencesInstall =
     let
         isActive =
             model.model_preferences.preferences_install == preferencesInstall
@@ -286,7 +372,7 @@ viewVMInstructions model pageApp =
                             , "' "
                             ]
                         , ""
-                        , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
+                        , "./result/bin/run-" ++ (pageApp.pageApp_app |> app_output) ++ "-vm"
                         ]
         ]
 
