@@ -1,6 +1,7 @@
 {
   lib,
   inputs,
+  extendModules,
 
   app,
   config,
@@ -34,7 +35,7 @@
     };
 
     extraConfig = lib.mkOption {
-      type = with lib.types; lazyAttrsOf (either attrs anything);
+      type = with lib.types; deferredModule;
       default = { };
       description = ''
         NixOS system configuration
@@ -106,7 +107,17 @@
         internal = true;
         readOnly = true;
         type = lib.types.package;
-        default = config.result.eval.config.system.build.vm;
+        default =
+          let
+            mkVm =
+              appConfig:
+              appConfig.result.eval.config.system.build.vm
+              // {
+                eval = appConfig.result.eval;
+                extend = module: mkVm (extendModules { modules = [ { extraConfig = module; } ]; }).config;
+              };
+          in
+          mkVm config;
         description = "NixOS Virtual Machine.";
       };
 
