@@ -11,7 +11,7 @@ const getPreferences = () => {
   return { theme: preferences_theme, install: preferences_install };
 };
 
-const initPreferencesPort = (app) => {
+const initPreferences = (app) => {
   app.ports.savePreferencesThemeString.subscribe((theme) => {
     localStorage.setItem("preferences_theme", theme);
     document.documentElement.setAttribute("data-bs-theme", theme);
@@ -21,4 +21,4 @@ const initPreferencesPort = (app) => {
   });
 };
 
-export { getPreferences, initPreferencesPort };
+export { getPreferences, initPreferences };

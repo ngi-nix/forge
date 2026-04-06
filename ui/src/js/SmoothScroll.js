@@ -1,4 +1,4 @@
-const initSmoothScrollPort = (app) => {
+const initSmoothScroll = (app) => {
   app.ports.scrollToAndHighlight.subscribe((id) => {
     requestAnimationFrame(() => {
       let element = document.getElementById(id);
@@ -13,4 +13,4 @@ const initSmoothScrollPort = (app) => {
   });
 };
 
-export { initSmoothScrollPort };
+export { initSmoothScroll };
