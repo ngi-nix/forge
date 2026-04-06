@@ -53,6 +53,8 @@ symlinkJoin {
 
     # github pages SPA workaround for routing
     for app in $(${jq}/bin/jq '.apps.[].name' -r forge-config.json); do
+      # remove the suffix "-app"
+      app="''${app%-app}"
       mkdir -p "app/$app"
       ln -s $out/index.html "app/$app/index.html"
     done
