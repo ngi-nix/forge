@@ -24,12 +24,12 @@
  * @param {Object} ports.navCmd     - Elm outgoing command port (has `.subscribe`)
  * @param {Object} ports.onNavEvent - Elm incoming event port (has `.send`)
  */
-export function init(ports) {
-  function sendNavigation(state) {
+export const initNavigation = (ports) => {
+  const sendNavigation = (state) => {
     ports.onNavEvent.send({ href: location.href, state: state });
-  }
+  };
 
-  ports.navCmd.subscribe(function (msg) {
+  ports.navCmd.subscribe((msg) => {
     switch (msg.tag) {
       case "pushUrl":
         history.pushState(null, "", msg.url);
@@ -54,7 +54,7 @@ export function init(ports) {
     }
   });
 
-  window.addEventListener("popstate", function (event) {
+  window.addEventListener("popstate", (event) => {
     sendNavigation(event.state);
   });
-}
+};

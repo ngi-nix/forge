@@ -1,5 +1,5 @@
-import { init as initNavigation } from "./Navigation.js";
 import { initClipboard } from "./Clipboard.js";
+import { initNavigation } from "./Navigation.js";
 import { getPreferences, initPreferences } from "./Preferences.js";
 import { initSmoothScroll } from "./SmoothScroll.js";
 
