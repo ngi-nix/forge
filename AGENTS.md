@@ -220,6 +220,38 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 - **pythonAppBuilder**: For programs meant to be run (`mypy`, `black`, `fio`)
 - **pythonPackageBuilder**: For libraries meant to be imported (`requests`, `numpy`, `attrs`)
 
+### 4. goPackageBuilder (Go Modules)
+**When to use**: Go projects using Go modules
+
+```nix
+{
+  build.goPackageBuilder = {
+    enable = true;
+    inputs.build = [
+      pkgs.pkg-config
+    ];
+    inputs.run = [
+      pkgs.openssl
+    ];
+    inputs.check = [
+      pkgs.gotestsum
+    ];
+    vendorHash = "sha256-...";
+    ldflags = [ "-X main.version=1.0.0" ];
+  };
+}
+```
+
+**Characteristics**:
+- Uses `buildGoModule` from nixpkgs
+- Supports vendoring and proxy vendoring
+- Can build multiple packages via `subPackages`
+
+**Inputs options**:
+- `inputs.build`: Build-time tools (pkg-config, installShellFiles)
+- `inputs.run`: CGO dependencies (openssl, sqlite)
+- `inputs.check`: Test tools (gotestsum)
+
 ## Source Configuration
 
 ### Git Sources
