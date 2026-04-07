@@ -23,6 +23,7 @@
         json-diff
         nixfmt
         nodejs
+        python3
         self'.packages.elm-watch
         self'.packages.elm2nix
         systemd-manager-tui

@@ -51,10 +51,7 @@
             in
             ''
               mkdir -p $out/${appDir}
-              ${if app.icon or null != null then
-                "cp ${app.icon} $out/${appDir}/icon.svg"
-              else
-                ""}
+              ${if app.icon or null != null then "cp ${app.icon} $out/${appDir}/icon.svg" else ""}
             ''
           ) config.forge.apps
         )}

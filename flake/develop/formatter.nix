@@ -11,6 +11,7 @@ lib.makeExtensible (self: {
     projectRootFile = "flake.nix";
 
     programs.actionlint.enable = true;
+    programs.black.enable = true;
     programs.elm-format.enable = true;
     programs.nixfmt.enable = true;
     programs.shfmt.enable = true;
