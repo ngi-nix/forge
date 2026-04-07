@@ -336,7 +336,7 @@ source = {
 
 ```nix
 test = {
-  requirements = [ pkgs.curl ];  # Additional test dependencies
+  inputs = [ pkgs.curl ];  # Additional test dependencies
   script = ''
     # Test commands
     $out/bin/program --version
@@ -355,7 +355,7 @@ test = {
 
 ```nix
 development = {
-  requirements = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
+  inputs = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
   shellHook = ''
     echo "Development environment ready"
     echo "Source code: clone from ${source.git}"

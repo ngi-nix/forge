@@ -177,7 +177,7 @@ in
 
                         # Test configuration
                         test = {
-                          requirements = lib.mkOption {
+                          inputs = lib.mkOption {
                             type = lib.types.listOf lib.types.package;
                             default = [ ];
                             description = "Additional packages required for running tests.";
@@ -204,13 +204,13 @@ in
 
                         # Development configuration
                         development = {
-                          requirements = lib.mkOption {
+                          inputs = lib.mkOption {
                             type = lib.types.listOf lib.types.package;
                             default = [ ];
                             description = ''
                               Additional packages to include in the development environment.
 
-                              All build requirements are automatically included.
+                              All build inputs are automatically included.
                             '';
                             example = lib.literalExpression "[ pkgs.git pkgs.vim ]";
                           };
