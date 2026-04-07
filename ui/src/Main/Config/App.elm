@@ -67,6 +67,16 @@ stripAppSuffix name =
         name
 
 
+getAppIconPath : AppName -> String
+getAppIconPath appName =
+    "resources/apps/" ++ appName ++ "/icon.svg"
+
+
+getDefaultIconPath : String
+getDefaultIconPath =
+    "resources/apps/app-icon.svg"
+
+
 decodeApp : Decoder App
 decodeApp =
     Decode.map8 App

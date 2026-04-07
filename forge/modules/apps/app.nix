@@ -24,6 +24,12 @@
       default = "";
       description = "Application usage description in markdown format.";
     };
+    icon = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "Path to application icon (SVG file). If not specified, a default icon will be used.";
+      example = lib.literalExpression "./icon.svg";
+    };
     links = lib.mkOption {
       type = lib.types.submodule ./links.nix;
       default = { };

@@ -1,0 +1,15 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Four circles arranged in a 2x2 grid, inspired by favicon -->
+
+  <!-- Top-left circle -->
+  <circle cx="22" cy="22" r="10" fill="#74aa00" opacity="0.9"/>
+
+  <!-- Top-right circle -->
+  <circle cx="42" cy="22" r="10" fill="#74aa00" opacity="0.75"/>
+
+  <!-- Bottom-left circle -->
+  <circle cx="22" cy="42" r="10" fill="#74aa00" opacity="0.75"/>
+
+  <!-- Bottom-right circle -->
+  <circle cx="42" cy="42" r="10" fill="#74aa00" opacity="0.6"/>
+</svg>

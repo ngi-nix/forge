@@ -104,7 +104,7 @@ viewTitle =
         ]
         [ img
             [ src "favicon.svg"
-            , width 25
+            , class "brand-logo-responsive"
             ]
             []
         , span
@@ -281,9 +281,16 @@ viewPageSearchApp model app =
         [ div
             [ class "w-100"
             , style "display" "flex"
-            , style "justify-content" "space-between"
+            , style "align-items" "center"
+            , style "gap" "12px"
             ]
-            [ h5 [ class "mb-1" ] [ text app.app_name ]
+            [ img
+                [ src (getAppIconPath app.app_name)
+                , class "app-card-icon"
+                , attribute "alt" (app.app_name ++ " icon")
+                ]
+                []
+            , h5 [ class "mb-0" ] [ text app.app_name ]
             ]
         , p
             [ class "mb-1"
@@ -342,9 +349,19 @@ viewPageAppHeader model pageApp =
         , style "align-items" "center"
         , class "my-4 mb-4"
         ]
-        [ div []
-            [ h2
-                [ class "mb-1 fw-bold"
+        [ div
+            [ style "display" "flex"
+            , style "align-items" "center"
+            , style "gap" "16px"
+            ]
+            [ img
+                [ src (getAppIconPath pageApp.pageApp_route.routeApp_name)
+                , class "app-header-icon"
+                , attribute "alt" (pageApp.pageApp_route.routeApp_name ++ " icon")
+                ]
+                []
+            , h2
+                [ class "mb-0 fw-bold"
                 , style "margin" "0"
                 ]
                 [ text pageApp.pageApp_route.routeApp_name

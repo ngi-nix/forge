@@ -6,6 +6,7 @@
 
   _forge-config,
   _forge-options,
+  appIcons,
   ...
 }:
 
@@ -22,6 +23,8 @@ let
   };
 
   agentsFile = ../AGENTS.md;
+
+  defaultIcon = ./src/app-icon.svg;
 
   bootstrapCss = fetchzip rec {
     pname = "bootstrap";
@@ -44,22 +47,38 @@ symlinkJoin {
     chmod -R u+w css js
     install -D ${bootstrapCss}/css/bootstrap.min.css bootstrap/css/bootstrap.min.css
 
+    # Rename minimized Elm output
+    mv js/Elm.min.js js/Elm.js
+
     # Symlink config files
     ln -s ${_forge-config} forge-config.json
     ln -s ${_forge-options} forge-options.json
 
-    # Rename minimized Elm output
-    mv js/Elm.min.js js/Elm.js
+    # Create resources directory and copy default icon
+    mkdir -p resources/apps
+    cp ${defaultIcon} resources/apps/app-icon.svg
 
-    # github pages SPA workaround for routing
+    # Process each app: copy icons and create HTML routes
     for app in $(${jq}/bin/jq '.apps.[].name' -r forge-config.json); do
-      # remove the suffix "-app"
-      app="''${app%-app}"
-      mkdir -p "app/$app"
-      ln -s $out/index.html "app/$app/index.html"
+      # Remove -app suffix for directory name
+      app_dir="''${app%-app}"
+
+      # Copy custom icon if it exists, otherwise use default
+      mkdir -p "resources/apps/$app_dir"
+      if [ -f "${appIcons}/$app_dir/icon.svg" ]; then
+        cp "${appIcons}/$app_dir/icon.svg" "resources/apps/$app_dir/icon.svg"
+      else
+        cp ${defaultIcon} "resources/apps/$app_dir/icon.svg"
+      fi
+
+      # Create SPA routing for this app (github pages workaround)
+      mkdir -p "app/$app_dir"
+      ln -s $out/index.html "app/$app_dir/index.html"
     done
+
     # search route
     ln -s $out/index.html "app/index.html"
+
     # recipe route
     mkdir -p recipe/options
     ln -s $out/index.html "recipe/index.html"

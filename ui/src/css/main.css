@@ -98,6 +98,21 @@ body {
   background-color: #2a3036;
 }
 
+/* App icons */
+.app-card-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.app-header-icon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 /* Hide the annoying border around search bar that bootstrap adds */
 .form-control:focus {
   box-shadow: none !important;
@@ -151,6 +166,16 @@ details.accordion-item[open] > summary.accordion-button::after {
 }
 
 /* navbar */
+
+.brand-logo-responsive {
+  width: 30px;
+}
+
+@media (min-width: 768px) {
+  .brand-logo-responsive {
+    width: 40px;
+  }
+}
 
 .brand-text {
   max-width: 200px;

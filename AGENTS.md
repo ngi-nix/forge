@@ -328,6 +328,8 @@ build.extraDrvAttrs = {
     Supports markdown formatting, code blocks, etc.
   '';  # Optional but highly recommended
 
+  icon = ./icon.svg;  # Optional: Path to SVG icon file
+
   # Optional: Services configuration (portable services)
   services = { ... };
 
@@ -335,6 +337,42 @@ build.extraDrvAttrs = {
   programs = { ... };    # Shell bundle
   container = { ... };   # OCI container image
   nixos = { ... };       # NixOS VM
+}
+```
+
+### Application Icon
+
+Apps can optionally specify a custom icon in SVG format. When creating app recipes, LLMs should:
+
+1. **Search for existing icons** in the source repository:
+   - Look for files named: `logo.svg`, `icon.svg`, `app-icon.svg`, or project-specific names
+   - Check common directories: root, `assets/`, `resources/`, `icons/`, `images/`, `docs/`, `.github/`
+   - Only use icons in SVG format
+
+2. **Icon requirements:**
+   - Must be in SVG format
+   - Should be simple and recognizable at small sizes (48x48px minimum)
+   - Will be displayed in the app list and detail views
+
+3. **If icon found:**
+   ```nix
+   icon = ./icon.svg;  # Path relative to recipe.nix
+   ```
+   Copy the icon file to the recipe directory.
+
+4. **If no icon found:**
+   - Omit the `icon` field
+   - A default icon will be used automatically
+
+**Example with icon:**
+```nix
+{
+  name = "my-app";
+  description = "My application";
+  icon = ./logo.svg;  # Found in repository root
+
+  programs.enable = true;
+  # ... rest of configuration
 }
 ```
 

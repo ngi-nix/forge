@@ -55,6 +55,7 @@ Slice=$slice.slice
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-ui.passthru.bootstrapCss -o "$rootDir/ui/build/bootstrap" --show-trace
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-options -o "$rootDir/ui/build/forge-options.json" --show-trace
 ExecStart=$BACKEND_COMMAND
+ExecStart=$rootDir/flake/develop/commands/dev/dev-ui/build-app-resources.sh
 EOT
 
 systemctl --user edit --runtime --force --full "$unit"-elm-watch.service --stdin <<EOT
@@ -87,6 +88,8 @@ Environment=PATH=$PATH
 ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --bundle \\
   --loader:.html=copy \\
+  --loader:.svg=file \\
+  --loader:.png=file \\
   --outbase=src \\
   --outdir=build \\
   --serve=$listenPort \\
@@ -96,7 +99,9 @@ ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --watch=forever \\
   src/**/*.css \\
   src/**/*.html \\
-  src/**/*.js'
+  src/**/*.js \\
+  src/**/*.svg \\
+  src/**/*.png'
 EOT
 
 # Note: using `watchman watch-project`
