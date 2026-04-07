@@ -372,6 +372,31 @@ viewDescription model pageApp =
 
 viewAppResources : Model -> PageApp -> Html Update
 viewAppResources model pageApp =
+    let
+        links =
+            List.filterMap
+                (\( linkType, maybeLink ) ->
+                    Maybe.map
+                        (\url ->
+                            li [ class "list-group-item bg-transparent px-0 mb-3" ]
+                                [ a
+                                    [ href url
+                                    , target "_blank"
+                                    , rel "noopener"
+                                    ]
+                                    [ text (showAppLink linkType) ]
+                                ]
+                        )
+                        maybeLink
+                )
+                [ ( Link_Website, pageApp.pageApp_app.app_links.website )
+                , ( Link_Docs, pageApp.pageApp_app.app_links.docs )
+                , ( Link_Source, pageApp.pageApp_app.app_links.source )
+                ]
+
+        resources =
+            links ++ [ viewRecipeLink model pageApp ]
+    in
     div
         [ class "box-container target-highlight mb-3"
         , id "resources"
@@ -391,36 +416,7 @@ viewAppResources model pageApp =
                 []
             ]
         , ul [ class "", style "padding-left" "10px" ]
-            [ {- li [ class "list-group-item bg-transparent px-0 mb-3" ]
-                     [ a
-                         [ href "#"
-                         , target "_blank"
-                         , rel "noopener"
-                         ]
-                         [ text "Homepage" ]
-                     ]
-                 , li
-                     [ class "list-group-item bg-transparent px-0 mb-3"
-                     ]
-                     [ a
-                         [ href "#"
-                         , target "_blank"
-                         , rel "noopener"
-                         ]
-                         [ text "Documentation" ]
-                     ]
-                 , li [ class "list-group-item bg-transparent px-0 mb-3" ]
-                     [ a
-                         [ href "#"
-                         , target "_blank"
-                         , rel "noopener"
-                         ]
-                         [ text "Source Repository" ]
-                     ]
-                 ,
-              -}
-              viewRecipeLink model pageApp
-            ]
+            resources
         ]
 
 

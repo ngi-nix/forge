@@ -66,4 +66,10 @@
       "5000:5000"
     ];
   };
+
+  links = {
+    website = pkgs.mypkgs.python-web.meta.homepage;
+    docs = pkgs.mypkgs.python-web.meta.homepage;
+    source = pkgs.mypkgs.python-web.meta.homepage;
+  };
 }

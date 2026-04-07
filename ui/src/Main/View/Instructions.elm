@@ -2,7 +2,7 @@ module Main.View.Instructions exposing (..)
 
 import Html exposing (Html, a, br, button, details, div, h4, hr, li, p, small, summary, text, ul)
 import Html.Attributes exposing (class, href, id, style, target)
-import Main.Config exposing (commit)
+import Main.Config exposing (commit, shortCommit)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
@@ -194,7 +194,19 @@ viewFlakeNavItem model pageApp isFlakes =
 
 nixShellForgeInput : Model -> String
 nixShellForgeInput model =
-    "  -I forge=\"" ++ (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ commit ++ ".tar.gz\" \\\n"
+    "  -I forge=\"" ++ (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ shortCommit ++ ".tar.gz\" \\\n"
+
+
+nixFlakeForgeInput : Model -> String
+nixFlakeForgeInput model =
+    String.concat
+        [ model.model_config.config_repository
+        , if commit /= "master" then
+            "/" ++ shortCommit
+
+          else
+            ""
+        ]
 
 
 viewProgramsInstructions : Model -> PageApp -> Html Update
@@ -215,7 +227,7 @@ viewProgramsInstructions model pageApp =
             String.concat
                 (if flakes then
                     [ "nix shell "
-                    , model.model_config.config_repository
+                    , nixFlakeForgeInput model
                     , "#"
                     , app_name
                     ]
@@ -250,7 +262,7 @@ viewContainerInstructions model pageApp =
                 [ if flakes then
                     String.concat
                         [ "nix build "
-                        , model.model_config.config_repository
+                        , nixFlakeForgeInput model
                         , "#"
                         , app_name
                         , ".container"
@@ -292,7 +304,7 @@ viewVMInstructions model pageApp =
             if flakes then
                 String.concat
                     [ "nix run "
-                    , model.model_config.config_repository
+                    , nixFlakeForgeInput model
                     , "#"
                     , app_name
                     , ".vm"
