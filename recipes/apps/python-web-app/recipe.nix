@@ -72,4 +72,15 @@
     docs = pkgs.mypkgs.python-web.meta.homepage;
     source = pkgs.mypkgs.python-web.meta.homepage;
   };
+
+  test.script = ''
+    curl -X POST localhost:5000/init
+
+    curl -X POST \
+      --header "Content-Type: application/json" \
+      --data '{"name":"username"}' \
+      localhost:5000/users
+
+    curl localhost:5000/users
+  '';
 }
