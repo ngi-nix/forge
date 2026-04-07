@@ -9,18 +9,12 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixpkgs.follows = "nix-forge/nixpkgs";
+    flake-parts.follows = "nix-forge/flake-parts";
     nix-forge.url = "github:ngi-nix/forge";
-    elm2nix = {
-      url = "github:dwayne/elm2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-utils = {
-      url = "github:imincik/nix-utils";
-      flake = false;
-    };
-    nimi.url = "github:weyl-ai/nimi";
+    elm2nix.follows = "nix-forge/elm2nix";
+    nix-utils.follows = "nix-forge/nix-utils";
+    nimi.follows = "nix-forge/nimi";
   };
 
   outputs =
