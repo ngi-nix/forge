@@ -53,10 +53,11 @@ Type=oneshot
 RemainAfterExit=yes
 Slice=$slice.slice
 Environment=PATH=$PATH
+WorkingDirectory=$rootDir
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-ui.passthru.bootstrapCss -o "$rootDir/ui/build/bootstrap" --show-trace
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-options -o "$rootDir/ui/build/forge-options.json" --show-trace
 ExecStart=$BACKEND_COMMAND
-ExecStart=$rootDir/flake/develop/commands/dev/dev-ui/build-app-resources.py
+ExecStart=$rootDir/flake/develop/commands/dev/dev-ui/build_app_resources.py
 EOT
 
 systemctl --user edit --runtime --force --full "$unit"-elm-watch.service --stdin <<EOT

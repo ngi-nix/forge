@@ -4,7 +4,10 @@ import sys
 import random
 import string
 from pathlib import Path
+
+sys.path.append("@devUIDir@")
 from faker import Faker
+from build_app_resources import populate_resources_dir
 
 fake = Faker()
 
@@ -68,7 +71,14 @@ def generate_app(index: int):
             "result": "container",
             "tag": "latest",
         },
-        "grants": generate_grants(),
+        "ngi": {
+            "grants": generate_grants(),
+        },
+        "links": {
+            "website": fake.word(),
+            "docs": fake.word(),
+            "source": fake.word(),
+        },
         "nixos": {
             "enable": fake.boolean(),
             "extraConfig": {},
@@ -113,3 +123,6 @@ with open(out_file, "w") as f:
     json.dump(fake_data, f)
 
 print(f"Done! Wrote to {out_file}")
+
+
+populate_resources_dir()

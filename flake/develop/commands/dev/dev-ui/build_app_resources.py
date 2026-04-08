@@ -2,22 +2,39 @@
 
 # Build resources directory for development mode
 
+import os
 import sys
 import json
 import shutil
+import subprocess
 from pathlib import Path
-from types import TracebackType
 from typing import Any
 
 
-def main():
+def get_git_root() -> Path | None:
     try:
-        # Get root directory relative to this script location
-        # This script is at: flake/develop/commands/dev/dev-ui/build-app-resources.py
-        script_path = Path(__file__).resolve()
+        print(os.getcwd())
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return Path(result.stdout.strip())
 
-        # .parents[5] goes up 5 directories, equivalent to ../../../../..
-        root_dir = script_path.parents[5]
+    except subprocess.CalledProcessError as e:
+        print("Error: ", e.stderr)
+        print("Error: The current directory is not part of a Git repository.")
+        return None
+
+
+def populate_resources_dir():
+    try:
+        root_dir = get_git_root()
+        if not root_dir:
+            print("Failed to find the project root directory using git.")
+            exit(0)
+        print(f"The Git root is: {root_dir}")
 
         build_dir = root_dir / "ui" / "build"
         resources_dir = build_dir / "resources"
@@ -88,4 +105,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    populate_resources_dir()
