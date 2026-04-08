@@ -1,4 +1,4 @@
-export const initClipboardListener = (app) =>
+export const initClipboard = (app) =>
   app.ports.copyToClipboard.subscribe((text) => {
     navigator.clipboard
       .writeText(text)

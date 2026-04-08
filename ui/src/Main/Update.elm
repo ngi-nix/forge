@@ -10,13 +10,11 @@ import Main.Helpers.Cmd as Cmd
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Preferences exposing (..)
 import Main.Ports.Clipboard as Clipboard
-import Main.Ports.FlakePreference as FlakePreference
 import Main.Ports.Navigation
 import Main.Ports.SmoothScroll exposing (..)
-import Main.Ports.ThemeSwitch as ThemeSwitch
 import Main.Route as Route exposing (..)
-import Main.Theme exposing (cycleTheme, themeToString)
 import Navigation
 import Task
 
@@ -42,7 +40,7 @@ type Update
     | Update_ToggleNavBar
     | Update_CycleTheme
     | Update_Focus String
-    | Update_SetFlakePreference Bool
+    | Update_SetPreferences Preferences
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState
     | Update_SearchInput UpdateSearchInput
@@ -69,23 +67,29 @@ type alias AmbientKeyState =
 
 
 update : Update -> Updater
-update upd model =
+update upd modelInit =
+    let
+        model =
+            { modelInit | model_errors = [] }
+    in
     case upd of
         Update_Chain ups ->
             let
-                chain msg1 ( model1, cmds1 ) =
+                chain up ( model1, cmds1 ) =
                     let
                         ( model2, cmds2 ) =
-                            update msg1 model1
+                            update up model1
                     in
-                    ( model2, Cmd.batch [ cmds1, cmds2 ] )
+                    ( { model2 | model_errors = model1.model_errors ++ model2.model_errors }
+                    , Cmd.batch [ cmds1, cmds2 ]
+                    )
             in
-            ups |> List.foldl chain ( model, Cmd.none )
+            ups |> List.foldl chain ( { model | model_errors = [] }, Cmd.none )
 
         Update_Navigation event ->
             case event.appUrl |> Route.fromAppUrl of
                 Err err ->
-                    ( { model | model_errors = model.model_errors ++ [ Error_Route err ] }
+                    ( { model | model_errors = [ Error_Route err ] }
                     , Cmd.none
                     )
 
@@ -117,32 +121,24 @@ update upd model =
             , Clipboard.copyToClipboard code
             )
 
-        Update_SetFlakePreference value ->
-            let
-                oldPrefs =
-                    model.model_preferences
-
-                newPrefs =
-                    { oldPrefs | pref_flakes = value }
-            in
-            ( { model | model_preferences = newPrefs }
-            , FlakePreference.saveFlakePreference value
+        Update_SetPreferences prefs ->
+            ( { model | model_preferences = prefs }
+            , setPreferences prefs
             )
 
         Update_CycleTheme ->
             let
-                nextTheme =
-                    cycleTheme model.model_preferences.pref_theme
-
-                oldPrefs =
+                preferences =
                     model.model_preferences
-
-                newPrefs =
-                    { oldPrefs | pref_theme = nextTheme }
             in
-            ( { model | model_preferences = newPrefs }
-            , ThemeSwitch.saveTheme (themeToString nextTheme)
-            )
+            model
+                |> update
+                    (Update_SetPreferences
+                        { preferences
+                            | preferences_theme =
+                                cyclePreferencesTheme model.model_preferences.preferences_theme
+                        }
+                    )
 
         Update_ToggleNavBar ->
             ( { model | model_navbarExpanded = not model.model_navbarExpanded }, Cmd.none )
@@ -161,7 +157,7 @@ update upd model =
                                     Route_RecipeOptions
                                         { routeRecipeOptions
                                             | routeRecipeOptions_pattern = Nothing
-                                            , routeRecipeOptions_page = 1
+                                            , routeRecipeOptions_page = Nothing
                                         }
 
                                 _ ->
@@ -182,7 +178,7 @@ update upd model =
                                     Route_RecipeOptions
                                         { routeRecipeOptions
                                             | routeRecipeOptions_pattern = Just search
-                                            , routeRecipeOptions_page = 1
+                                            , routeRecipeOptions_page = Nothing
                                         }
 
                                 _ ->
@@ -203,7 +199,7 @@ update upd model =
                                         Route_RecipeOptions
                                             { routeRecipeOptions
                                                 | routeRecipeOptions_pattern = Just search
-                                                , routeRecipeOptions_page = 1
+                                                , routeRecipeOptions_page = Nothing
                                             }
 
                                     _ ->
@@ -251,7 +247,7 @@ update upd model =
                     )
 
                 Err err ->
-                    ( { model | model_errors = model.model_errors ++ [ Error_Http err ] }
+                    ( { model | model_errors = [ Error_Http err ] }
                     , Cmd.none
                     )
 
@@ -268,7 +264,7 @@ update upd model =
                     )
 
                 Err err ->
-                    ( { model | model_errors = model.model_errors ++ [ Error_Http err ] }
+                    ( { model | model_errors = [ Error_Http err ] }
                     , Cmd.none
                     )
 
@@ -288,7 +284,6 @@ updateRoute route =
                     ( { model
                         | model_page = Page_Search
                         , model_search = routeSearch.routeSearch_pattern
-                        , model_route = route
                       }
                     , Cmd.none
                     )
@@ -298,83 +293,64 @@ updateRoute route =
                 \model ->
                     ( case model.model_config.config_apps |> Dict.get routeApp.routeApp_name of
                         Just app ->
-                            case routeApp.routeApp_runOutput of
+                            let
+                                requestedAppRuntime =
+                                    case routeApp.routeApp_runRuntime of
+                                        Just x ->
+                                            Just x
+
+                                        Nothing ->
+                                            app |> listAppRuntimeAvailable |> List.head
+                            in
+                            case requestedAppRuntime of
                                 Nothing ->
                                     { model
                                         | model_page =
                                             Page_App
-                                                { pageApp_route =
-                                                    { routeApp
-                                                        | routeApp_runOutput =
-                                                            [ if app.app_programs.enable then
-                                                                [ AppOutput_Shell ]
-
-                                                              else
-                                                                []
-                                                            , if app.app_services.runtimes.container.enable then
-                                                                [ AppOutput_Container ]
-
-                                                              else
-                                                                []
-                                                            , if app.app_services.runtimes.nixos.enable then
-                                                                [ AppOutput_VM ]
-
-                                                              else
-                                                                []
-                                                            ]
-                                                                |> List.concat
-                                                                |> List.head
-                                                    }
+                                                { pageApp_route = { routeApp | routeApp_runShown = False }
                                                 , pageApp_app = app
+                                                , pageApp_runtime = Nothing
                                                 }
-                                        , model_route = route
+                                        , model_errors =
+                                            if routeApp.routeApp_runShown then
+                                                [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
+
+                                            else
+                                                []
                                     }
 
-                                Just output ->
-                                    let
-                                        appHasRequestedOutput =
-                                            case output of
-                                                AppOutput_Shell ->
-                                                    app.app_programs.enable
-
-                                                AppOutput_Container ->
-                                                    app.app_services.runtimes.container.enable
-
-                                                AppOutput_VM ->
-                                                    app.app_services.runtimes.nixos.enable
-                                    in
-                                    if appHasRequestedOutput then
+                                Just selectedAppRuntime ->
+                                    if app |> hasAppRuntime selectedAppRuntime then
                                         { model
                                             | model_page =
                                                 Page_App
                                                     { pageApp_route = routeApp
                                                     , pageApp_app = app
+                                                    , pageApp_runtime = Just selectedAppRuntime
                                                     }
-                                            , model_route = route
                                         }
 
                                     else
                                         { model
                                             | model_page =
                                                 Page_App
-                                                    { pageApp_route = routeApp
+                                                    { pageApp_route = { routeApp | routeApp_runShown = False }
                                                     , pageApp_app = app
+                                                    , pageApp_runtime = Just selectedAppRuntime
                                                     }
-                                            , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NoSuchOutput output) ]
-                                            , model_route = route
+                                            , model_errors = [ Error_App (ErrorApp_NoSuchRuntime app.app_name selectedAppRuntime) ]
                                         }
 
                         Nothing ->
                             { model
                                 | model_page = Page_Search
-                                , model_errors = model.model_errors ++ [ Error_App (ErrorApp_NotFound routeApp.routeApp_name) ]
-                                , model_route = route
+                                , model_errors = [ Error_App (ErrorApp_NotFound routeApp.routeApp_name) ]
                             }
                     , let
                         isSameFocus =
                             case model.model_page of
                                 Page_App oldPageApp ->
-                                    oldPageApp.pageApp_route.routeApp_focusWidget == routeApp.routeApp_focusWidget
+                                    oldPageApp.pageApp_route.routeApp_focus == routeApp.routeApp_focus
 
                                 _ ->
                                     False
@@ -383,9 +359,9 @@ updateRoute route =
                         Cmd.none
 
                       else
-                        case routeApp.routeApp_focusWidget of
-                            Just focusId ->
-                                scrollToAndHighlight focusId
+                        case routeApp.routeApp_focus of
+                            Just targetId ->
+                                scrollToAndHighlight (targetId |> showRouteAppFocus)
 
                             Nothing ->
                                 Cmd.none
@@ -404,35 +380,43 @@ updateRoute route =
 
                             filtered =
                                 recipeOptions.modelRecipeOptions_available
-                                    |> Dict.filter (\name opt -> String.contains (search |> String.toLower) (name |> String.toLower))
+                                    |> Dict.filter (\name _ -> String.contains (search |> String.toLower) (name |> String.toLower))
                                     |> Dict.toList
+
+                            maxResultsPerPage =
+                                routeRecipe.routeRecipeOptions_MaxResultsPerPage
+                                    |> Maybe.withDefault 10
+
+                            pageRecipe =
+                                { pageRecipeOptions_route = routeRecipe
+                                , pageRecipeOptions_page =
+                                    routeRecipe.routeRecipeOptions_page
+                                        |> Maybe.withDefault 1
+                                , pageRecipeOptions_MaxResultsPerPage = maxResultsPerPage
+                                , pageRecipeOptions_LastPage =
+                                    filtered
+                                        |> List.length
+                                        |> (\x -> (toFloat x / toFloat maxResultsPerPage) |> ceiling)
+                                        |> max 1
+                                }
                         in
                         ( { model
-                            | model_page =
-                                Page_RecipeOptions
-                                    { pageRecipeOptions_route = routeRecipe
-                                    , pageRecipeOptions_LastPage =
-                                        filtered
-                                            |> List.length
-                                            |> (\x -> (toFloat x / toFloat routeRecipe.routeRecipeOptions_MaxResultsPerPage) |> ceiling)
-                                            |> max 1
-                                    }
+                            | model_page = Page_RecipeOptions pageRecipe
                             , model_search = search
                             , model_RecipeOptions =
                                 { recipeOptions
                                     | modelRecipeOptions_filtered =
                                         filtered
-                                            |> List.chunksOf routeRecipe.routeRecipeOptions_MaxResultsPerPage
-                                            |> List.at (routeRecipe.routeRecipeOptions_page - 1)
+                                            |> List.chunksOf pageRecipe.pageRecipeOptions_MaxResultsPerPage
+                                            |> List.at (pageRecipe.pageRecipeOptions_page - 1)
                                             |> Maybe.withDefault []
                                 }
-                            , model_route = route
                           }
                         , let
                             isSameFocus =
                                 case model.model_page of
                                     Page_RecipeOptions oldRecipePage ->
-                                        oldRecipePage.pageRecipeOptions_route.routeRecipeOptions_option == routeRecipe.routeRecipeOptions_option
+                                        oldRecipePage.pageRecipeOptions_route.routeRecipeOptions_focus == routeRecipe.routeRecipeOptions_focus
 
                                     _ ->
                                         False
@@ -441,9 +425,9 @@ updateRoute route =
                             Cmd.none
 
                           else
-                            case routeRecipe.routeRecipeOptions_option of
-                                Just focusId ->
-                                    scrollToAndHighlight focusId
+                            case routeRecipe.routeRecipeOptions_focus of
+                                Just targetId ->
+                                    scrollToAndHighlight (targetId |> showRouteRecipeOptionsFocus)
 
                                 Nothing ->
                                     Cmd.none

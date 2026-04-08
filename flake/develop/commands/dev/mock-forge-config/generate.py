@@ -2,7 +2,6 @@ import json
 import os
 import sys
 import random
-import string
 from pathlib import Path
 
 sys.path.append("@devUIDir@")
@@ -25,15 +24,6 @@ os.makedirs(out_file.parents[0], exist_ok=True)
 print(f"Generating {total_apps} apps...")
 
 
-def generate_hash():
-    chars = string.ascii_lowercase + string.digits
-    return "".join(random.choices(chars, k=32))
-
-
-def fake_store_path():
-    return f"/nix/store/{generate_hash()}-{fake.word()}-1.0.0"
-
-
 def generate_grants():
     # Initialize empty categories
     grants = {"Commons": [], "Core": [], "Entrust": [], "Review": []}
@@ -53,15 +43,6 @@ def generate_app(index: int):
 
     description = " ".join(fake.sentences(nb=random.randint(1, 3)))
 
-    # Extracting variables keeps lines under the 79-character limit for flake8
-    req_path = fake_store_path()
-    cmd_path = fake_store_path()
-    compose_file = f"/nix/store/{generate_hash()}-compose.yaml"
-    greeting_env = f"GREETING={fake.sentence()}"
-
-    container_enable = fake.boolean()
-    nixos_enable = fake.boolean()
-
     return {
         "name": app_name,
         "description": description,
@@ -69,45 +50,27 @@ def generate_app(index: int):
             "grants": generate_grants(),
         },
         "links": {
-            "website": fake.word(),
-            "docs": fake.word(),
-            "source": fake.word(),
+            "website": {
+                "url": fake.url(),
+            },
+            "docs": {
+                "url": fake.url(),
+            },
+            "source": {
+                "url": fake.url(),
+            },
         },
-        "programs": {"enable": True, "requirements": [req_path]},
+        "programs": {"enable": fake.boolean()},
         "services": {
             "components": {
-                app_name: {
-                    "argv": [],
-                    "command": cmd_path,
-                    "environment": [],
-                    "result": {
-                        "configData": {},
-                        "process": {"argv": [f"{cmd_path}/bin/{app_name}"]},
-                    },
-                }
+                app_name: {},
             },
             "runtimes": {
                 "container": {
-                    "composeFile": compose_file,
-                    "enable": container_enable,
-                    "imageConfig": {"Env": [greeting_env]},
-                    "name": app_name,
-                    "requirements": [req_path],
-                    "result": "container",
-                    "tag": "latest",
+                    "enable": fake.boolean(),
                 },
                 "nixos": {
-                    "enable": nixos_enable,
-                    "extraConfig": {},
-                    "name": f"{app_name}-nixos",
-                    "result": "nixos-vm-config",
-                    "settings": {},
-                    "vm": {
-                        "cores": random.choice([2, 4, 8]),
-                        "diskSize": random.choice([2048, 4096, 8192]),
-                        "forwardPorts": [],
-                        "memorySize": random.choice([1024, 2048, 4096]),
-                    },
+                    "enable": fake.boolean(),
                 },
             },
         },

@@ -7,7 +7,11 @@ import Markdown.Parser
 import Markdown.Renderer exposing (Renderer, defaultHtmlRenderer)
 
 
-render : String -> List (Html Update)
+type alias Markdown =
+    String
+
+
+render : Markdown -> List (Html Update)
 render input =
     input
         |> Markdown.Parser.parse

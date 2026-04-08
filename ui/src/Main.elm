@@ -3,13 +3,14 @@ module Main exposing (main)
 import AppUrl
 import Browser
 import Dict
+import Json.Decode
 import Json.Encode
 import Main.Config
 import Main.Config.App exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Preferences exposing (..)
 import Main.Route exposing (..)
 import Main.Subscriptions
-import Main.Theme exposing (themeFromString)
 import Main.Update exposing (..)
 import Main.View
 import Url
@@ -17,8 +18,7 @@ import Url
 
 type alias Flags =
     { href : String
-    , theme : String
-    , prefersFlakes : Bool
+    , flags_preferences : Json.Encode.Value
     }
 
 
@@ -41,15 +41,14 @@ init flags =
             , model_page = Page_Search
             , model_errors = []
             , model_preferences =
-                { pref_theme = themeFromString flags.theme
-                , pref_flakes = flags.prefersFlakes
-                }
+                flags.flags_preferences
+                    |> Json.Decode.decodeValue decodePreferences
+                    |> Result.withDefault defaultPreferences
             , model_navbarExpanded = False
             , model_RecipeOptions =
                 { modelRecipeOptions_available = Dict.empty
                 , modelRecipeOptions_filtered = []
                 }
-            , model_route = Route_Search { routeSearch_pattern = "" }
             }
     in
     case flags.href |> Url.fromString of

@@ -4,8 +4,8 @@ import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Error exposing (..)
 import Main.Helpers.Nix exposing (..)
+import Main.Model.Preferences exposing (..)
 import Main.Route exposing (..)
-import Main.Theme exposing (Theme)
 
 
 type alias Model =
@@ -13,12 +13,8 @@ type alias Model =
     , model_search : String
     , model_page : Page
     , model_errors : List Error
-    , model_preferences :
-        { pref_theme : Theme
-        , pref_flakes : Bool
-        }
+    , model_preferences : Preferences
     , model_navbarExpanded : Bool
-    , model_route : Route
     , model_RecipeOptions : ModelRecipeOptions
     }
 
@@ -42,11 +38,16 @@ type Page
 type alias PageApp =
     { pageApp_route : RouteApp
     , pageApp_app : App
+
+    -- `Nothing` means that the `App` provides no `AppRuntime` at all.
+    , pageApp_runtime : Maybe AppRuntime
     }
 
 
 type alias PageRecipeOptions =
     { pageRecipeOptions_route : RouteRecipeOptions
+    , pageRecipeOptions_page : Int
+    , pageRecipeOptions_MaxResultsPerPage : Int
     , pageRecipeOptions_LastPage : Int
     }
 

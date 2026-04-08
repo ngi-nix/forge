@@ -1,14 +1,7 @@
-import { init as initNavigationPort } from "./Navigation.js";
-import { getInitialTheme, initThemePort } from "./ThemeSwitch.js";
-import { initClipboardListener } from "./Clipboard.js";
-import {
-  getInitialFlakePreference,
-  initFlakePreferencePort,
-} from "./FlakePreference.js";
-import { initSmoothScrollPort } from "./SmoothScroll.js";
-
-const startingFlakePreference = getInitialFlakePreference();
-const startingTheme = getInitialTheme();
+import { init as initNavigation } from "./Navigation.js";
+import { initClipboard } from "./Clipboard.js";
+import { getPreferences, initPreferences } from "./Preferences.js";
+import { initSmoothScroll } from "./SmoothScroll.js";
 
 // work around github pages adding extra trailing slash
 if (
@@ -22,27 +15,18 @@ if (
   window.history.replaceState(null, "", cleanUrl);
 }
 
-// init state
 const app = Elm.Main.init({
   node: document.getElementById("elm-main"),
   flags: {
     href: window.location.href,
-    theme: startingTheme,
-    prefersFlakes: startingFlakePreference,
+    flags_preferences: getPreferences(),
   },
 });
 
-// register ports
-
-initClipboardListener(app);
-
-initNavigationPort({
+initClipboard(app);
+initNavigation({
   navCmd: app.ports.navCmd,
   onNavEvent: app.ports.onNavEvent,
 });
-
-initFlakePreferencePort(app);
-
-initSmoothScrollPort(app);
-
-initThemePort(app);
+initPreferences(app);
+initSmoothScroll(app);

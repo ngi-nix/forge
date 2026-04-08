@@ -11,71 +11,12 @@ type Error
     | Error_Route ErrorRoute
 
 
-showErrorHttp : Http.Error -> String
-showErrorHttp err =
-    case err of
-        Http.BadUrl s ->
-            "Bad URL: " ++ s
-
-        Http.Timeout ->
-            "Request timed out"
-
-        Http.NetworkError ->
-            "Network error"
-
-        Http.BadStatus s ->
-            "Bad response: " ++ String.fromInt s
-
-        Http.BadBody s ->
-            "Bad body: " ++ s
-
-
 type ErrorRoute
     = ErrorRoute_Parsing String
     | ErrorRoute_Unknown AppUrl
 
 
-showError : Error -> String
-showError err =
-    case err of
-        Error_App e ->
-            showErrorApp e
-
-        Error_Http e ->
-            showErrorHttp e
-
-        Error_Route e ->
-            showErrorRoute e
-
-
-showErrorRoute : ErrorRoute -> String
-showErrorRoute err =
-    case err of
-        ErrorRoute_Parsing s ->
-            "ErrorRoute_Parsing: " ++ s
-
-        ErrorRoute_Unknown url ->
-            "ErrorRoute_Unknown: " ++ AppUrl.toString url
-
-
 type ErrorApp
-    = ErrorApp_NoSuchOutput AppOutput
+    = ErrorApp_NoSuchRuntime AppName AppRuntime
+    | ErrorApp_NoRuntime AppName
     | ErrorApp_NotFound AppName
-
-
-showErrorApp : ErrorApp -> String
-showErrorApp err =
-    case err of
-        ErrorApp_NoSuchOutput output ->
-            String.concat
-                [ "No such output: "
-                , output |> showAppOutput
-                , "."
-                ]
-
-        ErrorApp_NotFound appName ->
-            String.concat
-                [ "No such app: "
-                , appName
-                , "."
-                ]
