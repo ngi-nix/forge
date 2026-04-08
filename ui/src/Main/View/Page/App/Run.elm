@@ -117,7 +117,7 @@ viewPageAppRunInstructions model pageApp =
                 , br [] []
                 , case appRuntime of
                     AppRuntime_Shell ->
-                        if pageApp.pageApp_app.app_programs.enable then
+                        if pageApp.pageApp_app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
                             viewPageAppRunShell model pageApp
 
                         else
