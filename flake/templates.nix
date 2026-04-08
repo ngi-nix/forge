@@ -1,8 +1,8 @@
 {
   flake.templates = {
-    example = {
-      path = ../templates/example;
-      description = "Nix Forge template with example packages";
+    provider = {
+      path = ../templates/provider;
+      description = "Template for self hosting you own NGI Forge instance";
     };
   };
 }

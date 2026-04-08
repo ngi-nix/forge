@@ -1,27 +1,27 @@
 {
-  description = "Nix Forge";
+  description = "NGI Forge";
 
   nixConfig = {
-    extra-substituters = [ "https://flake-forge.cachix.org" ];
+    extra-substituters = [ "https://ngi-forge.cachix.org" ];
     extra-trusted-public-keys = [
-      "flake-forge.cachix.org-1:cu8to1JK8J70jntSwC0Z2Uzu6DpwgcWTS3xiiye3Lyw="
+      "ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0="
     ];
   };
 
   inputs = {
-    nixpkgs.follows = "nix-forge/nixpkgs";
-    flake-parts.follows = "nix-forge/flake-parts";
-    nix-forge.url = "github:ngi-nix/forge";
-    elm2nix.follows = "nix-forge/elm2nix";
-    nix-utils.follows = "nix-forge/nix-utils";
-    nimi.follows = "nix-forge/nimi";
+    ngi-forge.url = "github:ngi-nix/forge";
+    elm2nix.follows = "ngi-forge/elm2nix";
+    flake-parts.follows = "ngi-forge/flake-parts";
+    nimi.follows = "ngi-forge/nimi";
+    nixpkgs.follows = "ngi-forge/nixpkgs";
+    nix-utils.follows = "ngi-forge/nix-utils";
   };
 
   outputs =
-    inputs@{ flake-parts, nix-forge, ... }:
+    inputs@{ flake-parts, ngi-forge, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      imports = [ nix-forge.flakeModules.default ];
+      imports = [ ngi-forge.flakeModules.default ];
 
       perSystem =
         { system, ... }:

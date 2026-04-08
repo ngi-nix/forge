@@ -33,11 +33,11 @@ jobs:
         run: |
           git init
 
-      - name: Initialize project from template
+      - name: Initialize provider template
         working-directory: /tmp/template-test
         run: |
-          nix flake init -t ${{ github.workspace }}#example
-          sed -i 's|nix-forge.url = .*;|nix-forge.url = "path:${{ github.workspace }}";|g' flake.nix
+          nix flake init -t ${{ github.workspace }}#provider
+          sed -i 's|ngi-forge.url = .*;|ngi-forge.url = "path:${{ github.workspace }}";|g' flake.nix
           git add ./*
 
       - name: Show flake info
