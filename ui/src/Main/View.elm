@@ -657,7 +657,6 @@ viewPageRecipeOptions model pageRecipeOptions =
 
               else
                 text ""
-            , text "Page "
             , text (pageRecipeOptions.pageRecipeOptions_route.routeRecipeOptions_page |> String.fromInt)
             , text " / "
             , text (pageRecipeOptions.pageRecipeOptions_LastPage |> String.fromInt)
