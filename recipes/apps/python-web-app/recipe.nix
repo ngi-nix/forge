@@ -55,33 +55,39 @@
     ];
   };
 
-  services.python-web = {
-    command = pkgs.mypkgs.python-web;
-  };
-
-  container = {
-    enable = true;
-    requirements = [ pkgs.mypkgs.python-web ];
-    # Alternatively, we can re-use attributes with `config`:
-    #requirements = [ config.services.python-web.command ];
-    composeFile = ./compose.yaml;
-  };
-
-  nixos = {
-    enable = true;
-    extraConfig = {
-      # database service
-      services.postgresql.enable = true;
-      services.postgresql.enableTCPIP = true;
-      services.postgresql.authentication = ''
-        local all all trust
-        host all all 0.0.0.0/0 trust
-        host all all ::0/0 trust
-      '';
+  services = {
+    components = {
+      python-web = {
+        command = pkgs.mypkgs.python-web;
+      };
     };
-    vm.forwardPorts = [
-      "5000:5000"
-    ];
+
+    runtimes = {
+      container = {
+        enable = true;
+        requirements = [ pkgs.mypkgs.python-web ];
+        # Alternatively, we can re-use attributes with `config`:
+        #requirements = [ config.services.python-web.command ];
+        composeFile = ./compose.yaml;
+      };
+
+      nixos = {
+        enable = true;
+        extraConfig = {
+          # database service
+          services.postgresql.enable = true;
+          services.postgresql.enableTCPIP = true;
+          services.postgresql.authentication = ''
+            local all all trust
+            host all all 0.0.0.0/0 trust
+            host all all ::0/0 trust
+          '';
+        };
+        vm.forwardPorts = [
+          "5000:5000"
+        ];
+      };
+    };
   };
 
   test.script = ''
