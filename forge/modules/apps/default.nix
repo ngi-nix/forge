@@ -80,8 +80,12 @@ in
                   shellBundle appExtended;
               }
               // lib.optionalAttrs (app.test.script != "") { test = app.test.result.build; }
-              // lib.optionalAttrs app.container.enable { container = app.container.result.imageBuilder; }
-              // lib.optionalAttrs app.nixos.enable { vm = app.nixos.result.build; };
+              // lib.optionalAttrs app.services.runtimes.container.enable {
+                container = app.services.runtimes.container.result.imageBuilder;
+              }
+              // lib.optionalAttrs app.services.runtimes.nixos.enable {
+                vm = app.services.runtimes.nixos.result.build;
+              };
 
             # finalApp parameter is currently not used in this function
             appPassthru = app: finalApp: mkPassthru app;

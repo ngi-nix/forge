@@ -96,14 +96,14 @@ viewPageAppInstructions model pageApp =
                                     text ""
 
                             AppOutput_Container ->
-                                if pageApp.pageApp_app.app_container.enable then
+                                if pageApp.pageApp_app.app_services.runtimes.container.enable then
                                     viewContainerInstructions model pageApp
 
                                 else
                                     text ""
 
                             AppOutput_VM ->
-                                if pageApp.pageApp_app.app_vm.enable then
+                                if pageApp.pageApp_app.app_services.runtimes.nixos.enable then
                                     viewVMInstructions model pageApp
 
                                 else
@@ -111,7 +111,7 @@ viewPageAppInstructions model pageApp =
                         ]
     in
     div []
-        [ if not pageApp.pageApp_app.app_programs.enable && not pageApp.pageApp_app.app_container.enable && not pageApp.pageApp_app.app_vm.enable then
+        [ if not pageApp.pageApp_app.app_programs.enable && not pageApp.pageApp_app.app_services.runtimes.container.enable && not pageApp.pageApp_app.app_services.runtimes.nixos.enable then
             div []
                 [ p [ class "text-danger" ] [ text "No output is enabled for this app." ]
                 , p [] [ text "Enable at least one of the - programs, container or nixos vm - in recipe file." ]

@@ -16,21 +16,25 @@
     ];
   };
 
-  container = {
-    enable = true;
-    requirements = [ pkgs.mypkgs.hello-nix ];
-    imageConfig.CMD = [
-      "hello"
-    ];
-    composeFile = ./compose.yaml;
-  };
+  services = {
+    runtimes = {
+      container = {
+        enable = true;
+        requirements = [ pkgs.mypkgs.hello-nix ];
+        imageConfig.CMD = [
+          "hello"
+        ];
+        composeFile = ./compose.yaml;
+      };
 
-  nixos = {
-    enable = true;
-    extraConfig = {
-      environment.systemPackages = [
-        pkgs.mypkgs.hello-nix
-      ];
+      nixos = {
+        enable = true;
+        extraConfig = {
+          environment.systemPackages = [
+            pkgs.mypkgs.hello-nix
+          ];
+        };
+      };
     };
   };
 }

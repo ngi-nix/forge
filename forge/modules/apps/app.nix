@@ -45,31 +45,20 @@
     # Portable services configuration
     # https://nixos.org/manual/nixos/unstable/#modular-services
     services = lib.mkOption {
-      type = lib.types.attrsOf (
-        lib.types.submoduleWith {
-          specialArgs = { inherit pkgs inputs; };
-          modules = [ ./services ];
-        }
-      );
+      type = lib.types.submoduleWith {
+        specialArgs = {
+          inherit
+            inputs
+            system
+            pkgs
+            nimi
+            ;
+          app = config;
+        };
+        modules = [ ./services ];
+      };
       default = { };
-      description = "Portable services.";
-      # map user-config to a format which can be used by modular services
-      apply =
-        self:
-        lib.mapAttrs (
-          _: service:
-          service
-          // {
-            result = {
-              process.argv =
-                let
-                  command = if lib.isDerivation service.command then lib.getExe service.command else service.command;
-                in
-                [ command ] ++ service.argv;
-              configData = service.configData;
-            };
-          }
-        ) self;
+      description = "Portable services configuration.";
     };
 
     # Programs shell configuration
@@ -77,30 +66,6 @@
       type = lib.types.submodule ./programs;
       default = { };
       description = "Programs shell configuration.";
-    };
-
-    # Container configuration
-    container = lib.mkOption {
-      type = lib.types.submodule {
-        imports = [ ./container ];
-        _module.args.app = config;
-        _module.args.pkgs = pkgs;
-        _module.args.nimi = nimi;
-      };
-      default = { };
-      description = "Container configuration.";
-    };
-
-    # NixOS/VM configuration
-    nixos = lib.mkOption {
-      type = lib.types.submodule {
-        imports = [ ./nixos ];
-        _module.args.app = config;
-        _module.args.inputs = inputs;
-        _module.args.system = system;
-      };
-      default = { };
-      description = "NixOS system configuration.";
     };
 
     # Test configuration

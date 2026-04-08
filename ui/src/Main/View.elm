@@ -306,12 +306,12 @@ viewPageSearchApp model app =
 
                       else
                         []
-                    , if app.app_container.enable then
+                    , if app.app_services.runtimes.container.enable then
                         [ span [ class "badge bg-secondary me-1" ] [ text "container" ] ]
 
                       else
                         []
-                    , if app.app_vm.enable then
+                    , if app.app_services.runtimes.nixos.enable then
                         [ span [ class "badge bg-secondary me-1" ] [ text "vm" ] ]
 
                       else
@@ -581,10 +581,10 @@ viewPageAppRunOutputs model pageApp =
                     pageApp.pageApp_app.app_programs.enable
 
                 AppOutput_Container ->
-                    pageApp.pageApp_app.app_container.enable
+                    pageApp.pageApp_app.app_services.runtimes.container.enable
 
                 AppOutput_VM ->
-                    pageApp.pageApp_app.app_vm.enable
+                    pageApp.pageApp_app.app_services.runtimes.nixos.enable
     in
     ul [ class "nav nav-pills mb-4" ]
         ([ AppOutput_Shell

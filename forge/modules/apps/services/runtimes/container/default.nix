@@ -104,7 +104,7 @@
               # { K = "V"; } -> [ "K=V" ]
               envAttrsToList = attrs: lib.mapAttrsToList (n: v: "${n}=${v}") attrs;
 
-              appEnv = lib.concatMapAttrs (_: value: value.environment) app.services;
+              appEnv = lib.concatMapAttrs (_: value: value.environment) app.services.components;
               containerEnv = envListToAttrs config.imageConfig.Env or [ ];
 
               # NOTE: we merge Attrs to remove duplicate keys
@@ -132,7 +132,7 @@
             };
           }
         ];
-      }) app.services;
+      }) app.services.components;
     };
 
     result.nimi.eval = nimi.passthru.evalNimiModule { inherit (config.result.nimi) config; };

@@ -1,5 +1,6 @@
 module Main.Config.App exposing (..)
 
+import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
 
 
@@ -7,21 +8,29 @@ type alias App =
     { app_name : AppName
     , app_description : String
     , app_usage : String
+    , app_services : AppServices
     , app_programs : AppPrograms
-    , app_container : AppContainer
-    , app_vm : AppNixosVm
     , app_ngi : AppNgi
     , app_links : AppLinks
     }
 
 
-type alias AppNgi =
-    { grants : AppNgiSubgrants
+type alias AppServices =
+    { components : Dict String ServiceComponent
+    , runtimes : AppRuntimes
     }
 
 
-type alias AppPrograms =
-    { enable : Bool
+type alias ServiceComponent =
+    { command : String
+    , argv : List String
+    , environment : List String
+    }
+
+
+type alias AppRuntimes =
+    { container : AppContainer
+    , nixos : AppNixos
     }
 
 
@@ -30,8 +39,18 @@ type alias AppContainer =
     }
 
 
-type alias AppNixosVm =
+type alias AppNixos =
     { enable : Bool
+    }
+
+
+type alias AppPrograms =
+    { enable : Bool
+    }
+
+
+type alias AppNgi =
+    { grants : AppNgiSubgrants
     }
 
 
@@ -79,13 +98,12 @@ getDefaultIconPath =
 
 decodeApp : Decoder App
 decodeApp =
-    Decode.map8 App
+    Decode.map7 App
         (Decode.field "name" decodeAppName)
         (Decode.field "description" Decode.string)
         (Decode.field "usage" Decode.string)
+        (Decode.field "services" decodeAppServices)
         (Decode.field "programs" decodeAppPrograms)
-        (Decode.field "container" decodeAppContainer)
-        (Decode.field "nixos" decodeAppNixosVm)
         (Decode.field "ngi" decodeAppNgi)
         (Decode.field "links" decodeAppLinks)
 
@@ -104,10 +122,30 @@ decodeAppName =
             )
 
 
-decodeAppPrograms : Decoder AppPrograms
-decodeAppPrograms =
-    Decode.map AppPrograms
-        (Decode.field "enable" Decode.bool)
+decodeAppServices : Decoder AppServices
+decodeAppServices =
+    Decode.map2 AppServices
+        (Decode.field "components" (Decode.dict decodeServiceComponent))
+        (Decode.field "runtimes" decodeAppRuntimes)
+
+
+decodeServiceComponent : Decoder ServiceComponent
+decodeServiceComponent =
+    Decode.map3 ServiceComponent
+        (Decode.field "command" Decode.string)
+        (Decode.field "argv" (Decode.list Decode.string))
+        (Decode.oneOf
+            [ Decode.field "environment" (Decode.list Decode.string)
+            , Decode.field "environment" (Decode.dict Decode.string) |> Decode.map (\_ -> [])
+            ]
+        )
+
+
+decodeAppRuntimes : Decoder AppRuntimes
+decodeAppRuntimes =
+    Decode.map2 AppRuntimes
+        (Decode.field "container" decodeAppContainer)
+        (Decode.field "nixos" decodeAppNixos)
 
 
 decodeAppContainer : Decoder AppContainer
@@ -116,9 +154,15 @@ decodeAppContainer =
         (Decode.field "enable" Decode.bool)
 
 
-decodeAppNixosVm : Decoder AppNixosVm
-decodeAppNixosVm =
-    Decode.map AppNixosVm
+decodeAppNixos : Decoder AppNixos
+decodeAppNixos =
+    Decode.map AppNixos
+        (Decode.field "enable" Decode.bool)
+
+
+decodeAppPrograms : Decoder AppPrograms
+decodeAppPrograms =
+    Decode.map AppPrograms
         (Decode.field "enable" Decode.bool)
 
 

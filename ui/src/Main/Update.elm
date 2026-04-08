@@ -311,12 +311,12 @@ updateRoute route =
 
                                                               else
                                                                 []
-                                                            , if app.app_container.enable then
+                                                            , if app.app_services.runtimes.container.enable then
                                                                 [ AppOutput_Container ]
 
                                                               else
                                                                 []
-                                                            , if app.app_vm.enable then
+                                                            , if app.app_services.runtimes.nixos.enable then
                                                                 [ AppOutput_VM ]
 
                                                               else
@@ -338,10 +338,10 @@ updateRoute route =
                                                     app.app_programs.enable
 
                                                 AppOutput_Container ->
-                                                    app.app_container.enable
+                                                    app.app_services.runtimes.container.enable
 
                                                 AppOutput_VM ->
-                                                    app.app_vm.enable
+                                                    app.app_services.runtimes.nixos.enable
                                     in
                                     if appHasRequestedOutput then
                                         { model
