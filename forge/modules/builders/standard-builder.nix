@@ -88,7 +88,7 @@ in
                         patches = pkg.source.patches;
                         nativeBuildInputs = pkg.build.standardBuilder.inputs.build;
                         buildInputs = pkg.build.standardBuilder.inputs.run;
-                        checkInputs = pkg.build.standardBuilder.inputs.check;
+                        nativeCheckInputs = pkg.build.standardBuilder.inputs.check;
                         passthru = sharedBuildAttrs.pkgPassthru pkg finalAttrs.finalPackage;
                         meta = sharedBuildAttrs.pkgMeta pkg;
                       }

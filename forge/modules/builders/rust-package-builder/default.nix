@@ -41,6 +41,7 @@ in
 
                   nativeBuildInputs = pkg.build.rustPackageBuilder.inputs.build;
                   buildInputs = pkg.build.rustPackageBuilder.inputs.run;
+                  nativeCheckInputs = pkg.build.rustPackageBuilder.inputs.check;
 
                   cargoHash = pkg.build.rustPackageBuilder.cargoHash;
                   cargoBuildFlags = pkg.build.rustPackageBuilder.cargoBuildFlags;

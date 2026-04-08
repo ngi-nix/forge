@@ -158,7 +158,7 @@ in
                         proxyVendor = pkg.build.goPackageBuilder.proxyVendor;
                         nativeBuildInputs = pkg.build.goPackageBuilder.inputs.build;
                         buildInputs = pkg.build.goPackageBuilder.inputs.run;
-                        checkInputs = pkg.build.goPackageBuilder.inputs.check;
+                        nativeCheckInputs = pkg.build.goPackageBuilder.inputs.check;
                         passthru = sharedBuildAttrs.pkgPassthru pkg finalAttrs.finalPackage;
                         meta = sharedBuildAttrs.pkgMeta pkg;
                       }

@@ -33,6 +33,16 @@
         '';
         example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.libopus ]";
       };
+      check = lib.mkOption {
+        type = lib.types.listOf lib.types.package;
+        default = [ ];
+        description = ''
+          Test dependencies.
+
+          Packages needed to run Rust tests.
+        '';
+        example = lib.literalExpression "[ pkgs.cargo-nextest ]";
+      };
     };
 
     cargoHash = lib.mkOption {
