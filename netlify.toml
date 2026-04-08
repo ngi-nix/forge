@@ -1,0 +1,10 @@
+[build]
+  command = "bash scripts/netlify-build.sh"
+  publish = "ui/build"
+  # exit 0 (cancel build) if the context is NOT a deploy-preview
+  ignore = "test \"$CONTEXT\" != \"deploy-preview\""
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
