@@ -49,10 +49,15 @@
   };
 
   programs = {
-    enable = true;
-    requirements = [
-      pkgs.curl
-    ];
+    components.default = {
+      requirements = [
+        pkgs.curl
+      ];
+    };
+
+    runtimes.shell = {
+      enable = true;
+    };
   };
 
   services = {

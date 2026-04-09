@@ -73,7 +73,13 @@
       nodes.machine = {
         imports = app.services.runtimes.nixos.result.modules;
         system.stateVersion = "25.11";
-        environment.systemPackages = app.programs.requirements ++ config.requirements;
+        environment.systemPackages =
+          let
+            program-requirements = lib.flatten (
+              lib.mapAttrsToList (name: value: value.requirements) app.programs.components
+            );
+          in
+          program-requirements ++ config.requirements;
       };
       inherit (config) testScript;
     };

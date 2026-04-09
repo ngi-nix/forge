@@ -41,7 +41,7 @@ let
       map (v: {
         name = v.name;
         value = v;
-      }) def.output.forge.packages
+      }) def.debug.forge.packages
     );
 
     shells = flake.outputs.devShells.${system};

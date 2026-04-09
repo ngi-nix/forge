@@ -37,14 +37,49 @@ type alias AppName =
     String
 
 
-type alias AppPrograms =
+type alias AppProgramsComponents =
+    { requirements : List String
+    }
+
+
+type alias AppProgramsRuntimesShell =
     { enable : Bool
+    }
+
+
+type alias AppProgramsRuntimes =
+    { appProgramsRuntimes_shell : AppProgramsRuntimesShell
+    }
+
+
+type alias AppPrograms =
+    { components : Dict String AppProgramsComponents
+    , appPrograms_runtimes : AppProgramsRuntimes
     }
 
 
 decodeAppPrograms : Decoder AppPrograms
 decodeAppPrograms =
-    Decode.map AppPrograms
+    Decode.map2 AppPrograms
+        (Decode.field "components" (Decode.dict decodeAppProgramsComponent))
+        (Decode.field "runtimes" decodeAppProgramsRuntimes)
+
+
+decodeAppProgramsComponent : Decoder AppProgramsComponents
+decodeAppProgramsComponent =
+    Decode.map AppProgramsComponents
+        (Decode.field "requirements" (Decode.list Decode.string))
+
+
+decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes
+decodeAppProgramsRuntimes =
+    Decode.map AppProgramsRuntimes
+        (Decode.field "shell" decodeAppProgramsRuntimesShell)
+
+
+decodeAppProgramsRuntimesShell : Decoder AppProgramsRuntimesShell
+decodeAppProgramsRuntimesShell =
+    Decode.map AppProgramsRuntimesShell
         (Decode.field "enable" Decode.bool)
 
 
@@ -158,7 +193,7 @@ hasAppRuntime : AppRuntime -> App -> Bool
 hasAppRuntime appRuntime app =
     case appRuntime of
         AppRuntime_Shell ->
-            app.app_programs.enable
+            app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable
 
         AppRuntime_Container ->
             app.app_services.appServices_runtimes.appServicesRuntimes_container.enable
@@ -177,7 +212,7 @@ listAppRuntime =
 
 listAppRuntimeAvailable : App -> List AppRuntime
 listAppRuntimeAvailable app =
-    [ if app.app_programs.enable then
+    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
         [ AppRuntime_Shell ]
 
       else

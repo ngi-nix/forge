@@ -10,10 +10,15 @@
   description = "Say hello to Nix.";
 
   programs = {
-    enable = true;
-    requirements = [
-      pkgs.mypkgs.hello-nix
-    ];
+    components.default = {
+      requirements = [
+        pkgs.mypkgs.hello-nix
+      ];
+    };
+
+    runtimes.shell = {
+      enable = true;
+    };
   };
 
   services = {

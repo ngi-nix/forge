@@ -306,7 +306,7 @@ viewPageAppSearchApp _ app =
             ]
             [ small []
                 (List.concat
-                    [ if app.app_programs.enable then
+                    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
                         [ span [ class "badge bg-secondary me-1" ] [ text "shell" ] ]
 
                       else

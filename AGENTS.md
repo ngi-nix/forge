@@ -470,7 +470,9 @@ Apps can optionally specify a custom icon in SVG format. When creating app recip
   description = "My application";
   icon = ./logo.svg;  # Found in repository root
 
-  programs.enable = true;
+  programs = {
+    runtimes.shell.enable = true;
+  };
   # ... rest of configuration
 }
 ```
@@ -505,14 +507,23 @@ Creates a shell bundle with all required packages available in PATH:
 
 ```nix
 programs = {
-  enable = true;  # Set to true to enable programs bundle output
-  requirements = [
-    pkgs.mypkgs.my-package  # Reference packages from forge
-    pkgs.curl
-    pkgs.jq
-  ];
+  components.default = {
+    requirements = [
+      pkgs.mypkgs.my-package  # Reference packages from forge
+      pkgs.curl
+      pkgs.jq
+    ];
+  };
+
+  runtimes.shell = {
+    enable = true; # Set to true to enable programs bundle output
+  };
 };
 ```
+
+**Structure:**
+- `programs.components.<name>`: Named components with requirements
+- `programs.runtimes.shell.enable`: Enable shell bundle output
 
 **Access:** `nix shell .#<app>` or `nix build .#<app>`
 
@@ -595,7 +606,7 @@ nixos = {
 
 Each app output type can be independently enabled or disabled:
 
-- **programs.enable**: Controls the shell bundle (accessed via `nix shell .#<app>`)
+- **programs.runtimes.shell.enable**: Controls the shell bundle (accessed via `nix shell .#<app>`)
 - **container.enable**: Controls the container image (accessed via `nix build .#<app>.container`)
 - **nixos.enable**: Controls the virtual machine (accessed via `nix build .#<app>.vm`)
 
@@ -636,12 +647,17 @@ Each app output type can be independently enabled or disabled:
 
   # Shell bundle with additional tools
   programs = {
-    enable = true;
-    requirements = [
-      pkgs.mypkgs.python-web
-      pkgs.curl
-      pkgs.postgresql
-    ];
+    components.default = {
+      requirements = [
+        pkgs.mypkgs.python-web
+        pkgs.curl
+        pkgs.postgresql
+      ];
+    };
+
+    runtimes.shell = {
+      enable = true;
+    };
   };
 
   # Container image
