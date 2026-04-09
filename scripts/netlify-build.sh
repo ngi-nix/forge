@@ -14,9 +14,13 @@ echo "Configuring routing for root path..."
 sed -i "s|:baseUrl|/|g" ui/src/Main/Route.elm
 # ui/src/index.html already sets / as base
 
-echo "Building UI..."
 export NP_GIT="$(which git)"
 export NP_RUNTIME=bwrap
+
+echo "Run nix flake check..."
+./nix-portable nix run github:nixos/nixpkgs/nixpkgs-unstable#nix -- flake check --accept-flake-config --show-trace
+
+echo "Building UI..."
 out="$(./nix-portable nix build .#_forge-ui --accept-flake-config --print-out-paths)"
 
 echo "Preparing deployment artifact..."
