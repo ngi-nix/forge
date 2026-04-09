@@ -1,7 +1,9 @@
 name: "User Story"
 description: "Create a User Story."
 title: "US: <USER STORY TITLE>"
-projects: ["Nix@NGI"]
+# NOTE: only one repository can have auto added to project in github free plan
+# we instead add this via github actions.
+# projects: ["Nix@NGI"]
 labels: ["User story", "nix-forge"]
 body:
   - type: "textarea"

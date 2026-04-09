@@ -1,0 +1,22 @@
+name: Auto-Add to Project
+on:
+  issues:
+    types: [opened, reopened]
+  # NOTE: Security wise this is unsafe if we were running some build script
+  # The user submitting the PR can modify the code and during the build step dump and capture the secrets
+  # BUT in this case there are no build steps, the only way is to modify this workflow file.
+  # https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request_target
+  # state that the workflow will not run on the merge commit but the base branch, i.e. the modifications to this file are not run.
+  pull_request_target:
+    types: [opened, reopened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add issue/pr to project
+        uses: actions/add-to-project@v1.0.2
+        with:
+          project-url: https://github.com/orgs/ngi-nix/projects/8
+          # need to a token with project permissions
+          github-token: ${{ secrets.PROJECT_TOKEN }}
