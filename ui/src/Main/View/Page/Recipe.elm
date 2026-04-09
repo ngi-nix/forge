@@ -1,7 +1,7 @@
 module Main.View.Page.Recipe exposing (..)
 
-import Html exposing (Html, a, code, div, h5, span, text)
-import Html.Attributes exposing (attribute, class, href, id, style, title)
+import Html exposing (Html, a, button, code, div, h5, span, text)
+import Html.Attributes exposing (attribute, class, disabled, href, id, style, title)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.AppUrl exposing (..)
@@ -18,50 +18,13 @@ import Main.View.Page.App exposing (..)
 
 viewPageRecipeOptions : Model -> PageRecipeOptions -> Html Update
 viewPageRecipeOptions model pageRecipeOptions =
-    let
-        routeRecipeOptions =
-            pageRecipeOptions.pageRecipeOptions_route
-
-        routePagePrev =
-            Route_RecipeOptions
-                { routeRecipeOptions
-                    | routeRecipeOptions_page = Just (pageRecipeOptions.pageRecipeOptions_page - 1)
-                }
-
-        routePageNext =
-            Route_RecipeOptions
-                { routeRecipeOptions
-                    | routeRecipeOptions_page = Just (pageRecipeOptions.pageRecipeOptions_page + 1)
-                }
-    in
     div []
-        [ div [ class "list-group" ]
+        [ viewPageRecipePageNavigators pageRecipeOptions
+        , div [ class "list-group" ]
             (model.model_RecipeOptions.modelRecipeOptions_filtered
                 |> List.map (viewPageRecipeOption model pageRecipeOptions)
             )
-        , div [ class "d-flex justify-content-center align-items-center" ]
-            [ if 1 < pageRecipeOptions.pageRecipeOptions_page then
-                Html.button
-                    [ class "btn"
-                    , onClick (Update_Route routePagePrev)
-                    ]
-                    [ text "Prev" ]
-
-              else
-                text ""
-            , text (pageRecipeOptions.pageRecipeOptions_page |> String.fromInt)
-            , text " / "
-            , text (pageRecipeOptions.pageRecipeOptions_LastPage |> String.fromInt)
-            , if pageRecipeOptions.pageRecipeOptions_page < pageRecipeOptions.pageRecipeOptions_LastPage then
-                Html.button
-                    [ class "btn"
-                    , onClick (Update_Route routePageNext)
-                    ]
-                    [ text "Next" ]
-
-              else
-                text ""
-            ]
+        , viewPageRecipePageNavigators pageRecipeOptions
         ]
 
 
@@ -122,3 +85,62 @@ viewRecipeOptionsLink =
         , onClick (Update_Route onClickRoute)
         ]
         [ text "Options" ]
+
+
+viewPageRecipePageNavigators : PageRecipeOptions -> Html Update
+viewPageRecipePageNavigators pageRecipeOptions =
+    let
+        routeRecipeOptions =
+            pageRecipeOptions.pageRecipeOptions_route
+
+        routePagePrev =
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_page = Just (pageRecipeOptions.pageRecipeOptions_page - 1)
+                }
+
+        routePageNext =
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_page = Just (pageRecipeOptions.pageRecipeOptions_page + 1)
+                }
+    in
+    div [ class "d-flex justify-content-center align-items-center my-2" ]
+        [ if 1 < pageRecipeOptions.pageRecipeOptions_page then
+            button
+                [ class "btn me-2 focus-ring"
+                , onClick (Update_Route routePagePrev)
+                ]
+                [ text "Prev" ]
+
+          else
+            button
+                [ class "btn me-2 border-0"
+                , disabled True
+                ]
+                [ text "Prev" ]
+        , span
+            [ style "width" "2rem"
+            , style "text-align" "center"
+            ]
+            [ text (pageRecipeOptions.pageRecipeOptions_page |> String.fromInt) ]
+        , text "/"
+        , span
+            [ style "width" "2rem"
+            , style "text-align" "center"
+            ]
+            [ text (pageRecipeOptions.pageRecipeOptions_LastPage |> String.fromInt) ]
+        , if pageRecipeOptions.pageRecipeOptions_page < pageRecipeOptions.pageRecipeOptions_LastPage then
+            button
+                [ class "btn ms-2 focus-ring"
+                , onClick (Update_Route routePageNext)
+                ]
+                [ text "Next" ]
+
+          else
+            button
+                [ class "btn ms-2 border-0"
+                , disabled True
+                ]
+                [ text "Next" ]
+        ]
