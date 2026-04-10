@@ -29,7 +29,7 @@ in
                       Standard builder for autotools, CMake, or Makefile-based projects.
 
                       Automatically handles configure, build, and install phases'';
-                    inputs = {
+                    requirements = {
                       build = lib.mkOption {
                         type = lib.types.listOf lib.types.package;
                         default = [ ];
@@ -86,9 +86,9 @@ in
                         version = pkg.version;
                         src = sharedBuildAttrs.pkgSource pkg;
                         patches = pkg.source.patches;
-                        nativeBuildInputs = pkg.build.standardBuilder.inputs.build;
-                        buildInputs = pkg.build.standardBuilder.inputs.run;
-                        nativeCheckInputs = pkg.build.standardBuilder.inputs.check;
+                        nativeBuildInputs = pkg.build.standardBuilder.requirements.build;
+                        buildInputs = pkg.build.standardBuilder.requirements.run;
+                        nativeCheckInputs = pkg.build.standardBuilder.requirements.check;
                         passthru = sharedBuildAttrs.pkgPassthru pkg finalAttrs.finalPackage;
                         meta = sharedBuildAttrs.pkgMeta pkg;
                       }

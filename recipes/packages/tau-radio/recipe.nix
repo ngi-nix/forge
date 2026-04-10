@@ -20,7 +20,7 @@
 
   build.rustPackageBuilder = {
     enable = true;
-    inputs = {
+    requirements = {
       build = with pkgs; [
         pkg-config
         rustPlatform.bindgenHook

@@ -29,7 +29,7 @@ in
                       Python application builder for executable Python programs.
 
                       Uses buildPythonApplication which prevents the package from being used as a dependency'';
-                    inputs = {
+                    requirements = {
                       build-system = lib.mkOption {
                         type = lib.types.listOf lib.types.package;
                         default = [ ];
@@ -124,9 +124,9 @@ in
                         format = "pyproject";
                         src = sharedBuildAttrs.pkgSource pkg;
                         patches = pkg.source.patches;
-                        build-system = pkg.build.pythonAppBuilder.inputs.build-system;
-                        dependencies = pkg.build.pythonAppBuilder.inputs.dependencies;
-                        optional-dependencies = pkg.build.pythonAppBuilder.inputs.optional-dependencies;
+                        build-system = pkg.build.pythonAppBuilder.requirements.build-system;
+                        dependencies = pkg.build.pythonAppBuilder.requirements.dependencies;
+                        optional-dependencies = pkg.build.pythonAppBuilder.requirements.optional-dependencies;
                         pythonImportsCheck = pkg.build.pythonAppBuilder.importsCheck;
                         pythonRelaxDeps = pkg.build.pythonAppBuilder.relaxDeps;
                         disabledTests = pkg.build.pythonAppBuilder.disabledTests;

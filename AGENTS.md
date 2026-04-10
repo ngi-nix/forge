@@ -47,7 +47,7 @@ Other packages built by Nix Forge can be referenced in recipes using `pkgs.mypkg
 ```nix
 {
   # Reference another Nix Forge package
-  inputs.run = [
+  requirements.run = [
     pkgs.mypkgs.gdal  # Access gdal from Nix Forge
   ];
 }
@@ -114,15 +114,15 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    requirements.build = [
       pkgs.cmake
       pkgs.pkg-config
     ];
-    inputs.run = [
+    requirements.run = [
       pkgs.openssl
       pkgs.zlib
     ];
-    inputs.check = [
+    requirements.check = [
       pkgs.cunit
     ];
   };
@@ -244,13 +244,13 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.goPackageBuilder = {
     enable = true;
-    inputs.build = [
+    requirements.build = [
       pkgs.pkg-config
     ];
-    inputs.run = [
+    requirements.run = [
       pkgs.openssl
     ];
-    inputs.check = [
+    requirements.check = [
       pkgs.gotestsum
     ];
     vendorHash = "sha256-...";
@@ -267,9 +267,9 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 **Inputs options**:
 
-- `inputs.build`: Build-time tools (pkg-config, installShellFiles)
-- `inputs.run`: CGO dependencies (openssl, sqlite)
-- `inputs.check`: Test tools (gotestsum)
+- `requirements.build`: Build-time tools (pkg-config, installShellFiles)
+- `requirements.run`: CGO dependencies (openssl, sqlite)
+- `requirements.check`: Test tools (gotestsum)
 
 ### 5. rustPackageBuilder (Rust Crates)
 
@@ -279,15 +279,15 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.rustPackageBuilder = {
     enable = true;
-    inputs.build = [
+    requirements.build = [
       pkgs.pkg-config
       pkgs.rustPlatform.bindgenHook
     ];
-    inputs.run = [
+    requirements.run = [
       pkgs.openssl
       pkgs.sqlite
     ];
-    inputs.check = [
+    requirements.check = [
       pkgs.cargo-nextest
     ];
     cargoHash = "sha256-...";
@@ -304,9 +304,9 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 **Inputs options**:
 
-- `inputs.build`: Build-time tools (pkg-config, bindgenHook)
-- `inputs.run`: Runtime dependencies (openssl, sqlite, etc.)
-- `inputs.check`: Test tools (cargo-nextest)
+- `requirements.build`: Build-time tools (pkg-config, bindgenHook)
+- `requirements.run`: Runtime dependencies (openssl, sqlite, etc.)
+- `requirements.check`: Test tools (cargo-nextest)
 
 ## Source Configuration
 
@@ -360,7 +360,7 @@ source = {
 
 ```nix
 test = {
-  inputs = [ pkgs.curl ];  # Additional test dependencies
+  requirements = [ pkgs.curl ];  # Additional test dependencies
   script = ''
     # Test commands
     $out/bin/program --version
@@ -380,7 +380,7 @@ test = {
 
 ```nix
 development = {
-  inputs = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
+  requirements = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
   shellHook = ''
     echo "Development environment ready"
     echo "Source code: clone from ${source.git}"
@@ -715,8 +715,8 @@ ELSE IF has configure script OR uses CMake OR standard Makefile:
 
 ### 3. Dependency Resolution
 
-- **Build tools**: cmake, pkg-config, autoconf → `inputs.build`
-- **Libraries**: openssl, zlib, curl → `inputs.run`
+- **Build tools**: cmake, pkg-config, autoconf → `requirements.build`
+- **Libraries**: openssl, zlib, curl → `requirements.run`
 - **Python packages**: Use `pkgs.python3Packages.*`
 - **Unknown packages**: Use `pkgs.<package-name>`
 
@@ -767,11 +767,11 @@ source.hash = "";  # Leave empty initially
 
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    requirements.build = [
       pkgs.rustc
       pkgs.cargo
     ];
-    inputs.run = [ ];
+    requirements.run = [ ];
   };
 
   test.script = ''
@@ -805,10 +805,10 @@ source.hash = "";  # Leave empty initially
 
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    requirements.build = [
       pkgs.which
     ];
-    inputs.run = [
+    requirements.run = [
       pkgs.openssl
       pkgs.pcre
       pkgs.zlib
@@ -846,10 +846,10 @@ source.hash = "";  # Leave empty initially
 
   build.pythonAppBuilder = {
     enable = true;
-    inputs.build-system = [
+    requirements.build-system = [
       pkgs.python3Packages.setuptools
     ];
-    inputs.dependencies = [
+    requirements.dependencies = [
       pkgs.python3Packages.typing-extensions
       pkgs.python3Packages.mypy-extensions
     ];
@@ -886,10 +886,10 @@ source.hash = "";  # Leave empty initially
 
   build.pythonPackageBuilder = {
     enable = true;
-    inputs.build-system = [
+    requirements.build-system = [
       pkgs.python3Packages.setuptools
     ];
-    inputs.dependencies = [
+    requirements.dependencies = [
       pkgs.python3Packages.charset-normalizer
       pkgs.python3Packages.idna
       pkgs.python3Packages.urllib3
@@ -921,7 +921,7 @@ source.hash = "";  # Leave empty initially
 
 **Issue**: Missing dependency
 
-- **Solution**: Add to inputs.build or inputs.run
+- **Solution**: Add to requirements.build or requirements.run
 
 ## Naming Conventions
 
@@ -1032,9 +1032,9 @@ Check for submodules:
 
 **Dependency categories:**
 
-- **Build tools** (cmake, pkg-config, autoconf, meson, ninja) → `inputs.build`
-- **Libraries** (sqlite, gdal, openssl, zlib, postgresql) → `inputs.run`
-- **Test Tools** (cunit, pytest) → `inputs.check`
+- **Build tools** (cmake, pkg-config, autoconf, meson, ninja) → `requirements.build`
+- **Libraries** (sqlite, gdal, openssl, zlib, postgresql) → `requirements.run`
+- **Test Tools** (cunit, pytest) → `requirements.check`
 - **Python packages** → `pkgs.python3Packages.<name>` in dependencies
 
 ### Step 5: Check for External/Vendored Dependencies
@@ -1059,7 +1059,7 @@ Nix builds in a sandbox without network access. You must:
 
 2. **Option 2:** Provide dependencies via nativeBuildInputs
    ```nix
-   inputs.build = [ pkgs.somelib ];
+   requirements.build = [ pkgs.somelib ];
    ```
 
 3. **Option 3:** Patch build files to remove download steps
@@ -1163,7 +1163,7 @@ CMake Error at CMakeLists.txt:104 (INCLUDE):
 
 2. **Provide missing dependencies:**
    ```nix
-   inputs.run = [ pkgs.libgpkg ];  # If available in nixpkgs
+   requirements.run = [ pkgs.libgpkg ];  # If available in nixpkgs
    ```
 
 3. **Patch CMakeLists.txt:**
@@ -1320,7 +1320,7 @@ START: What type of project is this?
 | wheel                              | `pkgs.python3Packages.wheel`              |
 | pytest                             | `pkgs.python3Packages.pytest` (test only) |
 
-### Build Tools (always in inputs.build)
+### Build Tools (always in requirements.build)
 
 - `pkgs.cmake` - CMake build system
 - `pkgs.pkg-config` - Finding library dependencies
@@ -1383,7 +1383,7 @@ git add recipes/packages/<name>/recipe.nix
    ```
 
    Common fixes needed:
-   - Add missing dependencies to `inputs.build` or `inputs.run`
+   - Add missing dependencies to `requirements.build` or `requirements.run`
    - Set `sourceRoot` if CMakeLists.txt not in root
    - Patch build files to remove external downloads
    - Relax Python version constraints

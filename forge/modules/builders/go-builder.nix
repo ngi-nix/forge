@@ -29,7 +29,7 @@ in
                       Go module builder for applications and libraries.
 
                       Uses buildGoModule from nixpkgs under the hood.'';
-                    inputs = {
+                    requirements = {
                       build = lib.mkOption {
                         type = lib.types.listOf lib.types.package;
                         default = [ ];
@@ -156,9 +156,9 @@ in
                         ldflags = pkg.build.goPackageBuilder.ldflags;
                         tags = pkg.build.goPackageBuilder.tags;
                         proxyVendor = pkg.build.goPackageBuilder.proxyVendor;
-                        nativeBuildInputs = pkg.build.goPackageBuilder.inputs.build;
-                        buildInputs = pkg.build.goPackageBuilder.inputs.run;
-                        nativeCheckInputs = pkg.build.goPackageBuilder.inputs.check;
+                        nativeBuildInputs = pkg.build.goPackageBuilder.requirements.build;
+                        buildInputs = pkg.build.goPackageBuilder.requirements.run;
+                        nativeCheckInputs = pkg.build.goPackageBuilder.requirements.check;
                         passthru = sharedBuildAttrs.pkgPassthru pkg finalAttrs.finalPackage;
                         meta = sharedBuildAttrs.pkgMeta pkg;
                       }

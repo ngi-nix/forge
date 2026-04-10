@@ -12,7 +12,7 @@
 
       Uses rustPlatform.buildRustPackage'';
 
-    inputs = {
+    requirements = {
       build = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];

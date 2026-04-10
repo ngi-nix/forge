@@ -39,9 +39,9 @@ in
                   src = sharedBuildAttrs.pkgSource pkg;
                   patches = pkg.source.patches or [ ];
 
-                  nativeBuildInputs = pkg.build.rustPackageBuilder.inputs.build;
-                  buildInputs = pkg.build.rustPackageBuilder.inputs.run;
-                  nativeCheckInputs = pkg.build.rustPackageBuilder.inputs.check;
+                  nativeBuildInputs = pkg.build.rustPackageBuilder.requirements.build;
+                  buildInputs = pkg.build.rustPackageBuilder.requirements.run;
+                  nativeCheckInputs = pkg.build.rustPackageBuilder.requirements.check;
 
                   cargoHash = pkg.build.rustPackageBuilder.cargoHash;
                   cargoBuildFlags = pkg.build.rustPackageBuilder.cargoBuildFlags;
