@@ -67,7 +67,7 @@ jobs:
 
       - name: Encode version information
         run: |
-          commit="$(git rev-parse HEAD)"
+          commit="${{ github.event.pull_request.head.sha || github.sha }}"
           commit=${commit:-master}
           sed -i "s/master/$commit/g" ui/src/Main/Config.elm
 
