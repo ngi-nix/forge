@@ -327,6 +327,26 @@ updateRoute route =
                         search =
                             routePackages.routePackages_search |> String.toLower
 
+                        filterMatches =
+                            List.filter
+                                (\package ->
+                                    let
+                                        -- Case Insensitive search
+                                        package_name =
+                                            String.toLower package.package_name
+
+                                        package_description =
+                                            String.toLower package.package_description
+
+                                        name_matches =
+                                            String.contains search package_name
+
+                                        desc_matches =
+                                            String.contains search package_description
+                                    in
+                                    name_matches || desc_matches
+                                )
+
                         availableItems =
                             case model.model_page of
                                 Page_Packages pagePackages ->
@@ -344,7 +364,7 @@ updateRoute route =
 
                         filteredItems =
                             availableItems
-                                |> List.filter (\package -> String.contains search (package.package_name |> String.toLower))
+                                |> filterMatches
                     in
                     { model
                         | model_page =
@@ -376,6 +396,26 @@ updateRoute route =
                             search =
                                 routeRecipe.routeRecipeOptions_search |> String.toLower
 
+                            filterMatches =
+                                List.filter
+                                    (\( name, option ) ->
+                                        let
+                                            -- Case Insensitive search
+                                            option_name =
+                                                String.toLower name
+
+                                            option_description =
+                                                String.toLower option.nixModuleOption_description
+
+                                            name_matches =
+                                                String.contains search option_name
+
+                                            desc_matches =
+                                                String.contains search option_description
+                                        in
+                                        name_matches || desc_matches
+                                    )
+
                             availableItems =
                                 case model.model_page of
                                     Page_RecipeOptions pageRecipe ->
@@ -393,7 +433,7 @@ updateRoute route =
 
                             filteredItems =
                                 availableItems
-                                    |> List.filter (\( name, _ ) -> String.contains search (name |> String.toLower))
+                                    |> filterMatches
                         in
                         { model
                             | model_page =
