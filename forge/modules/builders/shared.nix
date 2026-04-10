@@ -117,7 +117,7 @@ in
           pkgPassthru = pkg: finalPkg: {
             test = pkgs.testers.runCommand {
               name = "${pkg.name}-test";
-              buildInputs = [ finalPkg ] ++ pkg.test.inputs;
+              buildInputs = [ finalPkg ] ++ pkg.test.packages;
               script = pkg.test.script + "\ntouch $out";
             };
             devenv = pkgs.mkShell {
@@ -126,7 +126,7 @@ in
               inputsFrom = [
                 finalPkg
               ];
-              packages = pkg.development.inputs;
+              packages = pkg.development.packages;
               shellHook = pkg.development.shellHook;
             };
           };

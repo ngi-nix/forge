@@ -20,7 +20,7 @@
 
   build.rustPackageBuilder = {
     enable = true;
-    inputs = {
+    packages = {
       build = with pkgs; [
         perl
         pkg-config

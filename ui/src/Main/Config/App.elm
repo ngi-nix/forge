@@ -38,7 +38,7 @@ type alias AppName =
 
 
 type alias AppProgramsComponents =
-    { requirements : List String
+    { packages : List String
     }
 
 

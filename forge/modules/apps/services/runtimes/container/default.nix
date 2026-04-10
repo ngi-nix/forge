@@ -17,7 +17,7 @@
       description = "Tag of the generated container.";
     };
 
-    requirements = lib.mkOption {
+    packages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
       description = "List of packages to add to the container's `/bin` directory.";
@@ -82,7 +82,7 @@
       settings.container = {
         copyToRoot = pkgs.buildEnv {
           name = "runtime-bins";
-          paths = config.requirements;
+          paths = config.packages;
           pathsToLink = [ "/bin" ];
         };
 

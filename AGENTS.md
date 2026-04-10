@@ -47,7 +47,7 @@ Other packages built by Nix Forge can be referenced in recipes using `pkgs.mypkg
 ```nix
 {
   # Reference another Nix Forge package
-  inputs.run = [
+  packages.run = [
     pkgs.mypkgs.gdal  # Access gdal from Nix Forge
   ];
 }
@@ -114,15 +114,15 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    packages.build = [
       pkgs.cmake
       pkgs.pkg-config
     ];
-    inputs.run = [
+    packages.run = [
       pkgs.openssl
       pkgs.zlib
     ];
-    inputs.check = [
+    packages.check = [
       pkgs.cunit
     ];
   };
@@ -244,13 +244,13 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.goPackageBuilder = {
     enable = true;
-    inputs.build = [
+    packages.build = [
       pkgs.pkg-config
     ];
-    inputs.run = [
+    packages.run = [
       pkgs.openssl
     ];
-    inputs.check = [
+    packages.check = [
       pkgs.gotestsum
     ];
     vendorHash = "sha256-...";
@@ -267,9 +267,9 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 **Inputs options**:
 
-- `inputs.build`: Build-time tools (pkg-config, installShellFiles)
-- `inputs.run`: CGO dependencies (openssl, sqlite)
-- `inputs.check`: Test tools (gotestsum)
+- `packages.build`: Build-time tools (pkg-config, installShellFiles)
+- `packages.run`: CGO dependencies (openssl, sqlite)
+- `packages.check`: Test tools (gotestsum)
 
 ### 5. rustPackageBuilder (Rust Crates)
 
@@ -279,15 +279,15 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.rustPackageBuilder = {
     enable = true;
-    inputs.build = [
+    packages.build = [
       pkgs.pkg-config
       pkgs.rustPlatform.bindgenHook
     ];
-    inputs.run = [
+    packages.run = [
       pkgs.openssl
       pkgs.sqlite
     ];
-    inputs.check = [
+    packages.check = [
       pkgs.cargo-nextest
     ];
     cargoHash = "sha256-...";
@@ -304,9 +304,9 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 **Inputs options**:
 
-- `inputs.build`: Build-time tools (pkg-config, bindgenHook)
-- `inputs.run`: Runtime dependencies (openssl, sqlite, etc.)
-- `inputs.check`: Test tools (cargo-nextest)
+- `packages.build`: Build-time tools (pkg-config, bindgenHook)
+- `packages.run`: Runtime dependencies (openssl, sqlite, etc.)
+- `packages.check`: Test tools (cargo-nextest)
 
 ## Source Configuration
 
@@ -360,7 +360,7 @@ source = {
 
 ```nix
 test = {
-  inputs = [ pkgs.curl ];  # Additional test dependencies
+  packages = [ pkgs.curl ];  # Additional test dependencies
   script = ''
     # Test commands
     $out/bin/program --version
@@ -380,7 +380,7 @@ test = {
 
 ```nix
 development = {
-  inputs = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
+  packages = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
   shellHook = ''
     echo "Development environment ready"
     echo "Source code: clone from ${source.git}"
@@ -508,7 +508,7 @@ Creates a shell bundle with all required packages available in PATH:
 ```nix
 programs = {
   components.default = {
-    requirements = [
+    packages = [
       pkgs.mypkgs.my-package  # Reference packages from forge
       pkgs.curl
       pkgs.jq
@@ -523,7 +523,7 @@ programs = {
 
 **Structure:**
 
-- `programs.components.<name>`: Named components with requirements
+- `programs.components.<name>`: Named components with packages
 - `programs.runtimes.shell.enable`: Enable shell bundle output
 
 **Access:** `nix shell .#<app>` or `nix build .#<app>`
@@ -537,7 +537,7 @@ container = {
   enable = true;  # Set to true to enable container image output
   tag = "latest";  # Optional, defaults to "latest"
 
-  requirements = [
+  packages = [
     pkgs.mypkgs.my-package  # Packages to include in /bin
   ];
 
@@ -649,7 +649,7 @@ Each app output type can be independently enabled or disabled:
   # Shell bundle with additional tools
   programs = {
     components.default = {
-      requirements = [
+      packages = [
         pkgs.mypkgs.python-web
         pkgs.curl
         pkgs.postgresql
@@ -665,7 +665,7 @@ Each app output type can be independently enabled or disabled:
   container = {
     enable = true;
     tag = "latest";
-    requirements = [ pkgs.mypkgs.python-web ];
+    packages = [ pkgs.mypkgs.python-web ];
     imageConfig = {
       Env = [ "PORT=5000" ];
       ExposedPorts = { "5000/tcp" = { }; };
@@ -716,8 +716,8 @@ ELSE IF has configure script OR uses CMake OR standard Makefile:
 
 ### 3. Dependency Resolution
 
-- **Build tools**: cmake, pkg-config, autoconf → `inputs.build`
-- **Libraries**: openssl, zlib, curl → `inputs.run`
+- **Build tools**: cmake, pkg-config, autoconf → `packages.build`
+- **Libraries**: openssl, zlib, curl → `packages.run`
 - **Python packages**: Use `pkgs.python3Packages.*`
 - **Unknown packages**: Use `pkgs.<package-name>`
 
@@ -768,11 +768,11 @@ source.hash = "";  # Leave empty initially
 
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    packages.build = [
       pkgs.rustc
       pkgs.cargo
     ];
-    inputs.run = [ ];
+    packages.run = [ ];
   };
 
   test.script = ''
@@ -806,10 +806,10 @@ source.hash = "";  # Leave empty initially
 
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    packages.build = [
       pkgs.which
     ];
-    inputs.run = [
+    packages.run = [
       pkgs.openssl
       pkgs.pcre
       pkgs.zlib
@@ -847,10 +847,10 @@ source.hash = "";  # Leave empty initially
 
   build.pythonAppBuilder = {
     enable = true;
-    inputs.build-system = [
+    packages.build-system = [
       pkgs.python3Packages.setuptools
     ];
-    inputs.dependencies = [
+    packages.dependencies = [
       pkgs.python3Packages.typing-extensions
       pkgs.python3Packages.mypy-extensions
     ];
@@ -887,10 +887,10 @@ source.hash = "";  # Leave empty initially
 
   build.pythonPackageBuilder = {
     enable = true;
-    inputs.build-system = [
+    packages.build-system = [
       pkgs.python3Packages.setuptools
     ];
-    inputs.dependencies = [
+    packages.dependencies = [
       pkgs.python3Packages.charset-normalizer
       pkgs.python3Packages.idna
       pkgs.python3Packages.urllib3
@@ -922,7 +922,7 @@ source.hash = "";  # Leave empty initially
 
 **Issue**: Missing dependency
 
-- **Solution**: Add to inputs.build or inputs.run
+- **Solution**: Add to packages.build or packages.run
 
 ## Naming Conventions
 
@@ -1033,9 +1033,9 @@ Check for submodules:
 
 **Dependency categories:**
 
-- **Build tools** (cmake, pkg-config, autoconf, meson, ninja) → `inputs.build`
-- **Libraries** (sqlite, gdal, openssl, zlib, postgresql) → `inputs.run`
-- **Test Tools** (cunit, pytest) → `inputs.check`
+- **Build tools** (cmake, pkg-config, autoconf, meson, ninja) → `packages.build`
+- **Libraries** (sqlite, gdal, openssl, zlib, postgresql) → `packages.run`
+- **Test Tools** (cunit, pytest) → `packages.check`
 - **Python packages** → `pkgs.python3Packages.<name>` in dependencies
 
 ### Step 5: Check for External/Vendored Dependencies
@@ -1060,7 +1060,7 @@ Nix builds in a sandbox without network access. You must:
 
 2. **Option 2:** Provide dependencies via nativeBuildInputs
    ```nix
-   inputs.build = [ pkgs.somelib ];
+   packages.build = [ pkgs.somelib ];
    ```
 
 3. **Option 3:** Patch build files to remove download steps
@@ -1164,7 +1164,7 @@ CMake Error at CMakeLists.txt:104 (INCLUDE):
 
 2. **Provide missing dependencies:**
    ```nix
-   inputs.run = [ pkgs.libgpkg ];  # If available in nixpkgs
+   packages.run = [ pkgs.libgpkg ];  # If available in nixpkgs
    ```
 
 3. **Patch CMakeLists.txt:**
@@ -1321,7 +1321,7 @@ START: What type of project is this?
 | wheel                              | `pkgs.python3Packages.wheel`              |
 | pytest                             | `pkgs.python3Packages.pytest` (test only) |
 
-### Build Tools (always in inputs.build)
+### Build Tools (always in packages.build)
 
 - `pkgs.cmake` - CMake build system
 - `pkgs.pkg-config` - Finding library dependencies
@@ -1384,7 +1384,7 @@ git add recipes/packages/<name>/recipe.nix
    ```
 
    Common fixes needed:
-   - Add missing dependencies to `inputs.build` or `inputs.run`
+   - Add missing dependencies to `packages.build` or `packages.run`
    - Set `sourceRoot` if CMakeLists.txt not in root
    - Patch build files to remove external downloads
    - Relax Python version constraints

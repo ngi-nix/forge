@@ -24,7 +24,7 @@
 
   build.rustPackageBuilder = {
     enable = true;
-    inputs = {
+    packages = {
       build = [
         pkgs.pkg-config
       ];
