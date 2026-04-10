@@ -10,40 +10,71 @@ import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
 import Main.Route as Route exposing (..)
 import Main.Update exposing (..)
 import Main.View.Page.App exposing (..)
+import Main.View.Pagination exposing (..)
+
+
+viewPageRecipeOptionsLink : Html Update
+viewPageRecipeOptionsLink =
+    let
+        onClickRoute =
+            Route_RecipeOptions
+                defaultRouteRecipeOptions
+    in
+    a
+        [ href (onClickRoute |> Route.toString)
+        , style "color" "inherit"
+        , style "text-decoration" "none"
+        , style "cursor" "pointer"
+        , class "nav-link px-0 fw-bold"
+        , title "View available recipe options"
+        , attribute "aria-label" "View available recipe options"
+        , onClick (Update_Route onClickRoute)
+        ]
+        [ text "Options" ]
 
 
 viewPageRecipeOptions : Model -> PageRecipeOptions -> Html Update
 viewPageRecipeOptions model pageRecipeOptions =
-    div []
-        [ viewPageRecipePageNavigators pageRecipeOptions
-        , div [ class "list-group" ]
-            (model.model_RecipeOptions.modelRecipeOptions_filtered
-                |> List.map (viewPageRecipeOption model pageRecipeOptions)
-            )
-        , viewPageRecipePageNavigators pageRecipeOptions
-        ]
+    viewPagination
+        pageRecipeOptions.pageRecipeOptions_pagination
+        (viewPageRecipeOptionsItem model pageRecipeOptions)
+        (\modifyRoutePagination ->
+            let
+                routeRecipeOptions =
+                    pageRecipeOptions.pageRecipeOptions_route
+            in
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_pagination = routeRecipeOptions.routeRecipeOptions_pagination |> modifyRoutePagination
+                    , routeRecipeOptions_focus = Nothing
+                }
+        )
 
 
-viewPageRecipeOption : Model -> PageRecipeOptions -> ( NixName, NixModuleOption ) -> Html Update
-viewPageRecipeOption _ pageRecipeOptions ( optionName, option ) =
+viewPageRecipeOptionsItem : Model -> PageRecipeOptions -> ( NixName, NixModuleOption ) -> Html Update
+viewPageRecipeOptionsItem _ pageRecipeOptions ( optionName, option ) =
     let
         routeRecipeOptions =
             pageRecipeOptions.pageRecipeOptions_route
 
+        itemId =
+            optionName
+
         onClickRoute =
             Route_RecipeOptions
                 { routeRecipeOptions
-                    | routeRecipeOptions_focus = Just <| RouteRecipeOptionsFocus_Option optionName
+                    | routeRecipeOptions_focus = Just <| RouteRecipeOptionsFocus_Option itemId
                 }
     in
     a
-        [ class "recipe-option list-group-item list-group-item-action flex-column align-items-start"
+        [ class "list-item list-group-item list-group-item-action flex-column align-items-start"
         , href (onClickRoute |> Route.toString)
-        , id optionName
+        , id itemId
         , onClick (Update_Route onClickRoute)
         ]
         [ div [ class "d-flex w-100 justify-content-between" ]
@@ -64,83 +95,4 @@ viewPageRecipeOption _ pageRecipeOptions ( optionName, option ) =
                     |> Markdown.render
                 )
             ]
-        ]
-
-
-viewRecipeOptionsLink : Html Update
-viewRecipeOptionsLink =
-    let
-        onClickRoute =
-            Route_RecipeOptions
-                defaultRouteRecipeOptions
-    in
-    a
-        [ href (onClickRoute |> Route.toString)
-        , style "color" "inherit"
-        , style "text-decoration" "none"
-        , style "cursor" "pointer"
-        , class "nav-link px-0 fw-bold"
-        , title "View available recipe options"
-        , attribute "aria-label" "View available recipe options"
-        , onClick (Update_Route onClickRoute)
-        ]
-        [ text "Options" ]
-
-
-viewPageRecipePageNavigators : PageRecipeOptions -> Html Update
-viewPageRecipePageNavigators pageRecipeOptions =
-    let
-        routeRecipeOptions =
-            pageRecipeOptions.pageRecipeOptions_route
-
-        routePagePrev =
-            Route_RecipeOptions
-                { routeRecipeOptions
-                    | routeRecipeOptions_page = Just (pageRecipeOptions.pageRecipeOptions_page - 1)
-                }
-
-        routePageNext =
-            Route_RecipeOptions
-                { routeRecipeOptions
-                    | routeRecipeOptions_page = Just (pageRecipeOptions.pageRecipeOptions_page + 1)
-                }
-    in
-    div [ class "d-flex justify-content-center align-items-center my-2" ]
-        [ if 1 < pageRecipeOptions.pageRecipeOptions_page then
-            button
-                [ class "btn me-2 focus-ring"
-                , onClick (Update_Route routePagePrev)
-                ]
-                [ text "Prev" ]
-
-          else
-            button
-                [ class "btn me-2 border-0"
-                , disabled True
-                ]
-                [ text "Prev" ]
-        , span
-            [ style "width" "2rem"
-            , style "text-align" "center"
-            ]
-            [ text (pageRecipeOptions.pageRecipeOptions_page |> String.fromInt) ]
-        , text "/"
-        , span
-            [ style "width" "2rem"
-            , style "text-align" "center"
-            ]
-            [ text (pageRecipeOptions.pageRecipeOptions_LastPage |> String.fromInt) ]
-        , if pageRecipeOptions.pageRecipeOptions_page < pageRecipeOptions.pageRecipeOptions_LastPage then
-            button
-                [ class "btn ms-2 focus-ring"
-                , onClick (Update_Route routePageNext)
-                ]
-                [ text "Next" ]
-
-          else
-            button
-                [ class "btn ms-2 border-0"
-                , disabled True
-                ]
-                [ text "Next" ]
         ]

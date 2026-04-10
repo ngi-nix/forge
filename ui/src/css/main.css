@@ -18,11 +18,11 @@ body {
   height: 100vh;
 }
 
-.recipe-option.trigger-pulse {
+.list-item.trigger-pulse {
   animation: highlight-pulse 2s ease-out;
 }
 
-.recipe-option {
+.list-item {
   outline: none;
 }
 
@@ -97,27 +97,27 @@ body {
   border: solid 1px gray;
 }
 
-.m-app-card {
+.m-item-card {
   transition: background-color 0.15s ease-in-out;
 }
 
-.m-app-card:hover {
+.m-item-card:hover {
   background-color: #f8f9fa;
 }
 
-[data-bs-theme="dark"] .m-app-card:hover {
+[data-bs-theme="dark"] .m-item-card:hover {
   background-color: #2a3036;
 }
 
 /* App icons */
-.app-card-icon {
+.item-card-icon {
   width: 48px;
   height: 48px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
-.app-header-icon {
+.item-header-icon {
   width: 64px;
   height: 64px;
   object-fit: contain;
@@ -130,8 +130,18 @@ body {
   border-color: royalblue;
 }
 
+/* for Prev and Next pagination buttons hide focus with mouse click */
+.focus-ring:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
+/* hide unset var(--bs-btn-active-border-color) border when clicking on buttons */
+.btn:active {
+  border-color: transparent !important;
+}
+
 /* Default: small screens */
-.m-app-grid {
+.m-item-grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(
@@ -142,14 +152,14 @@ body {
 
 /* 320px+ allow multiple and allow them to stretch to full width */
 @media (min-width: 321px) {
-  .m-app-grid {
+  .m-item-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }
 
-/* for large screens use auto-fill to avoid auto-fit stretching each app card too wide */
+/* for large screens use auto-fill to avoid auto-fit stretching each item card too wide */
 @media (min-width: 900px) {
-  .m-app-grid {
+  .m-item-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }

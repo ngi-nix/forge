@@ -1,9 +1,12 @@
 module Main.Model exposing (..)
 
+import Dict
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
+import Main.Config.Package exposing (..)
 import Main.Error exposing (..)
 import Main.Helpers.Nix exposing (..)
+import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
 import Main.Route exposing (..)
 
@@ -15,44 +18,16 @@ type alias Model =
     , model_errors : List Error
     , model_preferences : Preferences
     , model_navbarExpanded : Bool
-    , model_RecipeOptions : ModelRecipeOptions
+    , model_RecipeOptions : RecipeOptions
     }
 
 
-{-| A `Page` is located at a `Route`,
-with more or less data than that `Route`:
-
-  - More data if viewing the `Page` requires more than provided in its address,
-    eg. by querying the backend (eg. `pageApp_app`).
-
-  - Less data if navigating away from the `Page` must persist that data,
-    and thus be persisted in `Model` (eg. `Route_Search` persists in `model_search`).
-
--}
-type Page
-    = Page_Search
-    | Page_App PageApp
-    | Page_RecipeOptions PageRecipeOptions
-
-
-type alias PageApp =
-    { pageApp_route : RouteApp
-    , pageApp_app : App
-
-    -- `Nothing` means that the `App` provides no `AppRuntime` at all.
-    , pageApp_runtime : Maybe AppRuntime
+type alias RecipeOptions =
+    { recipeOptions_available : NixModuleOptions
     }
 
 
-type alias PageRecipeOptions =
-    { pageRecipeOptions_route : RouteRecipeOptions
-    , pageRecipeOptions_page : Int
-    , pageRecipeOptions_MaxResultsPerPage : Int
-    , pageRecipeOptions_LastPage : Int
-    }
-
-
-type alias ModelRecipeOptions =
-    { modelRecipeOptions_available : NixModuleOptions
-    , modelRecipeOptions_filtered : List ( NixName, NixModuleOption )
+defaultRecipeOptions : RecipeOptions
+defaultRecipeOptions =
+    { recipeOptions_available = Dict.empty
     }

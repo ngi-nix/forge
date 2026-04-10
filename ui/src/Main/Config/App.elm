@@ -129,16 +129,6 @@ decodeAppServicesRuntimesNixos =
         (Decode.field "enable" Decode.bool)
 
 
-getAppIconPath : AppName -> String
-getAppIconPath appName =
-    "resources/apps/" ++ appName ++ "/icon.svg"
-
-
-getDefaultIconPath : String
-getDefaultIconPath =
-    "resources/apps/app-icon.svg"
-
-
 decodeAppContainer : Decoder AppServicesRuntimesContainer
 decodeAppContainer =
     Decode.map AppServicesRuntimesContainer

@@ -1,17 +1,17 @@
 module Main.Helpers.List exposing (..)
 
-{-| @'chunksOf' n@ splits a list into length-n pieces. The last
+{-| @'paginationOf' n@ splits a list into length-n pieces. The last
 piece will be shorter if @n@ does not evenly divide the length of
-the list. If @n <= 0@, @'chunksOf' n l@ returns an infinite list
+the list. If @n <= 0@, @'paginationOf' n l@ returns an infinite list
 of empty lists.
 
-AdaptedFrom: <https://hackage.haskell.org/package/split/docs/Data-List-Split.html#v:chunksOf>
+AdaptedFrom: <https://hackage.haskell.org/package/split/docs/Data-List-Split.html#v:paginationOf>
 
 -}
 
 
-chunksOf : Int -> List a -> List (List a)
-chunksOf n xs =
+paginationOf : Int -> List a -> List (List a)
+paginationOf n xs =
     case xs of
         [] ->
             []
@@ -21,7 +21,7 @@ chunksOf n xs =
                 ( ys, zs ) =
                     splitAt n xs
             in
-            ys :: chunksOf n zs
+            ys :: paginationOf n zs
 
 
 {-| 'splitAt' @n xs@ returns a tuple where first element is @xs@ prefix of

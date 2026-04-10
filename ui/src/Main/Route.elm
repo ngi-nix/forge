@@ -1,9 +1,10 @@
 module Main.Route exposing (..)
 
-import AppUrl exposing (AppUrl)
+import AppUrl exposing (AppUrl, QueryParameters)
 import Dict
 import List.Extra as List
 import Main.Config.App exposing (..)
+import Main.Config.Package exposing (..)
 import Main.Error exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Model.Preferences exposing (..)
@@ -16,14 +17,10 @@ Warning(security): it must not contain secret or sensitive data.
 
 -}
 type Route
-    = Route_Search RouteSearch
-    | Route_App RouteApp
+    = Route_App RouteApp
+    | Route_Apps RouteApps
+    | Route_Packages RoutePackages
     | Route_RecipeOptions RouteRecipeOptions
-
-
-type alias RouteSearch =
-    { routeSearch_pattern : String
-    }
 
 
 type alias RouteApp =
@@ -61,11 +58,47 @@ showRouteAppFocus x =
             "grants"
 
 
+type alias RouteApps =
+    { routeApps_search : String
+    }
+
+
+defaultRouteApps : RouteApps
+defaultRouteApps =
+    { routeApps_search = ""
+    }
+
+
+type alias RoutePackages =
+    { routePackages_search : String
+    , routePackages_focus : Maybe RoutePackagesFocus
+    , routePackages_pagination : RoutePagination
+    }
+
+
+defaultRoutePackages : RoutePackages
+defaultRoutePackages =
+    { routePackages_search = ""
+    , routePackages_focus = Nothing
+    , routePackages_pagination = defaultRoutePagination
+    }
+
+
+type RoutePackagesFocus
+    = RoutePackagesFocus_Package PackageName
+
+
+showRoutePackagesFocus : RoutePackagesFocus -> String
+showRoutePackagesFocus x =
+    case x of
+        RoutePackagesFocus_Package s ->
+            s
+
+
 type alias RouteRecipeOptions =
-    { routeRecipeOptions_pattern : Maybe NixName
-    , routeRecipeOptions_page : Maybe Int
-    , routeRecipeOptions_MaxResultsPerPage : Maybe Int
+    { routeRecipeOptions_search : String
     , routeRecipeOptions_focus : Maybe RouteRecipeOptionsFocus
+    , routeRecipeOptions_pagination : RoutePagination
     }
 
 
@@ -82,11 +115,76 @@ showRouteRecipeOptionsFocus x =
 
 defaultRouteRecipeOptions : RouteRecipeOptions
 defaultRouteRecipeOptions =
-    { routeRecipeOptions_pattern = Nothing
-    , routeRecipeOptions_page = Nothing
-    , routeRecipeOptions_MaxResultsPerPage = Nothing
+    { routeRecipeOptions_search = ""
     , routeRecipeOptions_focus = Nothing
+    , routeRecipeOptions_pagination = defaultRoutePagination
     }
+
+
+type alias RoutePagination =
+    { routePagination_current : Maybe Int
+    , routePagination_MaxSize : Maybe Int
+    }
+
+
+defaultRoutePagination : RoutePagination
+defaultRoutePagination =
+    { routePagination_current = Nothing
+    , routePagination_MaxSize = Nothing
+    }
+
+
+appUrlToRoutePagination : AppUrl -> RoutePagination
+appUrlToRoutePagination url =
+    { routePagination_current =
+        url.queryParameters
+            |> Dict.get "page"
+            |> Maybe.andThen List.head
+            |> Maybe.andThen String.toInt
+            |> Maybe.andThen
+                (\p ->
+                    if p < 1 then
+                        Nothing
+
+                    else
+                        Just p
+                )
+    , routePagination_MaxSize =
+        url.queryParameters
+            |> Dict.get "page-size"
+            |> Maybe.andThen List.head
+            |> Maybe.andThen String.toInt
+            |> Maybe.andThen
+                (\p ->
+                    if p < 1 then
+                        Nothing
+
+                    else
+                        Just p
+                )
+    }
+
+
+routePaginationToQueryParameters : RoutePagination -> QueryParameters
+routePaginationToQueryParameters routePagination =
+    [ ( "page"
+      , case routePagination.routePagination_current of
+            Nothing ->
+                []
+
+            Just p ->
+                [ p |> String.fromInt ]
+      )
+    , ( "page-size"
+      , case routePagination.routePagination_MaxSize of
+            Nothing ->
+                []
+
+            Just p ->
+                [ p |> String.fromInt ]
+      )
+    ]
+        |> Dict.fromList
 
 
 {-| BUILD TIME CONFIG:
@@ -108,15 +206,7 @@ fromAppUrl : AppUrl -> Result ErrorRoute Route
 fromAppUrl url =
     case url.path |> List.drop (List.length deployPath) of
         [] ->
-            Ok (Route_Search { routeSearch_pattern = "" })
-
-        [ "app" ] ->
-            case url.queryParameters |> Dict.get "q" |> Maybe.andThen List.uncons of
-                Nothing ->
-                    Ok (Route_Search { routeSearch_pattern = "" })
-
-                Just ( q, _ ) ->
-                    Ok (Route_Search { routeSearch_pattern = q })
+            Ok <| Route_Apps { routeApps_search = "" }
 
         [ "app", appName ] ->
             Ok <|
@@ -171,39 +261,46 @@ fromAppUrl url =
                                 , routeApp_runShown = False
                             }
 
+        [ "apps" ] ->
+            Ok <|
+                Route_Apps <|
+                    case url.queryParameters |> Dict.get "q" |> Maybe.andThen List.uncons of
+                        Nothing ->
+                            { routeApps_search = "" }
+
+                        Just ( q, _ ) ->
+                            { routeApps_search = q }
+
+        [ "packages" ] ->
+            Ok <|
+                Route_Packages <|
+                    case url.queryParameters |> Dict.get "q" |> Maybe.andThen List.uncons of
+                        Nothing ->
+                            { defaultRoutePackages
+                                | routePackages_search = ""
+                                , routePackages_pagination = url |> appUrlToRoutePagination
+                                , routePackages_focus =
+                                    url.fragment
+                                        |> Maybe.map
+                                            (\fragment ->
+                                                case fragment of
+                                                    packageName ->
+                                                        RoutePackagesFocus_Package packageName
+                                            )
+                            }
+
+                        Just ( q, _ ) ->
+                            { defaultRoutePackages | routePackages_search = q }
+
         [ "recipe", "options" ] ->
-            Ok
-                (Route_RecipeOptions
-                    { routeRecipeOptions_pattern =
+            Ok <|
+                Route_RecipeOptions
+                    { routeRecipeOptions_search =
                         url.queryParameters
                             |> Dict.get "q"
                             |> Maybe.andThen List.head
-                    , routeRecipeOptions_page =
-                        url.queryParameters
-                            |> Dict.get "page"
-                            |> Maybe.andThen List.head
-                            |> Maybe.andThen String.toInt
-                            |> Maybe.andThen
-                                (\p ->
-                                    if p < 1 then
-                                        Nothing
-
-                                    else
-                                        Just p
-                                )
-                    , routeRecipeOptions_MaxResultsPerPage =
-                        url.queryParameters
-                            |> Dict.get "MaxResultsPerPage"
-                            |> Maybe.andThen List.head
-                            |> Maybe.andThen String.toInt
-                            |> Maybe.andThen
-                                (\p ->
-                                    if p < 1 then
-                                        Nothing
-
-                                    else
-                                        Just p
-                                )
+                            |> Maybe.withDefault ""
+                    , routeRecipeOptions_pagination = url |> appUrlToRoutePagination
                     , routeRecipeOptions_focus =
                         url.fragment
                             |> Maybe.map
@@ -213,7 +310,6 @@ fromAppUrl url =
                                             RouteRecipeOptionsFocus_Option optionId
                                 )
                     }
-                )
 
         _ ->
             Err (ErrorRoute_Unknown url)
@@ -222,20 +318,6 @@ fromAppUrl url =
 toAppUrl : Route -> AppUrl
 toAppUrl route =
     case route of
-        Route_Search routeSearch ->
-            case routeSearch.routeSearch_pattern of
-                "" ->
-                    { path = deployPath
-                    , queryParameters = Dict.empty
-                    , fragment = Nothing
-                    }
-
-                q ->
-                    { path = deployPath ++ [ "app" ]
-                    , queryParameters = [ ( "q", [ q ] ) ] |> Dict.fromList
-                    , fragment = Nothing
-                    }
-
         Route_App routeApp ->
             { path = deployPath ++ [ "app", routeApp.routeApp_name ]
             , queryParameters = Dict.empty
@@ -265,38 +347,53 @@ toAppUrl route =
                         |> Maybe.map showRouteAppFocus
             }
 
+        Route_Apps routeApps ->
+            case routeApps.routeApps_search of
+                "" ->
+                    { path = deployPath
+                    , queryParameters = Dict.empty
+                    , fragment = Nothing
+                    }
+
+                q ->
+                    { path = deployPath ++ [ "apps" ]
+                    , queryParameters = [ ( "q", [ q ] ) ] |> Dict.fromList
+                    , fragment = Nothing
+                    }
+
+        Route_Packages routePackages ->
+            { path = deployPath ++ [ "packages" ]
+            , queryParameters =
+                case routePackages.routePackages_search of
+                    "" ->
+                        Dict.empty
+
+                    q ->
+                        [ ( "q", [ q ] ) ] |> Dict.fromList
+            , fragment =
+                routePackages.routePackages_focus
+                    |> Maybe.map
+                        (\focus ->
+                            case focus of
+                                RoutePackagesFocus_Package s ->
+                                    s
+                        )
+            }
+
         Route_RecipeOptions routeRecipe ->
             { path = deployPath ++ [ "recipe", "options" ]
             , queryParameters =
                 [ ( "q"
-                  , case routeRecipe.routeRecipeOptions_pattern of
-                        Nothing ->
+                  , case routeRecipe.routeRecipeOptions_search of
+                        "" ->
                             []
 
-                        Just "" ->
-                            []
-
-                        Just q ->
+                        q ->
                             [ q ]
-                  )
-                , ( "page"
-                  , case routeRecipe.routeRecipeOptions_page of
-                        Nothing ->
-                            []
-
-                        Just p ->
-                            [ p |> String.fromInt ]
-                  )
-                , ( "MaxResultsPerPage"
-                  , case routeRecipe.routeRecipeOptions_MaxResultsPerPage of
-                        Nothing ->
-                            []
-
-                        Just p ->
-                            [ p |> String.fromInt ]
                   )
                 ]
                     |> Dict.fromList
+                    |> Dict.union (routePaginationToQueryParameters routeRecipe.routeRecipeOptions_pagination)
             , fragment =
                 routeRecipe.routeRecipeOptions_focus
                     |> Maybe.map

@@ -42,6 +42,9 @@ viewError err =
         Error_Http e ->
             viewErrorHttp e
 
+        Error_Package e ->
+            viewErrorPackage e
+
         Error_Route e ->
             viewErrorRoute e
 
@@ -106,4 +109,14 @@ viewErrorApp err =
             ErrorApp_NotFound appName ->
                 [ text "no such application: "
                 , code [] [ text appName ]
+                ]
+
+
+viewErrorPackage : ErrorPackage -> Html Update
+viewErrorPackage err =
+    span [] <|
+        case err of
+            ErrorPackage_NotFound packageName ->
+                [ text "no such package: "
+                , text packageName
                 ]

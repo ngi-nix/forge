@@ -76,13 +76,10 @@ symlinkJoin {
       ln -s $out/index.html "app/$app_dir/index.html"
     done
 
-    # search route
-    ln -s $out/index.html "app/index.html"
-
-    # recipe route
-    mkdir -p recipe/options
-    ln -s $out/index.html "recipe/index.html"
-    ln -s $out/index.html "recipe/options/index.html"
+    for page in apps packages recipe recipe/options; do
+      mkdir -p "$page"
+      ln -s $out/index.html "$page/index.html"
+    done
 
     popd
   '';

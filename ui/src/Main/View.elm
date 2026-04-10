@@ -1,7 +1,7 @@
 module Main.View exposing (..)
 
 import Html exposing (Html, a, button, div, footer, header, img, input, li, main_, section, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, placeholder, src, style, target, title, type_, value, width)
+import Html.Attributes exposing (attribute, class, href, id, placeholder, src, style, target, title, type_, value)
 import Html.Events exposing (onInput, preventDefaultOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -11,12 +11,16 @@ import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
 import Main.Route as Route exposing (..)
 import Main.Subscriptions exposing (decodeEscapeKey)
 import Main.Update exposing (..)
 import Main.View.Errors exposing (..)
+import Main.View.Page exposing (..)
 import Main.View.Page.App exposing (..)
+import Main.View.Page.Apps exposing (..)
+import Main.View.Page.Packages exposing (..)
 import Main.View.Page.Recipe exposing (..)
 
 
@@ -33,8 +37,8 @@ view model =
                     [ viewSearchInput model ]
                 , div
                     [ class "d-none d-md-flex align-items-center gap-4" ]
-                    [ -- viewPackagesLink
-                      viewRecipeOptionsLink
+                    [ viewPagePackagesLink
+                    , viewPageRecipeOptionsLink
                     , viewThemeToggle model
                     ]
                 , button
@@ -65,8 +69,8 @@ view model =
                 [ div
                     [ class "card card-body bg-body-tertiary shadow-sm" ]
                     [ ul [ class "nav flex-column gap-2" ]
-                        [ -- li [ class "nav-item" ] [ viewPackagesLink ]
-                          li [ class "nav-item" ] [ viewRecipeOptionsLink ]
+                        [ li [ class "nav-item" ] [ viewPagePackagesLink ]
+                        , li [ class "nav-item" ] [ viewPageRecipeOptionsLink ]
                         , li [ class "nav-item mt-2 pt-2 border-top" ] [ viewThemeToggle model ]
                         ]
                     ]
@@ -84,15 +88,19 @@ view model =
 
 viewTitle : Html Update
 viewTitle =
+    let
+        onClickRoute =
+            Route_Apps defaultRouteApps
+    in
     a
-        [ href (Route_Search { routeSearch_pattern = "" } |> Route.toString)
+        [ href (onClickRoute |> Route.toString)
         , class "d-flex align-items-center m-0"
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
         , style "font-size" "1.5rem"
         , style "gap" ".5rem"
-        , onClick (Update_Route (Route_Search { routeSearch_pattern = "" }))
+        , onClick (Update_Route onClickRoute)
         ]
         [ img
             [ src "favicon.svg"
@@ -128,11 +136,17 @@ viewSearchInput model =
             , type_ "search"
             , placeholder <|
                 case model.model_page of
+                    Page_App _ ->
+                        "Search apps"
+
+                    Page_Apps _ ->
+                        "Search apps"
+
+                    Page_Packages _ ->
+                        "Search packages"
+
                     Page_RecipeOptions _ ->
                         "Search options"
-
-                    _ ->
-                        "Search apps"
             , value model.model_search
             , id "main-search-bar"
             , onInput (\s -> Update_SearchInput (UpdateSearchInput_Set s))
@@ -161,19 +175,6 @@ viewThemeToggle model =
             PreferencesTheme_Light ->
                 iconSunFill
         ]
-
-
-viewPage : Model -> Html Update
-viewPage model =
-    case model.model_page of
-        Page_Search ->
-            viewPageAppSearch model
-
-        Page_App pageApp ->
-            viewPageApp model pageApp
-
-        Page_RecipeOptions pageRecipeOptions ->
-            viewPageRecipeOptions model pageRecipeOptions
 
 
 viewPoweredBy : Model -> Html update

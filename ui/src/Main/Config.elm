@@ -4,6 +4,7 @@ import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
 import List
 import Main.Config.App as Config exposing (..)
+import Main.Config.Package as Config exposing (..)
 import Main.Error exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Url exposing (Url)
@@ -31,6 +32,7 @@ type alias Config =
     { config_repository : NixUrl
     , config_recipe : ConfigRecipe
     , config_apps : Dict AppName App
+    , config_packages : Dict PackageName Package
     }
 
 
@@ -39,17 +41,23 @@ initConfig =
     { config_repository = "github:ngi-nix/forge"
     , config_recipe = initRecipe
     , config_apps = Dict.empty
+    , config_packages = Dict.empty
     }
 
 
 decodeConfig : Decoder Config
 decodeConfig =
-    Decode.map3 Config
+    Decode.map4 Config
         (Decode.field "repositoryUrl" Decode.string)
         (Decode.field "recipeDirs" decodeConfigRecipe)
         (Decode.field "apps"
             (Decode.list Config.decodeApp
                 |> Decode.map (List.map (\app -> ( app.app_name, app )) >> Dict.fromList)
+            )
+        )
+        (Decode.field "packages"
+            (Decode.list Config.decodePackage
+                |> Decode.map (List.map (\pkg -> ( pkg.package_name, pkg )) >> Dict.fromList)
             )
         )
 

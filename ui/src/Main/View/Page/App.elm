@@ -1,17 +1,17 @@
 module Main.View.Page.App exposing (..)
 
-import AppUrl
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h5, h6, hr, img, li, p, small, span, text, ul)
+import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.AppUrl as AppUrl exposing (..)
+import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
 import Main.Route as Route exposing (..)
 import Main.Update exposing (..)
@@ -171,7 +171,7 @@ showAppRecipeLink model app =
 
 
 viewPageAppNgiGrants : Model -> PageApp -> Html msg
-viewPageAppNgiGrants model pageApp =
+viewPageAppNgiGrants _ pageApp =
     let
         routeApp =
             pageApp.pageApp_route
@@ -237,91 +237,11 @@ viewPageGrantCategory ( grant, subgrants ) =
             ]
 
 
-viewPageAppSearch : Model -> Html Update
-viewPageAppSearch model =
-    div
-        [ class "m-app-grid"
-        ]
-        (model.model_config.config_apps
-            |> Dict.values
-            |> (case model.model_search of
-                    "" ->
-                        identity
-
-                    _ ->
-                        List.filter
-                            (\app ->
-                                let
-                                    -- Case Insensitive search
-                                    model_search =
-                                        String.toLower model.model_search
-
-                                    app_name =
-                                        String.toLower app.app_name
-
-                                    app_description =
-                                        String.toLower app.app_description
-
-                                    name_matches =
-                                        String.contains model_search app_name
-
-                                    desc_matches =
-                                        String.contains model_search app_description
-                                in
-                                name_matches || desc_matches
-                            )
-               )
-            |> List.map (viewPageAppSearchApp model)
-        )
+getAppIconPath : AppName -> String
+getAppIconPath name =
+    "resources/apps/" ++ name ++ "/icon.svg"
 
 
-viewPageAppSearchApp : Model -> App -> Html Update
-viewPageAppSearchApp _ app =
-    a
-        [ href (Route_App { defaultRouteApp | routeApp_name = app.app_name } |> Route.toString)
-        , class "card m-app-card shadow-sm p-3"
-        , style "text-decoration" "none"
-        , onClick (Update_Route (Route_App { defaultRouteApp | routeApp_name = app.app_name }))
-        ]
-        [ div
-            [ class "w-100"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "gap" "12px"
-            ]
-            [ img
-                [ src (getAppIconPath app.app_name)
-                , class "app-card-icon"
-                , attribute "alt" (app.app_name ++ " icon")
-                ]
-                []
-            , h5 [ class "mb-10" ] [ text app.app_name ]
-            ]
-        , p
-            [ class "mb-1"
-            ]
-            [ text app.app_description ]
-        , p
-            [ class "mb-1"
-            ]
-            [ small []
-                (List.concat
-                    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "shell" ] ]
-
-                      else
-                        []
-                    , if app.app_services.appServices_runtimes.appServicesRuntimes_container.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "container" ] ]
-
-                      else
-                        []
-                    , if app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "vm" ] ]
-
-                      else
-                        []
-                    ]
-                )
-            ]
-        ]
+defaultAppIconPath : String
+defaultAppIconPath =
+    "resources/apps/app-icon.svg"
