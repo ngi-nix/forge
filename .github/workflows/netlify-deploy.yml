@@ -36,8 +36,10 @@ jobs:
       - name: Read PR context
         run: |
           if [ -f pr-number.txt ]; then
-            echo "PR_NUMBER=$(cat pr-number.txt)" >> "$GITHUB_ENV"
-            echo "PR_REV=$(cat pr-rev.txt)" >> "$GITHUB_ENV"
+            {
+              echo "PR_NUMBER=$(cat pr-number.txt)"
+              echo "PR_REV=$(cat pr-rev.txt)"
+            } >>"$GITHUB_ENV"
           fi
 
       - name: Set Pending Status
@@ -78,9 +80,11 @@ jobs:
           SITE_NAME=$(echo "$PREVIEW_URL" | sed -E 's/https:\/\/[^/]+--([^.]+)\.netlify\.app/\1/')
           DEPLOY_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app"
 
-          echo "PREVIEW_URL=$PREVIEW_URL" >> "$GITHUB_ENV"
-          echo "DEPLOY_URL=$DEPLOY_URL" >> "$GITHUB_ENV"
-          echo "DEPLOY_ID=$DEPLOY_ID" >> "$GITHUB_ENV"
+          {
+            echo "PREVIEW_URL=$PREVIEW_URL"
+            echo "DEPLOY_URL=$DEPLOY_URL"
+            echo "DEPLOY_ID=$DEPLOY_ID"
+          } >>"$GITHUB_ENV"
 
       - name: Post PR Comment
         if: env.PR_NUMBER != ''
@@ -214,7 +218,7 @@ jobs:
 
           echo "Created Deployment ID: $DEPLOY_ID"
 
-          gh api --method POST repos/${{ github.repository }}/deployments/$DEPLOY_ID/statuses \
+          gh api --method POST repos/${{ github.repository }}/deployments/"$DEPLOY_ID"/statuses \
             -f state="success" \
             -f environment_url="${{ env.DEPLOY_URL }}" \
             -f description="Preview is ready!"

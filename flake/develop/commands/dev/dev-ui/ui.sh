@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2050
 set -u
 
 rootDir="$(git rev-parse --show-toplevel)"

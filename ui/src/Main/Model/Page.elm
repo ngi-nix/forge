@@ -22,6 +22,22 @@ defaultPage =
     Page_Apps defaultPageApps
 
 
+isPageSearch : Page -> Bool
+isPageSearch page =
+    case page of
+        Page_App _ ->
+            False
+
+        Page_Apps _ ->
+            True
+
+        Page_Packages _ ->
+            True
+
+        Page_RecipeOptions _ ->
+            True
+
+
 type alias PageApp =
     { pageApp_route : RouteApp
     , pageApp_app : App

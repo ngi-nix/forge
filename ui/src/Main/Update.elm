@@ -44,20 +44,8 @@ type Update
     | Update_SetPreferences Preferences
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState
-    | Update_SearchInput UpdateSearchInput
+    | Update_Search Search
     | Update_NoOp
-
-
-type UpdateSearchInput
-    = -- Like `UpdateSearchInput_Set ""` but without actually changing the `model_page` and URL,
-      -- in order to let the Escape key clear the search and remain on the same `model_page`.
-      UpdateSearchInput_PreClear
-    | -- Like `UpdateSearchInput_Set s` but without actually changing the `model_page` and URL,
-      -- in order to let the Escape key clear the search and remain on the same `model_page`.
-      UpdateSearchInput_PreSet String
-    | -- Set the search pattern, and update the `model_page` and URL
-      -- according to the current `model_page`.
-      UpdateSearchInput_Set String
 
 
 type alias AmbientKeyState =
@@ -144,27 +132,27 @@ update upd modelInit =
         Update_ToggleNavBar ->
             ( { model | model_navbarExpanded = not model.model_navbarExpanded }, Cmd.none )
 
-        Update_SearchInput usi ->
-            case usi of
-                UpdateSearchInput_PreClear ->
-                    model
-                        |> updateSearch (update << Update_Route) ""
-                        |> updateModel (\m -> { m | model_page = model.model_page })
-                        |> Cmd.append (Task.attempt Update_FocusResult (Dom.blur "main-search-bar"))
+        Update_Search search ->
+            if
+                -- Delay the search on `Page`s not already displaying search results
+                -- when the search was empty (resp. becomes empty),
+                -- which is triggered by `Update_Search input.key` (resp. `Update_Search ""`)
+                -- in the `Update_AmbientKeyPress` case.
+                not (isPageSearch model.model_page)
+                    && (model.model_search == "" || search == "")
+            then
+                ( { model | model_search = search }
+                , Cmd.none
+                )
 
-                UpdateSearchInput_PreSet search ->
-                    model
-                        |> updateSearch updateRoute search
-                        |> updateModel (\m -> { m | model_page = model.model_page })
-
-                UpdateSearchInput_Set search ->
-                    model
-                        |> updateSearch (update << Update_Route) search
+            else
+                -- Otherwise always show search results immediately.
+                { model | model_search = search }
+                    |> update (Update_Route (routeSearch model search))
 
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then
-                model
-                    |> update (Update_SearchInput UpdateSearchInput_PreClear)
+                model |> update (Update_Search "")
 
             else if not input.focusedTyping && not input.hasModifier then
                 if input.key == "/" then
@@ -173,8 +161,8 @@ update upd modelInit =
                     )
 
                 else if (String.length input.key == 1) && (input.key |> String.all Char.isAlphaNum) then
-                    model
-                        |> update (Update_SearchInput (UpdateSearchInput_PreSet input.key))
+                    { model | model_search = "" }
+                        |> update (Update_Search input.key)
                         |> Cmd.append (Task.attempt Update_FocusResult (Dom.focus "main-search-bar"))
 
                 else
@@ -483,56 +471,46 @@ updateConfig up model =
         model |> up
 
 
-updateSearch : (Route -> Updater) -> String -> Updater
-updateSearch up search model =
-    { model | model_search = search }
-        |> up
-            (case model.model_page of
-                Page_App pageApp ->
-                    Route_Apps { routeApps_search = search }
+routeSearch : Model -> Search -> Route
+routeSearch model search =
+    case model.model_page of
+        Page_App pageApp ->
+            Route_Apps { routeApps_search = search }
 
-                Page_Apps pageApps ->
-                    let
-                        routeApps =
-                            pageApps.pageApps_route
-                    in
-                    Route_Apps { routeApps | routeApps_search = search }
+        Page_Apps pageApps ->
+            let
+                routeApps =
+                    pageApps.pageApps_route
+            in
+            Route_Apps { routeApps | routeApps_search = search }
 
-                Page_Packages pagePackages ->
-                    let
-                        routePackages =
-                            pagePackages.pagePackages_route
+        Page_Packages pagePackages ->
+            let
+                routePackages =
+                    pagePackages.pagePackages_route
 
-                        routePagination =
-                            routePackages.routePackages_pagination
-                    in
-                    Route_Packages
-                        { routePackages
-                            | routePackages_search = search
-                            , routePackages_pagination = { routePagination | routePagination_current = Nothing }
-                        }
+                routePagination =
+                    routePackages.routePackages_pagination
+            in
+            Route_Packages
+                { routePackages
+                    | routePackages_search = search
+                    , routePackages_pagination = { routePagination | routePagination_current = Nothing }
+                }
 
-                Page_RecipeOptions pageRecipeOptions ->
-                    let
-                        routeRecipeOptions =
-                            pageRecipeOptions.pageRecipeOptions_route
+        Page_RecipeOptions pageRecipeOptions ->
+            let
+                routeRecipeOptions =
+                    pageRecipeOptions.pageRecipeOptions_route
 
-                        routePagination =
-                            routeRecipeOptions.routeRecipeOptions_pagination
-                    in
-                    Route_RecipeOptions
-                        { routeRecipeOptions
-                            | routeRecipeOptions_search = search
-                            , routeRecipeOptions_pagination = { routePagination | routePagination_current = Nothing }
-                        }
-            )
-
-
-updateModel : (Model -> Model) -> ( Model, Cmd Update ) -> ( Model, Cmd Update )
-updateModel up ( model, cmd ) =
-    ( model |> up
-    , cmd
-    )
+                routePagination =
+                    routeRecipeOptions.routeRecipeOptions_pagination
+            in
+            Route_RecipeOptions
+                { routeRecipeOptions
+                    | routeRecipeOptions_search = search
+                    , routeRecipeOptions_pagination = { routePagination | routePagination_current = Nothing }
+                }
 
 
 updateFocus : (a -> String) -> Maybe a -> Maybe a -> Model -> ( Model, Cmd Update )
