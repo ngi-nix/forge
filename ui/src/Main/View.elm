@@ -149,10 +149,10 @@ viewSearchInput model =
                         "Search options"
             , value model.model_search
             , id "main-search-bar"
-            , onInput (\s -> Update_SearchInput (UpdateSearchInput_Set s))
+            , onInput (\pattern -> Update_Search pattern)
             , preventDefaultOn "keydown"
                 (decodeEscapeKey
-                    |> Decode.map (\_ -> ( Update_SearchInput UpdateSearchInput_PreClear, True ))
+                    |> Decode.map (\_ -> ( Update_Search "", True ))
                 )
             ]
             []

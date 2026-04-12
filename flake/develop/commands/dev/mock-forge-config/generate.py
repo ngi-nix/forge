@@ -60,7 +60,13 @@ def generate_app(index: int):
                 "url": fake.url(),
             },
         },
-        "programs": {"enable": fake.boolean()},
+        "programs": {
+            "runtimes": {
+                "shell": {
+                    "enable": fake.boolean(),
+                },
+            },
+        },
         "services": {
             "components": {
                 app_name: {},

@@ -53,22 +53,14 @@ type alias AppProgramsRuntimes =
 
 
 type alias AppPrograms =
-    { components : Dict String AppProgramsComponents
-    , appPrograms_runtimes : AppProgramsRuntimes
+    { appPrograms_runtimes : AppProgramsRuntimes
     }
 
 
 decodeAppPrograms : Decoder AppPrograms
 decodeAppPrograms =
-    Decode.map2 AppPrograms
-        (Decode.field "components" (Decode.dict decodeAppProgramsComponent))
+    Decode.map AppPrograms
         (Decode.field "runtimes" decodeAppProgramsRuntimes)
-
-
-decodeAppProgramsComponent : Decoder AppProgramsComponents
-decodeAppProgramsComponent =
-    Decode.map AppProgramsComponents
-        (Decode.field "requirements" (Decode.list Decode.string))
 
 
 decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes

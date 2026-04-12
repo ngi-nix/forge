@@ -13,13 +13,22 @@ import Main.Route exposing (..)
 
 type alias Model =
     { model_config : Config
-    , model_search : String
+    , model_search : Search
     , model_page : Page
     , model_errors : List Error
     , model_preferences : Preferences
     , model_navbarExpanded : Bool
     , model_RecipeOptions : RecipeOptions
     }
+
+
+type alias Search =
+    String
+
+
+defaultSearch : Search
+defaultSearch =
+    ""
 
 
 type alias RecipeOptions =

@@ -38,7 +38,7 @@ init flags =
     let
         model =
             { model_config = Main.Config.initConfig
-            , model_search = ""
+            , model_search = defaultSearch
             , model_page = defaultPage
             , model_errors = []
             , model_preferences =
