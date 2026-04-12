@@ -522,6 +522,7 @@ programs = {
 ```
 
 **Structure:**
+
 - `programs.components.<name>`: Named components with requirements
 - `programs.runtimes.shell.enable`: Enable shell bundle output
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 set -eu
 target_name="$1"
 compilation_mode="$2"
