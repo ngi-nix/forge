@@ -59,7 +59,7 @@ jobs:
           else
             deploy_root="/$repo_name/"
           fi
-          sed -i "s|:baseUrl|$deploy_root|g" ui/src/Main/Route.elm
+          sed -i "s|:baseUrl|$deploy_root|g" ui/src/Main/Model/Route.elm
           sed -i "s|<base href=\"/\"|<base href=\"$deploy_root\"|g" ui/src/index.html
 
       - name: Build UI

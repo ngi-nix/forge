@@ -124,5 +124,11 @@
         "package": "elm-hex",
         "version": "1.0.0",
         "sha256": "0aa3fb1d9h6w6s22hpsxv197g8mb4ki16h0c0rnf324m6b9x8by6"
+    },
+    {
+        "author": "zwilias",
+        "package": "elm-rosetree",
+        "version": "1.5.0",
+        "sha256": "1l7v9c3ci6x4lwm644057ava5y00iawsq42460w747hk48ka1qv8"
     }
 ]

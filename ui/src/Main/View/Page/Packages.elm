@@ -12,8 +12,9 @@ import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
-import Main.Route as Route exposing (..)
+import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 import Main.View.Pagination exposing (..)
 
 
@@ -24,7 +25,7 @@ viewPagePackagesLink =
             Route_Packages defaultRoutePackages
     in
     a
-        [ href (onClickRoute |> Route.toString)
+        [ href (onClickRoute |> routeToString)
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
@@ -73,7 +74,7 @@ viewPagePackagesItem model pagePackages package =
     a
         [ class "list-item list-group-item list-group-item-action flex-column align-items-start"
         , id itemId
-        , href (onClickRoute |> Route.toString)
+        , href (onClickRoute |> routeToString)
         , attribute "data-testid" "package-result"
         , onClick (Update_Route onClickRoute)
         ]

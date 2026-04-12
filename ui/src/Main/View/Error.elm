@@ -1,4 +1,4 @@
-module Main.View.Errors exposing (..)
+module Main.View.Error exposing (..)
 
 import AppUrl
 import Html exposing (Html, code, div, span, text)
@@ -6,15 +6,16 @@ import Html.Attributes exposing (class)
 import Http
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Error exposing (..)
 import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Error exposing (..)
 import Main.Model.Preferences exposing (..)
-import Main.Route exposing (..)
+import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 import Main.View.Page.App exposing (..)
 import Main.View.Page.Recipe exposing (..)
 

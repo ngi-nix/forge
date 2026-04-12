@@ -4,7 +4,7 @@ import Html exposing (Attribute, Html, button, code, div, pre, text)
 import Html.Attributes exposing (class)
 import Html.Events
 import Json.Decode
-import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 
 
 codeBlock : String -> Html Update

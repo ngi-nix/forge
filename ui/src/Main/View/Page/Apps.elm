@@ -11,8 +11,9 @@ import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
-import Main.Route as Route exposing (..)
+import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 import Main.View.Page.App exposing (..)
 import Main.View.Pagination exposing (PaginationVisibility(..), viewPaginationItems, viewPaginationNavigation)
 
@@ -49,7 +50,7 @@ viewPageAppsApp _ _ app =
             Route_App { defaultRouteApp | routeApp_name = app.app_name }
     in
     a
-        [ href (onClickRoute |> Route.toString)
+        [ href (onClickRoute |> routeToString)
         , class "card m-item-card shadow-sm p-3"
         , style "text-decoration" "none"
         , attribute "data-testid" "app-result"

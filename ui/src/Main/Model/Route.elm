@@ -1,13 +1,15 @@
-module Main.Route exposing (..)
+module Main.Model.Route exposing (..)
 
 import AppUrl exposing (AppUrl, QueryParameters)
 import Dict
 import List.Extra as List
 import Main.Config.App exposing (..)
 import Main.Config.Package exposing (..)
-import Main.Error exposing (..)
 import Main.Helpers.Nix exposing (..)
+import Main.Model.Error exposing (..)
 import Main.Model.Preferences exposing (..)
+import Set exposing (Set)
+import String
 
 
 {-| Description: a route is an address.
@@ -98,26 +100,34 @@ showRoutePackagesFocus x =
 
 
 type alias RouteRecipeOptions =
-    { routeRecipeOptions_search : String
+    { routeRecipeOptions_searchPattern : String
     , routeRecipeOptions_focus : Maybe RouteRecipeOptionsFocus
+    , routeRecipeOptions_scope : NixPath
+    , routeRecipeOptions_unfolds : Set NixPath
     , routeRecipeOptions_pagination : RoutePagination
     }
 
 
 type RouteRecipeOptionsFocus
-    = RouteRecipeOptionsFocus_Option String
+    = RouteRecipeOptionsFocus_Option NixPath
 
 
 showRouteRecipeOptionsFocus : RouteRecipeOptionsFocus -> String
 showRouteRecipeOptionsFocus x =
     case x of
         RouteRecipeOptionsFocus_Option s ->
-            s
+            s |> joinNixPath
 
 
 defaultRouteRecipeOptions : RouteRecipeOptions
 defaultRouteRecipeOptions =
-    { routeRecipeOptions_search = ""
+    { routeRecipeOptions_searchPattern = ""
+    , routeRecipeOptions_unfolds =
+        Set.fromList
+            [ [ "apps" ]
+            , [ "packages" ]
+            ]
+    , routeRecipeOptions_scope = []
     , routeRecipeOptions_focus = Nothing
     , routeRecipeOptions_pagination = defaultRoutePagination
     }
@@ -204,8 +214,8 @@ deployPath =
         |> List.filter (\seg -> seg /= "" && seg /= ":" ++ "baseUrl")
 
 
-fromAppUrl : AppUrl -> Result ErrorRoute Route
-fromAppUrl url =
+appUrlToRoute : AppUrl -> Result ErrorRoute Route
+appUrlToRoute url =
     case url.path |> List.drop (List.length deployPath) of
         [] ->
             Ok <|
@@ -304,12 +314,28 @@ fromAppUrl url =
 
         [ "recipe", "options" ] ->
             Ok <|
+                let
+                    scope =
+                        url.queryParameters
+                            |> Dict.get "s"
+                            |> Maybe.andThen List.head
+                            |> Maybe.withDefault ""
+                            |> splitNixName
+                in
                 Route_RecipeOptions
-                    { routeRecipeOptions_search =
+                    { routeRecipeOptions_searchPattern =
                         url.queryParameters
                             |> Dict.get "q"
                             |> Maybe.andThen List.head
                             |> Maybe.withDefault ""
+                    , routeRecipeOptions_scope = scope
+                    , routeRecipeOptions_unfolds =
+                        url.queryParameters
+                            |> Dict.get "p"
+                            |> Maybe.withDefault []
+                            |> List.map splitNixName
+                            |> Set.fromList
+                            |> Set.insert scope
                     , routeRecipeOptions_pagination = url |> appUrlToRoutePagination
                     , routeRecipeOptions_focus =
                         url.fragment
@@ -317,7 +343,7 @@ fromAppUrl url =
                                 (\fragment ->
                                     case fragment of
                                         optionId ->
-                                            RouteRecipeOptionsFocus_Option optionId
+                                            RouteRecipeOptionsFocus_Option (optionId |> splitNixName)
                                 )
                     }
 
@@ -325,8 +351,8 @@ fromAppUrl url =
             Err (ErrorRoute_Unknown url)
 
 
-toAppUrl : Route -> AppUrl
-toAppUrl route =
+routeToAppUrl : Route -> AppUrl
+routeToAppUrl route =
     case route of
         Route_App routeApp ->
             { path = deployPath ++ [ "app", routeApp.routeApp_name ]
@@ -403,13 +429,29 @@ toAppUrl route =
         Route_RecipeOptions routeRecipe ->
             { path = deployPath ++ [ "recipe", "options" ]
             , queryParameters =
-                [ ( "q"
-                  , case routeRecipe.routeRecipeOptions_search of
+                [ ( "p"
+                  , case routeRecipe.routeRecipeOptions_unfolds |> Set.remove [] |> Set.toList of
+                        [] ->
+                            []
+
+                        xs ->
+                            xs |> List.map joinNixPath
+                  )
+                , ( "q"
+                  , case routeRecipe.routeRecipeOptions_searchPattern of
                         "" ->
                             []
 
                         q ->
                             [ q ]
+                  )
+                , ( "s"
+                  , case routeRecipe.routeRecipeOptions_scope |> List.filter ((/=) "") of
+                        [] ->
+                            []
+
+                        xs ->
+                            [ xs |> joinNixPath ]
                   )
                 ]
                     |> Dict.fromList
@@ -420,11 +462,11 @@ toAppUrl route =
                         (\focus ->
                             case focus of
                                 RouteRecipeOptionsFocus_Option s ->
-                                    s
+                                    s |> joinNixPath
                         )
             }
 
 
-toString : Route -> String
-toString =
-    toAppUrl >> AppUrl.toString
+routeToString : Route -> String
+routeToString =
+    routeToAppUrl >> AppUrl.toString

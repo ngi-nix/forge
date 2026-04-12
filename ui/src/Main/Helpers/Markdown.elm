@@ -4,6 +4,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Main.Helpers.Html exposing (..)
 import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 import Markdown.Parser
 import Markdown.Renderer exposing (Renderer, defaultHtmlRenderer)
 
