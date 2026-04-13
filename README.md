@@ -69,7 +69,7 @@ graph TB
 - Initiate new Nix Forge instance from template
 
 ```bash
-nix flake init --template github:ngi-nix/forge#example
+nix flake init --template github:ngi-nix/forge#provider
 ```
 
 - Set `repositoryUrl` attribute in `flake.nix` to your repository
