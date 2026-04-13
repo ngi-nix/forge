@@ -49,7 +49,7 @@ let
     commands = (final.mapCommands "formatter" final.formatters) ++ final.defaultCmds ++ final.aliases;
 
     # NOTE: hidden in the menu
-    packages = [ ];
+    packages = final.packagesFrom' formatter.shell;
 
     # NOTE: inputsFrom equivalent; hidden in the menu
     packagesFrom = [ ];
@@ -98,12 +98,12 @@ let
 
     # from numtide/devshell, copyright Numtide, MIT licensed
     # given a shell get the "packages" from the shell
-    commandsFrom' = shell: lib.foldl' (sum: drv: sum ++ (final.inputsOf drv)) [ ] [ shell ];
+    packagesFrom' = shell: lib.foldl' (sum: drv: sum ++ (final.inputsOf drv)) [ ] [ shell ];
 
-    # Include all formatter packages. Format with:
+    # Include formatter packages. Format with:
     # $ treefmt
     # $ nix fmt
-    formatters = final.commandsFrom' formatter.shell;
+    formatters = [ formatter.package ];
 
     # Aliases are wrapper commands which will run the specified `cmd`
     # `help` exists to customise the menu entry

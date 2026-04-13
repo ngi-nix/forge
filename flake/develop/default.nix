@@ -14,7 +14,6 @@
 
       devPkgs = with pkgs; [
         elmPackages.elm
-        elmPackages.elm-format
         elmPackages.elm-language-server
         elmPackages.elm-review
         elmPackages.elm-test
