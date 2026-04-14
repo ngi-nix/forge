@@ -180,8 +180,8 @@ viewPageAppRunNixInstall model pageApp =
                                     [ text "2. Configure substitutors (optional, highly recommended)" ]
                                 , codeBlock <|
                                     String.join "\n"
-                                        [ "export NIX_CONFIG='substituters = https://cache.nixos.org/ https://ngi.cachix.org/"
-                                        , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi.cachix.org-1:n+CAL72ROC3qQuLxIHpV+Tw5t42WhXmMhprAGkRSrOw='"
+                                        [ "export NIX_CONFIG='substituters = https://cache.nixos.org https://ngi-forge.cachix.org"
+                                        , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0='"
                                         ]
                                 ]
                        )
