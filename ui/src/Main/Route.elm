@@ -364,12 +364,17 @@ toAppUrl route =
         Route_Packages routePackages ->
             { path = deployPath ++ [ "packages" ]
             , queryParameters =
-                case routePackages.routePackages_search of
-                    "" ->
-                        Dict.empty
+                [ ( "q"
+                  , case routePackages.routePackages_search of
+                        "" ->
+                            []
 
-                    q ->
-                        [ ( "q", [ q ] ) ] |> Dict.fromList
+                        q ->
+                            [ q ]
+                  )
+                ]
+                    |> Dict.fromList
+                    |> Dict.union (routePaginationToQueryParameters routePackages.routePackages_pagination)
             , fragment =
                 routePackages.routePackages_focus
                     |> Maybe.map
