@@ -152,7 +152,9 @@ update upd modelInit =
 
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then
-                model |> update (Update_Search "")
+                model
+                    |> update (Update_Search "")
+                    |> Cmd.append (Task.attempt Update_FocusResult (Dom.blur "main-search-bar"))
 
             else if not input.focusedTyping && not input.hasModifier then
                 if input.key == "/" then
