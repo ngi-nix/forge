@@ -75,7 +75,8 @@ viewPageAppsApp _ app =
             ]
             [ img
                 [ src (getAppIconPath app.app_name)
-                , class "app-card-icon"
+                , class "item-card-icon"
+                , attribute "loading" "lazy"
                 , attribute "alt" (app.app_name ++ " icon")
                 ]
                 []

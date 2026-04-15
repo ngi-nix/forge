@@ -52,7 +52,8 @@ viewPageAppHeader _ pageApp =
             ]
             [ img
                 [ src (getAppIconPath pageApp.pageApp_route.routeApp_name)
-                , class "app-header-icon"
+                , class "item-header-icon"
+                , attribute "loading" "lazy"
                 , attribute "alt" (pageApp.pageApp_route.routeApp_name ++ " icon")
                 ]
                 []

@@ -115,6 +115,10 @@ body {
   height: 48px;
   object-fit: contain;
   flex-shrink: 0;
+  background-color: transparent;
+  border-radius: 8px;
+  color: transparent; /* Hide alt text before image loads on firefox */
+  font-size: 0;
 }
 
 .item-header-icon {
@@ -122,6 +126,10 @@ body {
   height: 64px;
   object-fit: contain;
   flex-shrink: 0;
+  background-color: transparent;
+  border-radius: 12px;
+  color: transparent; /* Hide alt text before image loads on firefox */
+  font-size: 0;
 }
 
 /* Hide the annoying border around search bar that bootstrap adds */
