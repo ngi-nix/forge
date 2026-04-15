@@ -44,7 +44,7 @@
 
   programs = {
     components.default = {
-      requirements = [
+      packages = [
         pkgs.mypkgs.tau-radio
       ];
     };
@@ -65,7 +65,7 @@
     runtimes = {
       container = {
         enable = true;
-        requirements = [
+        packages = [
           pkgs.mypkgs.tau-tower
         ];
         composeFile = ./compose.yaml;

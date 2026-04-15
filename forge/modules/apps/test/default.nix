@@ -8,7 +8,7 @@
 }:
 {
   options = {
-    requirements = lib.mkOption {
+    packages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
       description = "Additional packages required for running tests.";
@@ -75,11 +75,11 @@
         system.stateVersion = "25.11";
         environment.systemPackages =
           let
-            program-requirements = lib.flatten (
-              lib.mapAttrsToList (name: value: value.requirements) app.programs.components
+            program-packages = lib.flatten (
+              lib.mapAttrsToList (name: value: value.packages) app.programs.components
             );
           in
-          program-requirements ++ config.requirements;
+          program-packages ++ config.packages;
       };
       inherit (config) testScript;
     };

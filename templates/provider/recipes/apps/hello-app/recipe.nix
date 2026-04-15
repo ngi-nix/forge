@@ -11,7 +11,7 @@
 
   programs = {
     components.default = {
-      requirements = [
+      packages = [
         pkgs.mypkgs.hello-nix
       ];
     };
@@ -25,7 +25,7 @@
     runtimes = {
       container = {
         enable = true;
-        requirements = [ pkgs.mypkgs.hello-nix ];
+        packages = [ pkgs.mypkgs.hello-nix ];
         imageConfig.CMD = [
           "hello"
         ];

@@ -177,7 +177,7 @@ in
 
                         # Test configuration
                         test = {
-                          inputs = lib.mkOption {
+                          packages = lib.mkOption {
                             type = lib.types.listOf lib.types.package;
                             default = [ ];
                             description = "Additional packages required for running tests.";
@@ -204,7 +204,7 @@ in
 
                         # Development configuration
                         development = {
-                          inputs = lib.mkOption {
+                          packages = lib.mkOption {
                             type = lib.types.listOf lib.types.package;
                             default = [ ];
                             description = ''

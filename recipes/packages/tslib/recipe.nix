@@ -20,7 +20,7 @@ rec {
 
   build.standardBuilder = {
     enable = true;
-    inputs.build = [
+    packages.build = [
       pkgs.cmake
     ];
   };

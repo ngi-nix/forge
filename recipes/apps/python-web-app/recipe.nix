@@ -50,7 +50,7 @@
 
   programs = {
     components.default = {
-      requirements = [
+      packages = [
         pkgs.curl
       ];
     };
@@ -70,9 +70,9 @@
     runtimes = {
       container = {
         enable = true;
-        requirements = [ pkgs.mypkgs.python-web ];
+        packages = [ pkgs.mypkgs.python-web ];
         # Alternatively, we can re-use attributes with `config`:
-        #requirements = [ config.services.python-web.command ];
+        #packages = [ config.services.python-web.command ];
         composeFile = ./compose.yaml;
       };
 

@@ -15,7 +15,7 @@
       example = lib.literalExpression ''
         {
           default = {
-            requirements = [ pkgs.curl ];
+            packages = [ pkgs.curl ];
           };
         }
       '';
