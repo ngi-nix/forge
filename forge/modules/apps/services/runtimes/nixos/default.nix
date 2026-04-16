@@ -62,19 +62,6 @@
         example = lib.literalExpression ''
           [ "10022:22" "5432:5432" "8000:80" ]
         '';
-        apply =
-          self:
-          map (
-            portRange:
-            let
-              portSplit = lib.splitString ":" portRange;
-            in
-            {
-              from = "host";
-              host.port = lib.toInt (lib.elemAt portSplit 0);
-              guest.port = lib.toInt (lib.elemAt portSplit 1);
-            }
-          ) self;
       };
     };
 
@@ -187,9 +174,23 @@
               inherit (config.vm)
                 cores
                 diskSize
-                forwardPorts
                 memorySize
                 ;
+
+              forwardPorts = map (
+                portRange:
+                if builtins.isString portRange then
+                  let
+                    portSplit = lib.splitString ":" portRange;
+                  in
+                  {
+                    from = "host";
+                    host.port = lib.toInt (lib.elemAt portSplit 0);
+                    guest.port = lib.toInt (lib.elemAt portSplit 1);
+                  }
+                else
+                  portRange
+              ) config.vm.forwardPorts;
             };
           }
         )
