@@ -89,9 +89,11 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
   source.hash = "sha256-...";      # Required with url, optional with git
 
   # Builder: EXACTLY ONE must be enabled
-  build.standardBuilder.enable = true;     # OR
-  build.pythonAppBuilder.enable = true;    # OR
-  build.pythonPackageBuilder.enable = true;
+  build.standardBuilder.enable = true;      # OR
+  build.pythonAppBuilder.enable = true;     # OR
+  build.pythonPackageBuilder.enable = true; # OR
+  build.goPackageBuilder.enable = true;     # OR
+  build.rustPackageBuilder.enable = true;
 }
 ```
 
@@ -143,7 +145,7 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.pythonAppBuilder = {
     enable = true;
-    inputs = {
+    packages = {
       build-system = [
         pkgs.python3Packages.setuptools
       ];
@@ -190,7 +192,7 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 {
   build.pythonPackageBuilder = {
     enable = true;
-    inputs = {
+    packages = {
       build-system = [
         pkgs.python3Packages.setuptools
       ];
@@ -322,7 +324,9 @@ source = {
 };
 ```
 
-**Supported forges**: github, gitlab, codeberg
+**Supported forges**: github, gitlab, codeberg, forgejo, gitea
+
+**Git submodules**: Set `source.submodules = true` to fetch git submodules along with the repository.
 
 ### URL Sources
 
@@ -712,6 +716,12 @@ IF Python project with pyproject.toml:
   ELSE IF library meant to be imported:
     → pythonPackageBuilder
 
+ELSE IF has go.mod:
+  → goPackageBuilder
+
+ELSE IF has Cargo.toml:
+  → rustPackageBuilder
+
 ELSE IF has configure script OR uses CMake OR standard Makefile:
   → standardBuilder
   (Use build.extraAttrs for custom build configuration)
@@ -735,7 +745,7 @@ source.hash = "";  # Leave empty initially
 
 ### 5. Validation Checklist
 
-- [ ] Exactly one builder enabled (standardBuilder, pythonAppBuilder, or pythonPackageBuilder)
+- [ ] Exactly one builder enabled (standardBuilder, pythonAppBuilder, pythonPackageBuilder, goPackageBuilder, or rustPackageBuilder)
 - [ ] For Python projects: correct builder chosen (pythonAppBuilder for apps, pythonPackageBuilder for libraries)
 - [ ] Source has git XOR url (not both)
 - [ ] Hash present for URL sources
@@ -994,8 +1004,6 @@ Check for these files in the repository (in order of priority):
 
 ### Step 3: Check for Git Submodules
 
-**IMPORTANT:** The current `source.git` implementation does NOT fetch git submodules.
-
 Check for submodules:
 
 ```bash
@@ -1003,11 +1011,15 @@ Check for submodules:
 # Check repository structure for empty/missing subdirectories
 ```
 
-**If git submodules exist:**
+**If git submodules exist**, enable submodule fetching:
 
-- Note that dependencies may be missing
-- Consider that the build might fail due to missing submodule content
-- May need to provide vendored dependencies separately via `nativeBuildInputs`
+```nix
+source = {
+  git = "github:owner/repo/v1.0.0";
+  hash = "sha256-...";
+  submodules = true;  # Fetch git submodules
+};
+```
 
 ### Step 4: Identify Dependencies
 
@@ -1218,13 +1230,11 @@ Checking runtime dependencies for package.whl
 
 ```nix
 build.pythonAppBuilder = {
-  inputs = {
-    dependencies = [
-      pkgs.python3Packages.attrs
-      pkgs.python3Packages.click
-      # ... other dependencies
-    ];
-  };
+  packages.dependencies = [
+    pkgs.python3Packages.attrs
+    pkgs.python3Packages.click
+    # ... other dependencies
+  ];
 };
 ```
 
@@ -1268,27 +1278,39 @@ START: What type of project is this?
 │     ├─ Check pyproject.toml for [project.scripts] or setup.py for entry_points
 │     ├─ Has executable entry points?
 │     │  ├─ YES → Use pythonAppBuilder (CLI tools, applications)
-│     │  │     ├─ build-system: setuptools, cython, etc.
-│     │  │     └─ dependencies: runtime Python packages
+│     │  │     ├─ packages.build-system: setuptools, cython, etc.
+│     │  │     └─ packages.dependencies: runtime Python packages
 │     │  └─ NO → Use pythonPackageBuilder (libraries, modules)
-│     │        ├─ build-system: setuptools, cython, etc.
-│     │        └─ dependencies: runtime Python packages
+│     │        ├─ packages.build-system: setuptools, cython, etc.
+│     │        └─ packages.dependencies: runtime Python packages
+│
+├─ Has go.mod?
+│  └─ YES → Use goPackageBuilder
+│     ├─ packages.build: build-time tools (pkg-config)
+│     ├─ packages.run: CGO dependencies (openssl, sqlite)
+│     └─ vendorHash: hash of Go module dependencies
+│
+├─ Has Cargo.toml?
+│  └─ YES → Use rustPackageBuilder
+│     ├─ packages.build: build-time tools (pkg-config, bindgenHook)
+│     ├─ packages.run: runtime libraries (openssl, sqlite)
+│     └─ cargoHash: hash of Cargo.lock
 │
 ├─ Has CMakeLists.txt?
 │  └─ YES → Use standardBuilder
-│     ├─ native: cmake, pkg-config
-│     └─ build: libraries (sqlite, gdal, etc.)
+│     ├─ packages.build: cmake, pkg-config
+│     └─ packages.run: libraries (sqlite, gdal, etc.)
 │
 ├─ Has configure or configure.ac?
 │  └─ YES → Use standardBuilder (Autotools)
-│     ├─ native: autoconf, automake, libtool, pkg-config
-│     └─ build: libraries
+│     ├─ packages.build: autoconf, automake, libtool, pkg-config
+│     └─ packages.run: libraries
 │
 └─ Has Makefile with standard targets?
    └─ YES → Use standardBuilder
       ├─ Check for: all, install, clean targets
-      ├─ native: make, pkg-config
-      └─ build: libraries
+      ├─ packages.build: make, pkg-config
+      └─ packages.run: libraries
       └─ For custom configuration: use build.extraAttrs
 ```
 
@@ -1427,19 +1449,18 @@ This example demonstrates a complex CMake project with subdirectory structure:
   source = {
     git = "github:MerginMaps/geodiff/2.0.4";
     hash = "sha256-STWoSnBDl3K3F9SeXGvTy8TzZSAP6rZh3ebfMqdT/w0=";
-    # Note: Current implementation does not fetch git submodules
   };
 
   build.standardBuilder = {
     enable = true;
-    inputs = {
+    packages = {
       # Build tools needed during compilation
-      native = [
+      build = [
         pkgs.cmake        # CMake build system
         pkgs.pkg-config   # For finding SQLite
       ];
       # Libraries needed at runtime
-      build = [
+      run = [
         pkgs.sqlite       # Required dependency
       ];
     };
@@ -1468,8 +1489,8 @@ This example demonstrates a complex CMake project with subdirectory structure:
 **Key points in this example:**
 
 1. **sourceRoot**: Required because CMakeLists.txt is in `geodiff/` subdirectory
-2. **cmake and pkg-config**: In `native` because they're build-time tools
-3. **sqlite**: In `build` because it's a runtime dependency
+2. **cmake and pkg-config**: In `packages.build` because they're build-time tools
+3. **sqlite**: In `packages.run` because it's a runtime dependency
 4. **Test script**: Simple verification that the binary works
 
 ## Annotated Example: Python Project (fiona)
@@ -1493,7 +1514,7 @@ This example demonstrates a Python project with complex dependencies:
 
   build.pythonAppBuilder = {
     enable = true;
-    inputs = {
+    packages = {
       # Python build system packages
       build-system = [
         pkgs.python3Packages.setuptools
@@ -1551,12 +1572,12 @@ Before creating a recipe, gather this information:
 - [ ] Build dependencies (libraries, tools)
 - [ ] Runtime dependencies
 - [ ] Repository structure (root or subdirectory?)
-- [ ] Git submodules present? (if yes, note limitations)
+- [ ] Git submodules present? (if yes, set `source.submodules = true`)
 - [ ] Test commands available?
 
 During recipe creation:
 
-- [ ] Choose correct builder (pythonAppBuilder for apps, pythonPackageBuilder for libraries, or standardBuilder)
+- [ ] Choose correct builder (standardBuilder, pythonAppBuilder, pythonPackageBuilder, goPackageBuilder, or rustPackageBuilder)
 - [ ] Leave source.hash empty initially
 - [ ] Add recipe to git BEFORE building
 - [ ] Build to get correct hash
