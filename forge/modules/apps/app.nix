@@ -16,6 +16,11 @@
       type = lib.types.str;
       default = "my-application";
     };
+    displayName = lib.mkOption {
+      type = lib.types.str;
+      default = config.name;
+      description = "Human readable application name. Defaults to `name` if not set.";
+    };
     description = lib.mkOption {
       type = lib.types.str;
       default = "";
