@@ -66,6 +66,7 @@ viewPageAppHeader _ pageApp =
             ]
         , button
             [ class "btn"
+            , attribute "data-testid" "app-run-button"
             , case pageApp.pageApp_runtime of
                 Nothing ->
                     class "btn-secondary"

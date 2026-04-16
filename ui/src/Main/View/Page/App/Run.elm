@@ -1,7 +1,7 @@
 module Main.View.Page.App.Run exposing (..)
 
 import Html exposing (Html, a, br, button, details, div, h5, hr, li, p, small, span, summary, text, ul)
-import Html.Attributes exposing (class, href, id, style, tabindex, target)
+import Html.Attributes exposing (attribute, class, href, id, style, tabindex, target)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -34,6 +34,7 @@ viewPageAppRun model pageApp =
             [ div
                 [ class "modal show"
                 , style "display" "block"
+                , attribute "data-testid" "run-modal-container"
                 , tabindex -1
                 , style "background-color" "rgba(0,0,0,0.5)"
                 , onClick (Update_RouteWithoutHistory onClickRoute)
@@ -47,6 +48,7 @@ viewPageAppRun model pageApp =
                             [ h5 [ class "modal-title" ] [ text pageApp.pageApp_app.app_displayName ]
                             , button
                                 [ class "btn-close"
+                                , attribute "data-testid" "close-modal-button"
                                 , onClick (Update_RouteWithoutHistory onClickRoute)
                                 ]
                                 []
@@ -87,6 +89,7 @@ viewPageAppRunRuntime _ pageApp appRuntime =
                 )
             , style "cursor" "pointer"
             , style "border" "none"
+            , attribute "role" "tab"
             , id <| "run-" ++ (showAppRuntime appRuntime |> String.toLower)
             , let
                 route =
