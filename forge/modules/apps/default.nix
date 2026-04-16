@@ -70,15 +70,27 @@ in
 
             mkPassthru =
               app:
-              {
+              lib.fix (self: {
                 config = app;
+
                 extend =
                   module:
                   let
                     appExtended = app.result.extend module;
                   in
                   shellBundle appExtended;
-              }
+
+                # This is meant to be used in consumer templates.
+                #
+                # The purpose of it is to only return a recipe module which
+                # consumer forges can compose into proper applications.
+                #
+                # That's why we remove `result`, because it's tied to the
+                # providers' aleady generated applications, which can cause
+                # conflicts.
+                extendRecipe =
+                  module: lib.filterAttrsRecursive (name: _: name != "result") (self.extend module).config;
+              })
               // lib.optionalAttrs (app.test.script != "") { test = app.test.result.build; }
               // lib.optionalAttrs app.services.runtimes.container.enable {
                 container = app.services.runtimes.container.result.imageBuilder;
