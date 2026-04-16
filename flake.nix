@@ -34,7 +34,7 @@
     };
 
     nimi = {
-      url = "github:ngi-nix/nimi/nixpkgs-update-portable-lib";
+      url = "github:ngi-nix/nimi/ngi-patches";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
