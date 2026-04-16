@@ -44,7 +44,7 @@ viewPageAppRun model pageApp =
                     ]
                     [ div [ class "modal-content" ]
                         [ div [ class "modal-header" ]
-                            [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_app.app_displayName) ]
+                            [ h5 [ class "modal-title" ] [ text pageApp.pageApp_app.app_displayName ]
                             , button
                                 [ class "btn-close"
                                 , onClick (Update_RouteWithoutHistory onClickRoute)
