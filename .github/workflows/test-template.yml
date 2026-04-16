@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       template:
-        description: 'Template to test'
+        description: "Template to test"
         required: true
         type: choice
         options:

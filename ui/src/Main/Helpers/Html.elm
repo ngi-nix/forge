@@ -36,7 +36,6 @@ onClick update =
 
 {-| Stop a click event from bubbling up to a parent element.
 Use this on external links nested inside an `onClick` parent.
-
 -}
 onClickStopPropagation : Attribute Update
 onClickStopPropagation =
