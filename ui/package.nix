@@ -60,20 +60,17 @@ symlinkJoin {
 
     # Process each app: copy icons and create HTML routes
     for app in $(${jq}/bin/jq '.apps.[].name' -r forge-config.json); do
-      # Remove -app suffix for directory name
-      app_dir="''${app%-app}"
-
       # Copy custom icon if it exists, otherwise use default
-      mkdir -p "resources/apps/$app_dir"
-      if [ -f "${appIcons}/$app_dir/icon.svg" ]; then
-        cp "${appIcons}/$app_dir/icon.svg" "resources/apps/$app_dir/icon.svg"
+      mkdir -p "resources/apps/$app"
+      if [ -f "${appIcons}/$app/icon.svg" ]; then
+        cp "${appIcons}/$app/icon.svg" "resources/apps/$app/icon.svg"
       else
-        cp ${defaultIcon} "resources/apps/$app_dir/icon.svg"
+        cp ${defaultIcon} "resources/apps/$app/icon.svg"
       fi
 
       # Create SPA routing for this app (github pages workaround)
-      mkdir -p "app/$app_dir"
-      ln -s $out/index.html "app/$app_dir/index.html"
+      mkdir -p "app/$app"
+      ln -s $out/index.html "app/$app/index.html"
     done
 
     for page in apps packages recipe recipe/options; do

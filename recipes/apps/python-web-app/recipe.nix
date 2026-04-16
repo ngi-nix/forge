@@ -7,6 +7,7 @@
 
 {
   name = "python-web-app";
+  displayName = "Python Web Example";
   description = "Example web API with database backend.";
   usage = ''
     This is a simple example application that provides a web API for

@@ -44,7 +44,7 @@ viewPageAppRun model pageApp =
                     ]
                     [ div [ class "modal-content" ]
                         [ div [ class "modal-header" ]
-                            [ h5 [ class "modal-title" ] [ text ("Run " ++ pageApp.pageApp_route.routeApp_name) ]
+                            [ h5 [ class "modal-title" ] [ text pageApp.pageApp_app.app_displayName ]
                             , button
                                 [ class "btn-close"
                                 , onClick (Update_RouteWithoutHistory onClickRoute)
@@ -261,7 +261,7 @@ viewPageAppRunShell model pageApp =
                         [ "nix shell "
                         , showForgeInputFlakes model
                         , "#"
-                        , pageApp.pageApp_app |> app_output
+                        , pageApp.pageApp_app.app_name
                         ]
 
                     PreferencesInstall_NixTraditional ->
@@ -269,7 +269,7 @@ viewPageAppRunShell model pageApp =
                         , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
-                        , pageApp.pageApp_app |> app_output
+                        , pageApp.pageApp_app.app_name
                         , "' "
                         ]
                 )
@@ -289,7 +289,7 @@ viewPageAppRunContainer model pageApp =
                             [ "nix build "
                             , showForgeInputFlakes model
                             , "#"
-                            , pageApp.pageApp_app |> app_output
+                            , pageApp.pageApp_app.app_name
                             , ".container"
                             ]
 
@@ -299,14 +299,14 @@ viewPageAppRunContainer model pageApp =
                             , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
-                            , pageApp.pageApp_app |> app_output
+                            , pageApp.pageApp_app.app_name
                             , ".container"
                             , "' "
                             ]
                 , ""
                 , "./result/bin/build-oci-image"
                 , ""
-                , "podman load < " ++ (pageApp.pageApp_app |> app_output) ++ ".tar"
+                , "podman load < " ++ pageApp.pageApp_app.app_name ++ ".tar"
                 , "podman-compose --profile services --file $(pwd)/result/compose.yaml up"
                 ]
         ]
@@ -324,7 +324,7 @@ viewPageAppRunVM model pageApp =
                         [ "nix run "
                         , showForgeInputFlakes model
                         , "#"
-                        , pageApp.pageApp_app |> app_output
+                        , pageApp.pageApp_app.app_name
                         , ".vm"
                         ]
 
@@ -335,12 +335,12 @@ viewPageAppRunVM model pageApp =
                             , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
-                            , pageApp.pageApp_app |> app_output
+                            , pageApp.pageApp_app.app_name
                             , ".vm"
                             , "' "
                             ]
                         , ""
-                        , "./result/bin/run-" ++ (pageApp.pageApp_app |> app_output) ++ "-vm"
+                        , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
                         ]
         ]
 

@@ -64,10 +64,10 @@ viewPageAppsApp _ _ app =
                 [ src (getAppIconPath app.app_name)
                 , class "item-card-icon"
                 , attribute "loading" "lazy"
-                , attribute "alt" (app.app_name ++ " icon")
+                , attribute "alt" (app.app_displayName ++ " icon")
                 ]
                 []
-            , h5 [ class "mb-10" ] [ text app.app_name ]
+            , h5 [ class "mb-10" ] [ text app.app_displayName ]
             ]
         , p
             [ class "mb-1"

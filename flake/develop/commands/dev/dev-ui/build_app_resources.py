@@ -72,9 +72,7 @@ def populate_resources_dir():
             if not app_name:
                 continue
 
-            # Remove '-app' suffix for directory name
-            app_dir_name = app_name[:-4] if app_name.endswith("-app") else app_name
-            app_dir: Path = apps_dir / app_dir_name
+            app_dir: Path = apps_dir / app_name
             app_dir.mkdir(parents=True, exist_ok=True)
 
             app_icon: str = app.get("icon")

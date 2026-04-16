@@ -419,6 +419,7 @@ build.extraAttrs = {
 ```nix
 {
   name = "app-name";
+  displayName = "Human Readable Name";  # Optional: defaults to name if not set
   description = "Application description.";
   usage = ''
     Usage instructions in markdown format.
@@ -467,6 +468,7 @@ Apps can optionally specify a custom icon in SVG format. When creating app recip
 ```nix
 {
   name = "my-app";
+  displayName = "My Application";
   description = "My application";
   icon = ./logo.svg;  # Found in repository root
 
@@ -623,6 +625,7 @@ Each app output type can be independently enabled or disabled:
 
 {
   name = "python-web-app";
+  displayName = "Python Web Example";
   description = "Simple web application with database backend.";
   usage = ''
     This is a simple example app which provides a web API.

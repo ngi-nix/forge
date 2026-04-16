@@ -2,11 +2,11 @@ module Main.Config.App exposing (..)
 
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
-import Main.Helpers.String exposing (..)
 
 
 type alias App =
     { app_name : AppName
+    , app_displayName : String
     , app_description : String
     , app_usage : String
     , app_programs : AppPrograms
@@ -16,15 +16,11 @@ type alias App =
     }
 
 
-app_output : App -> String
-app_output app =
-    app.app_name ++ "-app"
-
-
 decodeApp : Decoder App
 decodeApp =
-    Decode.map7 App
-        (Decode.field "name" (Decode.string |> Decode.map (stripSuffix "-app")))
+    Decode.map8 App
+        (Decode.field "name" Decode.string)
+        (Decode.field "displayName" Decode.string)
         (Decode.field "description" Decode.string)
         (Decode.field "usage" Decode.string)
         (Decode.field "programs" decodeAppPrograms)

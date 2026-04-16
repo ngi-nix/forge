@@ -45,13 +45,9 @@
         ${lib.concatStringsSep "\n" (
           map (
             app:
-            let
-              # Remove -app suffix for directory name
-              appDir = lib.removeSuffix "-app" app.name;
-            in
             ''
-              mkdir -p $out/${appDir}
-              ${if app.icon or null != null then "cp ${app.icon} $out/${appDir}/icon.svg" else ""}
+              mkdir -p $out/${app.name}
+              ${if app.icon or null != null then "cp ${app.icon} $out/${app.name}/icon.svg" else ""}
             ''
           ) config.forge.apps
         )}

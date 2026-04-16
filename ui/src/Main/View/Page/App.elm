@@ -54,14 +54,14 @@ viewPageAppHeader _ pageApp =
                 [ src (getAppIconPath pageApp.pageApp_route.routeApp_name)
                 , class "item-header-icon"
                 , attribute "loading" "lazy"
-                , attribute "alt" (pageApp.pageApp_route.routeApp_name ++ " icon")
+                , attribute "alt" (pageApp.pageApp_app.app_displayName ++ " icon")
                 ]
                 []
             , h2
                 [ class "mb-0 fw-bold"
                 , style "margin" "0"
                 ]
-                [ text pageApp.pageApp_route.routeApp_name
+                [ text pageApp.pageApp_app.app_displayName
                 ]
             ]
         , button
@@ -166,7 +166,7 @@ showAppRecipeLink model app =
         [ model.model_config.config_repository |> showNixUrl
         , "blob/" ++ commit
         , model.model_config.config_recipe.configRecipe_apps
-        , app |> app_output
+        , app.app_name
         , "recipe.nix"
         ]
 

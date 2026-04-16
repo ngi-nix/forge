@@ -7,6 +7,7 @@
 
 {
   name = "tau-app";
+  displayName = "Tau";
   description = "Web radio streaming system.";
 
   usage = ''
