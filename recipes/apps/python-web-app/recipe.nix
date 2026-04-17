@@ -30,6 +30,8 @@
     ```
     curl localhost:5000/users
     ```
+
+    _Available in: container, vm._
   '';
 
   links = {
@@ -47,16 +49,6 @@
       "Example 1"
       "Example 2"
     ];
-  };
-
-  programs = {
-    packages = [
-      pkgs.curl
-    ];
-
-    runtimes.shell = {
-      enable = true;
-    };
   };
 
   services = {
