@@ -50,11 +50,9 @@
   };
 
   programs = {
-    components.default = {
-      packages = [
-        pkgs.curl
-      ];
-    };
+    packages = [
+      pkgs.curl
+    ];
 
     runtimes.shell = {
       enable = true;

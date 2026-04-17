@@ -33,11 +33,6 @@ type alias AppName =
     String
 
 
-type alias AppProgramsComponents =
-    { packages : List String
-    }
-
-
 type alias AppProgramsRuntimesShell =
     { enable : Bool
     }

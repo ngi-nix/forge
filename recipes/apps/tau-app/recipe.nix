@@ -44,11 +44,9 @@
   };
 
   programs = {
-    components.default = {
-      packages = [
-        pkgs.mypkgs.tau-radio
-      ];
-    };
+    packages = [
+      pkgs.mypkgs.tau-radio
+    ];
     runtimes.shell = {
       enable = true;
     };

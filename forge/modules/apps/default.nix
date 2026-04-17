@@ -60,7 +60,7 @@ in
               let
                 appDrv = pkgs.symlinkJoin {
                   name = "${app.name}";
-                  paths = lib.flatten (lib.mapAttrsToList (name: value: value.packages) app.programs.components);
+                  paths = app.programs.packages;
                 };
               in
               # Passthru

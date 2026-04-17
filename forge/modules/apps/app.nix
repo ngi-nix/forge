@@ -66,11 +66,11 @@
       description = "Portable services configuration.";
     };
 
-    # Programs shell configuration
+    # Programs configuration
     programs = lib.mkOption {
       type = lib.types.submodule ./programs;
       default = { };
-      description = "Programs shell configuration.";
+      description = "Programs configuration.";
     };
 
     # Test configuration

@@ -513,13 +513,11 @@ Creates a shell bundle with all required packages available in PATH:
 
 ```nix
 programs = {
-  components.default = {
-    packages = [
-      pkgs.mypkgs.my-package  # Reference packages from forge
-      pkgs.curl
-      pkgs.jq
-    ];
-  };
+  packages = [
+    pkgs.mypkgs.my-package  # Reference packages from forge
+    pkgs.curl
+    pkgs.jq
+  ];
 
   runtimes.shell = {
     enable = true; # Set to true to enable programs bundle output
@@ -529,8 +527,8 @@ programs = {
 
 **Structure:**
 
-- `programs.components.<name>`: Named components with packages
-- `programs.runtimes.shell.enable`: Enable shell bundle output
+- `programs.packages`: List of packages to include in the shell environment
+- `programs.runtimes.shell.enable`: Enable shell environment
 
 **Access:** `nix shell .#<app>` or `nix build .#<app>`
 
@@ -655,13 +653,11 @@ Each app output type can be independently enabled or disabled:
 
   # Shell bundle with additional tools
   programs = {
-    components.default = {
-      packages = [
-        pkgs.mypkgs.python-web
-        pkgs.curl
-        pkgs.postgresql
-      ];
-    };
+    packages = [
+      pkgs.mypkgs.python-web
+      pkgs.curl
+      pkgs.postgresql
+    ];
 
     runtimes.shell = {
       enable = true;

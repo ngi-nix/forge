@@ -4,21 +4,11 @@
 }:
 {
   options = {
-    components = lib.mkOption {
-      type = lib.types.attrsOf (
-        lib.types.submoduleWith {
-          modules = [ ./component.nix ];
-        }
-      );
-      default = { };
-      description = "Program components.";
-      example = lib.literalExpression ''
-        {
-          default = {
-            packages = [ pkgs.curl ];
-          };
-        }
-      '';
+    packages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = "Packages to include in the shell enviornment.";
+      example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
     };
 
     runtimes = lib.mkOption {
