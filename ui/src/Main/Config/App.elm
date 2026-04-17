@@ -2,6 +2,7 @@ module Main.Config.App exposing (..)
 
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
+import Main.Helpers.Json.Decode as Decode
 
 
 type alias App =
@@ -19,19 +20,16 @@ type alias App =
 
 decodeApp : Decoder App
 decodeApp =
-    Decode.map2 (\app recipePath -> { app | app_recipePath = recipePath })
-        (Decode.map8 App
-            (Decode.field "name" Decode.string)
-            (Decode.field "displayName" Decode.string)
-            (Decode.field "description" Decode.string)
-            (Decode.field "usage" Decode.string)
-            (Decode.field "programs" decodeAppPrograms)
-            (Decode.field "services" decodeAppServices)
-            (Decode.field "ngi" decodeNgi)
-            (Decode.field "links" decodeAppLinks)
-            |> Decode.map (\f -> f "")
-        )
-        (Decode.field "recipePath" Decode.string)
+    App
+        |> Decode.flipMap (Decode.field "name" Decode.string)
+        |> Decode.andMap (Decode.field "displayName" Decode.string)
+        |> Decode.andMap (Decode.field "description" Decode.string)
+        |> Decode.andMap (Decode.field "usage" Decode.string)
+        |> Decode.andMap (Decode.field "programs" decodeAppPrograms)
+        |> Decode.andMap (Decode.field "services" decodeAppServices)
+        |> Decode.andMap (Decode.field "ngi" decodeNgi)
+        |> Decode.andMap (Decode.field "links" decodeAppLinks)
+        |> Decode.andMap (Decode.field "recipePath" Decode.string)
 
 
 type alias AppName =
