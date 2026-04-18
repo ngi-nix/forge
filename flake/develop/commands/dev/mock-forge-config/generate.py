@@ -39,6 +39,7 @@ def generate_grants():
 
 def generate_app(index: int):
     base_name = f"{fake.word()}-{fake.word()}".lower().replace("'", "")
+    display_name = f"{base_name}-{index}"
     app_name = f"{base_name}-{index}-app"
 
     description = " ".join(fake.sentences(nb=random.randint(1, 3)))
@@ -46,6 +47,7 @@ def generate_app(index: int):
     return {
         "name": app_name,
         "description": description,
+        "displayName": display_name,
         "ngi": {
             "grants": generate_grants(),
         },
@@ -67,6 +69,7 @@ def generate_app(index: int):
                 },
             },
         },
+        "recipePath": fake.file_path(extension=[]),
         "services": {
             "components": {
                 app_name: {},
