@@ -56,7 +56,13 @@
       python-web = {
         command = pkgs.mypkgs.python-web;
       };
+
+      python-web-hello = {
+        command = pkgs.hello;
+      };
     };
+
+    ordering.python-web.after = [ "python-web-hello" ];
 
     runtimes = {
       container = {

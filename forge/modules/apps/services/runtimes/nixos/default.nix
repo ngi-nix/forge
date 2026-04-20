@@ -105,7 +105,10 @@
       # nimi NixOS module — runs services via nimi process manager
       inputs.nimi.nixosModules.default
       {
-        nimi = lib.mapAttrs (serviceName: service: {
+        nimi = {
+          ordering = app.services.ordering;
+        }
+        // lib.mapAttrs (serviceName: service: {
           settings.binName = "${serviceName}-service";
           services.${serviceName} = {
             imports = [

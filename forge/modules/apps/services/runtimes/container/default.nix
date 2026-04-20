@@ -143,6 +143,8 @@
           }
         ];
       }) app.services.components;
+
+      ordering = app.services.ordering;
     };
 
     result.eval = nimi.passthru.evalNimiModule { config = config.result.modules; };
