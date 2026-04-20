@@ -6,7 +6,6 @@ import Html.Attributes exposing (class)
 import Http
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)

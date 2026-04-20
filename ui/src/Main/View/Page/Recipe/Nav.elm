@@ -5,7 +5,6 @@ import Html.Attributes exposing (class, href, style)
 import List.Extra as List
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)

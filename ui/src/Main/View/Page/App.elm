@@ -5,7 +5,6 @@ import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, t
 import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)

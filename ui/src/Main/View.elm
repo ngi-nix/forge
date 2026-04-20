@@ -6,7 +6,6 @@ import Html.Events exposing (onInput, preventDefaultOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)

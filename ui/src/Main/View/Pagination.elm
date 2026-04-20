@@ -4,7 +4,6 @@ import Html exposing (Html, button, div, span, text)
 import Html.Attributes exposing (attribute, class, disabled, style)
 import Main.Config exposing (..)
 import Main.Config.Package exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
