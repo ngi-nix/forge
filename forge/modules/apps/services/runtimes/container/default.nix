@@ -161,7 +161,8 @@
       chmod +x $out/bin/build-oci-image
 
       ${lib.optionalString (config.composeFile != null) ''
-        cp ${config.composeFile} $out/compose.yaml
+        mkdir -p $out/${app.name}
+        cp ${config.composeFile} $out/${app.name}/compose.yaml
       ''}
     '';
   };
