@@ -86,6 +86,8 @@
 
   config = {
     result.modules = {
+      settings.binName = "${app.name}-service";
+
       settings.container = {
         copyToRoot = pkgs.buildEnv {
           name = "runtime-bins";
