@@ -106,6 +106,7 @@
       inputs.nimi.nixosModules.default
       {
         nimi = lib.mapAttrs (serviceName: service: {
+          settings.binName = "${serviceName}-service";
           services.${serviceName} = {
             imports = [
               service.result
