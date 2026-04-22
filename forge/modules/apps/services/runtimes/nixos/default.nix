@@ -124,8 +124,7 @@
           };
         }) app.services.components;
 
-        environment.variables =
-          lib.concatMapAttrs (_: value: value.environment) app.services.components;
+        environment.variables = lib.concatMapAttrs (_: value: value.environment) app.services.components;
       }
       (lib.mkIf (config.setup != "") {
         systemd.services."${app.name}-setup" = {
