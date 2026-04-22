@@ -15,6 +15,11 @@
 
     #### Administration
 
+    If running inside a container, connect to it with:
+    ```
+    podman-compose -f result/mox-app/compose.yaml exec mox-app bash
+    ```
+
     Set admin password:
     ```
     echo "adminpassword" | mox -config /var/lib/mox/config/mox.conf setadminpassword
