@@ -88,19 +88,9 @@ type alias NodeNixOption =
     ( NixAttrName, NixModuleOption )
 
 
-type NodeNixOptionFiltered
-    = NodeNixOptionFiltered_In NodeNixOption
-    | NodeNixOptionFiltered_Out NixAttrName
-
-
-nodeNixOptionFiltered_name : NodeNixOptionFiltered -> NixAttrName
-nodeNixOptionFiltered_name node =
-    case node of
-        NodeNixOptionFiltered_In ( n, _ ) ->
-            n
-
-        NodeNixOptionFiltered_Out n ->
-            n
+type NixModuleOptionFiltered
+    = NixModuleOptionFiltered_In NixModuleOption
+    | NixModuleOptionFiltered_Out
 
 
 type alias PagePagination a =
