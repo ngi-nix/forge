@@ -1,0 +1,7 @@
+services:
+  mox-app:
+    image: localhost/mox-app:latest
+    ports:
+      - "8080:80"
+    profiles:
+      - services
