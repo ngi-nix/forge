@@ -40,6 +40,7 @@
                 [ command ] ++ service.argv;
               configData = service.configData;
               preStart = service.preStart;
+              readyCheck = service.readyCheck;
             };
           }
         ) self;
@@ -78,6 +79,15 @@
             description = ''
               List of service names that must have started before this
               service is spawned.
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+          };
+          options.afterReady = lib.mkOption {
+            description = ''
+              List of service names that must be ready before this
+              service is spawned. Each target must declare a
+              readiness check.
             '';
             type = lib.types.listOf lib.types.str;
             default = [ ];

@@ -55,6 +55,9 @@
     components = {
       python-web = {
         command = pkgs.mypkgs.python-web;
+        readyCheck = pkgs.writeShellScript "check-web-ready" ''
+          curl -sf http://localhost:5000
+        '';
       };
 
       python-web-hello = {
@@ -62,12 +65,18 @@
       };
     };
 
-    ordering.python-web.after = [ "python-web-hello" ];
+    ordering.python-web-hello.after = [ "python-web" ];
+    ordering.python-web-hello.afterReady = [ "python-web" ];
 
     runtimes = {
       container = {
         enable = true;
-        packages = [ pkgs.mypkgs.python-web ];
+        packages = [
+          pkgs.mypkgs.python-web
+          pkgs.bash
+          pkgs.curl
+          pkgs.coreutils
+        ];
         # Alternatively, we can re-use attributes with `config`:
         #packages = [ config.services.python-web.command ];
         composeFile = ./compose.yaml;
