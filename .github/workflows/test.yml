@@ -93,7 +93,7 @@ jobs:
 
       - name: Configure the baseUrl
         run: |
-          sed -i "s|:baseUrl|/|g" ui/src/Main/Route.elm
+          sed -i "s|:baseUrl|/|g" ui/src/Main/Model/Route.elm
           sed -i "s|<base href=\"/\"|<base href=\"/\"|g" ui/src/index.html
 
       - name: Build UI

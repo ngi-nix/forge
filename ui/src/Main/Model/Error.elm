@@ -1,4 +1,4 @@
-module Main.Error exposing (..)
+module Main.Model.Error exposing (..)
 
 import AppUrl exposing (AppUrl)
 import Http

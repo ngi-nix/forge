@@ -1,13 +1,16 @@
 module Main.Model.Page exposing (..)
 
+import List.Extra as List
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Config.Package exposing (..)
-import Main.Error exposing (..)
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
+import Main.Model.Error exposing (..)
 import Main.Model.Preferences exposing (..)
-import Main.Route exposing (..)
+import Main.Model.Route exposing (..)
+import Set exposing (Set)
+import Tree exposing (Tree)
 
 
 type Page
@@ -75,8 +78,29 @@ defaultPagePackages routePagination packages =
 
 type alias PageRecipeOptions =
     { pageRecipeOptions_route : RouteRecipeOptions
-    , pageRecipeOptions_pagination : PagePagination ( NixName, NixModuleOption )
+    , pageRecipeOptions_pagination : PagePagination ( NixPath, NixModuleOption )
+    , pageRecipeOptions_trees : List (Tree NodeNixOption)
+    , pageRecipeOptions_unfolds : Set NixPath
     }
+
+
+type alias NodeNixOption =
+    ( NixName, List NixModuleOption )
+
+
+type NodeNixOptionFiltered
+    = NodeNixOptionFiltered_In NodeNixOption
+    | NodeNixOptionFiltered_Out NixName
+
+
+nodeNixOptionFiltered_name : NodeNixOptionFiltered -> NixName
+nodeNixOptionFiltered_name node =
+    case node of
+        NodeNixOptionFiltered_In ( n, _ ) ->
+            n
+
+        NodeNixOptionFiltered_Out n ->
+            n
 
 
 type alias PagePagination a =
@@ -120,7 +144,7 @@ defaultPagePagination routePagination items =
     { pagePagination_current = routePagination.routePagination_current |> Maybe.withDefault 1
     , pagePagination_list =
         items
-            |> List.paginationOf maxResultsPerPage
+            |> List.greedyGroupsOf maxResultsPerPage
     , pagePagination_MaxSize = maxResultsPerPage
     , pagePagination_last =
         items

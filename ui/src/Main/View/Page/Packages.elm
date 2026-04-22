@@ -4,7 +4,6 @@ import Html exposing (Html, a, code, div, h5, span, text)
 import Html.Attributes exposing (attribute, class, href, id, rel, style, target, title)
 import Main.Config exposing (..)
 import Main.Config.Package exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)
@@ -12,8 +11,9 @@ import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
-import Main.Route as Route exposing (..)
+import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 import Main.View.Pagination exposing (..)
 
 
@@ -24,7 +24,7 @@ viewPagePackagesLink =
             Route_Packages defaultRoutePackages
     in
     a
-        [ href (onClickRoute |> Route.toString)
+        [ href (onClickRoute |> routeToString)
         , style "color" "inherit"
         , style "text-decoration" "none"
         , style "cursor" "pointer"
@@ -73,7 +73,7 @@ viewPagePackagesItem model pagePackages package =
     a
         [ class "list-item list-group-item list-group-item-action flex-column align-items-start"
         , id itemId
-        , href (onClickRoute |> Route.toString)
+        , href (onClickRoute |> routeToString)
         , attribute "data-testid" "package-result"
         , onClick (Update_Route onClickRoute)
         ]
@@ -94,8 +94,7 @@ viewPagePackagesItem model pagePackages package =
                         [ text ("v" ++ package.package_version) ]
                     ]
                 ]
-            , div []
-                (package.package_description |> Markdown.render)
+            , package.package_description |> Markdown.render
             ]
         , div [ class "d-flex gap-3" ]
             [ a

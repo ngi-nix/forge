@@ -17,7 +17,8 @@
       "elmcraft/core-extra": "2.3.0",
       "lydell/elm-app-url": "1.0.4",
       "mpizenberg/elm-url-navigation-port": "1.1.0",
-      "pablohirafuji/elm-syntax-highlight": "3.7.1"
+      "pablohirafuji/elm-syntax-highlight": "3.7.1",
+      "zwilias/elm-rosetree": "1.5.0"
     },
     "indirect": {
       "elm/bytes": "1.0.8",

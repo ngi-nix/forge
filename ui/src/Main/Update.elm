@@ -1,58 +1,26 @@
 module Main.Update exposing (..)
 
 import Browser.Dom as Dom
-import Dict
-import Http
+import List.Extra as List
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Error exposing (..)
 import Main.Helpers.Cmd as Cmd
-import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
 import Main.Model exposing (..)
+import Main.Model.Error exposing (..)
 import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
+import Main.Model.Route exposing (..)
 import Main.Ports.Clipboard as Clipboard
 import Main.Ports.Navigation
 import Main.Ports.SmoothScroll exposing (..)
-import Main.Route as Route exposing (..)
+import Main.Update.Config exposing (..)
+import Main.Update.Focus exposing (..)
+import Main.Update.Route exposing (..)
+import Main.Update.Search exposing (..)
+import Main.Update.Types exposing (..)
 import Navigation
 import Task
-
-
-type alias Updater =
-    Model -> ( Model, Cmd Update )
-
-
-type Update
-    = -- `Update_Chain us` left-folds `Update` in `us` on the `Model`.
-      Update_Chain (List Update)
-    | Update_CopyToClipboard String
-    | Update_Config (Result Http.Error Config)
-    | -- `Update_RecipeOptions res` loads the `res` of `updateRecipeOptions` into `model_RecipeOptions`.
-      Update_RecipeOptions (Result Http.Error NixModuleOptions)
-    | Update_Navigation Navigation.Event
-    | Update_Route Route
-    | Update_RouteWithoutNavigation Route
-    | Update_RouteWithoutHistory Route
-    | -- `Update_Updater up` simply applies `up` to the `Model`.
-      -- Useful in a `Update_Chain` to defer `up` after some other updates.
-      Update_Updater Updater
-    | Update_ToggleNavBar
-    | Update_CycleTheme
-    | Update_Focus String
-    | Update_SetPreferences Preferences
-    | Update_FocusResult (Result Dom.Error ())
-    | Update_AmbientKeyPress AmbientKeyState
-    | Update_Search Search
-    | Update_NoOp
-
-
-type alias AmbientKeyState =
-    { key : String
-    , focusedTyping : Bool
-    , hasModifier : Bool
-    }
 
 
 update : Update -> Updater
@@ -76,7 +44,7 @@ update upd modelInit =
             ups |> List.foldl chain ( { model | model_errors = [] }, Cmd.none )
 
         Update_Navigation event ->
-            case event.appUrl |> Route.fromAppUrl of
+            case event.appUrl |> appUrlToRoute of
                 Err err ->
                     ( { model | model_errors = [ Error_Route err ] }
                     , Cmd.none
@@ -87,7 +55,7 @@ update upd modelInit =
 
         Update_Route route ->
             ( model
-            , Navigation.pushUrl Main.Ports.Navigation.navCmd (route |> Route.toAppUrl)
+            , Navigation.pushUrl Main.Ports.Navigation.navCmd (route |> routeToAppUrl)
             )
 
         Update_RouteWithoutNavigation route ->
@@ -99,7 +67,7 @@ update upd modelInit =
                     updateRoute route model
 
                 navCmd =
-                    Navigation.replaceUrl Main.Ports.Navigation.navCmd (route |> Route.toAppUrl)
+                    Navigation.replaceUrl Main.Ports.Navigation.navCmd (route |> routeToAppUrl)
             in
             ( newModel
             , Cmd.batch [ routeCmd, navCmd ]
@@ -216,411 +184,3 @@ update upd modelInit =
 
         Update_Updater up ->
             model |> up
-
-
-updateRoute : Route -> Updater
-updateRoute route =
-    case route of
-        Route_App routeApp ->
-            updateConfig <|
-                \model ->
-                    ( case model.model_config.config_apps |> Dict.get routeApp.routeApp_name of
-                        Just app ->
-                            let
-                                requestedAppRuntime =
-                                    case routeApp.routeApp_runRuntime of
-                                        Just x ->
-                                            Just x
-
-                                        Nothing ->
-                                            app |> listAppRuntimeAvailable |> List.head
-                            in
-                            case requestedAppRuntime of
-                                Nothing ->
-                                    { model
-                                        | model_page =
-                                            Page_App
-                                                { pageApp_route = { routeApp | routeApp_runShown = False }
-                                                , pageApp_app = app
-                                                , pageApp_runtime = Nothing
-                                                }
-                                        , model_errors =
-                                            if routeApp.routeApp_runShown then
-                                                [ Error_App (ErrorApp_NoRuntime routeApp.routeApp_name) ]
-
-                                            else
-                                                []
-                                    }
-
-                                Just selectedAppRuntime ->
-                                    if app |> hasAppRuntime selectedAppRuntime then
-                                        { model
-                                            | model_page =
-                                                Page_App
-                                                    { pageApp_route = routeApp
-                                                    , pageApp_app = app
-                                                    , pageApp_runtime = Just selectedAppRuntime
-                                                    }
-                                        }
-
-                                    else
-                                        { model
-                                            | model_page =
-                                                Page_App
-                                                    { pageApp_route = { routeApp | routeApp_runShown = False }
-                                                    , pageApp_app = app
-                                                    , pageApp_runtime = Just selectedAppRuntime
-                                                    }
-                                            , model_errors = [ Error_App (ErrorApp_NoSuchRuntime app.app_name selectedAppRuntime) ]
-                                        }
-
-                        Nothing ->
-                            { model
-                                | model_page = defaultPage
-                                , model_errors = [ Error_App (ErrorApp_NotFound routeApp.routeApp_name) ]
-                            }
-                    , let
-                        isSameFocus =
-                            case model.model_page of
-                                Page_App oldPageApp ->
-                                    oldPageApp.pageApp_route.routeApp_focus == routeApp.routeApp_focus
-
-                                _ ->
-                                    False
-                      in
-                      if isSameFocus then
-                        Cmd.none
-
-                      else
-                        case routeApp.routeApp_focus of
-                            Just focus ->
-                                scrollToAndHighlight (focus |> showRouteAppFocus)
-
-                            Nothing ->
-                                Cmd.none
-                    )
-
-        Route_Apps routeApps ->
-            updateConfig <|
-                \model ->
-                    ( let
-                        search =
-                            routeApps.routeApps_search |> String.toLower
-
-                        filterMatches =
-                            List.filter
-                                (\app ->
-                                    let
-                                        -- Case Insensitive search
-                                        app_name =
-                                            String.toLower app.app_name
-
-                                        app_description =
-                                            String.toLower app.app_description
-
-                                        name_matches =
-                                            String.contains search app_name
-
-                                        desc_matches =
-                                            String.contains search app_description
-                                    in
-                                    name_matches || desc_matches
-                                )
-
-                        availableItems =
-                            getAvailableItems
-                                model.model_page
-                                (\page ->
-                                    case page of
-                                        Page_Apps pageApps ->
-                                            Just ( pageApps.pageApps_route.routeApps_search, pageApps.pageApps_pagination.pagePagination_list )
-
-                                        _ ->
-                                            Nothing
-                                )
-                                (model.model_config.config_apps |> Dict.values)
-                                search
-
-                        filteredItems =
-                            availableItems
-                                |> filterMatches
-                      in
-                      { model
-                        | model_page =
-                            Page_Apps
-                                { pageApps_route = routeApps
-                                , pageApps_pagination =
-                                    defaultPagePagination
-                                        routeApps.routeApps_pagination
-                                        filteredItems
-                                }
-                        , model_search = routeApps.routeApps_search
-                      }
-                    , Cmd.none
-                    )
-
-        Route_Packages routePackages ->
-            updateConfig <|
-                \model ->
-                    let
-                        search =
-                            routePackages.routePackages_search |> String.toLower
-
-                        filterMatches =
-                            List.filter
-                                (\package ->
-                                    let
-                                        -- Case Insensitive search
-                                        package_name =
-                                            String.toLower package.package_name
-
-                                        package_description =
-                                            String.toLower package.package_description
-
-                                        name_matches =
-                                            String.contains search package_name
-
-                                        desc_matches =
-                                            String.contains search package_description
-                                    in
-                                    name_matches || desc_matches
-                                )
-
-                        availableItems =
-                            getAvailableItems
-                                model.model_page
-                                (\page ->
-                                    case page of
-                                        Page_Packages pagePackages ->
-                                            Just ( pagePackages.pagePackages_route.routePackages_search, pagePackages.pagePackages_pagination.pagePagination_list )
-
-                                        _ ->
-                                            Nothing
-                                )
-                                (model.model_config.config_packages |> Dict.values)
-                                search
-
-                        filteredItems =
-                            availableItems
-                                |> filterMatches
-                    in
-                    { model
-                        | model_page =
-                            Page_Packages
-                                { pagePackages_route = routePackages
-                                , pagePackages_pagination =
-                                    defaultPagePagination
-                                        routePackages.routePackages_pagination
-                                        filteredItems
-                                }
-                        , model_search = routePackages.routePackages_search
-                    }
-                        |> updateFocus
-                            showRoutePackagesFocus
-                            (case model.model_page of
-                                Page_Packages oldPagePackages ->
-                                    oldPagePackages.pagePackages_route.routePackages_focus
-
-                                _ ->
-                                    Nothing
-                            )
-                            routePackages.routePackages_focus
-
-        Route_RecipeOptions routeRecipe ->
-            updateConfig <|
-                updateRecipeOptions <|
-                    \model ->
-                        let
-                            search =
-                                routeRecipe.routeRecipeOptions_search |> String.toLower
-
-                            filterMatches =
-                                List.filter
-                                    (\( name, option ) ->
-                                        let
-                                            -- Case Insensitive search
-                                            option_name =
-                                                String.toLower name
-
-                                            option_description =
-                                                String.toLower option.nixModuleOption_description
-
-                                            name_matches =
-                                                String.contains search option_name
-
-                                            desc_matches =
-                                                String.contains search option_description
-                                        in
-                                        name_matches || desc_matches
-                                    )
-
-                            availableItems =
-                                getAvailableItems
-                                    model.model_page
-                                    (\page ->
-                                        case page of
-                                            Page_RecipeOptions pageRecipe ->
-                                                Just ( pageRecipe.pageRecipeOptions_route.routeRecipeOptions_search, pageRecipe.pageRecipeOptions_pagination.pagePagination_list )
-
-                                            _ ->
-                                                Nothing
-                                    )
-                                    (model.model_RecipeOptions.recipeOptions_available |> Dict.toList)
-                                    search
-
-                            filteredItems =
-                                availableItems
-                                    |> filterMatches
-                        in
-                        { model
-                            | model_page =
-                                Page_RecipeOptions
-                                    { pageRecipeOptions_route = routeRecipe
-                                    , pageRecipeOptions_pagination =
-                                        defaultPagePagination
-                                            routeRecipe.routeRecipeOptions_pagination
-                                            filteredItems
-                                    }
-                            , model_search = routeRecipe.routeRecipeOptions_search
-                        }
-                            |> updateFocus
-                                showRouteRecipeOptionsFocus
-                                (case model.model_page of
-                                    Page_RecipeOptions oldPageRecipe ->
-                                        oldPageRecipe.pageRecipeOptions_route.routeRecipeOptions_focus
-
-                                    _ ->
-                                        Nothing
-                                )
-                                routeRecipe.routeRecipeOptions_focus
-
-
-{-| `updateConfig up` populates `model_config` if empty, then runs `up`.
-`up` is thus always run, and only after `model_config` has been loaded.
--}
-updateConfig : Updater -> Updater
-updateConfig up model =
-    if Dict.isEmpty model.model_config.config_apps then
-        ( model
-        , Http.get
-            { url = "forge-config.json"
-            , expect =
-                Http.expectJson
-                    (\res ->
-                        Update_Chain
-                            [ Update_Config res
-                            , Update_Updater up
-                            ]
-                    )
-                    decodeConfig
-            }
-        )
-
-    else
-        model |> up
-
-
-routeSearch : Model -> Search -> Route
-routeSearch model search =
-    case model.model_page of
-        Page_App _ ->
-            Route_Apps { defaultRouteApps | routeApps_search = search }
-
-        Page_Apps pageApps ->
-            let
-                routeApps =
-                    pageApps.pageApps_route
-
-                routePagination =
-                    routeApps.routeApps_pagination
-            in
-            Route_Apps
-                { routeApps
-                    | routeApps_search = search
-                    , routeApps_pagination = { routePagination | routePagination_current = Nothing }
-                }
-
-        Page_Packages pagePackages ->
-            let
-                routePackages =
-                    pagePackages.pagePackages_route
-
-                routePagination =
-                    routePackages.routePackages_pagination
-            in
-            Route_Packages
-                { routePackages
-                    | routePackages_search = search
-                    , routePackages_pagination = { routePagination | routePagination_current = Nothing }
-                }
-
-        Page_RecipeOptions pageRecipeOptions ->
-            let
-                routeRecipeOptions =
-                    pageRecipeOptions.pageRecipeOptions_route
-
-                routePagination =
-                    routeRecipeOptions.routeRecipeOptions_pagination
-            in
-            Route_RecipeOptions
-                { routeRecipeOptions
-                    | routeRecipeOptions_search = search
-                    , routeRecipeOptions_pagination = { routePagination | routePagination_current = Nothing }
-                }
-
-
-updateFocus : (a -> String) -> Maybe a -> Maybe a -> Model -> ( Model, Cmd Update )
-updateFocus showFocus prevFocus nextFocus model =
-    ( model
-    , case nextFocus of
-        Just focus ->
-            if Just focus /= prevFocus then
-                scrollToAndHighlight (focus |> showFocus)
-
-            else
-                Cmd.none
-
-        Nothing ->
-            Cmd.none
-    )
-
-
-{-| `updateRecipeOptions up` populates `model.model_recipe.modelRecipeOptions_available` if empty, then runs `up`.
-`up` is thus always run, and only after `model.model_recipe.modelRecipeOptions_available` has been loaded.
--}
-updateRecipeOptions : Updater -> Updater
-updateRecipeOptions up model =
-    if Dict.isEmpty model.model_RecipeOptions.recipeOptions_available then
-        ( model
-        , Http.get
-            { url = "forge-options.json"
-            , expect =
-                Http.expectJson
-                    (\res ->
-                        Update_Chain
-                            [ Update_RecipeOptions res
-                            , Update_Updater up
-                            ]
-                    )
-                    decodeNixModuleOptions
-            }
-        )
-
-    else
-        model |> up
-
-
-{-| Optimization to avoid re-filtering the entire list when the new search contains the previous search.
--}
-getAvailableItems : Page -> (Page -> Maybe ( String, List (List a) )) -> List a -> String -> List a
-getAvailableItems model_page getPagePagination defaultItems search =
-    case getPagePagination model_page of
-        Just ( prevSearch, paginationList ) ->
-            if not (String.isEmpty prevSearch) && String.contains prevSearch search then
-                paginationList |> List.concat
-
-            else
-                defaultItems
-
-        Nothing ->
-            defaultItems

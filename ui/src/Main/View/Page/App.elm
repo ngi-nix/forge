@@ -5,7 +5,6 @@ import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, t
 import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.AppUrl exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)
@@ -13,8 +12,9 @@ import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
 import Main.Model.Preferences exposing (..)
-import Main.Route as Route exposing (..)
+import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
+import Main.Update.Types exposing (..)
 import Main.View.Page.App.Run exposing (..)
 
 
@@ -97,10 +97,8 @@ viewPageAppUsage _ pageApp =
         div [ id "usage", class "mt-4" ]
             [ hr [] []
             , h4 [ class "mb-3" ] [ text "Usage Instructions" ]
-            , div [ class "markdown-content" ]
-                (pageApp.pageApp_app.app_usage
-                    |> Markdown.render
-                )
+            , pageApp.pageApp_app.app_usage
+                |> Markdown.render
             ]
 
     else
@@ -127,7 +125,7 @@ viewPageAppResources model pageApp =
                 , href
                     ({ routeApp | routeApp_focus = Just RouteAppFocus_Resources }
                         |> Route_App
-                        |> Route.toString
+                        |> routeToString
                     )
                 ]
                 []
@@ -199,7 +197,7 @@ viewPageAppNgiGrants _ pageApp =
                     , href
                         ({ routeApp | routeApp_focus = Just RouteAppFocus_Grants }
                             |> Route_App
-                            |> Route.toString
+                            |> routeToString
                         )
                     ]
                     []
