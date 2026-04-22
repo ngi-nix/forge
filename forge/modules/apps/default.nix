@@ -98,6 +98,7 @@ in
                 vm = app.services.runtimes.nixos.result.build;
                 nixos = {
                   modules = app.services.runtimes.nixos.result.modules;
+                  vm = app.services.runtimes.nixos.result.build;
                 };
               }
               // lib.optionalAttrs (app.test.script != "") { test = app.test.result.build; };

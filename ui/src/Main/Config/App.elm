@@ -121,8 +121,8 @@ decodeAppContainer =
         (Decode.field "enable" Decode.bool)
 
 
-decodeAppNixosVm : Decoder AppServicesRuntimesNixos
-decodeAppNixosVm =
+decodeAppNixos : Decoder AppServicesRuntimesNixos
+decodeAppNixos =
     Decode.map AppServicesRuntimesNixos
         (Decode.field "enable" Decode.bool)
 
@@ -162,7 +162,7 @@ type alias NgiSubgrantName =
 type AppRuntime
     = AppRuntime_Shell
     | AppRuntime_Container
-    | AppRuntime_VM
+    | AppRuntime_NixOS
 
 
 hasAppRuntime : AppRuntime -> App -> Bool
@@ -174,7 +174,7 @@ hasAppRuntime appRuntime app =
         AppRuntime_Container ->
             app.app_services.appServices_runtimes.appServicesRuntimes_container.enable
 
-        AppRuntime_VM ->
+        AppRuntime_NixOS ->
             app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable
 
 
@@ -182,7 +182,7 @@ listAppRuntime : List AppRuntime
 listAppRuntime =
     [ AppRuntime_Shell
     , AppRuntime_Container
-    , AppRuntime_VM
+    , AppRuntime_NixOS
     ]
 
 
@@ -199,7 +199,7 @@ listAppRuntimeAvailable app =
       else
         []
     , if app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-        [ AppRuntime_VM ]
+        [ AppRuntime_NixOS ]
 
       else
         []
@@ -216,8 +216,8 @@ showAppRuntime r =
         AppRuntime_Container ->
             "Container"
 
-        AppRuntime_VM ->
-            "VM"
+        AppRuntime_NixOS ->
+            "NixOS"
 
 
 type alias AppLinks =

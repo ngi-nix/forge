@@ -242,11 +242,11 @@ appUrlToRoute url =
                                 , routeApp_runRuntime = Just AppRuntime_Container
                             }
 
-                        Just "run-vm" ->
+                        Just "run-nixos" ->
                             { defaultRouteApp
                                 | routeApp_name = appName
                                 , routeApp_runShown = True
-                                , routeApp_runRuntime = Just AppRuntime_VM
+                                , routeApp_runRuntime = Just AppRuntime_NixOS
                             }
 
                         Just "run" ->
@@ -373,8 +373,8 @@ routeToAppUrl route =
                                             AppRuntime_Container ->
                                                 "-container"
 
-                                            AppRuntime_VM ->
-                                                "-vm"
+                                            AppRuntime_NixOS ->
+                                                "-nixos"
                                )
                         )
 

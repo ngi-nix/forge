@@ -90,7 +90,7 @@ viewPageAppsApp _ _ app =
                       else
                         []
                     , if app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "vm" ] ]
+                        [ span [ class "badge bg-secondary me-1" ] [ text "nixos" ] ]
 
                       else
                         []

@@ -134,9 +134,9 @@ viewPageAppRunInstructions model pageApp =
                         else
                             text ""
 
-                    AppRuntime_VM ->
+                    AppRuntime_NixOS ->
                         if pageApp.pageApp_app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                            viewPageAppRunVM model pageApp
+                            viewPageAppRunNixOS model pageApp
 
                         else
                             text ""
@@ -315,8 +315,8 @@ viewPageAppRunContainer model pageApp =
         ]
 
 
-viewPageAppRunVM : Model -> PageApp -> Html Update
-viewPageAppRunVM model pageApp =
+viewPageAppRunNixOS : Model -> PageApp -> Html Update
+viewPageAppRunNixOS model pageApp =
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM" ]
         , br [] []
