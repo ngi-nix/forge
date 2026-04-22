@@ -81,7 +81,10 @@ viewNodes page inh tree =
 
         unfolded =
             Set.member path unfoldedAncestorsOrSelf
-                || (inh.inh_parentUnfolded && List.length inh.inh_parentChildren == 1)
+                || autoUnfolded
+
+        autoUnfolded =
+            inh.inh_parentUnfolded && List.length inh.inh_parentChildren == 1
 
         foldable =
             tree
@@ -92,6 +95,7 @@ viewNodes page inh tree =
         node =
             { node_foldable = foldable
             , node_unfolded = unfolded
+            , node_autoUnfolded = autoUnfolded
             }
     in
     div
@@ -147,10 +151,17 @@ viewNodeToggle page inh tree node =
         span
             [ style "white-space" "pre"
             ]
-            [ a
-                [ href (routeNodeToggle page path |> routeToString)
-                , onClick (Update_Route (routeNodeToggle page path))
-                , style "color" "inherit"
+            [ (if node.node_autoUnfolded then
+                span
+
+               else
+                a
+                    << (++)
+                        [ href (routeNodeToggle page path |> routeToString)
+                        , onClick (Update_Route (routeNodeToggle page path))
+                        ]
+              )
+                [ style "color" "inherit"
                 , class "fw-bold"
                 , class "text-secondary"
                 ]
@@ -180,34 +191,32 @@ viewNodeName page inh tree =
         path =
             inh.inh_parentPath ++ [ name ]
     in
-    span []
-        [ a
-            (List.concat
-                [ [ href (routeNodeName page path |> routeToString)
-                  , onClick (Update_Route (routeNodeName page path))
-                  ]
-                , if path == page.pageRecipeOptions_route.routeRecipeOptions_scope then
-                    [ style "font-weight" "bolder"
-                    , class <|
-                        if tree |> Tree.children |> (/=) [] then
-                            "text-primary-emphasis"
+    a
+        (List.concat
+            [ [ href (routeNodeName page path |> routeToString)
+              , onClick (Update_Route (routeNodeName page path))
+              ]
+            , if path == page.pageRecipeOptions_route.routeRecipeOptions_scope then
+                [ style "font-weight" "bolder"
+                , class <|
+                    if tree |> Tree.children |> (/=) [] then
+                        "text-primary-emphasis"
 
-                        else
-                            "text-secondary-emphasis"
-                    ]
-
-                  else
-                    [ class <|
-                        if tree |> Tree.children |> (/=) [] then
-                            "text-primary"
-
-                        else
-                            "text-secondary"
-                    ]
+                    else
+                        "text-secondary-emphasis"
                 ]
-            )
-            [ text name
+
+              else
+                [ class <|
+                    if tree |> Tree.children |> (/=) [] then
+                        "text-primary"
+
+                    else
+                        "text-secondary"
+                ]
             ]
+        )
+        [ text name
         ]
 
 
@@ -268,4 +277,5 @@ type alias Inh =
 type alias Node =
     { node_foldable : Bool
     , node_unfolded : Bool
+    , node_autoUnfolded : Bool
     }
