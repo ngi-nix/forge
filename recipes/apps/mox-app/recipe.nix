@@ -18,6 +18,7 @@
     Set admin password:
     ```
     echo "adminpassword" | mox -config /var/lib/mox/config/mox.conf setadminpassword
+    chown mox /var/lib/mox/config/adminpasswd
     ```
 
     Access the admin web interface at `http://localhost:8080/admin`.
