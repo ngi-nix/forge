@@ -3,7 +3,7 @@ const initSmoothScroll = (app) => {
     requestAnimationFrame(() => {
       let element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
         element.classList.add("trigger-pulse");
         setTimeout(() => {
           element.classList.remove("trigger-pulse");
