@@ -18,7 +18,7 @@ in
             type = lib.types.str;
             default = "github:ngi-nix/forge";
             description = ''
-              Nix Forge repository URL.
+              NGI Forge repository URL.
             '';
             example = "github:ngi-nix/forge";
           };

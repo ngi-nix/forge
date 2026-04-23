@@ -173,7 +173,7 @@ viewPageAppRunNixInstall model pageApp =
                     ++ (case model.model_preferences.preferences_install of
                             PreferencesInstall_NixFlakes ->
                                 [ p [ class "mt-3 mb-1" ]
-                                    [ text "2. Accept binaries pre-built by Nix Forge (optional, highly recommended) " ]
+                                    [ text "2. Accept binaries pre-built by NGI Forge (optional, highly recommended) " ]
                                 , codeBlock <|
                                     "export NIX_CONFIG=\"accept-flake-config = true\""
                                 ]

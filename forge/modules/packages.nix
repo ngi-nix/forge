@@ -36,7 +36,7 @@ in
               '';
               type = lib.types.listOf (
                 lib.types.submoduleWith {
-                  # Extend pkgs with mypkgs containing all Nix Forge packages
+                  # Extend pkgs with mypkgs containing all NGI Forge packages
                   # This allows recipes to reference other packages via mypkgs
                   specialArgs.pkgs = pkgs.extend (final: prev: { mypkgs = config.packages; });
 

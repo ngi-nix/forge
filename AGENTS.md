@@ -1,12 +1,12 @@
-# Nix Forge Recipe Generation Specification for LLMs
+# NGI Forge Recipe Generation Specification for LLMs
 
 ## Overview
 
-This specification guides LLMs in generating Nix Forge recipes - declarative configuration files for building software packages and applications.
+This specification guides LLMs in generating NGI Forge recipes - declarative configuration files for building software packages and applications.
 
 ### Supported Project Types
 
-**IMPORTANT:** Nix Forge currently supports the following types of projects:
+**IMPORTANT:** NGI Forge currently supports the following types of projects:
 
 1. **Python applications** - Projects with `pyproject.toml` or `setup.py` that provide CLI tools (use `pythonAppBuilder`)
 2. **Python libraries** - Projects with `pyproject.toml` or `setup.py` meant to be imported by other packages (use `pythonPackageBuilder`)
@@ -40,15 +40,15 @@ This specification guides LLMs in generating Nix Forge recipes - declarative con
 
 **Note**: The function parameters are REQUIRED and should always be included, even if not used.
 
-### Accessing Nix Forge Packages
+### Accessing NGI Forge Packages
 
-Other packages built by Nix Forge can be referenced in recipes using `pkgs.mypkgs`:
+Other packages built by NGI Forge can be referenced in recipes using `pkgs.mypkgs`:
 
 ```nix
 {
-  # Reference another Nix Forge package
+  # Reference another NGI Forge package
   packages.run = [
-    pkgs.mypkgs.gdal  # Access gdal from Nix Forge
+    pkgs.mypkgs.gdal  # Access gdal from NGI Forge
   ];
 }
 ```
@@ -944,7 +944,7 @@ source.hash = "";  # Leave empty initially
 
 ## Summary for LLMs
 
-When generating a Nix Forge recipe:
+When generating a NGI Forge recipe:
 
 1. **Identify** the software and gather information
 2. **Choose** appropriate builder based on build system
@@ -960,7 +960,7 @@ The goal is a **declarative, reproducible, and testable** package definition tha
 
 # Repository Analysis Process for Creating Recipes
 
-This section provides a systematic process for analyzing third-party software repositories and creating Nix Forge recipes.
+This section provides a systematic process for analyzing third-party software repositories and creating NGI Forge recipes.
 
 ## Step-by-Step Repository Analysis
 
@@ -1356,7 +1356,7 @@ START: What type of project is this?
 
 ## Recommended LLM Workflow
 
-When asked to create a Nix Forge recipe from a git repository, follow this workflow:
+When asked to create a NGI Forge recipe from a git repository, follow this workflow:
 
 ### Phase 1: Research & Analysis
 
