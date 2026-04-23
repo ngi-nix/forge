@@ -335,6 +335,7 @@ a:link {
 
 .option-type {
   color: var(--option-type-color);
+  font-size: 1em;
 }
 
 .option-name {
