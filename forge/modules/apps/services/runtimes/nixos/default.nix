@@ -6,7 +6,7 @@
   config,
   system,
   ...
-}:
+}@args:
 {
   options = {
     enable = lib.mkEnableOption "NixOS/VM output";
@@ -69,7 +69,7 @@
       modules = lib.mkOption {
         internal = true;
         readOnly = true;
-        type = lib.types.listOf lib.types.anything;
+        type = lib.types.attrsOf lib.types.anything;
         description = "NixOS modules for the application's services and extra configuration.";
       };
 
@@ -101,100 +101,17 @@
   };
 
   config = {
-    result.modules = [
-      # nimi NixOS module — runs services via nimi process manager
-      inputs.nimi.nixosModules.default
-      {
-        nimi = lib.mapAttrs (serviceName: service: {
-          settings.binName = "${serviceName}-service";
-          services.${serviceName} = {
-            imports = [
-              service.result
-              {
-                options.nimi = lib.mkOption {
-                  type = with lib.types; deferredModule;
-                  default = { };
-                  description = ''
-                    Let the modular service know that it's evaluated for nimi,
-                    by testing `options ? nimi`.
-                  '';
-                };
-              }
-            ];
-          };
-        }) app.services.components;
-
-        environment.variables = lib.concatMapAttrs (_: value: value.environment) app.services.components;
-      }
-      (lib.mkIf (config.setup != "") {
-        systemd.services."${app.name}-setup" = {
-          description = "Setup service for ${app.name}.";
-          wantedBy = [ "multi-user.target" ];
-          before = [ "multi-user.target" ];
-          after = [ "network.target" ];
-          script = config.setup;
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-          };
-        };
-      })
-      config.extraConfig
-    ];
+    result.modules = {
+      general = import ./modules/general.nix args;
+      setup = import ./modules/setup.nix args;
+      nimi = import ./modules/nimi.nix args;
+      virt = import ./modules/virt.nix args;
+      extraConfig = config.extraConfig;
+    };
 
     result.eval = inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      modules = [
-        (
-          { modulesPath, ... }:
-          {
-            imports = [ (modulesPath + "/virtualisation/qemu-vm.nix") ];
-
-            virtualisation = {
-              graphics = false;
-
-              inherit (config.vm)
-                cores
-                diskSize
-                memorySize
-                ;
-
-              forwardPorts = map (
-                portRange:
-                if builtins.isString portRange then
-                  let
-                    portSplit = lib.splitString ":" portRange;
-                  in
-                  {
-                    from = "host";
-                    host.port = lib.toInt (lib.elemAt portSplit 0);
-                    guest.port = lib.toInt (lib.elemAt portSplit 1);
-                  }
-                else
-                  portRange
-              ) config.vm.forwardPorts;
-            };
-          }
-        )
-        {
-          users.users.root.password = "root";
-
-          services = {
-            openssh.settings.PermitRootLogin = lib.mkForce "yes";
-            openssh.settings.PasswordAuthentication = lib.mkForce true;
-            getty.autologinUser = "root";
-          };
-
-          networking = {
-            hostName = app.name;
-            useDHCP = lib.mkForce true;
-            firewall.enable = lib.mkForce false;
-          };
-
-          system.stateVersion = "25.11";
-        }
-      ]
-      ++ config.result.modules;
+      modules = lib.attrValues config.result.modules;
     };
   };
 }

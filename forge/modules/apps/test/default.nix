@@ -71,7 +71,11 @@
     result.build = pkgs.testers.runNixOSTest {
       name = "${app.name}-test";
       nodes.machine = {
-        imports = app.services.runtimes.nixos.result.modules;
+        imports = with app.services.runtimes.nixos.result.modules; [
+          nimi
+          setup
+          extraConfig
+        ];
         system.stateVersion = "25.11";
         environment.systemPackages = app.programs.packages ++ config.packages;
       };
