@@ -15,6 +15,7 @@ in
     ./builders/shared.nix
     ./builders/standard-builder.nix
     ./builders/go-builder.nix
+    ./builders/npm-package-builder
     ./builders/python-app-builder.nix
     ./builders/python-package-builder.nix
     ./builders/rust-package-builder
