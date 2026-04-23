@@ -62,6 +62,13 @@
         --add-flags "qlever.wsgi:application" \
         --add-flags "--limit-request-line 10000" \
         --prefix PYTHONPATH : "$PYTHONPATH"
+
+      cp -r $PWD $out/opt
+
+      makeWrapper ${placeholder "out"}/opt/manage.py \
+        $out/bin/qlever-ui-manage \
+        --set DJANGO_SETTINGS_MODULE qlever.settings \
+        --prefix PYTHONPATH : "$PYTHONPATH"
     '';
   };
 
