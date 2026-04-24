@@ -6,11 +6,11 @@ import Main.Config.App exposing (..)
 import Main.Config.Package exposing (..)
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
+import Main.Helpers.Tree exposing (Trees)
 import Main.Model.Error exposing (..)
 import Main.Model.Preferences exposing (..)
 import Main.Model.Route exposing (..)
 import Set exposing (Set)
-import Tree exposing (Tree)
 
 
 type Page
@@ -78,29 +78,19 @@ defaultPagePackages routePagination packages =
 
 type alias PageRecipeOptions =
     { pageRecipeOptions_route : RouteRecipeOptions
-    , pageRecipeOptions_pagination : PagePagination ( NixPath, NixModuleOption )
-    , pageRecipeOptions_trees : List (Tree NodeNixOption)
-    , pageRecipeOptions_unfolds : Set NixPath
+    , pageRecipeOptions_pagination : PagePagination ( NixAttrPath, NixModuleOption )
+    , pageRecipeOptions_trees : Trees NodeNixOption
+    , pageRecipeOptions_unfolds : Set NixAttrPath
     }
 
 
 type alias NodeNixOption =
-    ( NixName, List NixModuleOption )
+    ( NixAttrName, NixModuleOption )
 
 
-type NodeNixOptionFiltered
-    = NodeNixOptionFiltered_In NodeNixOption
-    | NodeNixOptionFiltered_Out NixName
-
-
-nodeNixOptionFiltered_name : NodeNixOptionFiltered -> NixName
-nodeNixOptionFiltered_name node =
-    case node of
-        NodeNixOptionFiltered_In ( n, _ ) ->
-            n
-
-        NodeNixOptionFiltered_Out n ->
-            n
+type NixModuleOptionFiltered
+    = NixModuleOptionFiltered_In NixModuleOption
+    | NixModuleOptionFiltered_Out
 
 
 type alias PagePagination a =

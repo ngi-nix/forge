@@ -4,7 +4,7 @@ import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder, field, string)
 import List.Extra as List
 import Main.Helpers.List as List
-import Main.Helpers.Tree as Tree
+import Main.Helpers.Tree as Tree exposing (Trees)
 import String
 import Tree
 
@@ -30,16 +30,26 @@ showGithubRepoSlug url =
     String.dropLeft 7 url
 
 
-type alias NixName =
+{-| Eg. `"apps.*.services"`
+-}
+type alias NixAttrId =
     String
 
 
-type alias NixPath =
-    List String
+{-| Eg. `["apps", "*", "services"]`
+-}
+type alias NixAttrPath =
+    List NixAttrName
 
 
-splitNixName : NixName -> NixPath
-splitNixName name =
+{-| Eg. `"services"`
+-}
+type alias NixAttrName =
+    String
+
+
+splitNixAttrId : NixAttrId -> NixAttrPath
+splitNixAttrId name =
     case name of
         "" ->
             []
@@ -48,13 +58,13 @@ splitNixName name =
             name |> String.split "."
 
 
-joinNixPath : NixPath -> NixName
-joinNixPath =
+joinNixAttrPath : NixAttrPath -> NixAttrId
+joinNixAttrPath =
     String.join "."
 
 
 type alias NixModuleOptions =
-    Dict NixName NixModuleOption
+    Dict NixAttrId NixModuleOption
 
 
 decodeNixModuleOptions : Decoder NixModuleOptions
@@ -69,6 +79,17 @@ type alias NixModuleOption =
     , nixModuleOption_type : String
     , nixModuleOption_default : Maybe NixLiteralExpression
     , nixModuleOption_example : Maybe NixLiteralExpression
+    }
+
+
+defaultNixModuleOption : NixModuleOption
+defaultNixModuleOption =
+    { nixModuleOption_declarations = []
+    , nixModuleOption_description = ""
+    , nixModuleOption_readOnly = False
+    , nixModuleOption_type = ""
+    , nixModuleOption_default = Nothing
+    , nixModuleOption_example = Nothing
     }
 
 
@@ -96,15 +117,29 @@ decodeLiteralExpression =
         (field "text" string)
 
 
-nixOptionsTrees : List.Assoc NixName opt -> Tree.Trees ( NixName, List opt )
-nixOptionsTrees opts =
-    opts
+nixModuleOptionsToTrees : Dict NixAttrId NixModuleOption -> Trees ( NixAttrName, NixModuleOption )
+nixModuleOptionsToTrees options =
+    options
+        |> Dict.toList
         |> List.map
-            (\( n, opt ) ->
+            (\( name, opt ) ->
                 let
                     path =
-                        n |> splitNixName
+                        name |> splitNixAttrId
                 in
                 ( path, opt )
             )
-        |> Tree.unflattenChart
+        |> Tree.chartToTrees
+        |> List.map
+            (Tree.map
+                (\( seg, opts ) ->
+                    ( seg
+                    , case opts of
+                        [ opt ] ->
+                            opt
+
+                        _ ->
+                            defaultNixModuleOption
+                    )
+                )
+            )

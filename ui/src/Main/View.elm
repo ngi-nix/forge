@@ -146,8 +146,15 @@ viewSearchInput model =
                     Page_Packages _ ->
                         "Search packages"
 
-                    Page_RecipeOptions _ ->
+                    Page_RecipeOptions page ->
                         "Search options"
+                            ++ (case page.pageRecipeOptions_route.routeRecipeOptions_scope of
+                                    [] ->
+                                        ""
+
+                                    scope ->
+                                        " in " ++ joinNixAttrPath scope
+                               )
             , value model.model_search
             , id "main-search-bar"
             , attribute "data-testid" "main-search-bar"

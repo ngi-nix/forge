@@ -14,8 +14,8 @@ import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
 import Main.Update.Types exposing (..)
 import Main.View.Page.App exposing (..)
+import Main.View.Page.Recipe.Browser exposing (..)
 import Main.View.Page.Recipe.Items exposing (..)
-import Main.View.Page.Recipe.Nav exposing (..)
 import Main.View.Pagination exposing (..)
 import Set
 
@@ -77,7 +77,7 @@ viewPageRecipeOptions model page =
             [ class "col-12 col-md-6 col-lg-5 col-xl-4 col-xxl-3-5"
             , style "margin-top" "calc(36px + 1em)"
             ]
-            [ viewPageRecipeOptionsNav model page ]
+            [ viewPageRecipeOptionsBrowser model page ]
         , div [ class "col-12 col-md-6 col-lg-7 col-xl-8 col-xxl-8-5" ]
             [ viewPaginationRecipeOptions ]
         ]

@@ -20,14 +20,14 @@ import Main.View.Page.App exposing (..)
 import Main.View.Pagination exposing (..)
 
 
-viewPageRecipeOptionsItem : Model -> PageRecipeOptions -> ( NixPath, NixModuleOption ) -> Html Update
+viewPageRecipeOptionsItem : Model -> PageRecipeOptions -> ( NixAttrPath, NixModuleOption ) -> Html Update
 viewPageRecipeOptionsItem _ page ( optionPath, option ) =
     let
         routeRecipeOptions =
             page.pageRecipeOptions_route
 
         optionName =
-            optionPath |> joinNixPath
+            optionPath |> joinNixAttrPath
 
         routeItem =
             Route_RecipeOptions
@@ -53,6 +53,15 @@ viewPageRecipeOptionsItem _ page ( optionPath, option ) =
             [ span [ class "fw-bold" ] [ text "Type: " ]
             , code [ class "option-type" ] [ text option.nixModuleOption_type ]
             ]
+        , case option.nixModuleOption_default of
+            Nothing ->
+                div [] []
+
+            Just nixLitExpr ->
+                div []
+                    [ span [ class "fw-bold" ] [ text "Default: " ]
+                    , nixLitExpr |> viewNixLiteralExpression
+                    ]
         , div []
             [ span [ class "fw-bold" ] [ text "Description: " ]
             , div []
@@ -60,4 +69,13 @@ viewPageRecipeOptionsItem _ page ( optionPath, option ) =
                     |> Markdown.render
                 ]
             ]
+        , case option.nixModuleOption_example of
+            Nothing ->
+                div [] []
+
+            Just nixLitExpr ->
+                div []
+                    [ span [ class "fw-bold" ] [ text "Example: " ]
+                    , nixLitExpr |> viewNixLiteralExpression
+                    ]
         ]

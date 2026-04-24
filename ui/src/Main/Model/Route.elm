@@ -5,6 +5,7 @@ import Dict
 import List.Extra as List
 import Main.Config.App exposing (..)
 import Main.Config.Package exposing (..)
+import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
 import Main.Model.Error exposing (..)
 import Main.Model.Preferences exposing (..)
@@ -102,21 +103,21 @@ showRoutePackagesFocus x =
 type alias RouteRecipeOptions =
     { routeRecipeOptions_searchPattern : String
     , routeRecipeOptions_focus : Maybe RouteRecipeOptionsFocus
-    , routeRecipeOptions_scope : NixPath
-    , routeRecipeOptions_unfolds : Set NixPath
+    , routeRecipeOptions_scope : NixAttrPath
+    , routeRecipeOptions_unfolds : Set NixAttrPath
     , routeRecipeOptions_pagination : RoutePagination
     }
 
 
 type RouteRecipeOptionsFocus
-    = RouteRecipeOptionsFocus_Option NixPath
+    = RouteRecipeOptionsFocus_Option NixAttrPath
 
 
 showRouteRecipeOptionsFocus : RouteRecipeOptionsFocus -> String
 showRouteRecipeOptionsFocus x =
     case x of
         RouteRecipeOptionsFocus_Option s ->
-            s |> joinNixPath
+            s |> joinNixAttrPath
 
 
 defaultRouteRecipeOptions : RouteRecipeOptions
@@ -320,7 +321,23 @@ appUrlToRoute url =
                             |> Dict.get "s"
                             |> Maybe.andThen List.head
                             |> Maybe.withDefault ""
-                            |> splitNixName
+                            |> splitNixAttrId
+
+                    focus =
+                        url.fragment
+                            |> Maybe.map
+                                (\fragment ->
+                                    case fragment of
+                                        optionId ->
+                                            RouteRecipeOptionsFocus_Option (optionId |> splitNixAttrId)
+                                )
+
+                    unfolds =
+                        url.queryParameters
+                            |> Dict.get "p"
+                            |> Maybe.withDefault []
+                            |> List.map splitNixAttrId
+                            |> Set.fromList
                 in
                 Route_RecipeOptions
                     { routeRecipeOptions_searchPattern =
@@ -329,22 +346,9 @@ appUrlToRoute url =
                             |> Maybe.andThen List.head
                             |> Maybe.withDefault ""
                     , routeRecipeOptions_scope = scope
-                    , routeRecipeOptions_unfolds =
-                        url.queryParameters
-                            |> Dict.get "p"
-                            |> Maybe.withDefault []
-                            |> List.map splitNixName
-                            |> Set.fromList
-                            |> Set.insert scope
+                    , routeRecipeOptions_unfolds = unfolds
                     , routeRecipeOptions_pagination = url |> appUrlToRoutePagination
-                    , routeRecipeOptions_focus =
-                        url.fragment
-                            |> Maybe.map
-                                (\fragment ->
-                                    case fragment of
-                                        optionId ->
-                                            RouteRecipeOptionsFocus_Option (optionId |> splitNixName)
-                                )
+                    , routeRecipeOptions_focus = focus
                     }
 
         _ ->
@@ -429,13 +433,42 @@ routeToAppUrl route =
         Route_RecipeOptions routeRecipe ->
             { path = deployPath ++ [ "recipe", "options" ]
             , queryParameters =
+                let
+                    unfolds : Set NixAttrPath
+                    unfolds =
+                        routeRecipe.routeRecipeOptions_unfolds
+                            |> Set.remove routeRecipe.routeRecipeOptions_scope
+                            |> (case routeRecipe.routeRecipeOptions_focus of
+                                    Just (RouteRecipeOptionsFocus_Option optionPath) ->
+                                        Set.remove optionPath
+
+                                    _ ->
+                                        identity
+                               )
+
+                    unfoldsWithoutAncestors : Set NixAttrPath
+                    unfoldsWithoutAncestors =
+                        unfolds
+                            |> Set.toList
+                            |> List.foldl
+                                (\optionPath acc ->
+                                    Set.diff acc
+                                        (optionPath
+                                            |> List.dropLast
+                                            |> Maybe.withDefault []
+                                            |> List.inits
+                                            |> Set.fromList
+                                        )
+                                )
+                                unfolds
+                in
                 [ ( "p"
-                  , case routeRecipe.routeRecipeOptions_unfolds |> Set.remove [] |> Set.toList of
+                  , case unfoldsWithoutAncestors |> Set.toList of
                         [] ->
                             []
 
                         xs ->
-                            xs |> List.map joinNixPath
+                            xs |> List.map joinNixAttrPath
                   )
                 , ( "q"
                   , case routeRecipe.routeRecipeOptions_searchPattern of
@@ -451,7 +484,7 @@ routeToAppUrl route =
                             []
 
                         xs ->
-                            [ xs |> joinNixPath ]
+                            [ xs |> joinNixAttrPath ]
                   )
                 ]
                     |> Dict.fromList
@@ -462,7 +495,7 @@ routeToAppUrl route =
                         (\focus ->
                             case focus of
                                 RouteRecipeOptionsFocus_Option s ->
-                                    s |> joinNixPath
+                                    s |> joinNixAttrPath
                         )
             }
 

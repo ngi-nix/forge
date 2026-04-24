@@ -15,26 +15,42 @@ import Main.Model.Route exposing (..)
 import Main.Ports.SmoothScroll exposing (..)
 import Main.Update.Focus exposing (..)
 import Main.Update.Types exposing (..)
+import Set exposing (Set)
 import String
 import Tree exposing (Tree)
-import Tuple exposing (first)
+import Tuple exposing (first, mapSecond)
 
 
 updateRouteRecipeOptions : RouteRecipeOptions -> Updater
 updateRouteRecipeOptions route =
     getRecipeOptions <|
         \model ->
-            let
-                availableItems =
-                    model.model_RecipeOptions.recipeOptions_available
-                        |> Dict.toList
-            in
             { model
                 | model_page =
                     let
+                        trees : Trees NodeNixOption
                         trees =
-                            availableItems
-                                |> nixOptionsTrees
+                            model.model_RecipeOptions.recipeOptions_available
+                                |> nixModuleOptionsToTrees
+
+                        unfolds : Set NixAttrPath
+                        unfolds =
+                            route.routeRecipeOptions_unfolds
+                                |> Set.insert route.routeRecipeOptions_scope
+                                |> (case route.routeRecipeOptions_focus of
+                                        Just (RouteRecipeOptionsFocus_Option optionPath) ->
+                                            Set.insert optionPath
+
+                                        _ ->
+                                            identity
+                                   )
+
+                        unfoldsWithAncestors : Set NixAttrPath
+                        unfoldsWithAncestors =
+                            unfolds
+                                |> Set.toList
+                                |> List.concatMap List.inits
+                                |> Set.fromList
                     in
                     Page_RecipeOptions
                         { pageRecipeOptions_route = route
@@ -42,9 +58,9 @@ updateRouteRecipeOptions route =
                             trees
                                 |> scopeRecipeOptions route.routeRecipeOptions_scope
                                 |> filterRecipeOptions route []
-                                |> List.concatMap (listRecipeOptionsItems { inhRouteRecipeOptionsItem_pathReversed = [] })
+                                |> List.concatMap (listRecipeOptionsItems [])
                                 |> paginateRecipeOptions model route
-                        , pageRecipeOptions_unfolds = route.routeRecipeOptions_unfolds
+                        , pageRecipeOptions_unfolds = unfoldsWithAncestors
                         , pageRecipeOptions_trees = trees
                         }
                 , model_search = route.routeRecipeOptions_searchPattern
@@ -86,11 +102,11 @@ getRecipeOptions up model =
         model |> up
 
 
-scopeRecipeOptions : NixPath -> Trees NodeNixOption -> Trees NodeNixOptionFiltered
+scopeRecipeOptions : NixAttrPath -> Trees ( NixAttrName, NixModuleOption ) -> Trees ( NixAttrName, NixModuleOptionFiltered )
 scopeRecipeOptions path trees =
     case path of
         [] ->
-            trees |> List.map (Tree.map NodeNixOptionFiltered_In)
+            trees |> List.map (Tree.map (mapSecond NixModuleOptionFiltered_In))
 
         p :: ps ->
             trees
@@ -99,13 +115,13 @@ scopeRecipeOptions path trees =
                         if tree |> Tree.label |> first |> (==) p then
                             if ps == [] && (tree |> Tree.children |> (==) []) then
                                 [ Tree.tree
-                                    (NodeNixOptionFiltered_In (tree |> Tree.label))
+                                    (tree |> Tree.label |> mapSecond NixModuleOptionFiltered_In)
                                     []
                                 ]
 
                             else
                                 [ Tree.tree
-                                    (NodeNixOptionFiltered_Out (tree |> Tree.label |> first))
+                                    ( tree |> Tree.label |> first, NixModuleOptionFiltered_Out )
                                     (tree |> Tree.children |> scopeRecipeOptions ps)
                                 ]
 
@@ -114,34 +130,34 @@ scopeRecipeOptions path trees =
                     )
 
 
-filterRecipeOptions : RouteRecipeOptions -> NixPath -> Trees NodeNixOptionFiltered -> Trees NodeNixOptionFiltered
+filterRecipeOptions : RouteRecipeOptions -> NixAttrPath -> Trees ( NixAttrName, NixModuleOptionFiltered ) -> Trees ( NixAttrName, NixModuleOptionFiltered )
 filterRecipeOptions route path trees =
     trees
         |> List.map
             (\tree ->
                 case tree |> Tree.label of
-                    NodeNixOptionFiltered_Out n ->
+                    ( seg, NixModuleOptionFiltered_Out ) ->
                         Tree.tree
-                            (NodeNixOptionFiltered_Out n)
-                            (tree |> Tree.children |> filterRecipeOptions route (path ++ [ n ]))
+                            ( seg, NixModuleOptionFiltered_Out )
+                            (tree |> Tree.children |> filterRecipeOptions route (path ++ [ seg ]))
 
-                    NodeNixOptionFiltered_In ( n, vs ) ->
+                    ( seg, NixModuleOptionFiltered_In option ) ->
                         let
                             optionPath =
-                                path ++ [ n ]
+                                path ++ [ seg ]
                         in
                         Tree.tree
-                            (if vs |> List.any (filterRecipeOption route optionPath) then
-                                NodeNixOptionFiltered_In ( n, vs )
+                            (if filterRecipeOption route optionPath option then
+                                ( seg, NixModuleOptionFiltered_In option )
 
                              else
-                                NodeNixOptionFiltered_Out n
+                                ( seg, NixModuleOptionFiltered_Out )
                             )
                             (tree |> Tree.children |> filterRecipeOptions route optionPath)
             )
 
 
-filterRecipeOption : RouteRecipeOptions -> NixPath -> NixModuleOption -> Bool
+filterRecipeOption : RouteRecipeOptions -> NixAttrPath -> NixModuleOption -> Bool
 filterRecipeOption route optionPath option =
     let
         searchPattern =
@@ -149,7 +165,7 @@ filterRecipeOption route optionPath option =
 
         -- Case Insensitive searchPattern
         option_name =
-            optionPath |> joinNixPath |> String.toLower
+            optionPath |> joinNixAttrPath |> String.toLower
 
         option_description =
             option.nixModuleOption_description |> String.toLower
@@ -189,32 +205,34 @@ paginateRecipeOptions model route =
         )
 
 
-listRecipeOptionsItems : InhRouteOptionsItem -> Tree NodeNixOptionFiltered -> List ( NixPath, NixModuleOption )
-listRecipeOptionsItems inh tree =
+listRecipeOptionsItems :
+    NixAttrPath
+    -> Tree ( NixAttrName, NixModuleOptionFiltered )
+    -> List ( NixAttrPath, NixModuleOption )
+listRecipeOptionsItems parentPath tree =
     let
-        name =
-            tree |> Tree.label |> nodeNixOptionFiltered_name
+        ( attrName, filteredOption ) =
+            tree |> Tree.label
 
-        childrenInh =
-            { inh | inhRouteRecipeOptionsItem_pathReversed = name :: inh.inhRouteRecipeOptionsItem_pathReversed }
+        path =
+            parentPath ++ [ attrName ]
 
         ( nodeChildrenLeaves, nodeChildrenBranches ) =
             tree |> Tree.children |> List.partition (Tree.children >> List.isEmpty)
 
         synLeaves =
-            nodeChildrenLeaves |> List.map (listRecipeOptionsItems childrenInh)
+            nodeChildrenLeaves |> List.map (listRecipeOptionsItems path)
 
         synBranches =
-            nodeChildrenBranches |> List.map (listRecipeOptionsItems childrenInh)
+            nodeChildrenBranches |> List.map (listRecipeOptionsItems path)
     in
     List.concat
         [ if (synLeaves |> List.isEmpty) && (synBranches |> List.isEmpty) then
-            case tree |> Tree.label of
-                NodeNixOptionFiltered_In ( _, opts ) ->
-                    opts
-                        |> List.map (\opt -> ( pathRecipeOption inh tree, opt ))
+            case filteredOption of
+                NixModuleOptionFiltered_In opt ->
+                    [ ( path, opt ) ]
 
-                NodeNixOptionFiltered_Out _ ->
+                NixModuleOptionFiltered_Out ->
                     []
 
           else
@@ -222,17 +240,3 @@ listRecipeOptionsItems inh tree =
         , synLeaves |> List.concat
         , synBranches |> List.concat
         ]
-
-
-type alias InhRouteOptionsItem =
-    { inhRouteRecipeOptionsItem_pathReversed : NixPath
-    }
-
-
-pathRecipeOption : InhRouteOptionsItem -> Tree NodeNixOptionFiltered -> NixPath
-pathRecipeOption inh tree =
-    let
-        name =
-            tree |> Tree.label |> nodeNixOptionFiltered_name
-    in
-    (name :: inh.inhRouteRecipeOptionsItem_pathReversed) |> List.reverse
