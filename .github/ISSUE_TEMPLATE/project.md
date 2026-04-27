@@ -14,3 +14,4 @@ Create a sub-issue for each task:
 - [ ] PROJECT_NAME: Create a package recipe
 - [ ] PROJECT_NAME: Create an application recipe
 - [ ] PROJECT_NAME: Announce a packaged project
+- [ ] PROJECT_NAME: Update NLnet status
