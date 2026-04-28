@@ -41,7 +41,7 @@
     composeFile = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
-      description = "Path to the application container's compose file.";
+      description = "Path to the application container's compose file. When null, a default compose file is generated.";
     };
 
     result = {
@@ -94,21 +94,31 @@
 
     result.recipe = nimi.mkContainerImage { config = config.result.modules; };
 
-    result.build = pkgs.runCommand "build-oci-image" { meta.mainProgram = "build-oci-image"; } ''
-      mkdir -p $out/bin
+    result.build =
+      let
+        effectiveComposeFile =
+          if config.composeFile != null then
+            config.composeFile
+          else
+            pkgs.writeText "${app.name}-compose.yaml" ''
+              services:
+                ${app.name}:
+                  image: localhost/${app.name}:latest
+            '';
+      in
+      pkgs.runCommand "build-oci-image" { meta.mainProgram = "build-oci-image"; } ''
+        mkdir -p $out/bin
 
-      cat > $out/bin/build-oci-image <<EOF
-      #!${pkgs.runtimeShell}
-      ${config.result.recipe.copyTo}/bin/copy-to \
-        oci-archive:${app.name}.tar:${app.name}:${config.tag}
-      EOF
+        cat > $out/bin/build-oci-image <<EOF
+        #!${pkgs.runtimeShell}
+        ${config.result.recipe.copyTo}/bin/copy-to \
+          oci-archive:${app.name}.tar:${app.name}:${config.tag}
+        EOF
 
-      chmod +x $out/bin/build-oci-image
+        chmod +x $out/bin/build-oci-image
 
-      ${lib.optionalString (config.composeFile != null) ''
         mkdir -p $out/${app.name}
-        cp ${config.composeFile} $out/${app.name}/compose.yaml
-      ''}
-    '';
+        cp ${effectiveComposeFile} $out/${app.name}/compose.yaml
+      '';
   };
 }
