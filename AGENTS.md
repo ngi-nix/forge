@@ -547,7 +547,7 @@ container = {
 
   # OCI image configuration
   # See: https://specs.opencontainers.org/image-spec/config/#properties
-  imageConfig = {
+  extraConfig = {
     Cmd = [ "my-package" "--serve" ];  # Default command
     Env = [                             # Environment variables
       "PORT=8080"
@@ -671,7 +671,7 @@ Each app output type can be independently enabled or disabled:
     enable = true;
     tag = "latest";
     packages = [ pkgs.mypkgs.python-web ];
-    imageConfig = {
+    extraConfig = {
       Env = [ "PORT=5000" ];
       ExposedPorts = { "5000/tcp" = { }; };
     };

@@ -16,7 +16,7 @@
       pathsToLink = [ "/bin" ];
     };
 
-    imageConfig = config.imageConfig // {
+    imageConfig = config.extraConfig // {
       Env =
         let
           # { K = "V"; } -> [ "K=V" ]
@@ -24,7 +24,7 @@
 
           appEnv = lib.concatMapAttrs (_: value: value.environment) app.services.components;
 
-          # imageConfig.Env follows OCI spec: list of "K=V" strings
+          # extraConfig.Env follows OCI spec: list of "K=V" strings
           containerEnv = lib.listToAttrs (
             map (
               envPair:
@@ -35,7 +35,7 @@
                 name = lib.head parts;
                 value = lib.concatStringsSep "=" (lib.tail parts);
               }
-            ) (config.imageConfig.Env or [ ])
+            ) (config.extraConfig.Env or [ ])
           );
 
           # NOTE: we merge Attrs to remove duplicate keys

@@ -30,7 +30,7 @@
     };
 
     # NOTE: config is reserved by the module system
-    imageConfig = lib.mkOption {
+    extraConfig = lib.mkOption {
       type = with lib.types; lazyAttrsOf anything;
       default = { };
       description = ''
