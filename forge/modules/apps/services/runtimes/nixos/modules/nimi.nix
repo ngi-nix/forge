@@ -18,5 +18,8 @@
     };
   }) app.services.components;
 
-  environment.variables = lib.concatMapAttrs (_: value: value.environment) app.services.components;
+  systemd.services = lib.mapAttrs (_: service: {
+    environment = service.environment;
+    serviceConfig.PassEnvironment = builtins.attrNames service.environment;
+  }) app.services.components;
 }
