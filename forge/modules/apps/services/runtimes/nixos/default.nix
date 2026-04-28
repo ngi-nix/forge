@@ -17,6 +17,18 @@
       description = "Script to run once at startup.";
     };
 
+    packages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = ''
+        Packages to add to the NixOS system.
+
+        This is a convenience option equivalent to setting
+        `extraConfig.environment.systemPackages`.
+      '';
+      example = lib.literalExpression "[ pkgs.btop ]";
+    };
+
     extraConfig = lib.mkOption {
       type = with lib.types; deferredModule;
       default = { };
@@ -107,6 +119,9 @@
       nimi = import ./modules/nimi.nix args;
       virt = import ./modules/virt.nix args;
       extraConfig = config.extraConfig;
+      packages = {
+        environment.systemPackages = config.packages;
+      };
     };
 
     result.eval = inputs.nixpkgs.lib.nixosSystem {

@@ -72,11 +72,9 @@
 
       nixos = {
         enable = true;
-        extraConfig = {
-          environment.systemPackages = [
-            pkgs.mypkgs.tau-tower
-          ];
-        };
+        packages = [
+          pkgs.mypkgs.tau-tower
+        ];
         vm.forwardPorts = [
           "3001:3001"
           "3002:3002"

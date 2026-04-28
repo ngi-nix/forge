@@ -130,6 +130,7 @@
             chown mox:mox data
           fi
         '';
+        packages = [ pkgs.mypkgs.mox ];
         extraConfig = {
           networking.enableIPv6 = false;
           # Use a public DNSSEC-validating resolver
@@ -140,9 +141,6 @@
             isSystemUser = true;
             group = "mox";
           };
-
-          # Make mox package available for admin tasks
-          environment.systemPackages = [ pkgs.mypkgs.mox ];
         };
         vm.forwardPorts = [
           "8080:80"
