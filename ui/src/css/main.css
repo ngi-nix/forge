@@ -321,7 +321,8 @@ a:link {
 /* options filters colors */
 
 [data-bs-theme="light"] {
-  --bs-primary-rgb: 76, 110, 181; /* nixos logo color dark blue - Not enough contrast */
+  --bs-primary-rgb:
+    76, 110, 181; /* nixos logo color dark blue - Not enough contrast */
   --bs-primary-text-emphasis: #4d6fb6;
 }
 
@@ -335,6 +336,7 @@ a:link {
 
 .option-type {
   color: var(--option-type-color);
+  font-size: 1em;
 }
 
 .option-name {
@@ -349,6 +351,7 @@ a:link {
 [data-bs-theme="light"] {
   /*--option-name-color: #4c6eb5;*/ /* nixos logo color dark blue - Not enough contrast */
   --option-name-color: #00418f;
+  --option-name-color: #4c6eb5;
   --option-type-color: #2d6101; /* another green adjusted for contrast */
 }
 
