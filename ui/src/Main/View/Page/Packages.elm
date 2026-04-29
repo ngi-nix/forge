@@ -97,22 +97,39 @@ viewPagePackagesItem model pagePackages package =
             , package.package_description |> Markdown.render
             ]
         , div [ class "d-flex gap-3" ]
-            [ a
-                [ href package.package_license.license_url
-                , target "_blank"
-                , rel "noopener"
-                , onClickStopPropagation
+            (List.append
+                (package.package_licenses |> List.map viewLicense)
+                [ a
+                    [ href <| showPackageRecipeLink model package
+                    , target "_blank"
+                    , rel "noopener"
+                    , onClickStopPropagation
+                    ]
+                    [ text "Forge Recipe" ]
                 ]
-                [ text package.package_license.license_spdxId ]
-            , a
-                [ href <| showPackageRecipeLink model package
-                , target "_blank"
-                , rel "noopener"
-                , onClickStopPropagation
-                ]
-                [ text "Forge Recipe" ]
-            ]
+            )
         ]
+
+
+viewLicense : PackageLicense -> Html Update
+viewLicense obj =
+    let
+        label =
+            obj.license_spdxId
+                |> Maybe.withDefault (obj.license_fullName |> Maybe.withDefault "Unknown License")
+    in
+    case obj.license_url of
+        Just url ->
+            a
+                [ href url
+                , target "_blank"
+                , rel "noopener"
+                , onClickStopPropagation
+                ]
+                [ text label ]
+
+        Nothing ->
+            span [] [ text label ]
 
 
 showPackageRecipeLink : Model -> Package -> String

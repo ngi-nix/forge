@@ -10,7 +10,7 @@ type alias Package =
     , package_version : String
     , package_homePage : String
     , package_mainProgram : String
-    , package_license : PackageLicense
+    , package_licenses : List PackageLicense
     , package_source : PackageSource
     , package_recipePath : String
     }
@@ -24,7 +24,7 @@ decodePackage =
         (Decode.field "version" Decode.string)
         (Decode.field "homePage" Decode.string)
         (Decode.field "mainProgram" Decode.string)
-        (Decode.field "license" decodeLicense)
+        (Decode.field "license" decodeLicenses)
         (Decode.field "source" decodeSource)
         (Decode.field "recipePath" Decode.string)
 
@@ -53,23 +53,31 @@ decodeSource =
 
 
 type alias PackageLicense =
-    { license_deprecated : Bool
-    , license_free : Bool
-    , license_fullName : String
-    , license_redistributable : Bool
-    , license_shortName : String
-    , license_spdxId : String
-    , license_url : String
+    { license_deprecated : Maybe Bool
+    , license_free : Maybe Bool
+    , license_fullName : Maybe String
+    , license_redistributable : Maybe Bool
+    , license_shortName : Maybe String
+    , license_spdxId : Maybe String
+    , license_url : Maybe String
     }
 
 
-decodeLicense : Decoder PackageLicense
-decodeLicense =
+decodeLicenses : Decoder (List PackageLicense)
+decodeLicenses =
+    Decode.oneOf
+        [ Decode.list decodePackageLicense
+        , Decode.map List.singleton decodePackageLicense
+        ]
+
+
+decodePackageLicense : Decoder PackageLicense
+decodePackageLicense =
     Decode.map7 PackageLicense
-        (Decode.field "deprecated" Decode.bool)
-        (Decode.field "free" Decode.bool)
-        (Decode.field "fullName" Decode.string)
-        (Decode.field "redistributable" Decode.bool)
-        (Decode.field "shortName" Decode.string)
-        (Decode.field "spdxId" Decode.string)
-        (Decode.field "url" Decode.string)
+        (Decode.maybe (Decode.field "deprecated" Decode.bool))
+        (Decode.maybe (Decode.field "free" Decode.bool))
+        (Decode.maybe (Decode.field "fullName" Decode.string))
+        (Decode.maybe (Decode.field "redistributable" Decode.bool))
+        (Decode.maybe (Decode.field "shortName" Decode.string))
+        (Decode.maybe (Decode.field "spdxId" Decode.string))
+        (Decode.maybe (Decode.field "url" Decode.string))
