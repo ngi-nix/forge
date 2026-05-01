@@ -55,18 +55,18 @@
     components = {
       python-web = {
         command = pkgs.mypkgs.python-web;
-        readyCheck = pkgs.writeShellScript "check-web-ready" ''
-          curl -sf http://localhost:5000
-        '';
       };
 
       python-web-hello = {
-        command = pkgs.hello;
+        command = pkgs.writeShellScriptBin "test" ''
+          ${pkgs.hello}/bin/hello
+        '';
+        type = "oneshot";
       };
     };
 
-    ordering.python-web-hello.after = [ "python-web" ];
-    ordering.python-web-hello.afterReady = [ "python-web" ];
+    ordering.python-web-hello.before = [ "python-web" ];
+    ordering.python-web.requires = [ "python-web" ];
 
     runtimes = {
       container = {

@@ -136,7 +136,7 @@
           lib.nameValuePair name {
             serviceConfig = lib.mkIf (order != null) {
               After = order.after or [ ];
-              Requires = order.afterReady or [ ];
+              Requires = order.requires or [ ];
             };
           }
         ) app.services.components;

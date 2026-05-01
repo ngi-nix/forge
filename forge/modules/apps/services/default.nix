@@ -41,6 +41,7 @@
               configData = service.configData;
               preStart = service.preStart;
               readyCheck = service.readyCheck;
+              type = service.type;
             };
           }
         ) self;
@@ -78,11 +79,12 @@
           options.after = lib.mkOption {
             description = ''
               List of service names that must have started before this
-              service is spawned.
+              service is spawned (soft dependency, failure is okay).
             '';
             type = lib.types.listOf lib.types.str;
             default = [ ];
           };
+
           options.afterReady = lib.mkOption {
             description = ''
               List of service names that must be ready before this
@@ -92,6 +94,78 @@
             type = lib.types.listOf lib.types.str;
             default = [ ];
           };
+
+          options.before = lib.mkOption {
+            description = ''
+              List of service names that must start after this service.
+              Inverse of `after`: adds an implicit `after` on the target.
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+          };
+
+          options.wants = lib.mkOption {
+            description = ''
+              List of soft dependencies: services that should be started,
+              but failure is acceptable (matching systemd `Wants=`).
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+          };
+
+          options.requires = lib.mkOption {
+            description = ''
+              List of hard dependencies: services that must start successfully
+              before this service. If a required service fails, this service
+              will not start (matching systemd `Requires=`).
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+          };
+
+          # options.afterReady = lib.mkOption {
+          #   description = ''
+          #     List of service names that must be ready before this
+          #     service is spawned. Each target must declare a
+          #     readiness check.
+          #   '';
+          #   type = lib.types.listOf lib.types.str;
+          #   default = [ ];
+          # };
+          # options.requires = lib.mkOption {
+          #   description = ''
+          #     Hard dependencies. If any required dependency fails, this
+          #     service is stopped immediately.
+          #   '';
+          #   type = lib.types.listOf lib.types.str;
+          #   default = [ ];
+          # };
+          # options.wants = lib.mkOption {
+          #   description = ''
+          #     Soft dependencies. If a wanted dependency fails, this service
+          #     continues running. The failure is logged but not acted upon.
+          #   '';
+          #   type = lib.types.listOf lib.types.str;
+          #   default = [ ];
+          # };
+          # options.bindsTo = lib.mkOption {
+          #   description = ''
+          #     Lifecycle-coupled dependencies. If a bound dependency stops
+          #     or fails, this service is stopped. If it restarts and becomes
+          #     ready, this service is also restarted.
+          #   '';
+          #   type = lib.types.listOf lib.types.str;
+          #   default = [ ];
+          # };
+          # options.partOf = lib.mkOption {
+          #   description = ''
+          #     Stop-propagation dependencies. If the target service is
+          #     stopped, this service is also stopped. Does not react to
+          #     failures, only to explicit stops.
+          #   '';
+          #   type = lib.types.listOf lib.types.str;
+          #   default = [ ];
+          # };
         }
       );
       default = { };

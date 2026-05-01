@@ -73,5 +73,27 @@
         )
       '';
     };
+
+    type = lib.mkOption {
+      description = ''
+        Service type, similar to systemd's Type=.
+
+        - `simple` (default): Service runs continuously, expected to stay running.
+        - `oneshot`: Service runs once and exits. Considered "started" on successful exit.
+        - `notify`: Service sends READY=1 via sd_notify when ready (not yet implemented).
+        - `dbus`: Service registers a name on D-Bus (not yet implemented).
+
+        For oneshot services, the restart policy is ignored - the service runs once
+        and is considered successful if it exits with code 0.
+      '';
+      default = "simple";
+      example = lib.literalExpression ''"oneshot"'';
+      type = lib.types.enum [
+        "simple"
+        "oneshot"
+        "notify"
+        "dbus"
+      ];
+    };
   };
 }
