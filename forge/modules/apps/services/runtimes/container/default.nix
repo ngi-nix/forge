@@ -72,6 +72,13 @@
         description = "Script that builds container image.";
       };
 
+      bin = lib.mkOption {
+        internal = true;
+        type = lib.types.nullOr lib.types.package;
+        default = null;
+        description = "Script that builds container image.";
+      };
+
       # HACK:
       # Prevent toJSON conversion from attempting to convert the `eval` option,
       # which won't work because it's a whole NixOS evaluation.
@@ -150,6 +157,8 @@
     result.eval = nimi.passthru.evalNimiModule { config = config.result.modules; };
 
     result.recipe = nimi.mkContainerImage { config = config.result.modules; };
+
+    result.bin = nimi.mkNimiBin { config = config.result.modules; };
 
     result.build = pkgs.runCommand "build-oci-image" { meta.mainProgram = "build-oci-image"; } ''
       mkdir -p $out/bin

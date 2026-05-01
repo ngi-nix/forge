@@ -93,6 +93,7 @@ in
               })
               // lib.optionalAttrs app.services.runtimes.container.enable {
                 container = app.services.runtimes.container.result.build;
+                bin = app.services.runtimes.container.result.bin;
               }
               // lib.optionalAttrs app.services.runtimes.nixos.enable {
                 vm = app.services.runtimes.nixos.result.build;
