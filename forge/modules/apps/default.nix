@@ -101,6 +101,10 @@ in
                   vm = app.services.runtimes.nixos.result.build;
                 };
               }
+              # Enable service shell when at least nixos or container runtimes are enabled
+              // lib.optionalAttrs (lib.any (x: x ? enable && x.enable) (lib.attrValues app.services.runtimes)) {
+                shell = app.services.runtimes.shell.result;
+              }
               // lib.optionalAttrs (app.services.runtimes.nixos.enable && app.test.script != "") {
                 test = app.test.result.build;
               }
