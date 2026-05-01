@@ -59,13 +59,14 @@
 
       python-web-hello = {
         command = pkgs.writeShellScriptBin "test" ''
+          # exit 1
           ${pkgs.hello}/bin/hello
         '';
         type = "oneshot";
       };
     };
 
-    ordering.python-web-hello.before = [ "python-web" ];
+    ordering.python-web.after = [ "python-web-hello" ];
     ordering.python-web.requires = [ "python-web-hello" ];
 
     runtimes = {

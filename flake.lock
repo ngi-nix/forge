@@ -99,11 +99,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777627141,
-        "narHash": "sha256-Iz4WgzFXkbgeW7YPAACema8DG6wK09gc1HrM4IFZ+5I=",
+        "lastModified": 1777629509,
+        "narHash": "sha256-6euf79bHbDFoaESYGHIGY2ryvDR/G9pfiFpibtQPmBE=",
         "owner": "eljamm",
         "repo": "nimi",
-        "rev": "fad10ab422f34f755cd68a805e19683ea1f3cfa7",
+        "rev": "ed0a348b42a6ab0e45b5ae377d969ff1dd92be08",
         "type": "github"
       },
       "original": {
