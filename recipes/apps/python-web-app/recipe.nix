@@ -66,7 +66,7 @@
     };
 
     ordering.python-web-hello.before = [ "python-web" ];
-    ordering.python-web.requires = [ "python-web" ];
+    ordering.python-web.requires = [ "python-web-hello" ];
 
     runtimes = {
       container = {

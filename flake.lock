@@ -99,16 +99,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1776855486,
-        "narHash": "sha256-w4exsvWuJq0e3lBjebzgUTS4aYsskL9VD6ZHgnAhH48=",
+        "lastModified": 1777627141,
+        "narHash": "sha256-Iz4WgzFXkbgeW7YPAACema8DG6wK09gc1HrM4IFZ+5I=",
         "owner": "eljamm",
         "repo": "nimi",
-        "rev": "f57846818cfadfc6578ae5f3a8a28ebb7cd05f91",
+        "rev": "fad10ab422f34f755cd68a805e19683ea1f3cfa7",
         "type": "github"
       },
       "original": {
         "owner": "eljamm",
-        "ref": "feat/service-ordering",
+        "ref": "feat/service-ordering-take-2",
         "repo": "nimi",
         "type": "github"
       }

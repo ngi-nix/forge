@@ -1,12 +1,12 @@
 {
   description = "NGI Forge";
 
-  nixConfig = {
-    extra-substituters = [ "https://ngi-forge.cachix.org" ];
-    extra-trusted-public-keys = [
-      "ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0="
-    ];
-  };
+  # nixConfig = {
+  #   extra-substituters = [ "https://ngi-forge.cachix.org" ];
+  #   extra-trusted-public-keys = [
+  #     "ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0="
+  #   ];
+  # };
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -35,7 +35,7 @@
 
     nimi = {
       # TODO: https://github.com/ngi-nix/nimi/pull/3
-      url = "github:eljamm/nimi/feat/service-ordering";
+      url = "github:eljamm/nimi/feat/service-ordering-take-2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -46,7 +46,7 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       # Uncomment this to enable flake-parts debug.
       # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
-      # debug = true;
+      debug = true;
 
       systems = [
         "x86_64-linux"
