@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "ironcalc";
   version = "0.7.1-unstable-2026-04-29";
   description = "Open source selfhosted spreadsheet engine";
   homePage = "https://www.ironcalc.com";

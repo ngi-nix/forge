@@ -44,13 +44,21 @@
                 (lib.filter (file: lib.hasSuffix "/recipe.nix" file))
               ];
             in
-            map (
-              file:
-              (_: {
-                imports = [ file ];
-                recipePath = lib.removePrefix (self.outPath + "/") file;
-              })
-            ) recipeFiles;
+            lib.listToAttrs (
+              map (
+                recipeFile:
+                let
+                  recipeName = lib.head (lib.match "^.*/([^/]*)/recipe.nix$" recipeFile);
+                in
+                lib.nameValuePair recipeName {
+                  imports = [ recipeFile ];
+                  config = {
+                    name = recipeName;
+                    recipePath = lib.removePrefix (self.outPath + "/") recipeFile;
+                  };
+                }
+              ) recipeFiles
+            );
 
         # Load package and app recipes from configured directories
         packageRecipes = loadRecipes config.forge.recipeDirs.packages;

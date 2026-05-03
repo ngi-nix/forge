@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "pagedjs-cli";
   version = "0-main-2026-01-05";
   description = "Command line interface for Pagedjs PDF renderer.";
   homePage = "https://pagedjs.org";

@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "bang-app";
   displayName = "BANG";
   description = "Binary Analysis Next Generation framework for recursive unpacking and analysis of binary files.";
   usage = ''

@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -6,19 +7,14 @@
 }:
 
 {
-  name = "ironcalc-nodejs";
   description = "Node.js bindings for IronCalc";
-  homePage = "https://www.ironcalc.com";
-  version = "0.7.1-unstable-2026-04-29";
-  license = with lib.licenses; [
-    asl20
-    mit
-  ];
 
-  source = {
-    git = "github:ironcalc/ironcalc/8461ff71347ab19145cd7ad50ef829181ba765c2";
-    hash = "sha256-vjI3M+hS9bXK8QQlopAy6f4dCISfQHGMvN9sMNKp88Q=";
-  };
+  inherit (rootConfig.forge.packages.ironcalc)
+    homePage
+    license
+    source
+    version
+    ;
 
   build.pnpmPackageBuilder = {
     enable = true;

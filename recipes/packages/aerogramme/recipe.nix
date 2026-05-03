@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "aerogramme";
   version = "0.3.0";
   description = "Encrypted e-mail storage over Garage";
   homePage = "https://aerogramme.deuxfleurs.fr/";

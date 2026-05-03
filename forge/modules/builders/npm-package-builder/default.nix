@@ -19,16 +19,14 @@ in
     }:
     {
       options.forge.packages = lib.mkOption {
-        type = lib.types.listOf (lib.types.submodule ./options.nix);
+        type = lib.types.attrsOf (lib.types.submoduleWith { modules = [ ./options.nix ]; });
       };
 
       config.packages =
         let
-          cfg = config.forge;
-
-          composePkg = pkg: {
-            name = pkg.name;
-            value = pkgs.callPackage (
+          composePkg =
+            pkgName: pkg:
+            pkgs.callPackage (
               # Derivation start
               { }:
               pkgs.buildNpmPackage (
@@ -53,11 +51,10 @@ in
               )
               # Derivation end
             ) { };
-          };
 
-          enabledPkgs = lib.filter (p: p.build.npmPackageBuilder.enable) cfg.packages;
+          enabledPkgs = lib.filterAttrs (name: p: p.build.npmPackageBuilder.enable) config.forge.packages;
 
-          npmPackageBuilderPkgs = lib.listToAttrs (map composePkg enabledPkgs);
+          npmPackageBuilderPkgs = lib.mapAttrs composePkg enabledPkgs;
         in
         npmPackageBuilderPkgs;
     }

@@ -65,10 +65,9 @@ def populate_resources_dir():
             return
 
         app_count = 0
-        apps: list[dict[str, str]] = config.get("apps", [])
+        apps: dict[str, [dict[str, str]]] = config.get("apps", [])
 
-        for app in apps:
-            app_name: str = app.get("name", "")
+        for app_name, app in apps.items():
             if not app_name:
                 continue
 

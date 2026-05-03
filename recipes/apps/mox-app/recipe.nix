@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "mox-app";
   displayName = "Mox";
   description = "Modern full-featured open source secure mail server for low-maintenance self-hosted email.";
   usage = ''

@@ -31,28 +31,28 @@ in
       options.forge.provider.packages = lib.mkOption {
         internal = true;
         type = options.forge.packages.type;
-        default = [ ];
+        default = { };
         description = "";
       };
 
       options.forge.provider.apps = lib.mkOption {
         internal = true;
         type = options.forge.apps.type;
-        default = [ ];
+        default = { };
         description = "";
       };
 
       options.forge.consumer.packages = lib.mkOption {
         internal = true;
         type = options.forge.packages.type;
-        default = [ ];
+        default = { };
         description = "";
       };
 
       options.forge.consumer.apps = lib.mkOption {
         internal = true;
         type = options.forge.apps.type;
-        default = [ ];
+        default = { };
         description = "";
       };
     }
@@ -92,13 +92,21 @@ in
                 (lib.filter (file: lib.hasSuffix "/recipe.nix" file))
               ];
             in
-            map (
-              file:
-              (_: {
-                imports = [ file ];
-                recipePath = lib.removePrefix (rootPath + "/") file;
-              })
-            ) recipeFiles;
+            lib.listToAttrs (
+              map (
+                recipeFile:
+                let
+                  recipeName = lib.head (lib.match "^.*/([^/]*)/recipe.nix$" recipeFile);
+                in
+                lib.nameValuePair recipeName {
+                  imports = [ recipeFile ];
+                  config = {
+                    name = recipeName;
+                    recipePath = lib.removePrefix (rootPath + "/") recipeFile;
+                  };
+                }
+              ) recipeFiles
+            );
 
         # Load package and app recipes from configured directories
         consumerPackageRecipes = loadRecipesFromDir config.forge.recipeDirs.packages;
@@ -107,18 +115,16 @@ in
         # Get app and package derivations from provider
         apps = lib.pipe provider.packages.${system} [
           (lib.filterAttrs (name: app: lib.hasSuffix appSuffix name))
-          (lib.attrValues)
         ];
 
         packages = lib.pipe provider.packages.${system} [
           (lib.filterAttrs (name: pkg: (!lib.hasSuffix appSuffix name) && (pkg ? config)))
-          (lib.attrValues)
         ];
 
         # Filter out internal `result` attributes from config to avoid conflicts
         cleanConfig = config: lib.filterAttrsRecursive (name: _: name != "result") config;
 
-        loadConfig = attrs: map (drv: cleanConfig (drv.config or { })) attrs;
+        loadConfig = attrs: lib.mapAttrs (name: drv: cleanConfig (drv.config or { })) attrs;
 
         providerAppConfigs = loadConfig apps;
         providerPackageConfigs = loadConfig packages;
@@ -126,12 +132,10 @@ in
         # Merge provider and consumer recipes
         mergeRecipes =
           type:
-          map (
-            providerItem:
+          lib.mapAttrs (
+            providerName: providerItem:
             let
-              consumerRecipe = lib.findFirst (
-                recipe: recipe.name == providerItem.name
-              ) null config.forge.consumer."${type}";
+              consumerRecipe = config.forge.consumer.${type}.${providerName} or null;
 
               providerRecipe = cleanConfig providerItem;
             in

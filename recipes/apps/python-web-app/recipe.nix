@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "python-web-app";
   displayName = "Python Web Example";
   description = "Example web API with database backend.";
   usage = ''

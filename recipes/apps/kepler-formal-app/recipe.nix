@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "kepler-formal-app";
   displayName = "Kepler Formal";
   description = "Formal verification tool for Verilog and Naja interchange format.";
   usage = ''
