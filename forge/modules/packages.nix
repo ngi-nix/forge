@@ -29,14 +29,14 @@ in
         options = {
           forge = {
             packages = lib.mkOption {
-              default = [ ];
+              default = { };
               description = ''
                 List of packages to include in forge.
 
                 Each package uses one of the available builders.
                 Only one builder can be enabled per package by setting build.<builder>.enable = true.
               '';
-              type = lib.types.listOf (
+              type = lib.types.attrsOf (
                 lib.types.submoduleWith {
                   specialArgs = {
                     systemConfig = config;
@@ -52,7 +52,7 @@ in
         # Config section is now provided by builder modules
         config =
           let
-            cfg = config.forge.packages;
+            cfg = lib.attrValues config.forge.packages;
 
             # Process warnings: filter to get active warnings (condition = true), then show them
             activeWarnings = lib.filter (x: x.condition) config.warnings;

@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "hello";
   version = "2.12.1";
   description = "Hello package built from source code tarball.";
   homePage = "https://www.gnu.org/software/hello";

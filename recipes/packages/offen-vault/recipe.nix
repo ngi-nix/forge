@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "offen-vault";
   version = "0.0.0-unstable-2026-03-04";
   description = "Client-side encryption vault for Offen.";
   homePage = "https://www.offen.dev";

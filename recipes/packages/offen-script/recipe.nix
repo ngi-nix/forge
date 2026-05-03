@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "offen-script";
   version = "0.0.0-unstable-2026-03-04";
   description = "Client-side analytics script for Offen.";
   homePage = "https://www.offen.dev";

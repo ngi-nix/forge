@@ -1,5 +1,6 @@
 {
   lib,
+  name,
   ...
 }:
 {
@@ -7,8 +8,9 @@
     # General configuration
     name = lib.mkOption {
       type = lib.types.str;
-      default = "my-package";
-      description = "Package name.";
+      default = name;
+      readOnly = true;
+      description = "Name of the package used as attribute name in `packages`.";
       example = "hello";
     };
     description = lib.mkOption {

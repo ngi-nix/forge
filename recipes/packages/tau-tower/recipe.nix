@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "tau-tower";
   version = "0.2.2-beta-unstable-2026-03-14";
   description = "Webradio server - broadcasts audio source to clients";
   homePage = "https://github.com/tau-org/tau-tower";

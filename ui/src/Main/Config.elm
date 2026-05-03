@@ -50,16 +50,8 @@ decodeConfig =
     Decode.map4 Config
         (Decode.field "repositoryUrl" Decode.string)
         (Decode.field "recipeDirs" decodeConfigRecipe)
-        (Decode.field "apps"
-            (Decode.list Config.decodeApp
-                |> Decode.map (List.map (\app -> ( app.app_name, app )) >> Dict.fromList)
-            )
-        )
-        (Decode.field "packages"
-            (Decode.list Config.decodePackage
-                |> Decode.map (List.map (\pkg -> ( pkg.package_name, pkg )) >> Dict.fromList)
-            )
-        )
+        (Decode.field "apps" (Decode.dict Config.decodeApp))
+        (Decode.field "packages" (Decode.dict Config.decodePackage))
 
 
 type alias ConfigRecipe =

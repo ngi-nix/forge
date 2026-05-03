@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "ironcalc-wasm";
   version = "0.7.1-unstable-2026-04-29";
   description = "Ironcalc wasm bindings";
   homePage = "https://www.ironcalc.com";

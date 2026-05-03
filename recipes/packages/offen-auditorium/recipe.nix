@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "offen-auditorium";
   version = "0.0.0-unstable-2026-03-04";
   description = "Analytics UI for Offen.";
   homePage = "https://www.offen.dev";

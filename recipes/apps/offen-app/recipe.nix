@@ -7,7 +7,6 @@
 }:
 
 {
-  name = "offen-app";
   displayName = "Offen";
   description = "Fair and privacy-focused web analytics.";
   usage = ''

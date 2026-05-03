@@ -7,7 +7,6 @@
 }:
 
 {
-  name = "ironcalc-app";
   displayName = "IronCalc";
   description = "Open source selfhosted spreadsheet engine";
 

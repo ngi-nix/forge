@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "ironcalc-server";
   version = "0.7.1-unstable-2026-04-29";
   description = "IronCalc server package";
   homePage = "https://www.ironcalc.com";
