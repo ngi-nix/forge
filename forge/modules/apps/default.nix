@@ -37,6 +37,7 @@ in
               type = lib.types.listOf (
                 lib.types.submoduleWith {
                   specialArgs = {
+                    rootConfig = config;
                     inherit
                       inputs
                       nimi

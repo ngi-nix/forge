@@ -758,6 +758,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -796,6 +797,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -837,6 +839,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -877,6 +880,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -1435,7 +1439,14 @@ git add recipes/packages/<name>/recipe.nix
 This example demonstrates a complex CMake project with subdirectory structure:
 
 ```nix
-{ config, lib, pkgs, mypkgs, ... }:
+{
+  rootConfig,
+  config,
+  lib,
+  pkgs,
+  mypkgs,
+  ...
+}:
 
 {
   name = "geodiff";
@@ -1496,7 +1507,14 @@ This example demonstrates a complex CMake project with subdirectory structure:
 This example demonstrates a Python project with complex dependencies:
 
 ```nix
-{ config, lib, pkgs, mypkgs, ... }:
+{
+  rootConfig,
+  config,
+  lib,
+  pkgs,
+  mypkgs,
+  ...
+}:
 
 {
   name = "fiona";
