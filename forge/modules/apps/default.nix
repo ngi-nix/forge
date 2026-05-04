@@ -41,11 +41,9 @@ in
                     inherit
                       inputs
                       nimi
+                      pkgs
                       system
                       ;
-                    # Extend pkgs with mypkgs containing all NGI Forge packages
-                    # This allows recipes to reference other packages via mypkgs
-                    pkgs = pkgs.extend (final: prev: { mypkgs = config.packages; });
                   };
                   modules = [ ./app.nix ];
                 }

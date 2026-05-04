@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -33,9 +34,9 @@
     # Copy JS frontend assets into public/static before building.
     # Note: preBuild runs after configurePhase which cds into modRoot (server/).
     preBuild = ''
-      cp -rT --no-preserve=mode ${pkgs.mypkgs.offen-script} public/static
-      cp -rT --no-preserve=mode ${pkgs.mypkgs.offen-vault} public/static
-      cp -rT --no-preserve=mode ${pkgs.mypkgs.offen-auditorium} public/static
+      cp -rT --no-preserve=mode ${rootConfig.packages.offen-script} public/static
+      cp -rT --no-preserve=mode ${rootConfig.packages.offen-vault} public/static
+      cp -rT --no-preserve=mode ${rootConfig.packages.offen-auditorium} public/static
     '';
   };
 

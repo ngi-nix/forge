@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -34,9 +35,9 @@
   '';
 
   links = {
-    website = pkgs.mypkgs.python-web.meta.homepage;
-    docs = pkgs.mypkgs.python-web.meta.homepage;
-    source = pkgs.mypkgs.python-web.meta.homepage;
+    website = rootConfig.packages.python-web.meta.homepage;
+    docs = rootConfig.packages.python-web.meta.homepage;
+    source = rootConfig.packages.python-web.meta.homepage;
   };
 
   ngi.grants = {
@@ -53,14 +54,14 @@
   services = {
     components = {
       python-web = {
-        command = pkgs.mypkgs.python-web;
+        command = rootConfig.packages.python-web;
       };
     };
 
     runtimes = {
       container = {
         enable = true;
-        packages = [ pkgs.mypkgs.python-web ];
+        packages = [ rootConfig.packages.python-web ];
         # Alternatively, we can re-use attributes with `config`:
         #packages = [ config.services.python-web.command ];
         composeFile = ./compose.yaml;

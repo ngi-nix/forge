@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -11,7 +12,7 @@
 
   programs = {
     packages = [
-      pkgs.mypkgs.hello-nix
+      rootConfig.packages.hello-nix
     ];
 
     runtimes.shell = {

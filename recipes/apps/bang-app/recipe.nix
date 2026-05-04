@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   pkgs,
   lib,
@@ -35,7 +36,7 @@
 
   programs = {
     packages = [
-      pkgs.mypkgs.bang
+      rootConfig.packages.bang
     ];
     runtimes.shell = {
       enable = true;

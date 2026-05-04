@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -38,7 +39,7 @@
         lib.makeBinPath [
           pkgs.coreutils
           pkgs.sqlite
-          pkgs.mypkgs.ironcalc-server
+          rootConfig.packages.ironcalc-server
         ]
       }
 
@@ -47,16 +48,16 @@
 
       if [ ! -f "\$IRONCALC_DB_PATH" ]; then
         echo "Initializing database..."
-        sqlite3 "\$IRONCALC_DB_PATH" < "${pkgs.mypkgs.ironcalc-server}/share/ironcalc/init_db.sql"
+        sqlite3 "\$IRONCALC_DB_PATH" < "${rootConfig.packages.ironcalc-server}/share/ironcalc/init_db.sql"
       fi
 
       export ROCKET_DATABASES="{ironcalc={url=\"\$IRONCALC_DB_PATH\"}}"
-      export IRONCALC_WEBAPP_DIR="\''${IRONCALC_WEBAPP_DIR:-${pkgs.mypkgs.ironcalc-frontend}}"
+      export IRONCALC_WEBAPP_DIR="\''${IRONCALC_WEBAPP_DIR:-${rootConfig.packages.ironcalc-frontend}}"
       exec ironcalc_server "\$@"
       EOF
       chmod +x $out/bin/ironcalc
 
-      ln -s ${pkgs.mypkgs.ironcalc-tools}/bin/xlsx_2_icalc $out/bin/xlsx_2_icalc
+      ln -s ${rootConfig.packages.ironcalc-tools}/bin/xlsx_2_icalc $out/bin/xlsx_2_icalc
     '';
   };
 }

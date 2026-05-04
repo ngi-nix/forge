@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   pkgs,
   lib,
@@ -44,7 +45,7 @@
 
   programs = {
     packages = [
-      pkgs.mypkgs.tau-radio
+      rootConfig.packages.tau-radio
     ];
     runtimes.shell = {
       enable = true;
@@ -53,7 +54,7 @@
 
   services = {
     components.tau-tower = {
-      command = pkgs.mypkgs.tau-tower;
+      command = rootConfig.packages.tau-tower;
       configData."tau/tower.toml" = {
         source = ./config.toml;
         path = "tau/tower.toml";
@@ -64,7 +65,7 @@
       container = {
         enable = true;
         packages = [
-          pkgs.mypkgs.tau-tower
+          rootConfig.packages.tau-tower
         ];
         composeFile = ./compose.yaml;
       };
@@ -72,7 +73,7 @@
       nixos = {
         enable = true;
         packages = [
-          pkgs.mypkgs.tau-tower
+          rootConfig.packages.tau-tower
         ];
         vm.forwardPorts = [
           "3001:3001"

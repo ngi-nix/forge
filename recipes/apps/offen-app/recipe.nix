@@ -1,4 +1,5 @@
 {
+  rootConfig,
   config,
   lib,
   pkgs,
@@ -47,7 +48,7 @@
       preStart = ''
         mkdir --parents --verbose /var/lib/offen
       '';
-      command = pkgs.mypkgs.offen;
+      command = rootConfig.packages.offen;
       argv = [ "serve" ];
       environment = {
         OFFEN_SERVER_PORT = "3000";
@@ -62,7 +63,7 @@
         packages = [
           pkgs.bash # required for entering the container
           pkgs.coreutils # required for mkdir
-          pkgs.mypkgs.offen # required for admin tasks
+          rootConfig.packages.offen # required for admin tasks
         ];
         composeFile = ./compose.yaml;
       };
@@ -70,7 +71,7 @@
       nixos = {
         enable = true;
         packages = [
-          pkgs.mypkgs.offen # required for admin tasks
+          rootConfig.packages.offen # required for admin tasks
         ];
         vm.forwardPorts = [
           "3000:3000"
