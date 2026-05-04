@@ -2,10 +2,9 @@
   config,
   lib,
   extendModules,
+  specialArgs,
 
-  inputs,
   name,
-  nimi,
   pkgs,
   system,
   ...
@@ -21,12 +20,13 @@
     };
     displayName = lib.mkOption {
       type = lib.types.str;
-      default = config.name;
+      default = name;
       description = "Human readable application name. Defaults to `name` if not set.";
     };
     description = lib.mkOption {
       type = lib.types.str;
       default = "";
+      description = "Description of the application.";
     };
     usage = lib.mkOption {
       type = lib.types.str;
@@ -54,13 +54,8 @@
     # https://nixos.org/manual/nixos/unstable/#modular-services
     services = lib.mkOption {
       type = lib.types.submoduleWith {
-        specialArgs = {
-          inherit
-            inputs
-            system
-            pkgs
-            nimi
-            ;
+        specialArgs = specialArgs // {
+          inherit system pkgs;
           app = config;
         };
         modules = [ ./services ];

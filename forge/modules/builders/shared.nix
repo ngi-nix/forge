@@ -1,5 +1,5 @@
 {
-  inputs,
+  ngi-forge,
   config,
   lib,
   flake-parts-lib,
@@ -144,7 +144,7 @@ in
           };
 
           debugShellHookAttr = {
-            shellHook = "source ${inputs.nix-utils}/nix-develop-interactive.bash";
+            shellHook = "source ${ngi-forge.inputs.nix-utils}/nix-develop-interactive.bash";
           };
         };
       in

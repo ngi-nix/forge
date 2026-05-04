@@ -42,44 +42,48 @@
   outputs =
     inputs@{ self, flake-parts, ... }:
 
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      # Uncomment this to enable flake-parts debug.
-      # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
-      # debug = true;
+    flake-parts.lib.mkFlake
+      {
+        inputs = inputs // {
+          # Warning(compatibility): `self` being relative to the `flake.nix`,
+          # `ngi-forge` is reserved as a special input name to refer to this very `flake.nix`,
+          # it is here set to `self`, and users making their own forge
+          # must set it to the ngi-forge input they want to use.
+          ngi-forge = self;
+        };
+      }
+      {
+        # Uncomment this to enable flake-parts debug.
+        # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
+        # debug = true;
 
-      systems = [
-        "x86_64-linux"
-        # "aarch64-linux"
-        # "aarch64-darwin"
-        # "x86_64-darwin"
-      ];
+        systems = [
+          "x86_64-linux"
+          # "aarch64-linux"
+          # "aarch64-darwin"
+          # "x86_64-darwin"
+        ];
 
-      imports = [
-        (import ./forge/flake-module.nix { inherit inputs; })
-        ./flake/develop
-        ./flake/packages.nix
-        ./flake/checks.nix
-        ./flake/templates.nix
-      ];
+        imports = [
+          ./flake/develop
+          ./flake/packages.nix
+          ./flake/checks.nix
+          ./flake/templates.nix
+          ./forge/flake-module.nix
+        ];
 
-      _module.args.rootPath = ./.;
+        _module.args.rootPath = ./.;
 
-      # Export flake module for use in other projects
-      flake.flakeModules.provider = import ./forge/flake-module.nix { inherit inputs; };
-      flake.flakeModules.consumer = import ./forge/consumer-module.nix;
-
-      perSystem =
-        { system, ... }:
-        {
-          _module.args.nimi = inputs.nimi.packages.${system}.nimi;
-
-          forge = {
-            repositoryUrl = "github:ngi-nix/forge";
-            recipeDirs = {
-              packages = "recipes/packages";
-              apps = "recipes/apps";
+        perSystem =
+          { system, ... }:
+          {
+            forge = {
+              repositoryUrl = "github:ngi-nix/forge";
+              recipeDirs = {
+                packages = "recipes/packages";
+                apps = "recipes/apps";
+              };
             };
           };
-        };
-    };
+      };
 }

@@ -1,5 +1,6 @@
 {
-  config,
+  inputs,
+  self,
   lib,
   flake-parts-lib,
   ...
@@ -11,7 +12,12 @@ in
 {
   options = {
     perSystem = mkPerSystemOption (
-      { config, pkgs, ... }:
+      {
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
       {
         options.forge = {
           repositoryUrl = lib.mkOption {
@@ -49,6 +55,20 @@ in
               '';
               example = "recipes/apps";
             };
+          };
+        };
+
+        config = {
+          # Remark(reusability): `self` is used as `rootDir`,
+          # meaning that it could me the user's own `self`,
+          # not necessarily `ngi-forge`'s.
+          forge.packages = inputs.ngi-forge.lib.loadRecipes {
+            rootDir = self.outPath;
+            dir = config.forge.recipeDirs.packages;
+          };
+          forge.apps = inputs.ngi-forge.lib.loadRecipes {
+            rootDir = self.outPath;
+            dir = config.forge.recipeDirs.apps;
           };
         };
       }

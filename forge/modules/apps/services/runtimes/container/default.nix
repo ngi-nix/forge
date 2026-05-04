@@ -1,12 +1,16 @@
 {
+  inputs,
   config,
   lib,
+  system,
 
-  nimi,
   app,
   pkgs,
   ...
 }@args:
+let
+  nimi = inputs.ngi-forge.inputs.nimi.packages.${system}.nimi;
+in
 {
   options = {
     enable = lib.mkEnableOption "container image output";
