@@ -9,8 +9,8 @@
     name = lib.mkOption {
       type = lib.types.str;
       default = name;
-      readOnly = true;
-      description = "Package name";
+      #readOnly = true;
+      description = "Name of the package used as attribute name in `packages`.";
       example = "hello";
     };
     description = lib.mkOption {
@@ -183,7 +183,7 @@
         description = ''
           Additional packages to include in the development environment.
 
-          All build inputs are automatically included.
+          All build ngi-forge are automatically included.
         '';
         example = lib.literalExpression "[ pkgs.git pkgs.vim ]";
       };

@@ -1,71 +1,47 @@
-{ inputs }: # nix-forge's inputs (import-tree, nix-utils)
-
-{ lib, self, ... }:
-
 {
-  # Import the core forge modules
-  imports = [
-    ./modules/forge.nix
-    ./modules/apps
-    ./modules/packages.nix
-    ./packages.nix # Generates _forge-config, _forge-options, _forge-ui
-  ];
+  self,
+  config,
+  ...
+}:
+let
+  # This module is imported both in ngi-forge's `flake.nix`
+  # and in users' `flake.nix` when they want to make a forge
+  # based on ngi-forge's module system.
+  # It currently is a flake-parts module.
+  #
+  # Warning(compatibility): `inputs.ngi-forge` (resp. `inputs.ngi-forge.inputs`)
+  # must usually be used instead of `self` (resp. `inputs`)
+  # everywhere inside this `flakeModule`.
+  # Because when imported in some user's `flake.nix`,
+  # the `self` (resp. `inputs`) given to this `flakeModule`
+  # will no longer be the ngi-forge's `self` (resp. `inputs`) in scope right here.
+  # For `inputs` to be available in `submodule`s and remain usable in `imports`
+  # (without causing an infinite recursion by depending on `config._module.args`),
+  # `specialArgs` must be threaded down `submodule`s by using `lib.types.submoduleWith`.
+  flakeModule = {
+    imports = [
+      modules/forge.nix
+      modules/apps/default.nix
+      modules/packages.nix
+      ./packages.nix
+    ];
+  };
+in
+{
+  imports = [ flakeModule ];
 
   config = {
-    # Override the inputs argument for submodules with nix-forge's inputs
-    # This ensures modules have access to nix-utils and import-tree
-    _module.args.inputs = lib.mkForce inputs;
+    # Usual flake-parts export interface for users to extend ngi-forge.
+    flake.flakeModule = self.flakeModules.default;
+    flake.flakeModules.default = self.flakeModules.ngi-forge;
+    flake.flakeModules.ngi-forge = flakeModule;
 
-    # Recipe loading logic using nix-forge's bundled dependencies
-    perSystem =
-      {
-        config,
-        lib,
-        pkgs,
-        ...
-      }@args:
-
-      let
-        # Helper to load recipes from a directory using import-tree
-        loadRecipes =
-          dir:
-          if dir == null then
-            [ ]
-          else
-            let
-              # Convert string path to actual path relative to flake root
-              # self.outPath gives us the flake root directory
-              dirPath = self.outPath + "/${dir}";
-
-              recipeFiles = lib.pipe dirPath [
-                # Use bundled import-tree from nix-forge inputs
-                (inputs.import-tree.withLib lib).leafs
-                # Exclude non-recipe files
-                (lib.filter (file: lib.hasSuffix "/recipe.nix" file))
-              ];
-            in
-            lib.listToAttrs (
-              map (
-                recipeFile:
-                let
-                  recipeName = lib.head (lib.match "^.*/([^/]*)/recipe.nix$" recipeFile);
-                in
-                lib.nameValuePair recipeName {
-                  imports = [ recipeFile ];
-                  config = {
-                    recipePath = lib.removePrefix (self.outPath + "/") recipeFile;
-                  };
-                }
-              ) recipeFiles
-            );
-
-        # Load package and app recipes from configured directories
-        packageRecipes = loadRecipes config.forge.recipeDirs.packages;
-        appRecipes = loadRecipes config.forge.recipeDirs.apps;
-      in
-      {
-        forge.packages = packageRecipes;
-        forge.apps = appRecipes;
-      };
+    # Export the configuration to users who want to import ngi-forge's recipes
+    # in order to let them extend or `mkOverride` them.
+    #
+    # Remark(clarity): this currently raise a warning in `nix flake check`:
+    # > warning: unknown flake output 'flakeConfig'
+    # Issue: https://github.com/NixOS/nix/issues/6381
+    flake.flakeConfig = config;
   };
 }

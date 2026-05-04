@@ -1,5 +1,5 @@
 {
-  inputs,
+  specialArgs,
   config,
   lib,
   flake-parts-lib,
@@ -24,28 +24,31 @@ in
 
   options = {
     perSystem = mkPerSystemOption (
-      { config, pkgs, ... }:
+      {
+        config,
+        system,
+        pkgs,
+        ...
+      }:
       {
         options = {
-          forge = {
-            packages = lib.mkOption {
-              default = { };
-              description = ''
-                List of packages to include in forge.
+          forge.packages = lib.mkOption {
+            default = { };
+            description = ''
+              List of packages to include in forge.
 
-                Each package uses one of the available builders.
-                Only one builder can be enabled per package by setting build.<builder>.enable = true.
-              '';
-              type = lib.types.attrsOf (
-                lib.types.submoduleWith {
-                  specialArgs = {
-                    rootConfig = config;
-                    inherit pkgs;
-                  };
-                  modules = [ packages/package.nix ];
-                }
-              );
-            };
+              Each package uses one of the available builders.
+              Only one builder can be enabled per package by setting build.<builder>.enable = true.
+            '';
+            type = lib.types.attrsOf (
+              lib.types.submoduleWith {
+                specialArgs = specialArgs // {
+                  rootConfig = config;
+                  inherit system pkgs;
+                };
+                modules = [ packages/package.nix ];
+              }
+            );
           };
         };
 

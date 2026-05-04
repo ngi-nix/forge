@@ -1,4 +1,8 @@
-{ inputs, flake-parts-lib, ... }:
+{
+  inputs,
+  specialArgs,
+  ...
+}:
 
 {
   perSystem =
@@ -18,8 +22,8 @@
       evalForgeModules =
         modules:
         lib.evalModules {
+          inherit specialArgs;
           modules = modules;
-          specialArgs = { inherit flake-parts-lib inputs; };
         };
 
       forgeOptionsDoc =
@@ -66,7 +70,7 @@
         _forge-ui = pkgs.callPackage ../ui/package.nix {
           inherit (config.packages) _forge-config _forge-docs _forge-options;
           inherit appIcons;
-          buildElmApplication = (inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
+          buildElmApplication = (inputs.ngi-forge.inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
         };
 
         _forge-docs = pkgs.callPackage ../flake/packages/forge-docs.nix { };

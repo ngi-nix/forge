@@ -1,6 +1,6 @@
 {
   lib,
-  inputs,
+  specialArgs,
   flake-parts-lib,
   ...
 }:
@@ -21,7 +21,6 @@ in
       {
         config,
         pkgs,
-        nimi,
         system,
         ...
       }:
@@ -30,25 +29,18 @@ in
       in
       {
         options = {
-          forge = {
-            apps = lib.mkOption {
-              default = { };
-              description = "List of applications.";
-              type = lib.types.attrsOf (
-                lib.types.submoduleWith {
-                  specialArgs = {
-                    rootConfig = config;
-                    inherit
-                      inputs
-                      nimi
-                      pkgs
-                      system
-                      ;
-                  };
-                  modules = [ ./app.nix ];
-                }
-              );
-            };
+          forge.apps = lib.mkOption {
+            default = { };
+            description = "List of applications.";
+            type = lib.types.attrsOf (
+              lib.types.submoduleWith {
+                specialArgs = specialArgs // {
+                  rootConfig = config;
+                  inherit pkgs system;
+                };
+                modules = [ ./app.nix ];
+              }
+            );
           };
         };
 
@@ -85,7 +77,7 @@ in
                 # consumer forges can compose into proper applications.
                 #
                 # That's why we remove `result`, because it's tied to the
-                # providers' aleady generated applications, which can cause
+                # providers' already generated applications, which can cause
                 # conflicts.
                 extendRecipe =
                   module: lib.filterAttrsRecursive (name: _: name != "result") (self.extend module).config;

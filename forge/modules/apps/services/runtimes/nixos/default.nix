@@ -1,7 +1,7 @@
 {
   lib,
-  inputs,
 
+  inputs,
   app,
   config,
   system,
@@ -124,7 +124,7 @@
       };
     };
 
-    result.eval = inputs.nixpkgs.lib.nixosSystem {
+    result.eval = inputs.ngi-forge.inputs.nixpkgs.lib.nixosSystem {
       inherit system;
       modules = lib.attrValues config.result.modules;
     };

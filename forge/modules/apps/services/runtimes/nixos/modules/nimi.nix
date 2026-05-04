@@ -8,7 +8,7 @@
 {
 
   imports = [
-    inputs.nimi.nixosModules.default
+    inputs.ngi-forge.inputs.nimi.nixosModules.default
   ];
 
   nimi = lib.mapAttrs (serviceName: service: {

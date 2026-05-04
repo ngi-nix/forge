@@ -7,7 +7,6 @@
 }:
 
 {
-  name = "hello-app";
   description = "Say hello to Nix.";
 
   programs = {

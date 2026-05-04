@@ -1,5 +1,6 @@
 {
-  config,
+  inputs,
+  self,
   lib,
   flake-parts-lib,
   ...
@@ -11,7 +12,12 @@ in
 {
   options = {
     perSystem = mkPerSystemOption (
-      { config, pkgs, ... }:
+      {
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
       {
         options.forge = {
           repositoryUrl = lib.mkOption {
@@ -51,7 +57,57 @@ in
             };
           };
         };
+
+        config = {
+          # Remark(reusability): `self` is used as `rootDir`,
+          # meaning that it could me the user's own `self`,
+          # not necessarily `ngi-forge`'s.
+          forge.packages = inputs.ngi-forge.lib.loadRecipes {
+            rootDir = self.outPath;
+            dir = config.forge.recipeDirs.packages;
+          };
+          forge.apps = inputs.ngi-forge.lib.loadRecipes {
+            rootDir = self.outPath;
+            dir = config.forge.recipeDirs.apps;
+          };
+        };
       }
     );
+  };
+
+  config = {
+    flake.lib = {
+      # Helper to load recipes from a directory using import-tree
+      loadRecipes =
+        { rootDir, dir }:
+        if dir == null then
+          [ ]
+        else
+          let
+            # Convert string path to actual path relative to flake root
+            # self.outPath gives us the flake root directory
+            dirPath = rootDir + "/${dir}";
+
+            recipeFiles = lib.pipe dirPath [
+              (inputs.ngi-forge.inputs.import-tree.withLib lib).leafs
+              # Exclude non-recipe files
+              (lib.filter (file: lib.hasSuffix "/recipe.nix" file))
+            ];
+          in
+          lib.listToAttrs (
+            map (
+              recipeFile:
+              let
+                recipeName = lib.head (lib.match "^.*/([^/]*)/recipe.nix$" recipeFile);
+              in
+              lib.nameValuePair recipeName {
+                imports = [ recipeFile ];
+                config = {
+                  recipePath = lib.removePrefix (rootDir + "/") recipeFile;
+                };
+              }
+            ) recipeFiles
+          );
+    };
   };
 }
