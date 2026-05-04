@@ -19,7 +19,7 @@ in
     }:
     {
       options.forge.packages = lib.mkOption {
-        type = lib.types.listOf (lib.types.submodule ./builder-options.nix);
+        type = lib.types.listOf (lib.types.submodule ./options.nix);
       };
 
       config.packages =

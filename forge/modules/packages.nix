@@ -13,12 +13,12 @@ in
   imports = [
     ./assertions-warnings.nix
     ./builders/shared.nix
-    ./builders/standard-builder.nix
-    ./builders/go-builder.nix
+    ./builders/standard-builder
+    ./builders/go-builder
     ./builders/npm-package-builder
     ./builders/pnpm-package-builder
-    ./builders/python-app-builder.nix
-    ./builders/python-package-builder.nix
+    ./builders/python-app-builder
+    ./builders/python-package-builder
     ./builders/rust-package-builder
   ];
 
