@@ -53,7 +53,6 @@
                 lib.nameValuePair recipeName {
                   imports = [ recipeFile ];
                   config = {
-                    name = recipeName;
                     recipePath = lib.removePrefix (self.outPath + "/") recipeFile;
                   };
                 }

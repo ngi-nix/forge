@@ -7,7 +7,6 @@
 }:
 
 {
-  name = "offen-auditorium";
   description = "Analytics UI for Offen.";
 
   inherit (rootConfig.forge.packages.offen)

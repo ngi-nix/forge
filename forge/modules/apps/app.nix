@@ -4,6 +4,7 @@
   extendModules,
 
   inputs,
+  name,
   nimi,
   pkgs,
   system,
@@ -14,7 +15,8 @@
     # General configuration
     name = lib.mkOption {
       type = lib.types.str;
-      default = "my-application";
+      default = name;
+      readOnly = true;
     };
     displayName = lib.mkOption {
       type = lib.types.str;

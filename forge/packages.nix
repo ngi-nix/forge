@@ -43,10 +43,12 @@
       appIcons = pkgs.runCommand "app-icons" { } ''
         mkdir -p $out
         ${lib.concatStringsSep "\n" (
-          map (app: ''
-            mkdir -p $out/${app.name}
-            ${if app.icon or null != null then "cp ${app.icon} $out/${app.name}/icon.svg" else ""}
-          '') (lib.attrValues config.forge.apps)
+          lib.attrValues (
+            lib.mapAttrs (appName: app: ''
+              mkdir -p $out/${appName}
+              ${if app.icon or null != null then "cp ${app.icon} $out/${appName}/icon.svg" else ""}
+            '') config.forge.apps
+          )
         )}
       '';
     in
