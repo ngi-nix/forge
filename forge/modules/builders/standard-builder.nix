@@ -28,7 +28,17 @@ in
                     enable = lib.mkEnableOption ''
                       Standard builder for autotools, CMake, or Makefile-based projects.
 
-                      Automatically handles configure, build, and install phases'';
+                      Automatically handles configure, build, and install phases
+                    '';
+                    stdenv = lib.mkOption {
+                      type = lib.types.package;
+                      default = pkgs.stdenv;
+                      defaultText = lib.literalExpression "pkgs.stdenv";
+                      example = lib.literalExpression "pkgs.stdenvNoCC";
+                      description = ''
+                        The stdenv to use for the build.
+                      '';
+                    };
                     packages = {
                       build = lib.mkOption {
                         type = lib.types.listOf lib.types.package;
@@ -79,7 +89,7 @@ in
                   value = pkgs.callPackage (
                     # Derivation start
                     { stdenv }:
-                    stdenv.mkDerivation (
+                    pkg.build.standardBuilder.stdenv.mkDerivation (
                       finalAttrs:
                       {
                         pname = pkg.name;

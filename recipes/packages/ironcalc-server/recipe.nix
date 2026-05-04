@@ -33,6 +33,8 @@
   };
 
   build.extraAttrs = {
+    strictDeps = true;
+    __structuredAttrs = true;
     cargoRoot = "webapp/app.ironcalc.com/server";
     buildAndTestSubdir = "webapp/app.ironcalc.com/server";
     postInstall = ''

@@ -36,6 +36,8 @@
   };
 
   build.extraAttrs = {
+    strictDeps = true;
+    __structuredAttrs = true;
     doInstallCheck = true;
     installCheckPhase = ''
       { $out/bin/xlsx_2_icalc 2>&1 || true; } | grep -q "Usage:"

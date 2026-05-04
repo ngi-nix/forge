@@ -23,14 +23,11 @@
 
   build.standardBuilder = {
     enable = true;
-    packages.run = [
-      pkgs.mypkgs.ironcalc-server
-      pkgs.mypkgs.ironcalc-frontend
-      pkgs.mypkgs.ironcalc-tools
-    ];
   };
 
   build.extraAttrs = {
+    strictDeps = true;
+    __structuredAttrs = true;
     dontUnpack = true;
     installPhase = ''
       mkdir -p $out/bin
@@ -38,7 +35,7 @@
       #!${pkgs.runtimeShell}
       set -euo pipefail
 
-      export PATH=$PATH:${
+      export PATH=$\PATH:${
         lib.makeBinPath [
           pkgs.coreutils
           pkgs.sqlite
