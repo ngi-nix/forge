@@ -1,7 +1,7 @@
 {
+  systemConfig,
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -24,7 +24,7 @@
     enable = true;
     npmDepsHash = "sha256-jPnUUEOjW9WHVjpBH/qKB4P5RuMI0uvjog8C41cPQdY=";
     packages.build = [
-      pkgs.mypkgs.ironcalc-wasm
+      systemConfig.packages.ironcalc-wasm
     ];
   };
 
@@ -40,14 +40,14 @@
     '';
 
     preConfigure = ''
-      cp -rv ${pkgs.mypkgs.ironcalc-wasm}/. ../../bindings/wasm/pkg/
+      cp -rv ${systemConfig.packages.ironcalc-wasm}/. ../../bindings/wasm/pkg/
     '';
 
     # copy instead of symlinking to avoid noBrokenSymlinks check failing in fixupPhase.
     preBuild = ''
       rm -rf node_modules/@ironcalc/wasm
       mkdir -p node_modules/@ironcalc
-      cp -rv ${pkgs.mypkgs.ironcalc-wasm}/. node_modules/@ironcalc/wasm
+      cp -rv ${systemConfig.packages.ironcalc-wasm}/. node_modules/@ironcalc/wasm
     '';
 
     buildPhase = ''

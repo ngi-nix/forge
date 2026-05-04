@@ -1,4 +1,5 @@
 {
+  systemConfig,
   config,
   pkgs,
   lib,
@@ -35,7 +36,7 @@
 
   programs = {
     packages = [
-      pkgs.mypkgs.bang
+      systemConfig.packages.bang
     ];
     runtimes.shell = {
       enable = true;

@@ -1,4 +1,5 @@
 {
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -43,8 +44,8 @@
     '';
 
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-      inherit (pkgs.mypkgs.ironcalc) src;
-      hash = pkgs.mypkgs.ironcalc-tools.cargoHash;
+      inherit (systemConfig.packages.ironcalc) src;
+      hash = systemConfig.packages.ironcalc-tools.cargoHash;
     };
 
     cargoRoot = "../..";
