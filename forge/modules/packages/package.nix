@@ -32,8 +32,8 @@
       example = "https://www.gnu.org/software/hello/hello-2.12.1.tar.gz";
     };
     mainProgram = lib.mkOption {
-      type = lib.types.str;
-      default = "my-program";
+      type = lib.types.nullOr lib.types.str;
+      default = null;
       description = "Name of the main executable program.";
       example = "hello";
     };
