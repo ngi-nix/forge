@@ -12,7 +12,22 @@
       formatter = pkgs.callPackage ./formatter.nix { inherit inputs; };
       devShell = pkgs.callPackage ./devshell.nix { inherit inputs formatter; };
 
+      sphinxEnv = pkgs.python3.withPackages (
+        ps: with ps; [
+          linkify-it-py
+          sphinx
+          myst-parser
+          sphinx-book-theme
+          sphinx-copybutton
+          sphinx-design
+          sphinx-sitemap
+          sphinx-notfound-page
+        ]
+      );
+
       devPkgs = with pkgs; [
+        gnumake
+        sphinxEnv
         elmPackages.elm
         elmPackages.elm-language-server
         elmPackages.elm-review
@@ -22,7 +37,6 @@
         json-diff
         nixfmt
         nodejs
-        python3
         self'.packages.elm-watch
         self'.packages.elm2nix
         playwright-test

@@ -66,6 +66,8 @@
           inherit appIcons;
           buildElmApplication = (inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
         };
+
+        _forge-docs = pkgs.callPackage ../flake/packages/forge-docs.nix { };
       };
     };
 }

@@ -1,0 +1,24 @@
+:root {
+  --sd-color-card-border-hover: var(--pst-color-primary) !important;
+}
+
+.navbar-nav li.toctree-l1 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.navbar-nav li.toctree-l1 > .toctree-toggle {
+  display: none;
+}
+
+.navbar-nav li.toctree-l1 > a {
+  font-weight: 600;
+}
+
+.navbar-nav li.toctree-l1 > ul {
+  padding: 0;
+}
+
+pre {
+  white-space: wrap;
+}
