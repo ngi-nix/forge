@@ -1,6 +1,5 @@
 {
   inputs,
-  self,
   lib,
   flake-parts-lib,
   ...
@@ -8,6 +7,11 @@
 
 let
   inherit (flake-parts-lib) mkPerSystemOption;
+  recipeRootType =
+    with lib.types;
+    listOf (
+      unique { message = "recipe root paths must be unique to not load the same recipe twice"; } path
+    );
 in
 {
   options = {
@@ -30,46 +34,40 @@ in
           };
 
           recipeDirs = {
-            packages = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              default = "recipes/packages";
-              description = ''
-                Directory containing package recipe files.
-                Each recipe should be a recipe.nix file in a subdirectory
-                (e.g., recipes/packages/hello/recipe.nix).
-
-                Set to null to disable automatic package recipe loading.
-              '';
-              example = "recipes/packages";
-            };
-
             apps = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              default = "recipes/apps";
+              type = recipeRootType;
+              defaultText = lib.literalExpression ''[ (inputs.ngi-forge + "/recipes/apps") ]'';
               description = ''
-                Directory containing app recipe files.
+                Directories containing app recipe files.
                 Each recipe should be a recipe.nix file in a subdirectory
                 (e.g., recipes/apps/my-app/recipe.nix).
 
-                Set to null to disable automatic app recipe loading.
+                Set to the empty list to disable automatic app recipe loading.
               '';
-              example = "recipes/apps";
+              example = lib.literalExpression "[ recipes/apps ]";
+            };
+            packages = lib.mkOption {
+              type = recipeRootType;
+              defaultText = lib.literalExpression ''[ (inputs.ngi-forge + "/recipes/packages") ]'';
+              description = ''
+                Directories containing package recipe files.
+                Each recipe should be a recipe.nix file in a subdirectory
+                (e.g., recipes/packages/hello/recipe.nix).
+
+                Set to the empty list to disable automatic package recipe loading.
+              '';
+              example = lib.literalExpression "[ recipes/packages ]";
             };
           };
         };
 
         config = {
-          # Remark(reusability): `self` is used as `rootDir`,
-          # meaning that it could me the user's own `self`,
-          # not necessarily `ngi-forge`'s.
-          forge.packages = inputs.ngi-forge.lib.loadRecipes {
-            rootDir = self.outPath;
-            dir = config.forge.recipeDirs.packages;
-          };
-          forge.apps = inputs.ngi-forge.lib.loadRecipes {
-            rootDir = self.outPath;
-            dir = config.forge.recipeDirs.apps;
-          };
+          forge.recipeDirs.apps = [ (inputs.ngi-forge + "/recipes/apps") ];
+          forge.recipeDirs.packages = [ (inputs.ngi-forge + "/recipes/packages") ];
+          forge.apps = lib.mkMerge (map inputs.ngi-forge.lib.loadRecipes config.forge.recipeDirs.apps);
+          forge.packages = lib.mkMerge (
+            map inputs.ngi-forge.lib.loadRecipes config.forge.recipeDirs.packages
+          );
         };
       }
     );
@@ -79,35 +77,31 @@ in
     flake.lib = {
       # Helper to load recipes from a directory using import-tree
       loadRecipes =
-        { rootDir, dir }:
-        if dir == null then
-          [ ]
-        else
-          let
-            # Convert string path to actual path relative to flake root
-            # self.outPath gives us the flake root directory
-            dirPath = rootDir + "/${dir}";
-
-            recipeFiles = lib.pipe dirPath [
-              (inputs.ngi-forge.inputs.import-tree.withLib lib).leafs
-              # Exclude non-recipe files
-              (lib.filter (file: lib.hasSuffix "/recipe.nix" file))
-            ];
-          in
-          lib.listToAttrs (
-            map (
-              recipeFile:
-              let
-                recipeName = lib.head (lib.match "^.*/([^/]*)/recipe.nix$" recipeFile);
-              in
-              lib.nameValuePair recipeName {
-                imports = [ recipeFile ];
-                config = {
-                  recipePath = lib.removePrefix (rootDir + "/") recipeFile;
-                };
-              }
-            ) recipeFiles
-          );
+        recipeRoot:
+        let
+          recipeFileToModule =
+            recipePath:
+            let
+              recipeName = lib.baseNameOf (lib.dirOf recipePath);
+            in
+            # Nix requires to remove the context of a string having one,
+            # when using it has an attribute name,
+            # and `recipeName` can inherit such context, eg. when `recipeRoot` is a `path/to/dir`.
+            # `recipePath` safely keeps any context it may have.
+            lib.nameValuePair (builtins.unsafeDiscardStringContext recipeName) {
+              imports = [ (lib.setDefaultModuleLocation recipePath recipePath) ];
+              config = {
+                inherit recipePath;
+              };
+            };
+        in
+        lib.pipe inputs.ngi-forge.inputs.import-tree [
+          (i: i.initFilter (lib.hasSuffix "/recipe.nix"))
+          (i: i.withLib lib)
+          (i: i.leafs recipeRoot)
+          (map recipeFileToModule)
+          lib.listToAttrs
+        ];
     };
   };
 }

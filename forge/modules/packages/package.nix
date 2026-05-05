@@ -9,7 +9,7 @@
     name = lib.mkOption {
       type = lib.types.str;
       default = name;
-      #readOnly = true;
+      readOnly = true;
       description = "Name of the package used as attribute name in `packages`.";
       example = "hello";
     };

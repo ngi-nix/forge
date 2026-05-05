@@ -16,7 +16,7 @@
       type = lib.types.str;
       default = name;
       description = "Name of the application used as attribute name in `apps`.";
-      #readOnly = true;
+      readOnly = true;
     };
     displayName = lib.mkOption {
       type = lib.types.str;

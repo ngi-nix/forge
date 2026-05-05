@@ -79,10 +79,6 @@
           {
             forge = {
               repositoryUrl = "github:ngi-nix/forge";
-              recipeDirs = {
-                packages = "recipes/packages";
-                apps = "recipes/apps";
-              };
             };
           };
       };

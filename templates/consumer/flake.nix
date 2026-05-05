@@ -42,28 +42,12 @@
           };
 
           forge = {
-            # (optional) Inherit recipes of apps from ngi-forge.
-            apps = lib.mkMerge [
-              ngi-forge.flakeConfig.allSystems.${system}.forge.apps
-              {
-                # Per app overrides can be written here.
-              }
-            ];
-
-            # (optional) Inherit recipes of packages from ngi-forge.
-            packages = lib.mkMerge [
-              ngi-forge.flakeConfig.allSystems.${system}.forge.packages
-              {
-                # Per package overrides can be written here.
-              }
-            ];
-
             repositoryUrl = "github:me/my-forge";
-            # Load app and package recipes from these sub directories of this `flake.nix`,
-            # using `ngi-forge.lib.loadRecipes`.
+            # Load app and package recipes using `ngi-forge.lib.loadRecipes`.
+            # You can use `lib.mkForce` should you want to load only your recipes and not also ngi-forge's recipes.
             recipeDirs = {
-              apps = "recipes/apps";
-              packages = "recipes/packages";
+              apps = [ recipes/apps ];
+              packages = [ recipes/packages ];
             };
           };
         };

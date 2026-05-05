@@ -55,23 +55,23 @@ decodeConfig =
 
 
 type alias ConfigRecipe =
-    { configRecipe_apps : Directory
-    , configRecipe_packages : Directory
+    { configRecipe_apps : List Directory
+    , configRecipe_packages : List Directory
     }
 
 
 initRecipe : ConfigRecipe
 initRecipe =
-    { configRecipe_apps = ""
-    , configRecipe_packages = ""
+    { configRecipe_apps = []
+    , configRecipe_packages = []
     }
 
 
 decodeConfigRecipe : Decoder ConfigRecipe
 decodeConfigRecipe =
     Decode.map2 ConfigRecipe
-        (Decode.field "apps" decodeDirectory)
-        (Decode.field "packages" decodeDirectory)
+        (Decode.field "apps" (Decode.list decodeDirectory))
+        (Decode.field "packages" (Decode.list decodeDirectory))
 
 
 type alias Path =
