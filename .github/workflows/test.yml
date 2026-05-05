@@ -85,12 +85,6 @@ jobs:
         with:
           name: ngi-forge
 
-      - name: Encode version information
-        run: |
-          commit="${{ github.event.pull_request.head.sha || github.sha }}"
-          commit=${commit:-master}
-          sed -i "s/master/$commit/g" ui/src/Main/Config.elm
-
       - name: Configure the baseUrl
         run: |
           sed -i "s|:baseUrl|/forge/|g" ui/src/Main/Model/Route.elm

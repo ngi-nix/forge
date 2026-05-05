@@ -1,21 +1,11 @@
 {
   inputs,
-  lib,
   flake-parts-lib,
   ...
 }:
-
-let
-  inherit (flake-parts-lib) mkPerSystemOption;
-  recipeRootType =
-    with lib.types;
-    listOf (
-      unique { message = "recipe root paths must be unique to not load the same recipe twice"; } path
-    );
-in
 {
   options = {
-    perSystem = mkPerSystemOption (
+    perSystem = flake-parts-lib.mkPerSystemOption (
       {
         config,
         lib,
@@ -23,85 +13,70 @@ in
         ...
       }:
       {
-        options.forge = {
-          repositoryUrl = lib.mkOption {
-            type = lib.types.str;
-            default = "github:ngi-nix/forge";
-            description = ''
-              NGI Forge repository URL.
-            '';
-            example = "github:ngi-nix/forge";
-          };
-
-          recipeDirs = {
-            apps = lib.mkOption {
-              type = recipeRootType;
-              defaultText = lib.literalExpression ''[ (inputs.ngi-forge + "/recipes/apps") ]'';
+        options = {
+          forge.repository = {
+            archiveUrl = lib.mkOption {
+              type = lib.types.str;
+              default =
+                config.forge.repository.homeUrl + "/archive/" + config.forge.repository.commitRef + ".tar.gz";
+              defaultText = lib.literalExpression ''config.forge.repository.homeUrl + "/archive/" + inputs.ngi-forge.lib.sourceInfoRef + ".tar.gz"'';
               description = ''
-                Directories containing app recipe files.
-                Each recipe should be a recipe.nix file in a subdirectory
-                (e.g., recipes/apps/my-app/recipe.nix).
-
-                Set to the empty list to disable automatic app recipe loading.
+                URL to get an archive of the repository.
               '';
-              example = lib.literalExpression "[ recipes/apps ]";
             };
-            packages = lib.mkOption {
-              type = recipeRootType;
-              defaultText = lib.literalExpression ''[ (inputs.ngi-forge + "/recipes/packages") ]'';
+            commitRef = lib.mkOption {
+              type = lib.types.str;
+              default = inputs.ngi-forge.lib.sourceInfoRef inputs.self;
+              defaultText = lib.literalExpression "inputs.ngi-forge.lib.sourceInfoRef inputs.self";
               description = ''
-                Directories containing package recipe files.
-                Each recipe should be a recipe.nix file in a subdirectory
-                (e.g., recipes/packages/hello/recipe.nix).
-
-                Set to the empty list to disable automatic package recipe loading.
+                Reference to the commit of the repository.
               '';
-              example = lib.literalExpression "[ recipes/packages ]";
+            };
+            gitUrl = lib.mkOption {
+              type = with lib.types; nullOr str;
+              default = config.forge.repository.homeUrl;
+              defaultText = lib.literalExpression "config.forge.repository.homeUrl";
+              description = ''
+                URL to git the repository.
+              '';
+              example = "https://github.com/ngi-nix/forge";
+            };
+            homeUrl = lib.mkOption {
+              type = lib.types.str;
+              default = "https://github.com/" + config.forge.repository.path;
+              defaultText = lib.literalExpression ''"https://github.com/" + config.forge.repository.path'';
+              description = ''
+                URL to the home of the repository.
+              '';
+              example = "https://github.com/ngi-nix/forge";
+            };
+            path = lib.mkOption {
+              type = lib.types.str;
+              description = ''
+                Name of the repository.
+              '';
+              default = "ngi-nix/forge";
+            };
+            nixUrl = lib.mkOption {
+              type = lib.types.str;
+              default = "github:" + config.forge.repository.path + "/" + config.forge.repository.commitRef;
+              defaultText = lib.literalExpression "";
+              description = ''
+                URL to fetch the repository using `nix flake`.
+              '';
+              example = "github:ngi-nix/forge";
+            };
+            treeUrl = lib.mkOption {
+              type = lib.types.str;
+              default = config.forge.repository.homeUrl + "/tree/" + config.forge.repository.commitRef;
+              defaultText = lib.literalExpression "inputs.ngi-forge.lib.sourceInfoRef inputs.self";
+              description = ''
+                URL to browse the tree of the repository.
+              '';
             };
           };
-        };
-
-        config = {
-          forge.recipeDirs.apps = [ (inputs.ngi-forge + "/recipes/apps") ];
-          forge.recipeDirs.packages = [ (inputs.ngi-forge + "/recipes/packages") ];
-          forge.apps = lib.mkMerge (map inputs.ngi-forge.lib.loadRecipes config.forge.recipeDirs.apps);
-          forge.packages = lib.mkMerge (
-            map inputs.ngi-forge.lib.loadRecipes config.forge.recipeDirs.packages
-          );
         };
       }
     );
-  };
-
-  config = {
-    flake.lib = {
-      # Helper to load recipes from a directory using import-tree
-      loadRecipes =
-        recipeRoot:
-        let
-          recipeFileToModule =
-            recipePath:
-            let
-              recipeName = lib.baseNameOf (lib.dirOf recipePath);
-            in
-            # Nix requires to remove the context of a string having one,
-            # when using it has an attribute name,
-            # and `recipeName` can inherit such context, eg. when `recipeRoot` is a `path/to/dir`.
-            # `recipePath` safely keeps any context it may have.
-            lib.nameValuePair (builtins.unsafeDiscardStringContext recipeName) {
-              imports = [ (lib.setDefaultModuleLocation recipePath recipePath) ];
-              config = {
-                inherit recipePath;
-              };
-            };
-        in
-        lib.pipe inputs.ngi-forge.inputs.import-tree [
-          (i: i.initFilter (lib.hasSuffix "/recipe.nix"))
-          (i: i.withLib lib)
-          (i: i.leafs recipeRoot)
-          (map recipeFileToModule)
-          lib.listToAttrs
-        ];
-    };
   };
 }

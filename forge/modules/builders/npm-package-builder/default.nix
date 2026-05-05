@@ -1,4 +1,5 @@
 {
+  specialArgs,
   flake-parts-lib,
   lib,
   ...
@@ -19,7 +20,11 @@ in
     }:
     {
       options.forge.packages = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.submoduleWith { modules = [ ./options.nix ]; });
+        type = lib.types.attrsOf (
+          lib.types.submoduleWith {
+            modules = [ ./options.nix ];
+          }
+        );
       };
 
       config.packages =

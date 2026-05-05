@@ -42,14 +42,29 @@
           };
 
           forge = {
-            repositoryUrl = "github:me/my-forge";
-            # Load app and package recipes using `ngi-forge.lib.loadRecipes`.
-            # `lib.mkForce` enable to load only your recipes and not also ngi-forge's recipes.
-            recipeDirs = {
-              apps = lib.mkForce [ recipes/apps ];
-              packages = lib.mkForce [ recipes/packages ];
+            repository = {
+              path = "my-user/my-forge";
             };
+            # Load app and package recipes using `ngi-forge.lib.loadRecipes`,
+            # discarding ngi-forge's recipes with `lib.mkForce`.
+            apps = lib.mkForce (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.self + "/recipes/apps";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.self}/recipe/apps/${path}";
+              }
+            );
+            packages = lib.mkForce (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.self + "/recipes/packages";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.self}/recipe/packages/${path}";
+              }
+            );
           };
+
         };
     };
 }

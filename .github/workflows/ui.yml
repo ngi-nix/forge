@@ -44,12 +44,6 @@ jobs:
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Encode version information
-        run: |
-          commit="$(git rev-parse HEAD)"
-          commit=${commit:-master}
-          sed -i "s/master/$commit/g" ui/src/Main/Config.elm
-
       - name: Configure the baseUrl
         run: |
           set -x

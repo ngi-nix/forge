@@ -1,4 +1,5 @@
 {
+  inputs,
   lib,
   specialArgs,
   flake-parts-lib,
@@ -106,6 +107,14 @@ in
           in
           {
             packages = allApps;
+            forge.apps = (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.ngi-forge + "/recipes/apps";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.ngi-forge}/recipe/apps/${path}";
+              }
+            );
           };
       }
     );

@@ -21,7 +21,6 @@ in
         options.forge.packages = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submoduleWith {
-              inherit specialArgs;
               modules = [ ./options.nix ];
             }
           );

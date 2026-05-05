@@ -8,7 +8,7 @@ let
   # and in users' `flake.nix` when they want to make a forge
   # based on ngi-forge's module system.
   # It currently is a flake-parts module.
-  #
+  #{ path }: "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.sourceInfo.rev}/recipe/apps/${path}"
   # Warning(compatibility): `inputs.ngi-forge` (resp. `inputs.ngi-forge.inputs`)
   # must usually be used instead of `self` (resp. `inputs`)
   # everywhere inside this `flakeModule`.
@@ -21,6 +21,7 @@ let
   flakeModule = {
     imports = [
       modules/forge.nix
+      modules/lib.nix
       modules/apps/default.nix
       modules/packages.nix
       ./packages.nix

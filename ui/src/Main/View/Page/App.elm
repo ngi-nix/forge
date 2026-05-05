@@ -142,7 +142,7 @@ viewPageAppResources model pageApp =
                 [ viewPageAppResourcesItem "Homepage" pageApp.pageApp_app.app_links.appLinks_website
                 , viewPageAppResourcesItem "Documentation" pageApp.pageApp_app.app_links.appLinks_docs
                 , viewPageAppResourcesItem "Source Repository" pageApp.pageApp_app.app_links.appLinks_source
-                , viewPageAppResourcesItem "Forge Recipe" (Just (showAppRecipeLink model pageApp.pageApp_app))
+                , viewPageAppResourcesItem "Forge Recipe" (Just pageApp.pageApp_app.app_recipeUrl)
                 ]
             )
         ]
@@ -164,15 +164,6 @@ viewPageAppResourcesItem name value =
                     [ text name ]
                 ]
             ]
-
-
-showAppRecipeLink : Model -> App -> String
-showAppRecipeLink model app =
-    String.join "/"
-        [ model.model_config.config_repository |> showNixUrl
-        , "blob/" ++ commit
-        , app.app_recipePath
-        ]
 
 
 viewPageAppNgiGrants : Model -> PageApp -> Html msg

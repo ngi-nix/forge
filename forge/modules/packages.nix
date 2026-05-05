@@ -1,6 +1,6 @@
 {
+  inputs,
   specialArgs,
-  config,
   lib,
   flake-parts-lib,
   ...
@@ -28,6 +28,7 @@ in
         config,
         system,
         pkgs,
+        #specialArgs,
         ...
       }:
       {
@@ -66,6 +67,15 @@ in
             assertionMessages = lib.concatMapStringsSep "\n" (x: "- ${x.message}") failedAssertions;
           in
           {
+            forge.packages = (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.ngi-forge + "/recipes/packages";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.ngi-forge}/recipe/packages/${path}";
+              }
+            );
+
             # Collect warnings from packages
             warnings = lib.flatten (
               map (pkg: [
