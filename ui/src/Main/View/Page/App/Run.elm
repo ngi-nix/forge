@@ -219,18 +219,14 @@ viewPageAppRunNixInstallPreferences model _ preferencesInstall =
                 |> String.join " "
 
         badgeClasses =
-            if isActive then
-                "badge rounded-pill "
-                    ++ (case preferencesInstall of
-                            PreferencesInstall_NixFlakes ->
-                                "text-bg-primary"
+            "badge rounded-pill "
+                ++ (case preferencesInstall of
+                        PreferencesInstall_NixFlakes ->
+                            "text-bg-primary"
 
-                            PreferencesInstall_NixTraditional ->
-                                "text-bg-secondary"
-                       )
-
-            else
-                "d-none"
+                        PreferencesInstall_NixTraditional ->
+                            "text-bg-secondary"
+                   )
     in
     li [ class "nav-item" ]
         [ button
