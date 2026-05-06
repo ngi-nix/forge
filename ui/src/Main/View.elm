@@ -39,6 +39,7 @@ view model =
                     [ class "d-none d-md-flex align-items-center gap-4" ]
                     [ viewPagePackagesLink
                     , viewPageRecipeOptionsLink Layout_Desktop
+                    , viewDocsLink
                     , viewThemeToggle model
                     ]
                 , button
@@ -72,6 +73,7 @@ view model =
                     [ ul [ class "nav flex-column gap-2" ]
                         [ li [ class "nav-item" ] [ viewPagePackagesLink ]
                         , li [ class "nav-item" ] [ viewPageRecipeOptionsLink Layout_Mobile ]
+                        , li [ class "nav-item" ] [ viewDocsLink ]
                         , li [ class "nav-item mt-2 pt-2 border-top" ] [ viewThemeToggle model ]
                         ]
                     ]
@@ -112,6 +114,19 @@ viewTitle =
             [ class "brand-text fw-bold" ]
             [ text "NGI Forge" ]
         ]
+
+
+viewDocsLink : Html Update
+viewDocsLink =
+    a
+        [ href "/docs/"
+        , target "_blank"
+        , style "color" "inherit"
+        , style "text-decoration" "none"
+        , style "cursor" "pointer"
+        , class "nav-link px-0 fw-bold"
+        ]
+        [ text "Docs" ]
 
 
 viewSearchInput : Model -> Html Update
