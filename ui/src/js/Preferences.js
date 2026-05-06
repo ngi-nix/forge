@@ -14,6 +14,11 @@ const initDefaultPreferences = () => {
     localStorage.setItem("preferences", JSON.stringify(preferences));
   }
 
+  if (preferences.container === undefined) {
+    preferences.container = "podman";
+    localStorage.setItem("preferences", JSON.stringify(preferences));
+  }
+
   // Set the inital theme on page load
   document.documentElement.setAttribute("data-bs-theme", preferences.theme);
 
