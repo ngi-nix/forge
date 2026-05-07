@@ -5,7 +5,7 @@
   ...
 }:
 
-rec {
+{
   name = "mox";
   version = "0.0.15";
   description = "Modern full-featured open source secure mail server for low-maintenance self-hosted email";
@@ -14,7 +14,7 @@ rec {
   license = lib.licenses.mit;
 
   source = {
-    git = "github:mjl-/mox/v${version}";
+    git = "github:mjl-/mox/v${config.version}";
     hash = "sha256-apIV+nClXTUbmCssnvgG9UwpTNTHTe6FgLCxp14/s0A=";
     patches = [
       ./version.patch
@@ -27,12 +27,12 @@ rec {
     ldflags = [
       "-s"
       "-w"
-      "-X github.com/mjl-/mox/moxvar.Version=${version}"
-      "-X github.com/mjl-/mox/moxvar.VersionBare=${version}"
+      "-X github.com/mjl-/mox/moxvar.Version=${config.version}"
+      "-X github.com/mjl-/mox/moxvar.VersionBare=${config.version}"
     ];
   };
 
   test.script = ''
-    mox version | grep "${version}"
+    mox version | grep "${config.version}"
   '';
 }
