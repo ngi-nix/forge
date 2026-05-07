@@ -156,15 +156,21 @@ viewPageAppRunNixInstall model pageApp =
                     (listPreferencesInstall
                         |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
                     )
-                 , br [] []
                  , p [ class "mb-1" ]
                     [ text "1. Install Nix "
                     , a [ href "https://github.com/NixOS/nix-installer#nix-installer", target "_blank" ]
                         [ text "(learn more about this installer)." ]
                     ]
-                 , codeBlock <|
-                    String.join "\n"
-                        [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
+                 , case model.model_preferences.preferences_install of
+                    PreferencesInstall_NixFlakes ->
+                        codeBlock <|
+                            String.join "\n"
+                                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable-flakes" ]
+
+                    PreferencesInstall_NixTraditional ->
+                        codeBlock <|
+                            String.join "\n"
+                                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
                  , small [ class "mb-1" ]
                     [ text "to uninstall, run:" ]
                  , codeBlock <|
