@@ -2,6 +2,6 @@
 
 ```{toctree}
 :hidden: true
-```
 
-TODO: User manual content.
+prerequisites
+```
