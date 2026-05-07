@@ -35,7 +35,7 @@
       #!${pkgs.runtimeShell}
       set -euo pipefail
 
-      export PATH=$\PATH:${
+      export PATH="\$PATH":${
         lib.makeBinPath [
           pkgs.coreutils
           pkgs.sqlite
