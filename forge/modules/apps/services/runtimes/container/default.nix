@@ -105,20 +105,35 @@
                 ${app.name}:
                   image: localhost/${app.name}:latest
             '';
+        build-oci-image = pkgs.writeShellScriptBin "build-oci-image" ''
+          ${config.result.recipe.copyTo}/bin/copy-to \
+            oci-archive:${app.name}.tar:${app.name}:${config.tag}
+          echo "Container image created in $(pwd)/${app.name}.tar ."
+        '';
+        compose-file = pkgs.runCommand "compose-file" { } ''
+          mkdir -p $out/${app.name}
+          cp ${effectiveComposeFile} $out/${app.name}/compose.yaml
+        '';
+        run-podman = pkgs.writeShellScriptBin "run-podman" ''
+          ${lib.getExe build-oci-image}
+          podman load <${app.name}.tar
+          ${lib.getExe pkgs.podman-compose} \
+            -f ${compose-file}/${app.name}/compose.yaml \
+            up --force-recreate "$@"
+        '';
+        run-container = pkgs.writeShellScriptBin "run-container" ''
+          ${lib.getExe run-podman} "$@"
+        '';
       in
-      pkgs.runCommand "build-oci-image" { meta.mainProgram = "build-oci-image"; } ''
-        mkdir -p $out/bin
-
-        cat > $out/bin/build-oci-image <<EOF
-        #!${pkgs.runtimeShell}
-        ${config.result.recipe.copyTo}/bin/copy-to \
-          oci-archive:${app.name}.tar:${app.name}:${config.tag}
-        EOF
-
-        chmod +x $out/bin/build-oci-image
-
-        mkdir -p $out/${app.name}
-        cp ${effectiveComposeFile} $out/${app.name}/compose.yaml
-      '';
+      pkgs.symlinkJoin {
+        name = "run-container";
+        paths = [
+          build-oci-image
+          compose-file
+          run-podman
+          run-container
+        ];
+        meta.mainProgram = "run-container";
+      };
   };
 }

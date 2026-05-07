@@ -33,11 +33,7 @@
         testScript = ''
           machine.start()
           machine.wait_for_unit("multi-user.target")
-          machine.succeed("${containerRuntime.result.build}/bin/build-oci-image")
-          machine.succeed("podman load < ${app.name}.tar")
-          machine.succeed(
-            "podman-compose --file ${containerRuntime.result.build}/${app.name}/compose.yaml up --detach"
-          )
+          machine.succeed("${lib.getExe containerRuntime.result.build} --detach")
           machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" config.script}")
         '';
       }).overrideTestDerivation

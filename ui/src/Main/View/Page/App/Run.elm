@@ -289,7 +289,7 @@ viewPageAppRunContainer model pageApp =
                 [ case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
                         String.concat
-                            [ "nix build "
+                            [ "nix run "
                             , showForgeInputFlakes model
                             , "#"
                             , pageApp.pageApp_app.app_name
@@ -304,14 +304,48 @@ viewPageAppRunContainer model pageApp =
                             , "."
                             , pageApp.pageApp_app.app_name
                             , ".container"
-                            , "' "
+                            , "' \n"
+                            , "\n"
+                            , "./result/bin/run-container"
                             ]
-                , ""
-                , "./result/bin/build-oci-image"
-                , ""
-                , "podman load < " ++ pageApp.pageApp_app.app_name ++ ".tar"
-                , "podman-compose --file $(pwd)/result/" ++ pageApp.pageApp_app.app_name ++ "/compose.yaml up --force-recreate"
                 ]
+        , hr [] []
+        , viewPageAppRunContainerBuildOCI model pageApp
+        ]
+
+
+viewPageAppRunContainerBuildOCI : Model -> PageApp -> Html Update
+viewPageAppRunContainerBuildOCI model pageApp =
+    details []
+        [ summary [] [ text "Build container image manually" ]
+        , br [] []
+        , codeBlock <|
+            case model.model_preferences.preferences_install of
+                PreferencesInstall_NixFlakes ->
+                    String.join "\n"
+                        [ String.concat
+                            [ "nix build "
+                            , showForgeInputFlakes model
+                            , "#"
+                            , pageApp.pageApp_app.app_name
+                            , ".container"
+                            ]
+                        , ""
+                        , "./result/bin/build-oci-image"
+                        ]
+
+                PreferencesInstall_NixTraditional ->
+                    String.concat
+                        [ "nix-build \\\n"
+                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                        , "  -E '(import <forge> {})"
+                        , "."
+                        , pageApp.pageApp_app.app_name
+                        , ".container"
+                        , "' \n"
+                        , "\n"
+                        , "./result/bin/build-oci-image"
+                        ]
         ]
 
 

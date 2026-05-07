@@ -26,23 +26,24 @@
       );
 
       devPkgs = with pkgs; [
-        gnumake
-        sphinxEnv
+        dive
         elmPackages.elm
         elmPackages.elm-language-server
         elmPackages.elm-review
         elmPackages.elm-test
         elmPackages.elm-test-rs
         esbuild
+        gnumake
         json-diff
         nixfmt
         nodejs
+        playwright-test
+        podman-compose
         self'.packages.elm-watch
         self'.packages.elm2nix
-        playwright-test
+        sphinxEnv
         systemd-manager-tui
         watchman
-        podman-compose
       ];
     in
 
