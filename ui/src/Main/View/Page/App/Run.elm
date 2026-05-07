@@ -345,6 +345,52 @@ viewPageAppRunNixOS model pageApp =
                         , ""
                         , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
                         ]
+        , hr [] []
+        , viewPageAppRunNixOSModule model pageApp
+        ]
+
+
+viewPageAppRunNixOSModule : Model -> PageApp -> Html Update
+viewPageAppRunNixOSModule model pageApp =
+    details []
+        [ summary [] [ text "Enable module in a NixOS configuration" ]
+        , br [] []
+        , codeBlock <|
+            case model.model_preferences.preferences_install of
+                PreferencesInstall_NixFlakes ->
+                    String.join "\n"
+                        [ "{"
+                        , "  inputs.forge.url = \"" ++ showForgeInputFlakesLatest model ++ "\";"
+                        , ""
+                        , "  outputs = { nixpkgs, forge, ... }: {"
+                        , "    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {"
+                        , "      modules = ["
+                        , "        forge.packages.${system}." ++ pageApp.pageApp_app.app_name ++ ".nixos.modules"
+                        , "        # ..."
+                        , "      ];"
+                        , "    };"
+                        , "  };"
+                        , "}"
+                        ]
+
+                PreferencesInstall_NixTraditional ->
+                    let
+                        forgeUrl =
+                            (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ commit ++ ".tar.gz"
+                    in
+                    String.join "\n"
+                        [ "{ config, pkgs, ... }:"
+                        , ""
+                        , "let"
+                        , "  forge-url = \"" ++ forgeUrl ++ "\";"
+                        , "  forge = import \"${builtins.fetchTarball forge-url}\" { inherit pkgs; };"
+                        , "in {"
+                        , "  imports = ["
+                        , "    forge.packages." ++ pageApp.pageApp_app.app_name ++ ".nixos.modules"
+                        , "  ];"
+                        , "  # ..."
+                        , "}"
+                        ]
         ]
 
 
@@ -368,4 +414,12 @@ showForgeInputFlakes model =
 
             _ ->
                 "/" ++ shortCommit
+        ]
+
+
+showForgeInputFlakesLatest : Model -> String
+showForgeInputFlakesLatest model =
+    String.concat
+        [ model.model_config.config_repository
+        , "/master"
         ]
