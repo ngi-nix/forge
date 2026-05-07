@@ -93,16 +93,16 @@ jobs:
 
       - name: Configure the baseUrl
         run: |
-          sed -i "s|:baseUrl|/|g" ui/src/Main/Model/Route.elm
-          sed -i "s|<base href=\"/\"|<base href=\"/\"|g" ui/src/index.html
+          sed -i "s|:baseUrl|/forge/|g" ui/src/Main/Model/Route.elm
+          sed -i "s|<base href=\"/\"|<base href=\"/forge/\"|g" ui/src/index.html
 
       - name: Build UI
         run: nix build .#_forge-ui --accept-flake-config
 
       - name: Resolve Nix Symlink
         run: |
-          mkdir -p deploy_dist
-          cp -rL result/. deploy_dist/
+          mkdir -p deploy_dist/forge
+          cp -rL result/. deploy_dist/forge/
 
       - name: Upload preview ui
         uses: actions/upload-artifact@v7
