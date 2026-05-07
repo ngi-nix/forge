@@ -87,10 +87,10 @@ jobs:
           DEPLOY_ID=$(grep 'Build logs:' deploy_output.txt | grep -o 'deploys/[^>]*' | cut -d'/' -f2)
 
           SITE_NAME=$(echo "$PREVIEW_URL" | sed -E 's/https:\/\/[^/]+--([^.]+)\.netlify\.app/\1/')
-          DEPLOY_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app"
+          DEPLOY_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app/forge"
 
           {
-            echo "PREVIEW_URL=$PREVIEW_URL"
+            echo "PREVIEW_URL=$PREVIEW_URL/forge"
             echo "DEPLOY_URL=$DEPLOY_URL"
             echo "DEPLOY_ID=$DEPLOY_ID"
           } >>"$GITHUB_ENV"
