@@ -116,10 +116,12 @@ viewTitle =
         ]
 
 
+{-| Note: Docs is not an elm route
+-}
 viewDocsLink : Html Update
 viewDocsLink =
     a
-        [ href "/docs/"
+        [ href "docs"
         , target "_blank"
         , style "color" "inherit"
         , style "text-decoration" "none"
