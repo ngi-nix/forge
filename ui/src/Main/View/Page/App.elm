@@ -60,6 +60,7 @@ viewPageAppHeader _ pageApp =
             , h2
                 [ class "mb-0 fw-bold"
                 , style "margin" "0"
+                , attribute "data-testid" "app-title"
                 ]
                 [ text pageApp.pageApp_app.app_displayName
                 ]
@@ -86,7 +87,11 @@ viewPageAppHeader _ pageApp =
 viewPageAppDescription : Model -> PageApp -> Html Update
 viewPageAppDescription model pageApp =
     div []
-        [ p [ class "text-body-secondary" ] [ text pageApp.pageApp_app.app_description ]
+        [ p
+            [ class "text-body-secondary"
+            , attribute "data-testid" "app-description"
+            ]
+            [ text pageApp.pageApp_app.app_description ]
         , viewPageAppUsage model pageApp
         ]
 
