@@ -9,8 +9,8 @@ test.describe("App Details Page", () => {
   });
 
   test("shows app title and description", async ({ page }) => {
-    await expect(page.locator("h2")).toBeVisible();
-    await expect(page.locator(".lead")).toBeVisible();
+    await expect(page.getByTestId("app-title")).toBeVisible();
+    await expect(page.getByTestId("app-description")).toBeVisible();
   });
 
   test("shows resources section with links", async ({ page }) => {

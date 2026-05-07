@@ -8,6 +8,11 @@ from faker import Faker
 fake = Faker()
 
 
+def run_command(cmd, **kwargs):
+    print(f"\n+ {' '.join(map(str, cmd))}")
+    return subprocess.run(cmd, **kwargs)
+
+
 def generate_grants():
     grants = {"Commons": [], "Core": [], "Entrust": [], "Review": []}
     for _ in range(fake.random_int(min=1, max=3)):
@@ -111,9 +116,12 @@ def main():
         sys.exit(1)
 
     git_root = Path(
-        subprocess.check_output(
-            ["git", "rev-parse", "--show-toplevel"], text=True
-        ).strip()
+        run_command(
+            ["git", "rev-parse", "--show-toplevel"],
+            stdout=subprocess.PIPE,
+            text=True,
+            check=True,
+        ).stdout.strip()
     )
     if not out_path.is_absolute():
         out_path = git_root / out_path
@@ -122,7 +130,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
-        _ = subprocess.run(
+        run_command(
             [
                 "git",
                 "archive",
@@ -134,7 +142,7 @@ def main():
             cwd=str(git_root),
             check=True,
         )
-        _ = subprocess.run(["tar", "-xf", "repo.tar"], cwd=str(temp_path), check=True)
+        run_command(["tar", "-xf", "repo.tar"], cwd=str(temp_path), check=True)
 
         mock_recipes_root = temp_path / "recipes"
         if mock_recipes_root.exists():
@@ -167,40 +175,35 @@ def main():
             with open(pkgs_dir / pkg_name / "recipe.nix", "w") as f:
                 f.write(generate_package_recipe(pkg_name, i))
 
-        _ = subprocess.run(
-            ["git", "init"], cwd=str(temp_path), check=True, capture_output=True
-        )
-        _ = subprocess.run(
+        run_command(["git", "init"], cwd=str(temp_path), check=True)
+        run_command(
             ["git", "config", "user.email", "foo@example.com"],
             cwd=str(temp_path),
             check=True,
         )
-        _ = subprocess.run(
+        run_command(
             ["git", "config", "user.name", "foo"],
             cwd=str(temp_path),
             check=True,
         )
-        _ = subprocess.run(
-            ["git", "add", "."], cwd=str(temp_path), check=True, capture_output=True
-        )
-        _ = subprocess.run(
+        run_command(["git", "add", "."], cwd=str(temp_path), check=True)
+        run_command(
             ["git", "commit", "-m", "gen mock recipes"],
             cwd=str(temp_path),
             check=True,
-            capture_output=True,
         )
 
         try:
-            result = subprocess.run(
+            result = run_command(
                 ["nix", "eval", ".#_forge-config.text", "--raw"],
                 cwd=str(temp_path),
-                capture_output=True,
+                stdout=subprocess.PIPE,
                 text=True,
                 check=True,
             )
             config_text = result.stdout
-        except subprocess.CalledProcessError as e:
-            print(f"Nix evaluation failed in temp repo:\n{e.stderr}")
+        except subprocess.CalledProcessError:
+            print("Nix evaluation failed in temp repo")
             sys.exit(1)
 
     tmp_dir = git_root / "ui/build/.tmp"
