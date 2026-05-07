@@ -4,6 +4,7 @@ import Html exposing (Attribute, Html, button, code, div, pre, text)
 import Html.Attributes exposing (class)
 import Html.Events
 import Json.Decode
+import Main.Icons exposing (iconCopy)
 import Main.Update.Types exposing (..)
 
 
@@ -14,7 +15,7 @@ codeBlock content =
             [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
             , onClick (Update_CopyToClipboard content)
             ]
-            [ text "" ]
+            [ iconCopy ]
         , pre [ class "p-3 rounded border border-secondary" ]
             [ code [] [ text content ] ]
         ]

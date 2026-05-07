@@ -73,12 +73,12 @@ body {
   opacity: 0.7;
 }
 
-.button.copy:before {
-  content: "⿻ Copy";
+.button.copy:after {
+  content: "Copy";
 }
 
-.button.copy.active:before {
-  content: "⿻ Copied ✓";
+.button.copy.active:after {
+  content: "Copied ✓";
 }
 
 .button.copy.active {
@@ -326,6 +326,13 @@ a:link {
   .col-xxl-8-5 {
     flex: 0 0 auto;
     width: 70.833334%; /* (8.5 / 12) * 100 */
+  }
+}
+
+/* custom bootstrap modal width */
+@media (min-width: 992px) {
+  .modal-lm-custom {
+    max-width: 950px;
   }
 }
 

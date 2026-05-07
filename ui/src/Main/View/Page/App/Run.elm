@@ -40,7 +40,7 @@ viewPageAppRun model pageApp =
                 , onClick (Update_RouteWithoutHistory onClickRoute)
                 ]
                 [ div
-                    [ class "modal-dialog modal-lg"
+                    [ class "modal-dialog modal-lm-custom"
                     , stopPropagationOn "click" (Decode.succeed ( Update_NoOp, True ))
                     ]
                     [ div [ class "modal-content" ]
@@ -156,15 +156,21 @@ viewPageAppRunNixInstall model pageApp =
                     (listPreferencesInstall
                         |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
                     )
-                 , br [] []
                  , p [ class "mb-1" ]
                     [ text "1. Install Nix "
                     , a [ href "https://github.com/NixOS/nix-installer#nix-installer", target "_blank" ]
                         [ text "(learn more about this installer)." ]
                     ]
-                 , codeBlock <|
-                    String.join "\n"
-                        [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
+                 , case model.model_preferences.preferences_install of
+                    PreferencesInstall_NixFlakes ->
+                        codeBlock <|
+                            String.join "\n"
+                                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable-flakes" ]
+
+                    PreferencesInstall_NixTraditional ->
+                        codeBlock <|
+                            String.join "\n"
+                                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
                  , small [ class "mb-1" ]
                     [ text "to uninstall, run:" ]
                  , codeBlock <|
@@ -219,18 +225,14 @@ viewPageAppRunNixInstallPreferences model _ preferencesInstall =
                 |> String.join " "
 
         badgeClasses =
-            if isActive then
-                "badge rounded-pill "
-                    ++ (case preferencesInstall of
-                            PreferencesInstall_NixFlakes ->
-                                "text-bg-primary"
+            "badge rounded-pill "
+                ++ (case preferencesInstall of
+                        PreferencesInstall_NixFlakes ->
+                            "text-bg-primary"
 
-                            PreferencesInstall_NixTraditional ->
-                                "text-bg-secondary"
-                       )
-
-            else
-                "d-none"
+                        PreferencesInstall_NixTraditional ->
+                            "text-bg-secondary"
+                   )
     in
     li [ class "nav-item" ]
         [ button
