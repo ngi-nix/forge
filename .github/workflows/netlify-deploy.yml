@@ -17,6 +17,8 @@ jobs:
   deploy-preview:
     name: Push Preview to Netlify
     runs-on: ubuntu-latest
+    outputs:
+      PREVIEW_URL: ${{ steps.deploy.outputs.PREVIEW_URL }}
     permissions:
       deployments: write # deployments
       statuses: write # commit statuses
@@ -72,6 +74,7 @@ jobs:
             ${{ runner.os }}-npx-netlify-
 
       - name: Deploy to Netlify
+        id: deploy
         if: env.PR_NUMBER != ''
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -94,6 +97,7 @@ jobs:
             echo "DEPLOY_URL=$DEPLOY_URL"
             echo "DEPLOY_ID=$DEPLOY_ID"
           } >>"$GITHUB_ENV"
+          echo "PREVIEW_URL=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
 
       - name: Post PR Comment
         if: env.PR_NUMBER != ''
@@ -231,3 +235,31 @@ jobs:
             -f state="success" \
             -f environment_url="${{ env.DEPLOY_URL }}" \
             -f description="Preview is ready!"
+
+  e2e-staging:
+    name: UI tests on Staging deployment (${{ matrix.project }})
+    runs-on: ${{ matrix.os }}
+    needs: deploy-preview
+    if: needs.deploy-preview.result == 'success'
+    strategy:
+      fail-fast: true
+      matrix:
+        project: [chromium, firefox, mobile]
+        os: [ubuntu-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31.10.0
+
+      - uses: cachix/cachix-action@v16
+        with:
+          name: ngi-forge
+
+      - name: Run Playwright tests
+        run: nix develop -c playwright test -c ui/tests/e2e --project=${{ matrix.project }} -x
+        env:
+          BASE_URL: ${{ needs.deploy-preview.outputs.PREVIEW_URL }}
