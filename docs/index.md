@@ -5,6 +5,7 @@
 
 manuals/user/index.md
 manuals/contributor/index.md
+manuals/developer/index.md
 announcements/index.md
 ```
 
