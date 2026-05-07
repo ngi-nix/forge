@@ -93,6 +93,11 @@ in
               })
               // lib.optionalAttrs app.services.runtimes.container.enable {
                 container = app.services.runtimes.container.result.build;
+                run-container = app.services.runtimes.container.result.build.run-container;
+                run-podman = app.services.runtimes.container.result.build.run-podman;
+                run-docker = app.services.runtimes.container.result.build.run-docker;
+                run-podman-compose = app.services.runtimes.container.result.build.run-podman-compose;
+                run-docker-compose = app.services.runtimes.container.result.build.run-docker-compose;
               }
               // lib.optionalAttrs app.services.runtimes.nixos.enable {
                 vm = app.services.runtimes.nixos.result.build;

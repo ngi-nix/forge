@@ -17,7 +17,11 @@
 
     If running inside a container, connect to it with:
     ```
+    # podman
     podman-compose -f result/mox-app/compose.yaml exec mox-app bash
+
+    # docker
+    docker-compose -f result/mox-app/compose.yaml exec mox-app bash
     ```
 
     Set admin password:

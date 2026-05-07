@@ -339,7 +339,8 @@ a:link {
 /* options filters colors */
 
 [data-bs-theme="light"] {
-  --bs-primary-rgb: 76, 110, 181; /* nixos logo color dark blue - Not enough contrast */
+  --bs-primary-rgb:
+    76, 110, 181; /* nixos logo color dark blue - Not enough contrast */
   --bs-primary-text-emphasis: #4d6fb6;
 }
 
@@ -370,12 +371,116 @@ a:link {
   --option-type-color: #2d6101; /* another green adjusted for contrast */
 }
 
-/* packages tiles colors */
+/* pydata-sphinx-theme/nix.dev - tabs for container engines */
 
-[data-bs-theme="light"] {
-  --bs-code-color: #00408d;
+.pst-tab-set {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-bottom: -0.125rem; /* Exactly overlap the container's 2px border */
+  padding-left: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  position: relative;
+  z-index: 1;
 }
 
-[data-bs-theme="dark"] {
-  --bs-code-color: #b2d5ff;
+.pst-tab-label {
+  display: block;
+  padding: 0.2rem 0.75rem;
+  line-height: 1.5;
+  cursor: pointer;
+  border: 0.125rem solid transparent;
+  border-radius: 0.375rem 0.375rem 0 0;
+  margin-left: 0.25rem;
+  background-color: transparent;
+  color: #506fb2;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.1s ease-in-out;
+}
+
+[data-bs-theme="dark"] .pst-tab-label {
+  color: #698dd8;
+}
+
+.pst-tab-label.active {
+  border-style: solid solid none;
+  border-color: #2579ab #2579ab #ffffff;
+  box-shadow:
+    0.125rem 0 0 0 #2579ab,
+    -0.125rem 0 0 0 #2579ab; /* instead of border use box-shadow to fix https://stackoverflow.com/a/14845818 */
+  border-right: 0px;
+  border-left: 0px;
+  background-color: #ffffff;
+  color: #2579ab;
+  border-bottom: 0.125rem solid #ffffff; /* Hide the box border underneath */
+}
+
+[data-bs-theme="dark"] .pst-tab-label.active {
+  border-color: #3d98d1 #3d98d1 #212529;
+  background-color: #212529; /* Match modal/background */
+  color: #3d98d1;
+  box-shadow:
+    0.125rem 0 0 0 #3d98d1,
+    -0.125rem 0 0 0 #3d98d1;
+  border-bottom-color: #212529;
+}
+
+.pst-tab-label:not(.active):hover {
+  color: #2579ab;
+  text-decoration: underline;
+}
+
+[data-bs-theme="dark"] .pst-tab-label:not(.active):hover {
+  color: #3d98d1;
+}
+
+.pst-tab-content-container {
+  border: 0.125rem solid #2579ab;
+  padding: 1rem;
+  border-radius: 0.375rem; /* All corners rounded by default */
+  border-right: 0px;
+  box-shadow: 0.125rem 0 0 0 #2579ab;
+  background-color: #ffffff;
+  position: relative;
+}
+
+[data-bs-theme="dark"] .pst-tab-content-container {
+  border-color: #3d98d1;
+  background-color: #212529;
+  box-shadow: 0.125rem 0 0 0 #3d98d1;
+}
+
+/* flatten top-right ONLY when there are tabs above (right-aligned tabs) */
+.pst-tab-set + .pst-tab-content-container {
+  border-top-right-radius: 0;
+}
+
+/* colorless bootstrap accordion via variable overrides */
+.accordion.pst-colorless {
+  --bs-accordion-active-bg: transparent;
+  --bs-accordion-active-color: inherit;
+  --bs-accordion-btn-focus-box-shadow: none;
+  --bs-accordion-border-color: transparent;
+  --bs-accordion-body-padding-x: 0;
+  --bs-accordion-body-padding-y: 0;
+}
+
+.accordion.pst-colorless .accordion-item {
+  background-color: transparent;
+  border: none;
+}
+
+.accordion.pst-colorless .accordion-button:not(.collapsed) {
+  box-shadow: none;
+}
+
+.accordion.pst-colorless summary.accordion-header {
+  padding-left: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+.accordion.pst-colorless .accordion-body {
+  padding-top: 1rem !important;
 }

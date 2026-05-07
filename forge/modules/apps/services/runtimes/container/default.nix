@@ -106,8 +106,10 @@
                   image: localhost/${app.name}:latest
             '';
         build-oci-image = pkgs.writeShellScriptBin "build-oci-image" ''
+          set -euo pipefail
+          rm -f ${app.name}.tar
           ${config.result.recipe.copyTo}/bin/copy-to \
-            oci-archive:${app.name}.tar:${app.name}:${config.tag}
+            docker-archive:${app.name}.tar:localhost/${app.name}:${config.tag}
           echo "Container image created in $(pwd)/${app.name}.tar ."
         '';
         compose-file = pkgs.runCommand "compose-file" { } ''
@@ -115,14 +117,51 @@
           cp ${effectiveComposeFile} $out/${app.name}/compose.yaml
         '';
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
+          set -euo pipefail
           ${lib.getExe build-oci-image}
           podman load <${app.name}.tar
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
             up --force-recreate "$@"
         '';
+        run-docker = pkgs.writeShellScriptBin "run-docker" ''
+          set -euo pipefail
+          ${lib.getExe build-oci-image}
+          docker load <${app.name}.tar
+          docker-compose -f ${compose-file}/${app.name}/compose.yaml up --force-recreate "$@"
+        '';
+        run-podman-compose = pkgs.writeShellScriptBin "run-podman-compose" ''
+          exec podman-compose -f ${compose-file}/${app.name}/compose.yaml "$@"
+        '';
+        run-docker-compose = pkgs.writeShellScriptBin "run-docker-compose" ''
+          exec docker compose -f ${compose-file}/${app.name}/compose.yaml "$@"
+        '';
         run-container = pkgs.writeShellScriptBin "run-container" ''
-          ${lib.getExe run-podman} "$@"
+          set -euo pipefail
+
+          GREEN='\033[0;32m'
+          YELLOW='\033[1;33m'
+          RED='\033[0;31m'
+          NC='\033[0m' # No Color
+
+          HAS_PODMAN=$(command -v podman >/dev/null 2>&1 && echo 1 || echo 0)
+          HAS_DOCKER=$(command -v docker >/dev/null 2>&1 && echo 1 || echo 0)
+
+          if [ "$HAS_PODMAN" -eq 1 ] && [ "$HAS_DOCKER" -eq 1 ]; then
+            echo -e "''${YELLOW}[WARNING]:''${NC} both podman and docker found, using podman by default."
+            echo -e "''${GREEN}[INFO]:''${NC} to use docker explicitly, run '.run-docker'."
+            exec ${lib.getExe run-podman} "$@"
+          elif [ "$HAS_PODMAN" -eq 1 ]; then
+            echo -e "''${GREEN}[INFO]:''${NC} podman found, using podman as the container engine."
+            exec ${lib.getExe run-podman} "$@"
+          elif [ "$HAS_DOCKER" -eq 1 ]; then
+            echo -e "''${GREEN}[INFO]:''${NC} docker found, using docker as the container engine."
+            exec ${lib.getExe run-docker} "$@"
+          else
+            echo -e "''${RED}[ERROR]:''${NC} podman and docker not found in PATH."
+            echo -e "Please install one of them to run application services in OCI containers."
+            exit 1
+          fi
         '';
       in
       pkgs.symlinkJoin {
@@ -131,8 +170,20 @@
           build-oci-image
           compose-file
           run-podman
+          run-docker
+          run-podman-compose
+          run-docker-compose
           run-container
         ];
+        passthru = {
+          inherit
+            run-podman
+            run-docker
+            run-podman-compose
+            run-docker-compose
+            run-container
+            ;
+        };
         meta.mainProgram = "run-container";
       };
   };

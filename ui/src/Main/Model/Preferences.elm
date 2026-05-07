@@ -6,6 +6,7 @@ import Json.Encode as Encode exposing (Value)
 
 type alias Preferences =
     { preferences_install : PreferencesInstall
+    , preferences_container : PreferencesContainer
     , preferences_theme : PreferencesTheme
     }
 
@@ -13,18 +14,26 @@ type alias Preferences =
 defaultPreferences : Preferences
 defaultPreferences =
     { preferences_install = PreferencesInstall_NixFlakes
+    , preferences_container = PreferencesContainer_Podman
     , preferences_theme = PreferencesTheme_Light
     }
 
 
 decodePreferences : Decoder Preferences
 decodePreferences =
-    Decode.map2
+    Decode.map3
         Preferences
         (Decode.field "install"
             (Decode.oneOf
                 [ decodePreferencesInstall
                 , Decode.succeed defaultPreferences.preferences_install
+                ]
+            )
+        )
+        (Decode.field "container"
+            (Decode.oneOf
+                [ decodePreferencesContainer
+                , Decode.succeed defaultPreferences.preferences_container
                 ]
             )
         )
@@ -41,6 +50,7 @@ encodePreferences : Preferences -> Value
 encodePreferences preferences =
     Encode.object
         [ ( "install", preferences.preferences_install |> encodePreferencesInstall )
+        , ( "container", preferences.preferences_container |> encodePreferencesContainer )
         , ( "theme", preferences.preferences_theme |> encodePreferencesTheme )
         ]
 
@@ -90,6 +100,46 @@ listPreferencesInstall : List PreferencesInstall
 listPreferencesInstall =
     [ PreferencesInstall_NixFlakes
     , PreferencesInstall_NixTraditional
+    ]
+
+
+type PreferencesContainer
+    = PreferencesContainer_Podman
+    | PreferencesContainer_Docker
+
+
+decodePreferencesContainer : Decoder PreferencesContainer
+decodePreferencesContainer =
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "podman" ->
+                        Decode.succeed PreferencesContainer_Podman
+
+                    "docker" ->
+                        Decode.succeed PreferencesContainer_Docker
+
+                    _ ->
+                        Decode.fail <| "Invalid PreferencesContainer: " ++ s
+            )
+
+
+encodePreferencesContainer : PreferencesContainer -> Value
+encodePreferencesContainer pref =
+    Encode.string <|
+        case pref of
+            PreferencesContainer_Podman ->
+                "podman"
+
+            PreferencesContainer_Docker ->
+                "docker"
+
+
+listPreferencesContainer : List PreferencesContainer
+listPreferencesContainer =
+    [ PreferencesContainer_Podman
+    , PreferencesContainer_Docker
     ]
 
 
