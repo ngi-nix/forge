@@ -54,7 +54,8 @@
       command = pkgs.sylkserver;
       argv = [
         "--no-fork"
-        "--config-dir /var/lib/sylkserver/config"
+        "--config-dir"
+        "/var/lib/sylkserver/config"
       ];
       configData = {
         "sylkserver/config.ini" = {
