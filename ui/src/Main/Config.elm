@@ -2,35 +2,14 @@ module Main.Config exposing (..)
 
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
-import List
 import Main.Config.App as Config exposing (..)
 import Main.Config.Package as Config exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Model.Error exposing (..)
-import Url exposing (Url)
-
-
-commit : String
-commit =
-    "master"
-
-
-{-| Note: master is < 8 chars
--}
-shortCommit : String
-shortCommit =
-    String.left 8 commit
-
-
-{-| Warning(portability): `Url` only supports HTTP(s) protocol.
--}
-type alias UrlHttp =
-    Url
 
 
 type alias Config =
-    { config_repository : NixUrl
-    , config_recipe : ConfigRecipe
+    { config_repository : Repository
     , config_apps : Dict AppName App
     , config_packages : Dict PackageName Package
     }
@@ -38,8 +17,7 @@ type alias Config =
 
 initConfig : Config
 initConfig =
-    { config_repository = "github:ngi-nix/forge"
-    , config_recipe = initRecipe
+    { config_repository = initRepository
     , config_apps = Dict.empty
     , config_packages = Dict.empty
     }
@@ -47,39 +25,45 @@ initConfig =
 
 decodeConfig : Decoder Config
 decodeConfig =
-    Decode.map4 Config
-        (Decode.field "repositoryUrl" Decode.string)
-        (Decode.field "recipeDirs" decodeConfigRecipe)
-        (Decode.field "apps"
-            (Decode.list Config.decodeApp
-                |> Decode.map (List.map (\app -> ( app.app_name, app )) >> Dict.fromList)
-            )
-        )
-        (Decode.field "packages"
-            (Decode.list Config.decodePackage
-                |> Decode.map (List.map (\pkg -> ( pkg.package_name, pkg )) >> Dict.fromList)
-            )
-        )
+    Decode.map3 Config
+        (Decode.field "repository" decodeRepository)
+        (Decode.field "apps" (Decode.dict Config.decodeApp))
+        (Decode.field "packages" (Decode.dict Config.decodePackage))
 
 
-type alias ConfigRecipe =
-    { configRecipe_apps : Directory
-    , configRecipe_packages : Directory
+type alias Repository =
+    { repository_archiveUrl : String
+    , repository_commitRef : String
+    , repository_gitUrl : String
+    , repository_homeUrl : String
+    , repository_nixUrl : String
+    , repository_path : String
+    , repository_treeUrl : String
     }
 
 
-initRecipe : ConfigRecipe
-initRecipe =
-    { configRecipe_apps = ""
-    , configRecipe_packages = ""
+initRepository : Repository
+initRepository =
+    { repository_archiveUrl = ""
+    , repository_commitRef = ""
+    , repository_gitUrl = ""
+    , repository_homeUrl = ""
+    , repository_nixUrl = ""
+    , repository_path = ""
+    , repository_treeUrl = ""
     }
 
 
-decodeConfigRecipe : Decoder ConfigRecipe
-decodeConfigRecipe =
-    Decode.map2 ConfigRecipe
-        (Decode.field "apps" decodeDirectory)
-        (Decode.field "packages" decodeDirectory)
+decodeRepository : Decoder Repository
+decodeRepository =
+    Decode.map7 Repository
+        (Decode.field "archiveUrl" Decode.string)
+        (Decode.field "commitRef" Decode.string)
+        (Decode.field "gitUrl" Decode.string)
+        (Decode.field "homeUrl" Decode.string)
+        (Decode.field "nixUrl" Decode.string)
+        (Decode.field "path" Decode.string)
+        (Decode.field "treeUrl" Decode.string)
 
 
 type alias Path =

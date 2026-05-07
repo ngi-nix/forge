@@ -1,4 +1,5 @@
 {
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -6,7 +7,6 @@
 }:
 
 {
-  name = "mox-app";
   displayName = "Mox";
   description = "Modern full-featured open source secure mail server for low-maintenance self-hosted email.";
   usage = ''
@@ -70,7 +70,7 @@
         cp -v ''$XDG_CONFIG_HOME/mox.conf /var/lib/mox/config/mox.conf
         cp -v ''$XDG_CONFIG_HOME/domains.conf /var/lib/mox/config/domains.conf
       '';
-      command = pkgs.mypkgs.mox;
+      command = systemConfig.packages.mox;
       argv = [
         "-config"
         "/var/lib/mox/config/mox.conf"
@@ -95,8 +95,8 @@
 
             # Generate DKIM keys
             mkdir -p config/dkim
-            ${pkgs.mypkgs.mox}/bin/mox dkim genrsa > config/dkim/dkima.rsa2048.privatekey.pkcs8.pem
-            ${pkgs.mypkgs.mox}/bin/mox dkim genrsa > config/dkim/dkimb.rsa2048.privatekey.pkcs8.pem
+            ${systemConfig.packages.mox}/bin/mox dkim genrsa > config/dkim/dkima.rsa2048.privatekey.pkcs8.pem
+            ${systemConfig.packages.mox}/bin/mox dkim genrsa > config/dkim/dkimb.rsa2048.privatekey.pkcs8.pem
 
             # Create data directory
             mkdir data
@@ -106,7 +106,7 @@
         packages = [
           pkgs.bash # required for entering the container
           pkgs.coreutils # required for mkdir, echo
-          pkgs.mypkgs.mox # required for admin tasks
+          systemConfig.packages.mox # required for admin tasks
           pkgs.shadow # required for useradd
         ];
         composeFile = ./compose.yaml;
@@ -121,15 +121,15 @@
 
             # Generate DKIM keys
             mkdir -p config/dkim
-            ${pkgs.mypkgs.mox}/bin/mox dkim genrsa > config/dkim/dkima.rsa2048.privatekey.pkcs8.pem
-            ${pkgs.mypkgs.mox}/bin/mox dkim genrsa > config/dkim/dkimb.rsa2048.privatekey.pkcs8.pem
+            ${systemConfig.packages.mox}/bin/mox dkim genrsa > config/dkim/dkima.rsa2048.privatekey.pkcs8.pem
+            ${systemConfig.packages.mox}/bin/mox dkim genrsa > config/dkim/dkimb.rsa2048.privatekey.pkcs8.pem
 
             # Create data directory
             mkdir data
             chown mox:mox data
           fi
         '';
-        packages = [ pkgs.mypkgs.mox ];
+        packages = [ systemConfig.packages.mox ];
         extraConfig = {
           networking.enableIPv6 = false;
           # Use a public DNSSEC-validating resolver

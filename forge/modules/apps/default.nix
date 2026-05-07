@@ -1,6 +1,7 @@
 {
-  lib,
   inputs,
+  lib,
+  specialArgs,
   flake-parts-lib,
   ...
 }:
@@ -21,35 +22,26 @@ in
       {
         config,
         pkgs,
-        nimi,
         system,
         ...
       }:
       let
-        cfg = config.forge.apps;
+        cfg = config.forge;
       in
       {
         options = {
-          forge = {
-            apps = lib.mkOption {
-              default = [ ];
-              description = "List of applications.";
-              type = lib.types.listOf (
-                lib.types.submoduleWith {
-                  specialArgs = {
-                    inherit
-                      inputs
-                      nimi
-                      system
-                      ;
-                    # Extend pkgs with mypkgs containing all NGI Forge packages
-                    # This allows recipes to reference other packages via mypkgs
-                    pkgs = pkgs.extend (final: prev: { mypkgs = config.packages; });
-                  };
-                  modules = [ ./app.nix ];
-                }
-              );
-            };
+          forge.apps = lib.mkOption {
+            default = { };
+            description = "List of applications.";
+            type = lib.types.attrsOf (
+              lib.types.submoduleWith {
+                specialArgs = specialArgs // {
+                  systemConfig = config;
+                  inherit pkgs system;
+                };
+                modules = [ ./app.nix ];
+              }
+            );
           };
         };
 
@@ -86,7 +78,7 @@ in
                 # consumer forges can compose into proper applications.
                 #
                 # That's why we remove `result`, because it's tied to the
-                # providers' aleady generated applications, which can cause
+                # providers' already generated applications, which can cause
                 # conflicts.
                 extendRecipe =
                   module: lib.filterAttrsRecursive (name: _: name != "result") (self.extend module).config;
@@ -111,15 +103,18 @@ in
             # finalApp parameter is currently not used in this function
             appPassthru = app: finalApp: mkPassthru app;
 
-            allApps = lib.listToAttrs (
-              map (app: {
-                name = "${app.name}";
-                value = shellBundle app;
-              }) cfg
-            );
+            allApps = lib.mapAttrs (name: app: shellBundle app) cfg.apps;
           in
           {
             packages = allApps;
+            forge.apps = (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.ngi-forge + "/recipes/apps";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.ngi-forge}/recipe/apps/${path}";
+              }
+            );
           };
       }
     );

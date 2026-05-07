@@ -1,5 +1,5 @@
 {
-  inputs,
+  ngi-forge,
   config,
   lib,
   flake-parts-lib,

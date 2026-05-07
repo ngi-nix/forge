@@ -246,19 +246,19 @@ viewPoweredBy model =
         , span []
             [ text " Contribute or report issues at "
             , a
-                [ href (model.model_config.config_repository |> showNixUrl)
+                [ href model.model_config.config_repository.repository_homeUrl
                 , target "_blank"
                 ]
-                [ text (model.model_config.config_repository |> showGithubRepoSlug) ]
+                [ text model.model_config.config_repository.repository_path ]
             , text "."
             ]
         , span []
             [ text " Version "
             , a
-                [ href ((model.model_config.config_repository |> showNixUrl) ++ "/tree/" ++ commit)
+                [ href model.model_config.config_repository.repository_treeUrl
                 , target "_blank"
                 ]
-                [ text shortCommit ]
+                [ text model.model_config.config_repository.repository_commitRef ]
             , text "."
             ]
         ]

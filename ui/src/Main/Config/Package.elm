@@ -9,10 +9,10 @@ type alias Package =
     , package_description : String
     , package_version : String
     , package_homePage : String
-    , package_mainProgram : String
+    , package_mainProgram : Maybe String
     , package_licenses : List PackageLicense
     , package_source : PackageSource
-    , package_recipePath : String
+    , package_recipeUrl : String
     }
 
 
@@ -23,10 +23,10 @@ decodePackage =
         (Decode.field "description" Decode.string)
         (Decode.field "version" Decode.string)
         (Decode.field "homePage" Decode.string)
-        (Decode.field "mainProgram" Decode.string)
+        (Decode.field "mainProgram" (Decode.maybe Decode.string))
         (Decode.field "license" decodeLicenses)
         (Decode.field "source" decodeSource)
-        (Decode.field "recipePath" Decode.string)
+        (Decode.field "recipeUrl" Decode.string)
 
 
 type alias PackageName =

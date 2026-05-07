@@ -100,7 +100,7 @@ viewPagePackagesItem model pagePackages package =
             (List.append
                 (package.package_licenses |> List.map viewLicense)
                 [ a
-                    [ href <| showPackageRecipeLink model package
+                    [ href package.package_recipeUrl
                     , target "_blank"
                     , rel "noopener"
                     , onClickStopPropagation
@@ -130,12 +130,3 @@ viewLicense obj =
 
         Nothing ->
             span [] [ text label ]
-
-
-showPackageRecipeLink : Model -> Package -> String
-showPackageRecipeLink model package =
-    String.join "/"
-        [ model.model_config.config_repository |> showNixUrl
-        , "blob/" ++ commit
-        , package.package_recipePath
-        ]

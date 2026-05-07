@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "python-web";
   version = "0.0.1";
   description = "Python web application example built from GitHub source.";
   homePage = "https://github.com/imincik/python-web-example";

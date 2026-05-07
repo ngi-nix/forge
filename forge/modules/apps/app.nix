@@ -2,9 +2,9 @@
   config,
   lib,
   extendModules,
+  specialArgs,
 
-  inputs,
-  nimi,
+  name,
   pkgs,
   system,
   ...
@@ -14,16 +14,19 @@
     # General configuration
     name = lib.mkOption {
       type = lib.types.str;
-      default = "my-application";
+      default = name;
+      description = "Name of the application used as attribute name in `apps`.";
+      readOnly = true;
     };
     displayName = lib.mkOption {
       type = lib.types.str;
-      default = config.name;
+      default = name;
       description = "Human readable application name. Defaults to `name` if not set.";
     };
     description = lib.mkOption {
       type = lib.types.str;
       default = "";
+      description = "Description of the application.";
     };
     usage = lib.mkOption {
       type = lib.types.str;
@@ -51,13 +54,8 @@
     # https://nixos.org/manual/nixos/unstable/#modular-services
     services = lib.mkOption {
       type = lib.types.submoduleWith {
-        specialArgs = {
-          inherit
-            inputs
-            system
-            pkgs
-            nimi
-            ;
+        specialArgs = specialArgs // {
+          inherit system pkgs;
           app = config;
         };
         modules = [ ./services ];
@@ -84,11 +82,10 @@
       description = "Test configuration.";
     };
 
-    recipePath = lib.mkOption {
+    recipeUrl = lib.mkOption {
       type = lib.types.str;
-      default = "";
       internal = true;
-      description = "Path to the recipe.nix file relative to the flake root. Set automatically by the recipe loader.";
+      description = "URL to the recipe.nix file.";
     };
 
     result = {

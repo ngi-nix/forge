@@ -1,4 +1,8 @@
-{ inputs, flake-parts-lib, ... }:
+{
+  inputs,
+  specialArgs,
+  ...
+}:
 
 {
   perSystem =
@@ -13,13 +17,14 @@
       forgeModules = [
         ./modules/apps
         ./modules/packages.nix
+        ./modules/forge.nix
       ];
 
       evalForgeModules =
         modules:
         lib.evalModules {
+          inherit specialArgs;
           modules = modules;
-          specialArgs = { inherit flake-parts-lib inputs; };
         };
 
       forgeOptionsDoc =
@@ -33,7 +38,7 @@
             // {
               name = lib.removePrefix "perSystem.forge." opt.name;
               declarations = [ ];
-              visible = lib.match ("^perSystem\\.forge\\.(apps|packages)(\\..+)?") opt.name != null;
+              visible = lib.match ("^perSystem\\.forge\\.(.+)?") opt.name != null;
             };
         };
 
@@ -43,10 +48,12 @@
       appIcons = pkgs.runCommand "app-icons" { } ''
         mkdir -p $out
         ${lib.concatStringsSep "\n" (
-          map (app: ''
-            mkdir -p $out/${app.name}
-            ${if app.icon or null != null then "cp ${app.icon} $out/${app.name}/icon.svg" else ""}
-          '') config.forge.apps
+          lib.attrValues (
+            lib.mapAttrs (appName: app: ''
+              mkdir -p $out/${appName}
+              ${if app.icon or null != null then "cp ${app.icon} $out/${appName}/icon.svg" else ""}
+            '') config.forge.apps
+          )
         )}
       '';
     in
@@ -64,7 +71,7 @@
         _forge-ui = pkgs.callPackage ../ui/package.nix {
           inherit (config.packages) _forge-config _forge-docs _forge-options;
           inherit appIcons;
-          buildElmApplication = (inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
+          buildElmApplication = (inputs.ngi-forge.inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
         };
 
         _forge-docs = pkgs.callPackage ../flake/packages/forge-docs.nix { };

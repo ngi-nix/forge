@@ -30,19 +30,9 @@ let
 
     debug = flake.outputs.allSystems.x86_64-linux;
 
-    apps = lib.listToAttrs (
-      map (v: {
-        name = v.name;
-        value = v;
-      }) def.debug.forge.apps
-    );
+    apps = def.debug.forge.apps;
 
-    forgePkgs = lib.listToAttrs (
-      map (v: {
-        name = v.name;
-        value = v;
-      }) def.debug.forge.packages
-    );
+    forgePkgs = def.forge.packages;
 
     shells = flake.outputs.devShells.${system};
   });
