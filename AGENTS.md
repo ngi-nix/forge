@@ -42,13 +42,13 @@ This specification guides LLMs in generating NGI Forge recipes - declarative con
 
 ### Accessing NGI Forge Packages
 
-Other packages built by NGI Forge can be referenced in recipes using `rootConfig.packages`:
+Other packages built by NGI Forge can be referenced in recipes using `systemConfig.packages`:
 
 ```nix
 {
   # Reference another NGI Forge package
   packages.run = [
-    rootConfig.packages.gdal  # Access gdal from NGI Forge
+    systemConfig.packages.gdal  # Access gdal from NGI Forge
   ];
 }
 ```
@@ -492,7 +492,7 @@ Services define processes that run within the application. They can be used acro
 ```nix
 services = {
   my-service = {
-    command = rootConfig.packages.my-package;  # Package or string
+    command = systemConfig.packages.my-package;  # Package or string
     argv = [ "--port" "8080" ];        # Additional arguments
     environment = {                     # Environment variables
       DATABASE_URL = "postgresql://localhost/db";
@@ -514,7 +514,7 @@ Creates a shell bundle with all required packages available in PATH:
 ```nix
 programs = {
   packages = [
-    rootConfig.packages.my-package  # Reference packages from forge
+    systemConfig.packages.my-package  # Reference packages from forge
     pkgs.curl
     pkgs.jq
   ];
@@ -542,7 +542,7 @@ container = {
   tag = "latest";  # Optional, defaults to "latest"
 
   packages = [
-    rootConfig.packages.my-package  # Packages to include in /bin
+    systemConfig.packages.my-package  # Packages to include in /bin
   ];
 
   # OCI image configuration
@@ -646,7 +646,7 @@ Each app output type can be independently enabled or disabled:
 
   # Define the web service
   services.python-web = {
-    command = rootConfig.packages.python-web;
+    command = systemConfig.packages.python-web;
     argv = [ "--host" "0.0.0.0" ];
     environment = {
       FLASK_ENV = "production";
@@ -656,7 +656,7 @@ Each app output type can be independently enabled or disabled:
   # Shell bundle with additional tools
   programs = {
     packages = [
-      rootConfig.packages.python-web
+      systemConfig.packages.python-web
       pkgs.curl
       pkgs.postgresql
     ];
@@ -670,7 +670,7 @@ Each app output type can be independently enabled or disabled:
   container = {
     enable = true;
     tag = "latest";
-    packages = [ rootConfig.packages.python-web ];
+    packages = [ systemConfig.packages.python-web ];
     extraConfig = {
       Env = [ "PORT=5000" ];
       ExposedPorts = { "5000/tcp" = { }; };
@@ -758,7 +758,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -796,7 +796,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -837,7 +837,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -877,7 +877,7 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -1436,7 +1436,7 @@ This example demonstrates a complex CMake project with subdirectory structure:
 
 ```nix
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -1503,7 +1503,7 @@ This example demonstrates a Python project with complex dependencies:
 
 ```nix
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,

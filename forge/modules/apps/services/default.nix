@@ -18,10 +18,10 @@
       example = lib.literalExpression ''
         {
           service1 = {
-            command = rootConfig.packages.service1;
+            command = systemConfig.packages.service1;
           };
           service2 = {
-            command = rootConfig.packages.service2;
+            command = systemConfig.packages.service2;
           };
         }
       '';

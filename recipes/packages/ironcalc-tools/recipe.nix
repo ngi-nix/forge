@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -10,14 +10,14 @@
   description = "IronCalc helper tools";
   mainProgram = "xlsx_2_icalc";
 
-  inherit (rootConfig.forge.packages.ironcalc)
+  inherit (systemConfig.forge.packages.ironcalc)
     homePage
     license
     version
     ;
 
   source = lib.mkMerge [
-    rootConfig.forge.packages.ironcalc.source
+    systemConfig.forge.packages.ironcalc.source
     {
       patches = [ ./0001-FIX-test-message.patch ];
     }

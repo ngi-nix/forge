@@ -36,7 +36,7 @@ in
             type = lib.types.attrsOf (
               lib.types.submoduleWith {
                 specialArgs = specialArgs // {
-                  rootConfig = config;
+                  systemConfig = config;
                   inherit pkgs system;
                 };
                 modules = [ ./app.nix ];

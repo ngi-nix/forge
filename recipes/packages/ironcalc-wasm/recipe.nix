@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -9,7 +9,7 @@
 {
   description = "Ironcalc wasm bindings";
 
-  inherit (rootConfig.forge.packages.ironcalc)
+  inherit (systemConfig.forge.packages.ironcalc)
     homePage
     license
     source

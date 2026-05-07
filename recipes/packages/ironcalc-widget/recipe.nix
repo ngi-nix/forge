@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -9,7 +9,7 @@
 {
   description = "Ironcalc frontend widget package";
 
-  inherit (rootConfig.forge.packages.ironcalc)
+  inherit (systemConfig.forge.packages.ironcalc)
     homePage
     license
     source
@@ -20,7 +20,7 @@
     enable = true;
     npmDepsHash = "sha256-jPnUUEOjW9WHVjpBH/qKB4P5RuMI0uvjog8C41cPQdY=";
     packages.build = [
-      rootConfig.packages.ironcalc-wasm
+      systemConfig.packages.ironcalc-wasm
     ];
   };
 
@@ -36,14 +36,14 @@
     '';
 
     preConfigure = ''
-      cp -rv ${rootConfig.packages.ironcalc-wasm}/. ../../bindings/wasm/pkg/
+      cp -rv ${systemConfig.packages.ironcalc-wasm}/. ../../bindings/wasm/pkg/
     '';
 
     # copy instead of symlinking to avoid noBrokenSymlinks check failing in fixupPhase.
     preBuild = ''
       rm -rf node_modules/@ironcalc/wasm
       mkdir -p node_modules/@ironcalc
-      cp -rv ${rootConfig.packages.ironcalc-wasm}/. node_modules/@ironcalc/wasm
+      cp -rv ${systemConfig.packages.ironcalc-wasm}/. node_modules/@ironcalc/wasm
     '';
 
     buildPhase = ''

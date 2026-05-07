@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   lib,
   pkgs,
   ...
@@ -8,7 +8,7 @@
 {
   description = "Ironcalc documentation site";
 
-  inherit (rootConfig.forge.packages.ironcalc)
+  inherit (systemConfig.forge.packages.ironcalc)
     homePage
     license
     source

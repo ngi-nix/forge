@@ -271,7 +271,7 @@ viewPageAppRunShell model pageApp =
 
                     PreferencesInstall_NixTraditional ->
                         [ "nix-shell \\\n"
-                        , "  -I forge=\"" ++ model.model_config.config_repository.repository_archiveUrl ++ "\" \\\n"
+                        , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
                         , pageApp.pageApp_app.app_name
@@ -301,7 +301,7 @@ viewPageAppRunContainer model pageApp =
                     PreferencesInstall_NixTraditional ->
                         String.concat
                             [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ model.model_config.config_repository.repository_archiveUrl ++ "\" \\\n"
+                            , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
                             , pageApp.pageApp_app.app_name
@@ -339,7 +339,7 @@ viewPageAppRunContainerBuildOCI model pageApp =
                 PreferencesInstall_NixTraditional ->
                     String.concat
                         [ "nix-build \\\n"
-                        , "  -I forge=\"" ++ model.model_config.config_repository.repository_archiveUrl ++ "\" \\\n"
+                        , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                         , "  -E '(import <forge> {})"
                         , "."
                         , pageApp.pageApp_app.app_name
@@ -371,7 +371,7 @@ viewPageAppRunNixOS model pageApp =
                     String.join "\n"
                         [ String.concat
                             [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ model.model_config.config_repository.repository_archiveUrl ++ "\" \\\n"
+                            , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
                             , pageApp.pageApp_app.app_name

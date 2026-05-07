@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -9,7 +9,7 @@
 {
   description = "Analytics UI for Offen.";
 
-  inherit (rootConfig.forge.packages.offen)
+  inherit (systemConfig.forge.packages.offen)
     homePage
     license
     source

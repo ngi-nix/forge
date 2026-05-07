@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -9,7 +9,7 @@
 {
   description = "Node.js bindings for IronCalc";
 
-  inherit (rootConfig.forge.packages.ironcalc)
+  inherit (systemConfig.forge.packages.ironcalc)
     homePage
     license
     source
@@ -39,8 +39,8 @@
     '';
 
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-      inherit (rootConfig.packages.ironcalc) src;
-      hash = rootConfig.packages.ironcalc-tools.cargoHash;
+      inherit (systemConfig.packages.ironcalc) src;
+      hash = systemConfig.packages.ironcalc-tools.cargoHash;
     };
 
     cargoRoot = "../..";

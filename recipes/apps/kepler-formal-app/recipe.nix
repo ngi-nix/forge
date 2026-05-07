@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   pkgs,
   lib,
@@ -57,7 +57,7 @@
 
   programs = {
     packages = [
-      rootConfig.packages.kepler-formal
+      systemConfig.packages.kepler-formal
     ];
 
     runtimes.shell = {

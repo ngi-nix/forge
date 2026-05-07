@@ -1,5 +1,5 @@
 {
-  rootConfig,
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -39,13 +39,13 @@
   };
 
   programs = {
-    packages = [ rootConfig.packages.ironcalc ];
+    packages = [ systemConfig.packages.ironcalc ];
     runtimes.shell.enable = true;
   };
 
   services = {
     components.ironcalc = {
-      command = "${rootConfig.packages.ironcalc}/bin/ironcalc";
+      command = "${systemConfig.packages.ironcalc}/bin/ironcalc";
       environment = {
         ROCKET_ADDRESS = "0.0.0.0";
         IRONCALC_DB_PATH = "/var/lib/ironcalc/ironcalc.sqlite";
@@ -54,13 +54,13 @@
 
     runtimes.container = {
       enable = true;
-      packages = [ rootConfig.packages.ironcalc ];
+      packages = [ systemConfig.packages.ironcalc ];
       composeFile = ./compose.yaml;
     };
 
     runtimes.nixos = {
       enable = true;
-      packages = [ rootConfig.packages.ironcalc ];
+      packages = [ systemConfig.packages.ironcalc ];
       vm.forwardPorts = [ "8000:8000" ];
     };
   };
