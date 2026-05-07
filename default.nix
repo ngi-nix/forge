@@ -28,22 +28,8 @@ let
     nimi = def.nimi-def.nimi;
     nimiLib = def.nimi.passthru;
 
-    debug = flake.outputs.allSystems.x86_64-linux;
-
-    apps = lib.listToAttrs (
-      map (v: {
-        name = v.name;
-        value = v;
-      }) def.debug.forge.apps
-    );
-
-    forgePkgs = lib.listToAttrs (
-      map (v: {
-        name = v.name;
-        value = v;
-      }) def.debug.forge.packages
-    );
-
+    apps = flake.outputs.apps.${system};
+    forgePkgs = flake.outputs.packages.${system};
     shells = flake.outputs.devShells.${system};
   });
 
