@@ -1,0 +1,57 @@
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+
+{
+  name = "sudo-rs-app";
+  displayName = "sudo-rs";
+  description = "Memory-safe implementation of sudo and su.";
+  usage = ''
+    sudo-rs is a memory-safe Rust reimplementation of the sudo and su utilities.
+
+    #### Example
+
+    Run a command as root
+
+    ```
+    sudo <command>
+    ```
+
+    Switch to another user
+
+    ```
+    su - <username>
+    ```
+
+    Edit the sudoers file safely
+
+    ```
+    visudo
+    ```
+
+    _Available in: shell._
+  '';
+
+  links = {
+    source = "https://github.com/trifectatechfoundation/sudo-rs";
+  };
+
+  ngi.grants = {
+    NgiZeroCore = [
+      "sudo-rs"
+    ];
+  };
+
+  programs = {
+    packages = [
+      pkgs.mypkgs.sudo-rs
+    ];
+
+    runtimes.shell = {
+      enable = true;
+    };
+  };
+}
