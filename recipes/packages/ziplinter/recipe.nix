@@ -20,15 +20,11 @@
 
   build.rustPackageBuilder = {
     enable = true;
-    # target only the CLI binary from the Cargo workspace
-    cargoBuildFlags = [ "--package" "ziplinter" ];
-    cargoHash = "sha256-RjMp+9VfIalGcDGLdncYg/6KjIodR/9IMGQZw9/g2EM=";
-  };
-
-  build.extraAttrs = {
-    # upstream snapshot tests (insta) require stored fixtures;
-    # functionality is verified via test.script instead
-    doCheck = false;
+    cargoBuildFlags = [
+      "--package"
+      "ziplinter"
+    ];
+    cargoHash = "sha256-/3W9UtsUwkpkTA5kCnvKsO6O/f1Tzg1Dgp3Y7gGO7Kw=";
   };
 
   test = {
