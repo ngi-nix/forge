@@ -58,54 +58,56 @@
   };
 
   services = {
-    components.sylkserver = {
-      command = pkgs.sylkserver;
-      argv = [
-        "--no-fork"
-        "--config-dir"
-        "/var/lib/sylkserver/config"
-      ];
-      configData = {
-        "sylkserver/config.ini" = {
-          source = ./config.ini;
-          path = "sylkserver/config.ini";
+    components = {
+      sylkserver = {
+        command = pkgs.sylkserver;
+        argv = [
+          "--no-fork"
+          "--config-dir"
+          "/var/lib/sylkserver/config"
+        ];
+        configData = {
+          "sylkserver/config.ini" = {
+            source = ./config.ini;
+            path = "sylkserver/config.ini";
+          };
+          "sylkserver/conference.ini" = {
+            source = ./conference.ini;
+            path = "sylkserver/conference.ini";
+          };
+          "sylkserver/auth.ini" = {
+            source = ./auth.ini;
+            path = "sylkserver/auth.ini";
+          };
+          "sylkserver/playback.ini" = {
+            source = ./playback.ini;
+            path = "sylkserver/playback.ini";
+          };
+          "sylkserver/webrtcgateway.ini" = {
+            source = ./webrtcgateway.ini;
+            path = "sylkserver/webrtcgateway.ini";
+          };
+          "sylkserver/xmppgateway.ini" = {
+            source = ./xmppgateway.ini;
+            path = "sylkserver/xmppgateway.ini";
+          };
+          "sylkserver/ircconference.ini" = {
+            source = ./ircconference.ini;
+            path = "sylkserver/ircconference.ini";
+          };
         };
-        "sylkserver/conference.ini" = {
-          source = ./conference.ini;
-          path = "sylkserver/conference.ini";
-        };
-        "sylkserver/auth.ini" = {
-          source = ./auth.ini;
-          path = "sylkserver/auth.ini";
-        };
-        "sylkserver/playback.ini" = {
-          source = ./playback.ini;
-          path = "sylkserver/playback.ini";
-        };
-        "sylkserver/webrtcgateway.ini" = {
-          source = ./webrtcgateway.ini;
-          path = "sylkserver/webrtcgateway.ini";
-        };
-        "sylkserver/xmppgateway.ini" = {
-          source = ./xmppgateway.ini;
-          path = "sylkserver/xmppgateway.ini";
-        };
-        "sylkserver/ircconference.ini" = {
-          source = ./ircconference.ini;
-          path = "sylkserver/ircconference.ini";
-        };
+        preStart = ''
+          echo "Installing configuration files ..."
+          ln -sf ''$XDG_CONFIG_HOME/sylkserver /var/lib/sylkserver/config
+          ln -sf "${pkgs.sylkserver}/share/sylkserver" /etc/sylkserver
+
+          cat > /etc/default/sylkserver <<-EOF
+          RUN_SYLKSERVER=yes
+          EOF
+        '';
       };
-      preStart = ''
-        echo "Installing configuration files ..."
-        ln -sf ''$XDG_CONFIG_HOME/sylkserver /var/lib/sylkserver/config
-        ln -sf "${pkgs.sylkserver}/share/sylkserver" /etc/sylkserver
 
-        cat > /etc/default/sylkserver <<-EOF
-        RUN_SYLKSERVER=yes
-        EOF
-      '';
-
-      components.sylk-web = {
+      sylk-web = {
         command = pkgs.mypkgs.sylk-web;
       };
     };

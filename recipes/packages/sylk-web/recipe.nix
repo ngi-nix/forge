@@ -72,8 +72,6 @@
   };
 
   test.script = ''
-    ls -la $out/share/sylk-web/
-    test -f $out/share/sylk-web/index.html
+    test -f ${pkgs.mypkgs.sylk-web}/share/sylk-web/index.html
   '';
 }
-
