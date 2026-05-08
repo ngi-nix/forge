@@ -41,7 +41,15 @@
   };
 
   ngi.grants = {
-    Core = [ "Sylk" ];
+    Commons = [
+      "SylkContact"
+    ];
+    Review = [
+      "SylkChat"
+      "SylkClient"
+      "SylkMobile"
+      "sylkRTC"
+    ];
   };
 
   programs = {
