@@ -89,7 +89,12 @@
       };
       preStart = ''
         echo "Installing configuration files ..."
-        cp -R ''$XDG_CONFIG_HOME/sylkserver /var/lib/sylkserver/config
+        ln -sf ''$XDG_CONFIG_HOME/sylkserver /var/lib/sylkserver/config
+        ln -sf "${pkgs.sylkserver}/share/sylkserver" /etc/sylkserver
+
+        cat > /etc/default/sylkserver <<-EOF
+        RUN_SYLKSERVER=yes
+        EOF
       '';
     };
 
@@ -111,8 +116,11 @@
           };
         };
         vm.forwardPorts = [
-          "5060:5060"
+          # Web
           "10888:10888"
+          # SIP
+          "5060:5060"
+          "5061:5061"
         ];
       };
     };
