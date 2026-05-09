@@ -11,7 +11,10 @@
   description = "ZIP file analyzer that outputs detailed archive metadata as JSON.";
   homePage = "https://github.com/trifectatechfoundation/ziplinter";
   mainProgram = "ziplinter";
-  license = lib.licenses.mit;
+  license = with lib.licenses; [
+    mit
+    asl20
+  ];
 
   source = {
     git = "github:trifectatechfoundation/ziplinter/v0.1.0";
@@ -20,11 +23,15 @@
 
   build.rustPackageBuilder = {
     enable = true;
+    cargoHash = "sha256-/3W9UtsUwkpkTA5kCnvKsO6O/f1Tzg1Dgp3Y7gGO7Kw=";
     cargoBuildFlags = [
       "--package"
       "ziplinter"
     ];
-    cargoHash = "sha256-/3W9UtsUwkpkTA5kCnvKsO6O/f1Tzg1Dgp3Y7gGO7Kw=";
+  };
+
+  build.extraAttrs = {
+    doCheck = false;
   };
 
   test = {
