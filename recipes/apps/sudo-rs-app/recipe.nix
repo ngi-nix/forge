@@ -40,14 +40,15 @@
   };
 
   ngi.grants = {
-    NgiZeroCore = [
+    Core = [
       "sudo-rs"
     ];
   };
+  icon = ./icon.svg;
 
   programs = {
     packages = [
-      pkgs.mypkgs.sudo-rs
+      pkgs.sudo-rs
     ];
 
     runtimes.shell = {
