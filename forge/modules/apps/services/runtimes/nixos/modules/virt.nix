@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  app,
   ...
 }:
 
@@ -26,17 +27,14 @@
 
     forwardPorts = map (
       portRange:
-      if builtins.isString portRange then
-        let
-          portSplit = lib.splitString ":" portRange;
-        in
-        {
-          from = "host";
-          host.port = lib.toInt (lib.elemAt portSplit 0);
-          guest.port = lib.toInt (lib.elemAt portSplit 1);
-        }
-      else
-        portRange
-    ) config.vm.forwardPorts;
+      let
+        portSplit = lib.splitString ":" portRange;
+      in
+      {
+        from = "host";
+        host.port = lib.toInt (lib.elemAt portSplit 0);
+        guest.port = lib.toInt (lib.elemAt portSplit 1);
+      }
+    ) app.services.ports;
   };
 }

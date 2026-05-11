@@ -63,18 +63,6 @@
         description = "VM memory size in MiB.";
         example = 1024 * 4;
       };
-      forwardPorts = lib.mkOption {
-        type = lib.types.listOf (lib.types.strMatching "^[0-9]*:[0-9]*$");
-        default = [ ];
-        description = ''
-          List of ports to forward from host system to VM.
-
-          Format: HOST_PORT:VM_PORT
-        '';
-        example = lib.literalExpression ''
-          [ "10022:22" "5432:5432" "8000:80" ]
-        '';
-      };
     };
 
     result = {
