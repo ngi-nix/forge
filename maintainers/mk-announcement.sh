@@ -34,6 +34,7 @@ CALENDAR_URL="https://calendar.google.com/calendar/u/0/embed?src=b9o52fobqjak8oq
 MATRIX_URL="https://matrix.to/#/#ngipkgs:matrix.org"
 TEAM_URL="https://nixos.org/community/teams/ngi/"
 NIX_URL="https://nix.dev/"
+LINK_TO_SURVEY="https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e95?pvs=105"
 
 NAME=$(jq -r '.displayName' <<<"$json_content")
 summary=$(jq -r '.description | rtrimstr(".") as $s | ($s[0:1] | ascii_downcase) + $s[1:]' <<<"$json_content")
@@ -65,7 +66,7 @@ Visit the [application]($APP_URL) and launch $NAME in a shell environment, conta
 
 ### Share your feedback
 
-Please leave your feedback using this [short survey](<LINK_TO_SURVEY>), which will be available for the next 30 days (until the <ADD_ABSOLUTE_DATE>).
+Please leave your feedback using this [short survey]($LINK_TO_SURVEY).
 
 Alternatively, join the [office hours on Jitsi]($JITSI_URL) every [Tuesday and Thursday from 15:00--16:00 CET/CEST]($CALENDAR_URL) and the [NGIpkgs Matrix channel]($MATRIX_URL) for any further comments or questions.
 
@@ -108,7 +109,7 @@ Dear <PROJECT_AUTHOR>,
 
 The Nix@NGI team is an NLnet partner for packaging NGI0 funded projects. We are happy to let you know that we have packaged $NAME for the NGI Forge repository. Visit the application page at $APP_URL and launch $NAME in a shell environment, container, or NixOS VM.
 
-Your input as the project author is very valuable for us. If you can, please leave your feedback using this short survey: <LINK_TO_SURVEY>, which will be available for the next 30 days.
+Your input as the project author is very valuable for us. If you can, please leave your feedback using this short survey: $LINK_TO_SURVEY.
 
 For more information about Nix, see: $NIX_URL.
 
