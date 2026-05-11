@@ -19,7 +19,7 @@
 
     You can specify a different port via `ROCKET_PORT`, and different database path with `IRONCALC_DB_PATH` environment variables.
 
-    _Available in: shell, container, nixos._
+    _Available in: container, nixos._
   '';
 
   icon = ./icon.svg;
@@ -36,11 +36,6 @@
       "IronCalc-conditional"
       "IronCalc-NC"
     ];
-  };
-
-  programs = {
-    packages = [ pkgs.mypkgs.ironcalc ];
-    runtimes.shell.enable = true;
   };
 
   services = {
