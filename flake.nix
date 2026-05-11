@@ -37,6 +37,11 @@
       url = "github:ngi-nix/nimi/ngi-patches";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    arion = {
+      url = "path:/home/imincik/Projects/ngi/forge/arion/code";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -71,7 +76,7 @@
       perSystem =
         { system, ... }:
         {
-          _module.args.nimi = inputs.nimi.packages.${system}.nimi;
+          _module.args.arion = inputs.arion;
 
           forge = {
             repositoryUrl = "github:ngi-nix/forge";

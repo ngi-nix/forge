@@ -2,7 +2,7 @@
   config,
   lib,
 
-  nimi,
+  arion,
   app,
   pkgs,
   ...
@@ -45,36 +45,23 @@
     };
 
     result = {
-      modules = lib.mkOption {
-        internal = true;
-        type = with lib.types; lazyAttrsOf (either attrs anything);
-        description = "Nimi configuration.";
-      };
-
-      eval = lib.mkOption {
+      composition = lib.mkOption {
         internal = true;
         readOnly = true;
         type = with lib.types; lazyAttrsOf (either attrs anything);
-        description = "Nimi module evaluation.";
-      };
-
-      recipe = lib.mkOption {
-        internal = true;
-        type = lib.types.nullOr lib.types.package;
-        default = null;
-        description = "Script that builds container image recipe.";
+        description = "Arion composition evaluation.";
       };
 
       build = lib.mkOption {
         internal = true;
         type = lib.types.nullOr lib.types.package;
         default = null;
-        description = "Script that builds container image.";
+        description = "Script that runs the container.";
       };
 
       # HACK:
-      # Prevent toJSON conversion from attempting to convert the `eval` option,
-      # which won't work because it's a whole NixOS evaluation.
+      # Prevent toJSON conversion from attempting to convert the `composition` option,
+      # which won't work because it's a whole module evaluation.
       __toString = lib.mkOption {
         internal = true;
         readOnly = true;
@@ -85,54 +72,41 @@
   };
 
   config = {
-    result.modules = {
-      settings = import ./modules/settings.nix args;
-      services = import ./modules/services.nix args;
+    result.composition = arion.lib.eval {
+      inherit pkgs;
+      modules = [
+        (import ./modules/settings.nix args)
+        (import ./modules/services.nix args)
+      ];
     };
-
-    result.eval = nimi.passthru.evalNimiModule { config = config.result.modules; };
-
-    result.recipe = nimi.mkContainerImage { config = config.result.modules; };
 
     result.build =
       let
-        effectiveComposeFile =
-          if config.composeFile != null then
-            config.composeFile
-          else
-            pkgs.writeText "${app.name}-compose.yaml" ''
-              services:
-                ${app.name}:
-                  image: localhost/${app.name}:latest
-            '';
-        build-oci-image = pkgs.writeShellScriptBin "build-oci-image" ''
-          ${config.result.recipe.copyTo}/bin/copy-to \
-            oci-archive:${app.name}.tar:${app.name}:${config.tag}
-          echo "Container image created in $(pwd)/${app.name}.tar ."
-        '';
-        compose-file = pkgs.runCommand "compose-file" { } ''
-          mkdir -p $out/${app.name}
-          cp ${effectiveComposeFile} $out/${app.name}/compose.yaml
-        '';
-        run-podman = pkgs.writeShellScriptBin "run-podman" ''
-          ${lib.getExe build-oci-image}
-          podman load <${app.name}.tar
-          ${lib.getExe pkgs.podman-compose} \
-            -f ${compose-file}/${app.name}/compose.yaml \
-            up --force-recreate "$@"
-        '';
+        composition = config.result.composition;
+        composeYaml =
+          if config.composeFile != null
+          then config.composeFile
+          else composition.config.out.dockerComposeYaml;
+
+        loadImages = pkgs.writeShellScript "load-images" (
+          lib.concatMapStrings (
+            img:
+            if img ? imageExe
+            then "${img.imageExe} | podman load\n"
+            else "podman load < ${img.image}\n"
+          ) composition.config.build.imagesToLoad
+        );
+
         run-container = pkgs.writeShellScriptBin "run-container" ''
-          ${lib.getExe run-podman} "$@"
+          ${loadImages}
+          ${lib.getExe pkgs.podman-compose} \
+            -f ${composeYaml} \
+            up --force-recreate "$@"
         '';
       in
       pkgs.symlinkJoin {
         name = "run-container";
-        paths = [
-          build-oci-image
-          compose-file
-          run-podman
-          run-container
-        ];
+        paths = [ run-container ];
         meta.mainProgram = "run-container";
       };
   };

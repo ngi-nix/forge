@@ -21,7 +21,7 @@ in
       {
         config,
         pkgs,
-        nimi,
+        arion,
         system,
         ...
       }:
@@ -39,7 +39,7 @@ in
                   specialArgs = {
                     inherit
                       inputs
-                      nimi
+                      arion
                       system
                       ;
                     # Extend pkgs with mypkgs containing all NGI Forge packages

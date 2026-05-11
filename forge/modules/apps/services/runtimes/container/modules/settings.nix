@@ -1,30 +1,34 @@
 {
   app,
-
   config,
   pkgs,
   lib,
   ...
 }:
-{
-  binName = "${app.name}-service";
+# containerConfig is the container module's config, closed over via args
+let
+  containerConfig = config;
+in
+({ pkgs, lib, ... }: {
+  project.name = app.name;
 
-  container = {
-    copyToRoot = pkgs.buildEnv {
-      name = "runtime-bins";
-      paths = config.packages;
-      pathsToLink = [ "/bin" ];
-    };
+  services.${app.name}.image = {
+    contents =
+      lib.optionals (containerConfig.packages != [ ]) [
+        (pkgs.buildEnv {
+          name = "runtime-bins";
+          paths = containerConfig.packages;
+          pathsToLink = [ "/bin" ];
+        })
+      ];
 
-    imageConfig = config.extraConfig // {
+    rawConfig = containerConfig.extraConfig // {
       Env =
         let
-          # { K = "V"; } -> [ "K=V" ]
           envAttrsToList = attrs: lib.mapAttrsToList (n: v: "${n}=${v}") attrs;
 
           appEnv = lib.concatMapAttrs (_: value: value.environment) app.services.components;
 
-          # extraConfig.Env follows OCI spec: list of "K=V" strings
           containerEnv = lib.listToAttrs (
             map (
               envPair:
@@ -35,17 +39,12 @@
                 name = lib.head parts;
                 value = lib.concatStringsSep "=" (lib.tail parts);
               }
-            ) (config.extraConfig.Env or [ ])
+            ) (containerConfig.extraConfig.Env or [ ])
           );
 
-          # NOTE: we merge Attrs to remove duplicate keys
           envList = appEnv // containerEnv;
         in
         envAttrsToList envList;
     };
   };
-
-  startup.runOnStartup = lib.mkIf (config.setup != "") (
-    pkgs.writeShellScript "container-setup" config.setup
-  );
-}
+})

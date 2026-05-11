@@ -1,5 +1,24 @@
 {
   "nodes": {
+    "arion": {
+      "inputs": {
+        "flake-parts": "flake-parts",
+        "haskell-flake": "haskell-flake",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1778485358,
+        "narHash": "sha256-sVuhsEwieWgKVEOzHPrjbZoumECujJjkkAHWMD48wrw=",
+        "path": "/home/imincik/Projects/ngi/forge/arion/code",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/imincik/Projects/ngi/forge/arion/code",
+        "type": "path"
+      }
+    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -43,6 +62,27 @@
     },
     "flake-parts": {
       "inputs": {
+        "nixpkgs-lib": [
+          "arion",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769996383,
+        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_2": {
+      "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
@@ -74,6 +114,22 @@
       "original": {
         "id": "flake-utils",
         "type": "indirect"
+      }
+    },
+    "haskell-flake": {
+      "locked": {
+        "lastModified": 1675296942,
+        "narHash": "sha256-u1X1sblozi5qYEcLp1hxcyo8FfDHnRUVX3dJ/tW19jY=",
+        "owner": "srid",
+        "repo": "haskell-flake",
+        "rev": "c2cafce9d57bfca41794dc3b99c593155006c71e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "srid",
+        "ref": "0.1.0",
+        "repo": "haskell-flake",
+        "type": "github"
       }
     },
     "import-tree": {
@@ -183,9 +239,10 @@
     },
     "root": {
       "inputs": {
+        "arion": "arion",
         "devshell": "devshell",
         "elm2nix": "elm2nix",
-        "flake-parts": "flake-parts",
+        "flake-parts": "flake-parts_2",
         "import-tree": "import-tree",
         "nimi": "nimi",
         "nix-utils": "nix-utils",

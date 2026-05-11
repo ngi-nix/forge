@@ -4,7 +4,7 @@
   extendModules,
 
   inputs,
-  nimi,
+  arion,
   pkgs,
   system,
   ...
@@ -56,7 +56,7 @@
             inputs
             system
             pkgs
-            nimi
+            arion
             ;
           app = config;
         };
