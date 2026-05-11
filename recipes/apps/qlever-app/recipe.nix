@@ -21,7 +21,6 @@
 
     If everything is working, results will appear below the input field.
 
-    _Available in: container, nixos._
   '';
 
   links = {

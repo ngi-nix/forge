@@ -32,7 +32,6 @@
     * Account web interface: `http://localhost:8081`
     * Webmail interface: `http://localhost:8081`
 
-    _Available in: container, nixos._
   '';
 
   links = {

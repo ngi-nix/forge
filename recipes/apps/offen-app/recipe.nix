@@ -25,7 +25,6 @@
     offen setup -name <account-name> -email <email> -password <password>
     ```
 
-    _Available in: container, nixos._
   '';
 
   links = {

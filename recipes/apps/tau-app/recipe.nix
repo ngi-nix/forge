@@ -20,7 +20,6 @@
     - Listen: 3001
     - Broadcast: 3002
 
-    _Available in: container, nixos._
 
     #### Tau Radio
     Client CLI for capturing audio from your device and streaming it to _tau-tower_.
@@ -30,7 +29,6 @@
     tau-radio --username <user> --password <pass> --ip <server-ip> --port <server-port>
     ```
 
-    _Available in: shell._
   '';
 
   links = {

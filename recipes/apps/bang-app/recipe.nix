@@ -19,7 +19,6 @@
     bang scan -u /tmp/bang-results /path/to/firmware.bin
     ```
 
-    _Available in: shell._
   '';
 
   links = {

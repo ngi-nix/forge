@@ -31,7 +31,6 @@
     curl localhost:5000/users
     ```
 
-    _Available in: container, nixos._
   '';
 
   links = {

@@ -42,7 +42,6 @@
       fakeram45_64x15.lib
     ```
 
-    _Available in: shell._
   '';
 
   links = {

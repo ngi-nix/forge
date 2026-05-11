@@ -80,17 +80,17 @@ viewPageAppsApp _ _ app =
             [ small []
                 (List.concat
                     [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "shell" ] ]
+                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "shell" ] ]
 
                       else
                         []
                     , if app.app_services.appServices_runtimes.appServicesRuntimes_container.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "container" ] ]
+                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "container" ] ]
 
                       else
                         []
                     , if app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                        [ span [ class "badge bg-secondary me-1" ] [ text "nixos" ] ]
+                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "nixos" ] ]
 
                       else
                         []

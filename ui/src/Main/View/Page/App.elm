@@ -1,7 +1,7 @@
 module Main.View.Page.App exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, text, ul)
+import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, span, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
@@ -32,6 +32,7 @@ viewPageApp model pageApp =
                 [ class "col-12 col-lg-3 order-lg-first" ]
                 [ viewPageAppResources model pageApp
                 , viewPageAppNgiGrants model pageApp
+                , viewPageAppRuntimes model pageApp
                 ]
             ]
         ]
@@ -103,13 +104,27 @@ viewPageAppUsage _ pageApp =
             [ hr [] []
             , h4 [ class "mb-3" ] [ text "Usage Instructions" ]
             , div [ class "text-body-secondary" ]
-                [ pageApp.pageApp_app.app_usage
-                    |> Markdown.render
-                ]
+                [ pageApp.pageApp_app.app_usage |> Markdown.render ]
             ]
 
     else
         text ""
+
+
+viewPageAppRuntimes : Model -> PageApp -> Html Update
+viewPageAppRuntimes _ pageApp =
+    div
+        [ class "box-container mb-3" ]
+        [ h6 [ class "mt-3 mb-3 ms-2" ] [ text "Runtimes" ]
+        , div [ class "ms-2 mb-3" ]
+            (listAppRuntimeAvailable pageApp.pageApp_app
+                |> List.map
+                    (\r ->
+                        span [ class "badge bg-primary me-1", style "font-size" "0.85em" ]
+                            [ text (showAppRuntime r |> String.toLower) ]
+                    )
+            )
+        ]
 
 
 viewPageAppResources : Model -> PageApp -> Html Update
