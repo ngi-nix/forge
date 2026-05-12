@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   ...
 }:
@@ -17,6 +18,21 @@
       };
       default = { };
       description = "Program runtimes.";
+    };
+
+    mainPackage = lib.mkOption {
+      type = lib.types.nullOr lib.types.package;
+      default = null;
+      description = "Main package for the application";
+    };
+
+    runCommand = lib.mkOption {
+      type = lib.types.str;
+      internal = true;
+      readOnly = true;
+      default = config.mainPackage.meta.mainProgram or "";
+      defaultText = lib.literalExpression ''config.mainPackage.meta.mainProgram or ""'';
+      description = "Main command for the application";
     };
   };
 }
