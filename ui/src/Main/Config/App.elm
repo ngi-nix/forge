@@ -70,13 +70,15 @@ decodeAppProgramsRuntimesShell =
 
 
 type alias AppServices =
-    { appServices_runtimes : AppServicesRuntimes
+    { appServices_ports : List String
+    , appServices_runtimes : AppServicesRuntimes
     }
 
 
 decodeAppServices : Decoder AppServices
 decodeAppServices =
-    Decode.map AppServices
+    Decode.map2 AppServices
+        (Decode.field "ports" (Decode.list Decode.string))
         (Decode.field "runtimes" decodeAppServicesRuntimes)
 
 

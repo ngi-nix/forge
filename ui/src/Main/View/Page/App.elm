@@ -32,7 +32,7 @@ viewPageApp model pageApp =
                 [ class "col-12 col-lg-3 order-lg-first" ]
                 [ viewPageAppResources model pageApp
                 , viewPageAppNgiGrants model pageApp
-                , viewPageAppRuntimes model pageApp
+                , viewPageAppConfiguration model pageApp
                 ]
             ]
         ]
@@ -111,11 +111,29 @@ viewPageAppUsage _ pageApp =
         text ""
 
 
-viewPageAppRuntimes : Model -> PageApp -> Html Update
-viewPageAppRuntimes _ pageApp =
+viewPageAppConfiguration : Model -> PageApp -> Html Update
+viewPageAppConfiguration _ pageApp =
     div
         [ class "box-container mb-3" ]
-        [ h6 [ class "mt-3 mb-3 ms-2" ] [ text "Runtimes" ]
+        [ h6 [ class "mt-3 mb-3 ms-2" ] [ text "Configuration" ]
+        , if List.isEmpty pageApp.pageApp_app.app_services.appServices_ports then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Forwarded Ports" ] ]
+                , ul
+                    [ class "mb-3 ms-3"
+                    , style "list-style-type" "none"
+                    , style "padding" "0px"
+                    ]
+                    (pageApp.pageApp_app.app_services.appServices_ports
+                        |> List.map (\p -> li [] [ text (String.replace ":" " → " p) ])
+                    )
+                ]
+        , div [ class "ms-2 mb-1" ]
+            [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]
         , div [ class "ms-2 mb-3" ]
             (listAppRuntimeAvailable pageApp.pageApp_app
                 |> List.map
