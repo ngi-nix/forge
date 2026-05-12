@@ -89,8 +89,8 @@
           useradd --system --no-create-home --shell /sbin/nologin --gid mox mox || true
 
           # Create Mox keys and data files
-          if ! [ -d /var/lib/mox ]; then
-            mkdir -p /var/lib/mox && cd /var/lib/mox
+          if ! [ -d /var/lib/mox/config ]; then
+            cd /var/lib/mox
 
             # Generate DKIM keys
             mkdir -p config/dkim
@@ -114,8 +114,8 @@
         enable = true;
         setup = ''
           # Create Mox keys and data files
-          if ! [ -d /var/lib/mox ]; then
-            mkdir -p /var/lib/mox && cd /var/lib/mox
+          if ! [ -d /var/lib/mox/config ]; then
+            cd /var/lib/mox
 
             # Generate DKIM keys
             mkdir -p config/dkim
