@@ -36,17 +36,17 @@
 
   services = {
     components.qlever-ui = {
+      preStart = ''
+        qlever-ui-manage makemigrations --merge && qlever-ui-manage migrate
+      '';
       command = pkgs.mypkgs.qlever-ui;
       argv = [
         "--bind=0.0.0.0:8080"
       ];
       environment = {
         DJANGO_SETTINGS_MODULE = "qlever.settings";
-        QLEVERUI_DATABASE_URL = "sqlite:////var/lib/qlever/db/qleverui.sqlite3";
+        QLEVERUI_DATABASE_URL = "sqlite:////var/lib/qlever-ui/db/qleverui.sqlite3";
       };
-      preStart = ''
-        qlever-ui-manage makemigrations --merge && qlever-ui-manage migrate
-      '';
     };
 
     components.qlever-server = {
@@ -55,7 +55,7 @@
         path = "olympics.nt";
       };
       preStart = ''
-        WORKDIR=/var/lib/qlever
+        WORKDIR=/var/lib/qlever-server
 
         echo "Installing configuration files ..."
         install -D ${./Qleverfile} "$WORKDIR"/Qleverfile
@@ -67,7 +67,7 @@
       command = pkgs.mypkgs.qlever-control;
       argv = [
         "--qleverfile"
-        "/var/lib/qlever/Qleverfile"
+        "/var/lib/qlever-server/Qleverfile"
         "start"
         "--run-in-foreground"
       ];
