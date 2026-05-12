@@ -13,8 +13,6 @@
     Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
     It runs as a web service. It has been configured to run on http://localhost:8181.
-
-    _Available in: container, nixos._
   '';
 
   icon = ./icon.svg;

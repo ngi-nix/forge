@@ -31,8 +31,6 @@
     ```
     visudo
     ```
-
-    _Available in: shell._
   '';
 
   links = {
