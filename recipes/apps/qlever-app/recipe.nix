@@ -91,9 +91,6 @@
           mypkgs.qlever-control
           unzip
         ];
-        extraConfig = {
-          WorkingDir = "/var/lib/qlever";
-        };
         setup =
           # bash
           ''
@@ -120,8 +117,6 @@
               User = "qlever-ui";
               Group = "qlever-ui";
               DynamicUser = true;
-              StateDirectory = [ "qlever" ];
-              WorkingDirectory = "/var/lib/qlever";
             };
           };
 
@@ -134,8 +129,6 @@
               User = "qlever-ui";
               Group = "qlever-ui";
               DynamicUser = true;
-              StateDirectory = [ "qlever" ];
-              WorkingDirectory = "/var/lib/qlever";
             };
             after = [
               "qlever-app-setup.service"
@@ -158,8 +151,6 @@
               User = "qlever-ui";
               Group = "qlever-ui";
               DynamicUser = true;
-              StateDirectory = [ "qlever" ];
-              WorkingDirectory = "/var/lib/qlever";
             };
           };
         };
