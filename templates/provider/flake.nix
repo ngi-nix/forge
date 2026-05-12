@@ -9,34 +9,62 @@
   };
 
   inputs = {
+    # Warning(compatibility): the "ngi-forge" input name
+    # is treated specially by `inputs.ngi-forge.flakeModules.default`
+    # to know the ngi-forge input and sub-inputs it must use.
     ngi-forge.url = "github:ngi-nix/forge";
-    elm2nix.follows = "ngi-forge/elm2nix";
     flake-parts.follows = "ngi-forge/flake-parts";
-    nimi.follows = "ngi-forge/nimi";
     nixpkgs.follows = "ngi-forge/nixpkgs";
-    nix-utils.follows = "ngi-forge/nix-utils";
   };
 
   outputs =
     inputs@{ flake-parts, ngi-forge, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      imports = [ ngi-forge.flakeModules.provider ];
+      imports = [ ngi-forge.flakeModules.default ];
 
-      flake.flakeModules = ngi-forge.flakeModules;
+      debug = true;
 
       perSystem =
-        { system, ... }:
+        { system, lib, ... }:
         {
-          _module.args.nimi = inputs.nimi.packages.${system}.nimi;
+          # load packages and applications from other forges
+          _module.args.pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [
+              (final: prev: {
+                # WARN:
+                # make sure this is unique for each provider forge you use,
+                # else you may face issues
+                forgePkgs = ngi-forge.packages.${system};
+              })
+            ];
+          };
 
           forge = {
-            repositoryUrl = "github:me/my-forge";
-            recipeDirs = {
-              packages = "recipes/packages";
-              apps = "recipes/apps";
+            repository = {
+              path = "my-user/my-forge";
             };
+            # Load app and package recipes using `ngi-forge.lib.loadRecipes`,
+            # discarding ngi-forge's recipes with `lib.mkForce`.
+            apps = lib.mkForce (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.self + "/recipes/apps";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.self}/recipe/apps/${path}";
+              }
+            );
+            packages = lib.mkForce (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.self + "/recipes/packages";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.self}/recipe/packages/${path}";
+              }
+            );
           };
+
         };
     };
 }

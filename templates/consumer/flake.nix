@@ -9,11 +9,11 @@
   };
 
   inputs = {
+    # Warning(compatibility): the "ngi-forge" input name
+    # is treated specially by `inputs.ngi-forge.flakeModules.default`
+    # to know the ngi-forge input and sub-inputs it must use.
     ngi-forge.url = "github:ngi-nix/forge";
-    elm2nix.follows = "ngi-forge/elm2nix";
     flake-parts.follows = "ngi-forge/flake-parts";
-    nimi.follows = "ngi-forge/nimi";
-    nix-utils.follows = "ngi-forge/nix-utils";
     nixpkgs.follows = "ngi-forge/nixpkgs";
   };
 
@@ -21,15 +21,13 @@
     inputs@{ flake-parts, ngi-forge, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      imports = [ (ngi-forge.flakeModules.consumer { provider = ngi-forge; }) ];
+      imports = [ ngi-forge.flakeModules.default ];
 
       debug = true;
 
       perSystem =
-        { system, pkgs, ... }:
+        { system, lib, ... }:
         {
-          _module.args.nimi = inputs.nimi.packages.${system}.nimi;
-
           # load packages and applications from other forges
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
@@ -44,10 +42,23 @@
           };
 
           forge = {
-            repositoryUrl = "github:me/my-forge";
-            recipeDirs = {
-              packages = "recipes/packages";
-              apps = "recipes/apps";
+            repository = {
+              path = "my-user/my-forge";
+            };
+            # Load app and package recipes using `ngi-forge.lib.loadRecipes`.
+            # Note that you can wrap those into `lib.mkForce`
+            # if you also want to discard ngi-forge's recipes.
+            apps = inputs.ngi-forge.lib.loadRecipes {
+              rootDir = inputs.self + "/recipes/apps";
+              sourceUrl =
+                { path }:
+                "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.self}/recipe/apps/${path}";
+            };
+            packages = inputs.ngi-forge.lib.loadRecipes {
+              rootDir = inputs.self + "/recipes/packages";
+              sourceUrl =
+                { path }:
+                "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.self}/recipe/packages/${path}";
             };
           };
         };

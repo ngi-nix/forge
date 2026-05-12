@@ -1,6 +1,6 @@
 {
   inputs,
-  config,
+  specialArgs,
   lib,
   flake-parts-lib,
   ...
@@ -24,34 +24,39 @@ in
 
   options = {
     perSystem = mkPerSystemOption (
-      { config, pkgs, ... }:
+      {
+        config,
+        system,
+        pkgs,
+        #specialArgs,
+        ...
+      }:
       {
         options = {
-          forge = {
-            packages = lib.mkOption {
-              default = [ ];
-              description = ''
-                List of packages to include in forge.
+          forge.packages = lib.mkOption {
+            default = { };
+            description = ''
+              List of packages to include in forge.
 
-                Each package uses one of the available builders.
-                Only one builder can be enabled per package by setting build.<builder>.enable = true.
-              '';
-              type = lib.types.listOf (
-                lib.types.submoduleWith {
-                  # Extend pkgs with mypkgs containing all NGI Forge packages
-                  # This allows recipes to reference other packages via mypkgs
-                  specialArgs.pkgs = pkgs.extend (final: prev: { mypkgs = config.packages; });
-                  modules = [ packages/package.nix ];
-                }
-              );
-            };
+              Each package uses one of the available builders.
+              Only one builder can be enabled per package by setting build.<builder>.enable = true.
+            '';
+            type = lib.types.attrsOf (
+              lib.types.submoduleWith {
+                specialArgs = specialArgs // {
+                  systemConfig = config;
+                  inherit system pkgs;
+                };
+                modules = [ packages/package.nix ];
+              }
+            );
           };
         };
 
         # Config section is now provided by builder modules
         config =
           let
-            cfg = config.forge.packages;
+            cfg = lib.attrValues config.forge.packages;
 
             # Process warnings: filter to get active warnings (condition = true), then show them
             activeWarnings = lib.filter (x: x.condition) config.warnings;
@@ -62,6 +67,15 @@ in
             assertionMessages = lib.concatMapStringsSep "\n" (x: "- ${x.message}") failedAssertions;
           in
           {
+            forge.packages = (
+              inputs.ngi-forge.lib.loadRecipes {
+                rootDir = inputs.ngi-forge + "/recipes/packages";
+                sourceUrl =
+                  { path }:
+                  "https://github.com/ngi-nix/forge/blob/${inputs.ngi-forge.lib.sourceInfoRef inputs.ngi-forge}/recipe/packages/${path}";
+              }
+            );
+
             # Collect warnings from packages
             warnings = lib.flatten (
               map (pkg: [

@@ -1,4 +1,5 @@
 {
+  systemConfig,
   config,
   pkgs,
   lib,
@@ -6,7 +7,6 @@
 }:
 
 {
-  name = "tau-app";
   displayName = "Tau";
   description = "Web radio streaming system.";
 
@@ -43,7 +43,7 @@
 
   programs = {
     packages = [
-      pkgs.mypkgs.tau-radio
+      systemConfig.packages.tau-radio
     ];
     runtimes.shell = {
       enable = true;
@@ -52,7 +52,7 @@
 
   services = {
     components.tau-tower = {
-      command = pkgs.mypkgs.tau-tower;
+      command = systemConfig.packages.tau-tower;
       configData."tau/tower.toml" = {
         source = ./config.toml;
         path = "tau/tower.toml";
@@ -63,14 +63,14 @@
       container = {
         enable = true;
         packages = [
-          pkgs.mypkgs.tau-tower
+          systemConfig.packages.tau-tower
         ];
       };
 
       nixos = {
         enable = true;
         packages = [
-          pkgs.mypkgs.tau-tower
+          systemConfig.packages.tau-tower
         ];
       };
     };

@@ -1,4 +1,5 @@
 {
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -6,21 +7,21 @@
 }:
 
 {
-  name = "ironcalc-tools";
-  version = "0.7.1-unstable-2026-04-29";
   description = "IronCalc helper tools";
-  homePage = "https://www.ironcalc.com";
-  license = with lib.licenses; [
-    mit
-    asl20
-  ];
   mainProgram = "xlsx_2_icalc";
 
-  source = {
-    git = "github:ironcalc/ironcalc/8461ff71347ab19145cd7ad50ef829181ba765c2";
-    hash = "sha256-vjI3M+hS9bXK8QQlopAy6f4dCISfQHGMvN9sMNKp88Q=";
-    patches = [ ./0001-FIX-test-message.patch ];
-  };
+  inherit (systemConfig.forge.packages.ironcalc)
+    homePage
+    license
+    version
+    ;
+
+  source = lib.mkMerge [
+    systemConfig.forge.packages.ironcalc.source
+    {
+      patches = [ ./0001-FIX-test-message.patch ];
+    }
+  ];
 
   build.rustPackageBuilder = {
     enable = true;

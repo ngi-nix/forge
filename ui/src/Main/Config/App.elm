@@ -14,7 +14,7 @@ type alias App =
     , app_services : AppServices
     , app_ngi : Ngi
     , app_links : AppLinks
-    , app_recipePath : String
+    , app_recipeUrl : String
     }
 
 
@@ -29,7 +29,7 @@ decodeApp =
         |> Decode.andMap (Decode.field "services" decodeAppServices)
         |> Decode.andMap (Decode.field "ngi" decodeNgi)
         |> Decode.andMap (Decode.field "links" decodeAppLinks)
-        |> Decode.andMap (Decode.field "recipePath" Decode.string)
+        |> Decode.andMap (Decode.field "recipeUrl" Decode.string)
 
 
 type alias AppName =
