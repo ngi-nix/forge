@@ -23,6 +23,7 @@
     serviceConfig = {
       PassEnvironment = builtins.attrNames service.environment;
       StateDirectory = serviceName;
+      WorkingDirectory = "/var/lib/${serviceName}";
     };
   }) app.services.components;
 }

@@ -17,6 +17,9 @@
     };
 
     imageConfig = config.extraConfig // {
+      # TODO: use actual service name once migrate to single service per container
+      # https://github.com/ngi-nix/forge/issues/431
+      WorkingDir = "/var/lib/${lib.head (lib.attrNames app.services.components)}";
       Env =
         let
           # { K = "V"; } -> [ "K=V" ]
