@@ -19,16 +19,14 @@ in
     }:
     {
       options.forge.packages = lib.mkOption {
-        type = lib.types.listOf (lib.types.submodule ./options.nix);
+        type = lib.types.attrsOf (lib.types.submoduleWith { modules = [ ./options.nix ]; });
       };
 
       config.packages =
         let
-          cfg = config.forge;
-
-          composePkg = pkg: {
-            name = pkg.name;
-            value = pkgs.callPackage (
+          composePkg =
+            pkgName: pkg:
+            pkgs.callPackage (
               # Derivation start
               { }:
               pkgs.rustPlatform.buildRustPackage (
@@ -54,11 +52,10 @@ in
               )
               # Derivation end
             ) { };
-          };
 
-          enabledPkgs = lib.filter (p: p.build.rustPackageBuilder.enable) cfg.packages;
+          enabledPkgs = lib.filterAttrs (name: p: p.build.rustPackageBuilder.enable) config.forge.packages;
 
-          rustPackageBuilderPkgs = lib.listToAttrs (map composePkg enabledPkgs);
+          rustPackageBuilderPkgs = lib.mapAttrs composePkg enabledPkgs;
         in
         rustPackageBuilderPkgs;
     }

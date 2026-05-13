@@ -6,7 +6,6 @@
 }:
 
 {
-  name = "helium";
   version = "7.0.0";
   description = "Lighter browser automation based on Selenium.";
   homePage = "https://github.com/mherrmann/helium";

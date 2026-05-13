@@ -26,25 +26,24 @@ in
         ...
       }:
       let
-        cfg = config.forge.apps;
+        cfg = config.forge;
       in
       {
         options = {
           forge = {
             apps = lib.mkOption {
-              default = [ ];
+              default = { };
               description = "List of applications.";
-              type = lib.types.listOf (
+              type = lib.types.attrsOf (
                 lib.types.submoduleWith {
                   specialArgs = {
+                    systemConfig = config;
                     inherit
                       inputs
                       nimi
+                      pkgs
                       system
                       ;
-                    # Extend pkgs with mypkgs containing all NGI Forge packages
-                    # This allows recipes to reference other packages via mypkgs
-                    pkgs = pkgs.extend (final: prev: { mypkgs = config.packages; });
                   };
                   modules = [ ./app.nix ];
                 }
@@ -123,12 +122,7 @@ in
             # finalApp parameter is currently not used in this function
             appPassthru = app: finalApp: mkPassthru app;
 
-            allApps = lib.listToAttrs (
-              map (app: {
-                name = "${app.name}";
-                value = shellBundle app;
-              }) cfg
-            );
+            allApps = lib.mapAttrs (name: app: shellBundle app) cfg.apps;
           in
           {
             packages = allApps;

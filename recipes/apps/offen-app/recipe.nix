@@ -1,4 +1,5 @@
 {
+  systemConfig,
   config,
   lib,
   pkgs,
@@ -6,7 +7,6 @@
 }:
 
 {
-  name = "offen-app";
   displayName = "Offen";
   description = "Fair and privacy-focused web analytics.";
   usage = ''
@@ -47,7 +47,7 @@
       preStart = ''
         mkdir --parents --verbose /var/lib/offen
       '';
-      command = pkgs.mypkgs.offen;
+      command = systemConfig.packages.offen;
       argv = [ "serve" ];
       environment = {
         OFFEN_SERVER_PORT = "3000";
@@ -62,14 +62,14 @@
         packages = [
           pkgs.bash # required for entering the container
           pkgs.coreutils # required for mkdir
-          pkgs.mypkgs.offen # required for admin tasks
+          systemConfig.packages.offen # required for admin tasks
         ];
       };
 
       nixos = {
         enable = true;
         packages = [
-          pkgs.mypkgs.offen # required for admin tasks
+          systemConfig.packages.offen # required for admin tasks
         ];
       };
     };
