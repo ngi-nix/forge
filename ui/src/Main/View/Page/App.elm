@@ -144,7 +144,7 @@ viewPageAppConfiguration _ pageApp =
                 [ div [ class "ms-2 mb-1" ]
                     [ small [ class "text-body-secondary" ] [ text "Forwarded Ports" ] ]
                 , ul
-                    [ class "mb-3 ms-3"
+                    [ class "mb-3 ms-4"
                     , style "list-style-type" "none"
                     , style "padding" "0px"
                     ]
@@ -276,12 +276,17 @@ viewPageGrantCategory ( grant, subgrants ) =
         text ""
 
     else
-        div [ class "container row mb-1" ]
-            [ small [ class "col-6" ] [ text grant ]
-            , ul [ class "col" ]
+        div [ class "ms-2 mb-1" ]
+            [ div [ class "mb-1" ]
+                [ small [ class "text-body-secondary" ] [ text grant ] ]
+            , ul
+                [ class "mb-1 ms-3"
+                , style "list-style-type" "none"
+                , style "padding" "0px"
+                ]
                 (List.map
                     (\subgrant ->
-                        li [ class "list-group-item bg-transparent mb-1" ]
+                        li [ class "mb-1" ]
                             [ a
                                 [ href ("https://nlnet.nl/project/" ++ subgrant ++ "/")
                                 , target "_blank"
