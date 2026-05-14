@@ -379,3 +379,8 @@ a:link {
 [data-bs-theme="dark"] {
   --bs-code-color: #b2d5ff;
 }
+
+/* highlight js customised */
+pre code.hljs {
+  padding: 0px !important;
+}

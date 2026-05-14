@@ -1,23 +1,76 @@
 module Main.Helpers.Html exposing (..)
 
-import Html exposing (Attribute, Html, button, code, div, pre, text)
-import Html.Attributes exposing (class)
+import Html exposing (Attribute, Html, button, code, div, node, pre, text)
+import Html.Attributes exposing (attribute, class)
 import Html.Events
 import Json.Decode
 import Main.Icons exposing (iconCopy)
 import Main.Update.Types exposing (..)
 
 
-codeBlock : String -> Html Update
-codeBlock content =
+mdResolveLangCodeAlias : String -> String
+mdResolveLangCodeAlias lang =
+    case lang of
+        "python3" ->
+            "python"
+
+        "py" ->
+            "python"
+
+        -- sparql is not sql but we don't need to bring in https://github.com/redmer/highlightjs-sparql
+        -- for a single line in qlever app where sql highlighting works fine
+        "sparql" ->
+            "sql"
+
+        any ->
+            any
+
+
+type alias CodeBlock =
+    { body : String
+    , language : Maybe String
+    }
+
+
+plainCodeBlock : String -> Html Update
+plainCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Nothing
+        }
+
+
+nixCodeBlock : String -> Html Update
+nixCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Just "nix"
+        }
+
+
+codeBlock : CodeBlock -> Html Update
+codeBlock body =
+    let
+        lang =
+            body.language
+                |> Maybe.withDefault ""
+                |> mdResolveLangCodeAlias
+
+        copyBtn =
+            button
+                [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
+                , onClick (Update_CopyToClipboard body.body)
+                ]
+                [ iconCopy ]
+    in
     div [ class "markdown-content position-relative" ]
-        [ button
-            [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
-            , onClick (Update_CopyToClipboard content)
+        [ copyBtn
+        , node
+            "highlightjs-code"
+            [ attribute "language" lang
+            , attribute "body" body.body
             ]
-            [ iconCopy ]
-        , pre [ class "p-3 rounded border border-secondary" ]
-            [ code [] [ text content ] ]
+            []
         ]
 
 
