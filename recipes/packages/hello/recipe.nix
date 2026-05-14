@@ -1,28 +1,28 @@
 {
-packages.hello =
-{
-  lib,
-  ...
-}:
+  packages.hello =
+    {
+      lib,
+      ...
+    }:
 
-{
-  version = "2.12.1";
-  description = "Hello package built from source code tarball.";
-  homePage = "https://www.gnu.org/software/hello";
-  mainProgram = "hello";
-  license = lib.licenses.gpl3Plus;
+    {
+      version = "2.12.1";
+      description = "Hello package built from source code tarball.";
+      homePage = "https://www.gnu.org/software/hello";
+      mainProgram = "hello";
+      license = lib.licenses.gpl3Plus;
 
-  source = {
-    url = "mirror://gnu/hello/hello-2.12.1.tar.gz";
-    hash = "sha256-jZkUKv2SV28wsM18tCqNxoCZmLxdYH2Idh9RLibH2yA=";
-  };
+      source = {
+        url = "mirror://gnu/hello/hello-2.12.1.tar.gz";
+        hash = "sha256-jZkUKv2SV28wsM18tCqNxoCZmLxdYH2Idh9RLibH2yA=";
+      };
 
-  build.standardBuilder = {
-    enable = true;
-  };
+      build.standardBuilder = {
+        enable = true;
+      };
 
-  test.script = ''
-    hello | grep "Hello, world"
-  '';
-};
+      test.script = ''
+        hello | grep "Hello, world"
+      '';
+    };
 }

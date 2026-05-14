@@ -1,20 +1,20 @@
 {
-apps.python-web-app =
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+  apps.python-web-app =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
 
-{
-  # FixMe(correctness): not yet taken into account.
-  description = lib.mkForce "Example web API with database backend (extended).";
+    {
+      # FixMe(correctness): not yet taken into account.
+      description = lib.mkForce "Example web API with database backend (extended).";
 
-  services.runtimes.nixos.extraConfig = {
-    environment.systemPackages = [
-      pkgs.postgresql
-    ];
-  };
-};
+      services.runtimes.nixos.extraConfig = {
+        environment.systemPackages = [
+          pkgs.postgresql
+        ];
+      };
+    };
 }

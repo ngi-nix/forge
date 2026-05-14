@@ -42,47 +42,51 @@
   outputs =
     inputs@{ self, flake-parts, ... }:
 
-    flake-parts.lib.mkFlake { inputs = inputs // {
-      ngi-forge = self;
-    }; } (flakeArgs: {
-      # Uncomment this to enable flake-parts debug.
-      # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
-      # debug = true;
+    flake-parts.lib.mkFlake
+      {
+        inputs = inputs // {
+          ngi-forge = self;
+        };
+      }
+      (flakeArgs: {
+        # Uncomment this to enable flake-parts debug.
+        # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
+        # debug = true;
 
-      systems = [
-        "x86_64-linux"
-        # "aarch64-linux"
-        # "aarch64-darwin"
-        # "x86_64-darwin"
-      ];
+        systems = [
+          "x86_64-linux"
+          # "aarch64-linux"
+          # "aarch64-darwin"
+          # "x86_64-darwin"
+        ];
 
-      imports = [
-        ./forge/modules.nix
-        ./forge/packages.nix # Generates _forge-config, _forge-options, _forge-ui
-        ./flake/develop
-        ./flake/packages.nix
-        ./flake/checks.nix
-        ./flake/templates.nix
-      ];
+        imports = [
+          ./forge/modules.nix
+          ./forge/packages.nix # Generates _forge-config, _forge-options, _forge-ui
+          ./flake/develop
+          ./flake/packages.nix
+          ./flake/checks.nix
+          ./flake/templates.nix
+        ];
 
-      # Export the flake configuration to ease exploration in `nix repl .`.
-      #
-      # Remark(clarity): like all `unknown` flake outputs,
-      # this currently raise a warning in `nix flake check`:
-      # > warning: unknown flake output 'flakeConfig'
-      # Issue: https://github.com/NixOS/nix/issues/6381
-      flake.flakeConfig = flakeArgs.config;
+        # Export the flake configuration to ease exploration in `nix repl .`.
+        #
+        # Remark(clarity): like all `unknown` flake outputs,
+        # this currently raise a warning in `nix flake check`:
+        # > warning: unknown flake output 'flakeConfig'
+        # Issue: https://github.com/NixOS/nix/issues/6381
+        flake.flakeConfig = flakeArgs.config;
 
-      perSystem =
-        { system, ... }:
-        {
-          forge = {
-            repositoryUrl = "github:ngi-nix/forge";
-            recipeDirs = {
-              packages = "recipes/packages";
-              apps = "recipes/apps";
+        perSystem =
+          { system, ... }:
+          {
+            forge = {
+              repositoryUrl = "github:ngi-nix/forge";
+              recipeDirs = {
+                packages = "recipes/packages";
+                apps = "recipes/apps";
+              };
             };
           };
-        };
-    });
+      });
 }

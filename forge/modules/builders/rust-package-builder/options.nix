@@ -6,69 +6,71 @@
   ...
 }:
 {
-  flake.modules.packages.default.imports = [{
-  options.build.rustPackageBuilder = {
-    enable = lib.mkEnableOption ''
-      Rust package builder for reusable Rust crates.
+  flake.modules.packages.default.imports = [
+    {
+      options.build.rustPackageBuilder = {
+        enable = lib.mkEnableOption ''
+          Rust package builder for reusable Rust crates.
 
-      Uses rustPlatform.buildRustPackage'';
+          Uses rustPlatform.buildRustPackage'';
 
-    packages = {
-      build = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Build-time dependencies (native architecture).
+        packages = {
+          build = lib.mkOption {
+            type = lib.types.listOf lib.types.package;
+            default = [ ];
+            description = ''
+              Build-time dependencies (native architecture).
 
-          Tools needed during compilation that run on the build machine.
-        '';
-        example = lib.literalExpression "[ pkgs.pkg-config pkgs.rustPlatform.bindgenHook ]";
+              Tools needed during compilation that run on the build machine.
+            '';
+            example = lib.literalExpression "[ pkgs.pkg-config pkgs.rustPlatform.bindgenHook ]";
+          };
+          run = lib.mkOption {
+            type = lib.types.listOf lib.types.package;
+            default = [ ];
+            description = ''
+              Runtime dependencies (target architecture).
+
+              Libraries needed by the package at runtime.
+            '';
+            example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.libopus ]";
+          };
+          check = lib.mkOption {
+            type = lib.types.listOf lib.types.package;
+            default = [ ];
+            description = ''
+              Test dependencies.
+
+              Packages needed to run Rust tests.
+            '';
+            example = lib.literalExpression "[ pkgs.cargo-nextest ]";
+          };
+        };
+
+        cargoHash = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          description = ''
+            SHA256 hash of the Cargo.lock file or source.
+
+            For git sources without Cargo.lock, this is the source hash.
+            Leave empty initially - nix will provide the correct hash on first build.
+          '';
+          example = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        };
+
+        cargoBuildFlags = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [ ];
+          description = ''
+            Additional flags to pass to cargo build.
+          '';
+          example = [
+            "--release"
+            "--features enable-feature"
+          ];
+        };
       };
-      run = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Runtime dependencies (target architecture).
-
-          Libraries needed by the package at runtime.
-        '';
-        example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.libopus ]";
-      };
-      check = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Test dependencies.
-
-          Packages needed to run Rust tests.
-        '';
-        example = lib.literalExpression "[ pkgs.cargo-nextest ]";
-      };
-    };
-
-    cargoHash = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      description = ''
-        SHA256 hash of the Cargo.lock file or source.
-
-        For git sources without Cargo.lock, this is the source hash.
-        Leave empty initially - nix will provide the correct hash on first build.
-      '';
-      example = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-    };
-
-    cargoBuildFlags = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = ''
-        Additional flags to pass to cargo build.
-      '';
-      example = [
-        "--release"
-        "--features enable-feature"
-      ];
-    };
-  };
-  }];
+    }
+  ];
 }

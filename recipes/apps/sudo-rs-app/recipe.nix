@@ -1,58 +1,58 @@
 {
-apps.sudo-rs =
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+  apps.sudo-rs =
+    {
+      config,
+      pkgs,
+      lib,
+      ...
+    }:
 
-{
-  displayName = "sudo-rs";
-  description = "Memory-safe implementation of sudo and su.";
-  usage = ''
-    sudo-rs is a memory-safe Rust reimplementation of the sudo and su utilities.
+    {
+      displayName = "sudo-rs";
+      description = "Memory-safe implementation of sudo and su.";
+      usage = ''
+        sudo-rs is a memory-safe Rust reimplementation of the sudo and su utilities.
 
-    #### Example
+        #### Example
 
-    Run a command as root
+        Run a command as root
 
-    ```
-    sudo <command>
-    ```
+        ```
+        sudo <command>
+        ```
 
-    Switch to another user
+        Switch to another user
 
-    ```
-    su - <username>
-    ```
+        ```
+        su - <username>
+        ```
 
-    Edit the sudoers file safely
+        Edit the sudoers file safely
 
-    ```
-    visudo
-    ```
-  '';
+        ```
+        visudo
+        ```
+      '';
 
-  links = {
-    source = "https://github.com/trifectatechfoundation/sudo-rs";
-  };
+      links = {
+        source = "https://github.com/trifectatechfoundation/sudo-rs";
+      };
 
-  ngi.grants = {
-    Core = [
-      "sudo-rs"
-    ];
-  };
-  icon = ./icon.svg;
+      ngi.grants = {
+        Core = [
+          "sudo-rs"
+        ];
+      };
+      icon = ./icon.svg;
 
-  programs = {
-    mainPackage = pkgs.sudo-rs;
-    packages = [
-      pkgs.sudo-rs
-    ];
+      programs = {
+        mainPackage = pkgs.sudo-rs;
+        packages = [
+          pkgs.sudo-rs
+        ];
 
-    runtimes.program.enable = true;
-    runtimes.shell.enable = true;
-  };
-};
+        runtimes.program.enable = true;
+        runtimes.shell.enable = true;
+      };
+    };
 }

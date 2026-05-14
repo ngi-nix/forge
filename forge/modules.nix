@@ -11,7 +11,7 @@ let
 
       # Type `flake.modules`
       inputs.flake-parts.flakeModules.modules
-      
+
       # Convenient aliases to spare recipe authors to write the `flake.modules.` prefix.
       (lib.mkAliasOptionModule [ "apps" ] [ "flake" "modules" "apps" ])
       (lib.mkAliasOptionModule [ "nixos" ] [ "flake" "modules" "nixos" ])

@@ -1,89 +1,89 @@
 {
-apps.tau =
-{
-  pkgs,
-  ...
-}:
+  apps.tau =
+    {
+      pkgs,
+      ...
+    }:
 
-{
-  displayName = "Tau";
-  description = "Web radio streaming system.";
+    {
+      displayName = "Tau";
+      description = "Web radio streaming system.";
 
-  usage = ''
-    This app provides both the _tau-tower_ server and the _tau-radio_ client.
+      usage = ''
+        This app provides both the _tau-tower_ server and the _tau-radio_ client.
 
-    #### Tau Tower
-    Service for broadcasting audio to clients.
+        #### Tau Tower
+        Service for broadcasting audio to clients.
 
-    Ports
-    - Listen: 3001
-    - Broadcast: 3002
+        Ports
+        - Listen: 3001
+        - Broadcast: 3002
 
 
-    #### Tau Radio
-    Client CLI for capturing audio from your device and streaming it to _tau-tower_.
+        #### Tau Radio
+        Client CLI for capturing audio from your device and streaming it to _tau-tower_.
 
-    Usage:
-    ```
-    tau-radio --username <user> --password <pass> --ip <server-ip> --port <server-port>
-    ```
+        Usage:
+        ```
+        tau-radio --username <user> --password <pass> --ip <server-ip> --port <server-port>
+        ```
 
-  '';
+      '';
 
-  links = {
-    source = "https://github.com/tau-org";
-  };
-
-  ngi.grants = {
-    Core = [
-      "Tau"
-    ];
-  };
-
-  programs = {
-    packages = [
-      pkgs.tau-radio
-    ];
-    runtimes.shell = {
-      enable = true;
-    };
-  };
-
-  services = {
-    components.tau-tower = {
-      command = pkgs.tau-tower;
-      configData."tau/tower.toml" = {
-        source = ./config.toml;
-        path = "tau/tower.toml";
+      links = {
+        source = "https://github.com/tau-org";
       };
-    };
 
-    runtimes = {
-      container = {
-        enable = true;
-        packages = [
-          pkgs.tau-tower
+      ngi.grants = {
+        Core = [
+          "Tau"
         ];
       };
 
-      nixos = {
-        enable = true;
+      programs = {
         packages = [
-          pkgs.tau-tower
+          pkgs.tau-radio
+        ];
+        runtimes.shell = {
+          enable = true;
+        };
+      };
+
+      services = {
+        components.tau-tower = {
+          command = pkgs.tau-tower;
+          configData."tau/tower.toml" = {
+            source = ./config.toml;
+            path = "tau/tower.toml";
+          };
+        };
+
+        runtimes = {
+          container = {
+            enable = true;
+            packages = [
+              pkgs.tau-tower
+            ];
+          };
+
+          nixos = {
+            enable = true;
+            packages = [
+              pkgs.tau-tower
+            ];
+          };
+        };
+
+        ports = [
+          "3001:3001"
+          "3002:3002"
         ];
       };
+
+      test.script = ''
+        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+        $curl localhost:3002 | grep "Audio Stream"
+      '';
     };
-
-    ports = [
-      "3001:3001"
-      "3002:3002"
-    ];
-  };
-
-  test.script = ''
-    curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-    $curl localhost:3002 | grep "Audio Stream"
-  '';
-};
 }

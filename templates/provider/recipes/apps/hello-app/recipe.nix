@@ -1,23 +1,23 @@
 {
-apps.hello-nix =
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+  apps.hello-nix =
+    {
+      config,
+      lib,
+      pkgs,
+      ...
+    }:
 
-{
-  description = "Say hello to Nix.";
+    {
+      description = "Say hello to Nix.";
 
-  programs = {
-    packages = [
-      pkgs.hello-nix
-    ];
+      programs = {
+        packages = [
+          pkgs.hello-nix
+        ];
 
-    runtimes.shell = {
-      enable = true;
+        runtimes.shell = {
+          enable = true;
+        };
+      };
     };
-  };
-};
 }
