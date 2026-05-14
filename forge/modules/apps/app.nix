@@ -73,17 +73,6 @@
       description = "Programs configuration.";
     };
 
-    # Test configuration
-    test = lib.mkOption {
-      type = lib.types.submodule {
-        imports = [ ./test ];
-        _module.args.app = config;
-        _module.args.pkgs = pkgs;
-      };
-      default = { };
-      description = "Test configuration.";
-    };
-
     recipePath = lib.mkOption {
       type = lib.types.str;
       default = "";
