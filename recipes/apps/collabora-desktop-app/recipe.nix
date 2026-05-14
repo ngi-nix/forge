@@ -11,12 +11,6 @@
   description = "Collaborative Office for desktop, based on LibreOffice technology.";
   usage = ''
     Collabora Office is a powerful LibreOffice-based office suite that supports all major document, spreadsheet and presentation file formats.
-
-    To start the application, run:
-
-    ```
-    coda-qt
-    ```
   '';
 
   icon = ./icon.svg;
@@ -35,12 +29,7 @@
   };
 
   programs = {
-    packages = [
-      pkgs.collabora-desktop
-    ];
-
-    runtimes.shell = {
-      enable = true;
-    };
+    mainPackage = pkgs.collabora-desktop;
+    runtimes.program.enable = true;
   };
 }

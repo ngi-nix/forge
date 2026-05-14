@@ -120,6 +120,13 @@ viewPageAppRunInstructions model pageApp =
                     )
                 , br [] []
                 , case appRuntime of
+                    AppRuntime_Program ->
+                        if pageApp.pageApp_app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+                            viewPageAppRunProgram model pageApp
+
+                        else
+                            text ""
+
                     AppRuntime_Shell ->
                         if pageApp.pageApp_app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
                             viewPageAppRunShell model pageApp
@@ -250,6 +257,46 @@ viewPageAppRunNixInstallPreferences model _ preferencesInstall =
                     [ text "Traditional"
                     ]
             )
+        ]
+
+
+viewPageAppRunProgram : Model -> PageApp -> Html Update
+viewPageAppRunProgram model pageApp =
+    div []
+        [ p [ style "margin-bottom" "0em" ]
+            [ text "Launch the program" ]
+        , br [] []
+        , codeBlock <|
+            String.concat
+                (case model.model_preferences.preferences_install of
+                    PreferencesInstall_NixFlakes ->
+                        [ "nix run "
+                        , showForgeInputFlakes model
+                        , "#"
+                        , pageApp.pageApp_app.app_name
+                        , ".program"
+                        ]
+
+                    PreferencesInstall_NixTraditional ->
+                        [ "nix-shell \\\n"
+                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                        , "  -p '(import <forge> {})"
+                        , "."
+                        , pageApp.pageApp_app.app_name
+                        , ".program"
+                        , "'"
+                        , case pageApp.pageApp_app.app_programs.appPrograms_runCommand of
+                            "" ->
+                                ""
+
+                            exec ->
+                                String.concat
+                                    [ " \\\n"
+                                    , "--command "
+                                    , exec
+                                    ]
+                        ]
+                )
         ]
 
 

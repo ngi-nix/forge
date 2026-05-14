@@ -56,6 +56,7 @@ def generate_app_recipe(name, index, is_test_app=False):
     grants_nix = "{\n" + "\n".join(grant_lines) + "\n  }"
 
     # Force enable all runtimes for the test app
+    program_en = "true" if is_test_app else str(fake.boolean()).lower()
     shell_en = "true" if is_test_app else str(fake.boolean()).lower()
     container_en = "true" if is_test_app else str(fake.boolean()).lower()
     nixos_vm_en = "true" if is_test_app else str(fake.boolean()).lower()
@@ -99,6 +100,8 @@ def generate_app_recipe(name, index, is_test_app=False):
   programs = {{
     packages = [ pkgs.hello ];
     runtimes.shell.enable = {shell_en};
+    {"mainPackage = pkgs.hello;" if program_en == "true" else ""}
+    runtimes.program.enable = {program_en};
   }};
 }}
 """

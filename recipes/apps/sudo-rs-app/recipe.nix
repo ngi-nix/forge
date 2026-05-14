@@ -45,12 +45,12 @@
   icon = ./icon.svg;
 
   programs = {
+    mainPackage = pkgs.sudo-rs;
     packages = [
       pkgs.sudo-rs
     ];
 
-    runtimes.shell = {
-      enable = true;
-    };
+    runtimes.program.enable = true;
+    runtimes.shell.enable = true;
   };
 }

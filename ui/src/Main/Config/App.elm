@@ -36,31 +36,46 @@ type alias AppName =
     String
 
 
+type alias AppProgramsRuntimesProgram =
+    { enable : Bool
+    }
+
+
 type alias AppProgramsRuntimesShell =
     { enable : Bool
     }
 
 
 type alias AppProgramsRuntimes =
-    { appProgramsRuntimes_shell : AppProgramsRuntimesShell
+    { appProgramsRuntimes_program : AppProgramsRuntimesProgram
+    , appProgramsRuntimes_shell : AppProgramsRuntimesShell
     }
 
 
 type alias AppPrograms =
     { appPrograms_runtimes : AppProgramsRuntimes
+    , appPrograms_runCommand : String
     }
 
 
 decodeAppPrograms : Decoder AppPrograms
 decodeAppPrograms =
-    Decode.map AppPrograms
+    Decode.map2 AppPrograms
         (Decode.field "runtimes" decodeAppProgramsRuntimes)
+        (Decode.field "runCommand" Decode.string)
 
 
 decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes
 decodeAppProgramsRuntimes =
-    Decode.map AppProgramsRuntimes
+    Decode.map2 AppProgramsRuntimes
+        (Decode.field "program" decodeAppProgramsRuntimesProgram)
         (Decode.field "shell" decodeAppProgramsRuntimesShell)
+
+
+decodeAppProgramsRuntimesProgram : Decoder AppProgramsRuntimesProgram
+decodeAppProgramsRuntimesProgram =
+    Decode.map AppProgramsRuntimesProgram
+        (Decode.field "enable" Decode.bool)
 
 
 decodeAppProgramsRuntimesShell : Decoder AppProgramsRuntimesShell
@@ -162,7 +177,8 @@ type alias NgiSubgrantName =
 
 
 type AppRuntime
-    = AppRuntime_Shell
+    = AppRuntime_Program
+    | AppRuntime_Shell
     | AppRuntime_Container
     | AppRuntime_NixOS
 
@@ -170,6 +186,9 @@ type AppRuntime
 hasAppRuntime : AppRuntime -> App -> Bool
 hasAppRuntime appRuntime app =
     case appRuntime of
+        AppRuntime_Program ->
+            app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable
+
         AppRuntime_Shell ->
             app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable
 
@@ -182,7 +201,8 @@ hasAppRuntime appRuntime app =
 
 listAppRuntime : List AppRuntime
 listAppRuntime =
-    [ AppRuntime_Shell
+    [ AppRuntime_Program
+    , AppRuntime_Shell
     , AppRuntime_Container
     , AppRuntime_NixOS
     ]
@@ -190,7 +210,12 @@ listAppRuntime =
 
 listAppRuntimeAvailable : App -> List AppRuntime
 listAppRuntimeAvailable app =
-    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
+    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+        [ AppRuntime_Program ]
+
+      else
+        []
+    , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
         [ AppRuntime_Shell ]
 
       else
@@ -212,6 +237,9 @@ listAppRuntimeAvailable app =
 showAppRuntime : AppRuntime -> String
 showAppRuntime r =
     case r of
+        AppRuntime_Program ->
+            "Program"
+
         AppRuntime_Shell ->
             "Shell"
 

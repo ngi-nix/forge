@@ -233,6 +233,13 @@ appUrlToRoute url =
             Ok <|
                 Route_App <|
                     case url.fragment of
+                        Just "run-program" ->
+                            { defaultRouteApp
+                                | routeApp_name = appName
+                                , routeApp_runShown = True
+                                , routeApp_runRuntime = Just AppRuntime_Program
+                            }
+
                         Just "run-shell" ->
                             { defaultRouteApp
                                 | routeApp_name = appName
@@ -378,6 +385,9 @@ routeToAppUrl route =
 
                                     Just output ->
                                         case output of
+                                            AppRuntime_Program ->
+                                                "-program"
+
                                             AppRuntime_Shell ->
                                                 "-shell"
 
