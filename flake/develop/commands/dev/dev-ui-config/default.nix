@@ -7,14 +7,14 @@
   writeShellApplication,
 }:
 let
-  devUIDir = builtins.toString ../dev-ui;
+  forgeUIDir = builtins.toString ../forge-ui;
   script = writers.writePython3Bin "dev-ui-config.py" {
     libraries = [ python3.pkgs.faker ];
     flakeIgnore = [
       "E402"
       "E501"
     ];
-  } (builtins.replaceStrings [ "@devUIDir@" ] [ devUIDir ] (builtins.readFile ./generate.py));
+  } (builtins.replaceStrings [ "@forgeUIDir@" ] [ forgeUIDir ] (builtins.readFile ./generate.py));
 in
 writeShellApplication {
   name = "dev-ui-config";
