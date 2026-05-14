@@ -1,0 +1,16 @@
+{
+  "css": ["style.css"],
+
+  "theme": "solarized",
+
+  "revealOptions": {
+    "transition": "slide",
+    "slideNumber": "c/t",
+    "controls": true,
+    "progress": true,
+    "center": true,
+    "history": true,
+    "width": 1200,
+    "height": 900
+  }
+}
