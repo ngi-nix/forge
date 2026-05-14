@@ -426,6 +426,7 @@ viewPageAppRunNixOS model pageApp =
                             , "' "
                             ]
                         , ""
+
                         -- `nixos:system.name` is used in the executable name of `nixos:system.build.vm`,
                         -- and it defaults to `nixos:networking.hostName` which is set to `app.name` by the forge,
                         -- hence use `app_name` not `app_pname` here.

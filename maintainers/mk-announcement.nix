@@ -5,150 +5,150 @@
 }:
 
 lib.mapAttrs (
-    appName: app:
+  appName: app:
 
-    let
-      info = {
-        APP_URL = "https://ngi-nix.github.io/forge/app/${app.name}";
-        JITSI_URL = "https://jitsi.lassul.us/ngi-nix-office-hours";
-        CALENDAR_URL = "https://calendar.google.com/calendar/u/0/embed?src=b9o52fobqjak8oq8lfkhg3t0qg@group.calendar.google.com";
-        MATRIX_URL = "https://matrix.to/#/#ngipkgs:matrix.org";
-        TEAM_URL = "https://nixos.org/community/teams/ngi";
-        NIX_URL = "https://nix.dev";
-        SURVEY_URL = "https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e95?pvs=105";
-        NAME = app.displayName;
+  let
+    info = {
+      APP_URL = "https://ngi-nix.github.io/forge/app/${app.name}";
+      JITSI_URL = "https://jitsi.lassul.us/ngi-nix-office-hours";
+      CALENDAR_URL = "https://calendar.google.com/calendar/u/0/embed?src=b9o52fobqjak8oq8lfkhg3t0qg@group.calendar.google.com";
+      MATRIX_URL = "https://matrix.to/#/#ngipkgs:matrix.org";
+      TEAM_URL = "https://nixos.org/community/teams/ngi";
+      NIX_URL = "https://nix.dev";
+      SURVEY_URL = "https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e95?pvs=105";
+      NAME = app.displayName;
 
-        SUMMARY = lib.pipe app.description [
-          (lib.strings.removeSuffix ".")
-          # lower first char
-          (s: (lib.toLower (lib.substring 0 1 s)) + (lib.substring 1 (-1) s))
-        ];
+      SUMMARY = lib.pipe app.description [
+        (lib.strings.removeSuffix ".")
+        # lower first char
+        (s: (lib.toLower (lib.substring 0 1 s)) + (lib.substring 1 (-1) s))
+      ];
 
-        HOMEPAGE_URL =
-          if app.links.website != null then
-            app.links.website
-          else if app.links.source != null then
-            app.links.source
+      HOMEPAGE_URL =
+        if app.links.website != null then
+          app.links.website
+        else if app.links.source != null then
+          app.links.source
+        else
+          "<ADD_HOMEPAGE_URL>";
+
+      GRANT_STR = lib.pipe app.ngi.grants [
+        (lib.filterAttrs (_: v: v != [ ]))
+        (lib.attrNames)
+        (lib.strings.concatStringsSep ", ")
+      ];
+
+      LINKS =
+        let
+          appLinks = lib.filterAttrs (_: link: link != null) app.links;
+        in
+        lib.concatMapAttrsStringSep "\n" (
+          name: value:
+          if name == "website" then
+            "  - [Website](${value})"
+          else if name == "docs" then
+            "  - [Documentation](${value})"
+          else if name == "source" then
+            "  - [Source Repository](${value})"
           else
-            "<ADD_HOMEPAGE_URL>";
+            value
+        ) appLinks;
+    };
 
-        GRANT_STR = lib.pipe app.ngi.grants [
-          (lib.filterAttrs (_: v: v != [ ]))
-          (lib.attrNames)
-          (lib.strings.concatStringsSep ", ")
-        ];
+    discourse = with info; ''
+      Title: [Nix@NGI] ${NAME} packaged for NGI Forge
 
-        LINKS =
-          let
-            appLinks = lib.filterAttrs (_: link: link != null) app.links;
-          in
-          lib.concatMapAttrsStringSep "\n" (
-            name: value:
-            if name == "website" then
-              "  - [Website](${value})"
-            else if name == "docs" then
-              "  - [Documentation](${value})"
-            else if name == "source" then
-              "  - [Source Repository](${value})"
-            else
-              value
-          ) appLinks;
-      };
+      [**${NAME}**](${HOMEPAGE_URL}) is a ${SUMMARY}.
 
-      discourse = with info; ''
-        Title: [Nix@NGI] ${NAME} packaged for NGI Forge
+      <WHAT_CAN_PEOPLE_DO_WITH_IT>
 
-        [**${NAME}**](${HOMEPAGE_URL}) is a ${SUMMARY}.
+      ### Try it out
 
-        <WHAT_CAN_PEOPLE_DO_WITH_IT>
+      Visit the [application page](${APP_URL}), launch ${NAME} in a shell environment, container, or NixOS VM and follow the usage instructions.
 
-        ### Try it out
+      ### Links
 
-        Visit the [application page](${APP_URL}), launch ${NAME} in a shell environment, container, or NixOS VM and follow the usage instructions.
+      ${lib.optionalString (app.links != { }) "- Project Details\n${LINKS}"}
+      - [NGI Forge Tracking Issue](<LINK_TO_TRACKING_ISSUE>)
+      - [Nixpkgs PR](<LINK_TO_NIXPKGS_PR>)
 
-        ### Links
+      ### Share your feedback
 
-        ${lib.optionalString (app.links != { }) "- Project Details\n${LINKS}"}
-        - [NGI Forge Tracking Issue](<LINK_TO_TRACKING_ISSUE>)
-        - [Nixpkgs PR](<LINK_TO_NIXPKGS_PR>)
+      We’d like to hear from you, so please leave your feedback using this [short survey](${SURVEY_URL}).
 
-        ### Share your feedback
+      Alternatively, you can join the:
 
-        We’d like to hear from you, so please leave your feedback using this [short survey](${SURVEY_URL}).
+      - [office hours on Jitsi](${JITSI_URL}) every [Tuesday and Thursday from 15:00--16:00 CET/CEST](${CALENDAR_URL})
+      - [NGIpkgs Matrix channel](${MATRIX_URL})
 
-        Alternatively, you can join the:
+      for any further comments or questions.
 
-        - [office hours on Jitsi](${JITSI_URL}) every [Tuesday and Thursday from 15:00--16:00 CET/CEST](${CALENDAR_URL})
-        - [NGIpkgs Matrix channel](${MATRIX_URL})
+      ---
 
-        for any further comments or questions.
+      This work has been done by @<PACKAGER_NAME> as part of the [Nix@NGI packaging effort](https://nixos.org/community/teams/ngi), funded by [NLnet](https://nlnet.nl) under the NGI0 ${GRANT_STR} grant(s).
 
-        ---
+      <OTHER_COMMENTS> <THANKS_PEOPLE_INVOLVED>'';
 
-        This work has been done by @<PACKAGER_NAME> as part of the [Nix@NGI packaging effort](https://nixos.org/community/teams/ngi), funded by [NLnet](https://nlnet.nl) under the NGI0 ${GRANT_STR} grant(s).
+    nlnet = with info; ''
+      Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
 
-        <OTHER_COMMENTS> <THANKS_PEOPLE_INVOLVED>'';
+      Body:
 
-      nlnet = with info; ''
-        Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
+      Dear NLnet Foundation staff,
 
-        Body:
+      We have completed the packaging tasks for the following project:
+      - Project: ${NAME}
+      - Project number: <ADD_PROJECT_NUMBER>
+      - Fund: ${GRANT_STR}
 
-        Dear NLnet Foundation staff,
+      The package is now available in the NGI Forge repository: ${APP_URL}.
 
-        We have completed the packaging tasks for the following project:
-        - Project: ${NAME}
-        - Project number: <ADD_PROJECT_NUMBER>
-        - Fund: ${GRANT_STR}
+      The Nix@NGI team: ${TEAM_URL}.
 
-        The package is now available in the NGI Forge repository: ${APP_URL}.
+      Kind regards'';
 
-        The Nix@NGI team: ${TEAM_URL}.
+    project-author = with info; ''
+      Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
 
-        Kind regards'';
+      Body:
 
-      project-author = with info; ''
-        Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
+      Dear <PROJECT_AUTHOR>,
 
-        Body:
+      The Nix@NGI team is an NLnet partner for packaging NGI0 funded projects. We are happy to let you know that we have packaged ${NAME} for the NGI Forge repository. Visit the application page at ${APP_URL} and launch ${NAME} in a shell environment, container, or NixOS VM.
 
-        Dear <PROJECT_AUTHOR>,
+      Your input as the project author is very valuable for us. If you can, please leave your feedback using this short survey: ${SURVEY_URL}.
 
-        The Nix@NGI team is an NLnet partner for packaging NGI0 funded projects. We are happy to let you know that we have packaged ${NAME} for the NGI Forge repository. Visit the application page at ${APP_URL} and launch ${NAME} in a shell environment, container, or NixOS VM.
+      For more information about Nix, see: ${NIX_URL}.
 
-        Your input as the project author is very valuable for us. If you can, please leave your feedback using this short survey: ${SURVEY_URL}.
+      The Nix@NGI team: ${TEAM_URL}.
 
-        For more information about Nix, see: ${NIX_URL}.
+      Kind regards'';
+  in
 
-        The Nix@NGI team: ${TEAM_URL}.
+  pkgs.writeShellApplication {
+    name = "announce-project";
+    text = ''
+      cat <<EOF
+      # Discourse post
 
-        Kind regards'';
-    in
+      \`\`\`text
+      ${discourse}
+      \`\`\`
+      ---
 
-    pkgs.writeShellApplication {
-        name = "announce-project";
-        text = ''
-          cat <<EOF
-          # Discourse post
+      # Email to NLnet
 
-          \`\`\`text
-          ${discourse}
-          \`\`\`
-          ---
+      \`\`\`text
+      ${nlnet}
+      \`\`\`
+      ---
 
-          # Email to NLnet
+      # Email to project author
 
-          \`\`\`text
-          ${nlnet}
-          \`\`\`
-          ---
-
-          # Email to project author
-
-          \`\`\`text
-          ${project-author}
-          \`\`\`
-          EOF
-        '';
-    }
-  ) forgeApps
+      \`\`\`text
+      ${project-author}
+      \`\`\`
+      EOF
+    '';
+  }
+) forgeApps

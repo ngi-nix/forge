@@ -4,83 +4,83 @@
 }:
 
 {
-apps.offen = {
-  displayName = "Offen";
-  description = "Fair and privacy-focused web analytics.";
-  usage = ''
-    Offen is a self-hosted web analytics server that gives operators insight
-    into usage while allowing users to access, review, and delete their own data.
+  apps.offen = {
+    displayName = "Offen";
+    description = "Fair and privacy-focused web analytics.";
+    usage = ''
+      Offen is a self-hosted web analytics server that gives operators insight
+      into usage while allowing users to access, review, and delete their own data.
 
-    #### Access
+      #### Access
 
-    Open the Offen interface at [http://localhost:3000](http://localhost:3000).
+      Open the Offen interface at [http://localhost:3000](http://localhost:3000).
 
-    #### Initial Setup
+      #### Initial Setup
 
-    Create an account on first run:
+      Create an account on first run:
 
-    ```bash
-    export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
-    offen setup -name <account-name> -email <email> -password <password>
-    ```
+      ```bash
+      export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
+      offen setup -name <account-name> -email <email> -password <password>
+      ```
 
-  '';
+    '';
 
-  links = {
-    website = "https://www.offen.dev";
-    docs = "https://docs.offen.dev";
-    source = "https://github.com/offen/offen";
-  };
-
-  ngi.grants = {
-    Review = [
-      "offen"
-      "OffenOne"
-    ];
-  };
-
-  icon = ./icon.svg;
-
-  services = {
-    components.offen = {
-      preStart = ''
-        mkdir --parents --verbose /var/lib/offen
-      '';
-      command = pkgs.offen;
-      argv = [ "serve" ];
-      environment = {
-        OFFEN_SERVER_PORT = "3000";
-        OFFEN_DATABASE_DIALECT = "sqlite3";
-        OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
-      };
-      ports = [ "3000:3000" ];
+    links = {
+      website = "https://www.offen.dev";
+      docs = "https://docs.offen.dev";
+      source = "https://github.com/offen/offen";
     };
 
-    runtimes = {
-      container = {
-        enable = true;
-        components.offen.packages = [
-          pkgs.bash # required for entering the container
-          pkgs.coreutils # required for mkdir
-          pkgs.offen # required for admin tasks
-        ];
+    ngi.grants = {
+      Review = [
+        "offen"
+        "OffenOne"
+      ];
+    };
+
+    icon = ./icon.svg;
+
+    services = {
+      components.offen = {
+        preStart = ''
+          mkdir --parents --verbose /var/lib/offen
+        '';
+        command = pkgs.offen;
+        argv = [ "serve" ];
+        environment = {
+          OFFEN_SERVER_PORT = "3000";
+          OFFEN_DATABASE_DIALECT = "sqlite3";
+          OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
+        };
+        ports = [ "3000:3000" ];
       };
 
-      nixos = {
-        enable = true;
-        packages = [
-          pkgs.offen # required for admin tasks
-        ];
+      runtimes = {
+        container = {
+          enable = true;
+          components.offen.packages = [
+            pkgs.bash # required for entering the container
+            pkgs.coreutils # required for mkdir
+            pkgs.offen # required for admin tasks
+          ];
+        };
+
+        nixos = {
+          enable = true;
+          packages = [
+            pkgs.offen # required for admin tasks
+          ];
+        };
       };
     };
+
+    test.script = ''
+      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+      export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
+      offen setup -name test -email test@localhost -password test123456
+      $curl localhost:3000 | grep "Offen Fair Web Analytics"
+    '';
   };
-
-  test.script = ''
-    curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-    export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
-    offen setup -name test -email test@localhost -password test123456
-    $curl localhost:3000 | grep "Offen Fair Web Analytics"
-  '';
-};
 }

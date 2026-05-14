@@ -16,7 +16,7 @@ while (($#)); do
   esac
 done
 
-if [[ -z "$APP" ]]; then
+if [[ -z $APP ]]; then
   echo "Error: --app <APP_NAME> is required" >&2
   exit 1
 fi

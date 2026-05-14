@@ -73,69 +73,69 @@ let
 in
 
 {
-packages.qlever = {
-  version = "0.5.46";
-  description = "Graph database implementing the RDF and SPARQL standards.";
-  license = lib.licenses.asl20;
+  packages.qlever = {
+    version = "0.5.46";
+    description = "Graph database implementing the RDF and SPARQL standards.";
+    license = lib.licenses.asl20;
 
-  homePage = "https://github.com/ad-freiburg/qlever";
-  mainProgram = "qlever";
+    homePage = "https://github.com/ad-freiburg/qlever";
+    mainProgram = "qlever";
 
-  source = {
-    git = "github:ad-freiburg/qlever/v0.5.46";
-    hash = "sha256-UUfSWy1mImmyL7Ha2xCbxm9srdY/rTJS4oUJbJiDtwQ=";
-    submodules = true;
-  };
-
-  build.standardBuilder = {
-    enable = true;
-    packages = {
-      build = with pkgs; [
-        cmake
-        pkg-config
-        git
-      ];
-      run = with pkgs; [
-        boost
-        bzip2
-        icu
-        openssl
-        zlib
-        zstd
-        jemalloc
-      ];
-    };
-  };
-
-  build.extraAttrs = {
-    env = {
-      NIX_CFLAGS_COMPILE = "-fno-semantic-interposition";
+    source = {
+      git = "github:ad-freiburg/qlever/v0.5.46";
+      hash = "sha256-UUfSWy1mImmyL7Ha2xCbxm9srdY/rTJS4oUJbJiDtwQ=";
+      submodules = true;
     };
 
-    cmakeFlags = [
-      (lib.cmakeFeature "CMAKE_BUILD_TYPE" "Release")
-      (lib.cmakeFeature "LOGLEVEL" "INFO")
-      (lib.cmakeBool "USE_PARALLEL" true)
-      (lib.cmakeBool "_NO_TIMING_TESTS" true)
-      (lib.cmakeBool "JEMALLOC_MANUALLY_INSTALLED" true)
-      (lib.cmakeBool "USE_CONAN" false)
-      (lib.cmakeBool "FETCHCONTENT_FULLY_DISCONNECTED" true)
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_FSST" "${deps.fsst}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_RE2" "${deps.re2}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_GOOGLETEST" "${deps.googletest}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_NLOHMANN-JSON" "${deps.nlohmann-json}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_ANTLR" "${deps.antlr}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_RANGE-V3" "${deps.range-v3}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_SPATIALJOIN" "${deps.spatialjoin}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_CTRE" "${deps.ctre}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_ABSEIL" "${deps.abseil}")
-      (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_S2" "${deps.s2}")
-    ];
-  };
+    build.standardBuilder = {
+      enable = true;
+      packages = {
+        build = with pkgs; [
+          cmake
+          pkg-config
+          git
+        ];
+        run = with pkgs; [
+          boost
+          bzip2
+          icu
+          openssl
+          zlib
+          zstd
+          jemalloc
+        ];
+      };
+    };
 
-  test.script = ''
-    qlever-server --help 2>&1 | grep "Options for qlever-server:"
-    qlever-index --help 2>&1 | grep "Options for qlever-index:"
-  '';
-};
+    build.extraAttrs = {
+      env = {
+        NIX_CFLAGS_COMPILE = "-fno-semantic-interposition";
+      };
+
+      cmakeFlags = [
+        (lib.cmakeFeature "CMAKE_BUILD_TYPE" "Release")
+        (lib.cmakeFeature "LOGLEVEL" "INFO")
+        (lib.cmakeBool "USE_PARALLEL" true)
+        (lib.cmakeBool "_NO_TIMING_TESTS" true)
+        (lib.cmakeBool "JEMALLOC_MANUALLY_INSTALLED" true)
+        (lib.cmakeBool "USE_CONAN" false)
+        (lib.cmakeBool "FETCHCONTENT_FULLY_DISCONNECTED" true)
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_FSST" "${deps.fsst}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_RE2" "${deps.re2}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_GOOGLETEST" "${deps.googletest}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_NLOHMANN-JSON" "${deps.nlohmann-json}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_ANTLR" "${deps.antlr}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_RANGE-V3" "${deps.range-v3}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_SPATIALJOIN" "${deps.spatialjoin}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_CTRE" "${deps.ctre}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_ABSEIL" "${deps.abseil}")
+        (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_S2" "${deps.s2}")
+      ];
+    };
+
+    test.script = ''
+      qlever-server --help 2>&1 | grep "Options for qlever-server:"
+      qlever-index --help 2>&1 | grep "Options for qlever-index:"
+    '';
+  };
 }

@@ -4,17 +4,17 @@
 }:
 
 {
-apps.hello-nix = {
-  description = "Say hello to Nix.";
+  apps.hello-nix = {
+    description = "Say hello to Nix.";
 
-  programs = {
-    packages = [
-      pkgs.hello-nix
-    ];
+    programs = {
+      packages = [
+        pkgs.hello-nix
+      ];
 
-    runtimes.shell = {
-      enable = true;
+      runtimes.shell = {
+        enable = true;
+      };
     };
   };
-};
 }

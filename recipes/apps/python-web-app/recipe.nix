@@ -4,99 +4,99 @@
 }:
 
 {
-apps.python-web = {
-  displayName = "Python Web Example";
-  description = "Example web API with database backend.";
-  usage = ''
-    This is a simple example application that provides a web API for
-    managing a list of users.
+  apps.python-web = {
+    displayName = "Python Web Example";
+    description = "Example web API with database backend.";
+    usage = ''
+      This is a simple example application that provides a web API for
+      managing a list of users.
 
-    * Initialize database
+      * Initialize database
 
-    ```bash
-    curl -X POST localhost:5000/init
-    ```
+      ```bash
+      curl -X POST localhost:5000/init
+      ```
 
-    * Add a new user
+      * Add a new user
 
-    ```bash
-    curl -X POST \
-      --header "Content-Type: application/json" \
-      --data '{"name":"username"}' \
-    localhost:5000/users
-    ```
+      ```bash
+      curl -X POST \
+        --header "Content-Type: application/json" \
+        --data '{"name":"username"}' \
+      localhost:5000/users
+      ```
 
-    * Get list of all users
+      * Get list of all users
 
-    ```bash
-    curl localhost:5000/users
-    ```
+      ```bash
+      curl localhost:5000/users
+      ```
 
-  '';
+    '';
 
-  links = {
-    website = pkgs.python-web.meta.homepage;
-    docs = pkgs.python-web.meta.homepage;
-    source = pkgs.python-web.meta.homepage;
-  };
-
-  ngi.grants = {
-    Commons = [
-      "Example 1"
-      "Example 2"
-    ];
-    Core = [
-      "Example 1"
-      "Example 2"
-    ];
-  };
-
-  services = {
-    components = {
-      python-web = {
-        command = pkgs.python-web;
-        ports = [ "5000:5000" ];
-      };
+    links = {
+      website = pkgs.python-web.meta.homepage;
+      docs = pkgs.python-web.meta.homepage;
+      source = pkgs.python-web.meta.homepage;
     };
 
-    runtimes = {
-      container = {
-        enable = true;
-        composeFile = ./compose.yaml;
-        components.python-web.packages = [ pkgs.python-web ];
+    ngi.grants = {
+      Commons = [
+        "Example 1"
+        "Example 2"
+      ];
+      Core = [
+        "Example 1"
+        "Example 2"
+      ];
+    };
+
+    services = {
+      components = {
+        python-web = {
+          command = pkgs.python-web;
+          ports = [ "5000:5000" ];
+        };
       };
 
-      nixos = {
-        enable = true;
-        nixosConfig = {
-          # database service
-          services.postgresql.enable = true;
-          services.postgresql.enableTCPIP = true;
-          services.postgresql.authentication = ''
-            local all all trust
-            host all all 0.0.0.0/0 trust
-            host all all ::0/0 trust
-          '';
+      runtimes = {
+        container = {
+          enable = true;
+          composeFile = ./compose.yaml;
+          components.python-web.packages = [ pkgs.python-web ];
+        };
+
+        nixos = {
+          enable = true;
+          nixosConfig = {
+            # database service
+            services.postgresql.enable = true;
+            services.postgresql.enableTCPIP = true;
+            services.postgresql.authentication = ''
+              local all all trust
+              host all all 0.0.0.0/0 trust
+              host all all ::0/0 trust
+            '';
+          };
         };
       };
     };
+
+    test = {
+      script = ''
+        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+        $curl -X POST localhost:5000/init
+
+        $curl -X POST \
+          --header "Content-Type: application/json" \
+          --data '{"name":"username"}' \
+          localhost:5000/users
+
+        $curl localhost:5000/users
+      '';
+      # test-container requires database image from Internet registry
+      sandbox = false;
+    };
   };
-
-  test = {
-    script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-      $curl -X POST localhost:5000/init
-
-      $curl -X POST \
-        --header "Content-Type: application/json" \
-        --data '{"name":"username"}' \
-        localhost:5000/users
-
-      $curl localhost:5000/users
-    '';
-    # test-container requires database image from Internet registry
-    sandbox = false;
-  };
-};
 }

@@ -29,44 +29,44 @@
           inherit specialArgs;
           modules = [
             {
-          options = {
-            setup = lib.mkOption {
-              type = lib.types.lines;
-              default = "";
-              description = ''
-                Script to run once at the container startup.
-                Use this option for one-off system preparation steps.
-              '';
-              example = ''
-                # bash
-                echo "Creating directory structure ..."
-                mkdir --parents /var/lib/service/config /var/lib/service/db
-              '';
-            };
+              options = {
+                setup = lib.mkOption {
+                  type = lib.types.lines;
+                  default = "";
+                  description = ''
+                    Script to run once at the container startup.
+                    Use this option for one-off system preparation steps.
+                  '';
+                  example = ''
+                    # bash
+                    echo "Creating directory structure ..."
+                    mkdir --parents /var/lib/service/config /var/lib/service/db
+                  '';
+                };
 
-            packages = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = "List of packages to add to the container.";
-              example = lib.literalExpression "[ pkgs.curl ]";
-            };
+                packages = lib.mkOption {
+                  type = lib.types.listOf lib.types.package;
+                  default = [ ];
+                  description = "List of packages to add to the container.";
+                  example = lib.literalExpression "[ pkgs.curl ]";
+                };
 
-            imageConfig = lib.mkOption {
-              type = with lib.types; lazyAttrsOf anything;
-              default = { };
-              description = ''
-                OCI image configuration.
+                imageConfig = lib.mkOption {
+                  type = with lib.types; lazyAttrsOf anything;
+                  default = { };
+                  description = ''
+                    OCI image configuration.
 
-                See the list of available
-                [OCI image configuration options](https://specs.opencontainers.org/image-spec/config/#properties) .
-              '';
-              example = lib.literalExpression ''
-                {
-                  WorkingDir = "/var/lib/myapp";
-                }
-              '';
-            };
-          };
+                    See the list of available
+                    [OCI image configuration options](https://specs.opencontainers.org/image-spec/config/#properties) .
+                  '';
+                  example = lib.literalExpression ''
+                    {
+                      WorkingDir = "/var/lib/myapp";
+                    }
+                  '';
+                };
+              };
             }
           ];
         }
@@ -139,11 +139,17 @@
     }) app.services.components;
 
     result.evals = lib.mapAttrs (
-      name: value: inputs.ngi-forge.inputs.nimi.packages.${system}.nimi.passthru.evalNimiModule { config = config.result.modules.${name}; }
+      name: value:
+      inputs.ngi-forge.inputs.nimi.packages.${system}.nimi.passthru.evalNimiModule {
+        config = config.result.modules.${name};
+      }
     ) app.services.components;
 
     result.recipes = lib.mapAttrs (
-      name: value: inputs.ngi-forge.inputs.nimi.packages.${system}.nimi.mkContainerImage { config = config.result.modules.${name}; }
+      name: value:
+      inputs.ngi-forge.inputs.nimi.packages.${system}.nimi.mkContainerImage {
+        config = config.result.modules.${name};
+      }
     ) app.services.components;
 
     result.build =
