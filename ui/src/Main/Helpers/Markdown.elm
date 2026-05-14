@@ -35,5 +35,5 @@ renderer =
     { defaultHtmlRenderer
         | codeBlock =
             \block ->
-                block.body |> codeBlock
+                block |> codeBlock
     }

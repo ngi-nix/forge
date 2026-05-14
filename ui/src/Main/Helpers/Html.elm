@@ -6,18 +6,82 @@ import Html.Events
 import Json.Decode
 import Main.Icons exposing (iconCopy)
 import Main.Update.Types exposing (..)
+import Parser
+import SyntaxHighlight as SH exposing (HCode, monokai, toBlockHtml, useTheme)
 
 
-codeBlock : String -> Html Update
-codeBlock content =
+type alias CodeBlock =
+    { body : String
+    , language : Maybe String
+    }
+
+
+langCodeToParser : String -> (String -> Result (List Parser.DeadEnd) HCode)
+langCodeToParser lang =
+    case lang of
+        "nix" ->
+            SH.nix
+
+        "python" ->
+            SH.python
+
+        "python3" ->
+            SH.python
+
+        "py" ->
+            SH.python
+
+        "json" ->
+            SH.json
+
+        "sql" ->
+            SH.sql
+
+        "sparql" ->
+            SH.sql
+
+        _ ->
+            SH.noLang
+
+
+plainCodeBlock : String -> Html Update
+plainCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Nothing
+        }
+
+
+nixCodeBlock : String -> Html Update
+nixCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Just "nix"
+        }
+
+
+codeBlock : CodeBlock -> Html Update
+codeBlock body =
+    let
+        parser =
+            body.language
+                |> Maybe.withDefault ""
+                |> langCodeToParser
+    in
     div [ class "markdown-content position-relative" ]
-        [ button
+        [ useTheme monokai
+        , button
             [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
-            , onClick (Update_CopyToClipboard content)
+            , onClick (Update_CopyToClipboard body.body)
             ]
             [ iconCopy ]
-        , pre [ class "p-3 rounded border border-secondary" ]
-            [ code [] [ text content ] ]
+        , parser body.body
+            |> Result.map (toBlockHtml Nothing)
+            |> Result.withDefault
+                (pre
+                    [ class "p-3 rounded border border-secondary" ]
+                    [ code [] [ text body.body ] ]
+                )
         ]
 
 
