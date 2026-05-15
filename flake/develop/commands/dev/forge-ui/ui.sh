@@ -53,6 +53,7 @@ WorkingDirectory=$rootDir
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-ui.passthru.bootstrapCss -o "$rootDir/ui/build/bootstrap" --show-trace
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-options -o "$rootDir/ui/build/forge-options.json" --show-trace
 ExecStart=$(command -v nix) build -f "$rootDir" _forge-docs -o "$rootDir/ui/build/docs" --show-trace
+ExecStart=$(command -v nix) build -f "$rootDir" highlight-js -o "$rootDir/ui/build/js/highlight.min.js" --show-trace
 ExecStart=$BACKEND_COMMAND
 ExecStart=$rootDir/flake/develop/commands/dev/forge-ui/build_app_resources.py
 EOT
