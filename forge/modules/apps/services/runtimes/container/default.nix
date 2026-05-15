@@ -100,15 +100,10 @@
           else
             pkgs.writeText "${app.name}-compose.yaml" (
               lib.generators.toYAML { } {
-                services = lib.mapAttrs (
-                  name: value:
-                  {
-                    image = "localhost/${name}:latest";
-                  }
-                  // lib.optionalAttrs (app.services.ports != [ ]) {
-                    ports = app.services.ports;
-                  }
-                ) app.services.components;
+                services = lib.mapAttrs (name: service: {
+                  image = "localhost/${name}:latest";
+                  ports = app.services.ports ++ service.ports;
+                }) app.services.components;
               }
             );
 
