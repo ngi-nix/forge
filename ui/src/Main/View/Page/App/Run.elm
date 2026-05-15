@@ -170,31 +170,31 @@ viewPageAppRunNixInstall model pageApp =
                     ]
                  , case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
-                        plainCodeBlock <|
+                        shellCodeBlock <|
                             String.join "\n"
                                 [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable-flakes" ]
 
                     PreferencesInstall_NixTraditional ->
-                        plainCodeBlock <|
+                        shellCodeBlock <|
                             String.join "\n"
                                 [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
                  , small [ class "mb-1" ]
                     [ text "to uninstall, run:" ]
-                 , plainCodeBlock <|
+                 , shellCodeBlock <|
                     "/nix/nix-installer uninstall"
                  ]
                     ++ (case model.model_preferences.preferences_install of
                             PreferencesInstall_NixFlakes ->
                                 [ p [ class "mt-3 mb-1" ]
                                     [ text "2. Accept binaries pre-built by NGI Forge (optional, highly recommended) " ]
-                                , plainCodeBlock <|
+                                , shellCodeBlock <|
                                     "export NIX_CONFIG=\"accept-flake-config = true\""
                                 ]
 
                             PreferencesInstall_NixTraditional ->
                                 [ p [ class "mt-3 mb-1" ]
                                     [ text "2. Configure substitutors (optional, highly recommended)" ]
-                                , plainCodeBlock <|
+                                , shellCodeBlock <|
                                     String.join "\n"
                                         [ "export NIX_CONFIG='substituters = https://cache.nixos.org https://ngi-forge.cachix.org"
                                         , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0='"
@@ -266,7 +266,7 @@ viewPageAppRunProgram model pageApp =
         [ p [ style "margin-bottom" "0em" ]
             [ text "Launch the program" ]
         , br [] []
-        , plainCodeBlock <|
+        , shellCodeBlock <|
             String.concat
                 (case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
@@ -306,7 +306,7 @@ viewPageAppRunShell model pageApp =
         [ p [ style "margin-bottom" "0em" ]
             [ text "Enter a shell environment with CLI or GUI programs available" ]
         , br [] []
-        , plainCodeBlock <|
+        , shellCodeBlock <|
             String.concat
                 (case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
@@ -333,7 +333,7 @@ viewPageAppRunContainer model pageApp =
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI containers" ]
         , br [] []
-        , plainCodeBlock <|
+        , shellCodeBlock <|
             String.join "\n"
                 [ case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
@@ -368,7 +368,7 @@ viewPageAppRunContainerBuildOCI model pageApp =
     details []
         [ summary [] [ text "Build container images manually" ]
         , br [] []
-        , plainCodeBlock <|
+        , shellCodeBlock <|
             case model.model_preferences.preferences_install of
                 PreferencesInstall_NixFlakes ->
                     String.join "\n"
@@ -403,7 +403,7 @@ viewPageAppRunNixOS model pageApp =
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM" ]
         , br [] []
-        , plainCodeBlock <|
+        , shellCodeBlock <|
             case model.model_preferences.preferences_install of
                 PreferencesInstall_NixFlakes ->
                     String.concat

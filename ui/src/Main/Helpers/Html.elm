@@ -78,6 +78,14 @@ nixCodeBlock content =
         }
 
 
+shellCodeBlock : String -> Html Update
+shellCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Just "bash"
+        }
+
+
 codeBlock : CodeBlock -> Html Update
 codeBlock body =
     let
