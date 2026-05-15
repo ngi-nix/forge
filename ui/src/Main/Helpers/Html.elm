@@ -7,7 +7,7 @@ import Json.Decode
 import Main.Icons exposing (iconCopy)
 import Main.Update.Types exposing (..)
 import Parser
-import SyntaxHighlight as SH exposing (HCode, monokai, toBlockHtml, useTheme)
+import SyntaxHighlight as SH exposing (HCode, gitHub, toBlockHtml, useTheme)
 
 
 type CodeHighlightEngine
@@ -101,7 +101,7 @@ codeBlock body =
     in
     if renderEngine == CodeHighlightEngine_ElmSyntaxHighlight then
         div [ class "markdown-content position-relative" ]
-            [ useTheme monokai
+            [ useTheme gitHub
             , copyBtn
             , parser body.body
                 |> Result.map (toBlockHtml Nothing)

@@ -7,7 +7,7 @@
     "shell"
     "bash"
   ],
-  theme ? "default",
+  theme ? "github-dark",
 }:
 buildNpmPackage (finalAttrs: {
   pname = "highlight.js";
