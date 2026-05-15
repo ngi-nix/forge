@@ -1,6 +1,6 @@
 services:
-  ironcalc-app:
-    image: localhost/ironcalc-app:latest
+  ironcalc:
+    image: localhost/ironcalc:latest
     environment:
       - ROCKET_ADDRESS=0.0.0.0
     ports:

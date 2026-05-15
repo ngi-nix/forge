@@ -13,9 +13,7 @@
 
   nimi = lib.mapAttrs (serviceName: service: {
     settings.binName = "${serviceName}-service";
-    services.${serviceName} = import ../../mkNimiImports.nix {
-      inherit lib service;
-    };
+    services = import ../../mkNimiImports.nix { inherit lib service serviceName; };
   }) app.services.components;
 
   systemd.services = lib.mapAttrs (_: service: {

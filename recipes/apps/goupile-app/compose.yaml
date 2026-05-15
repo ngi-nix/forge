@@ -1,6 +1,6 @@
 services:
-  goupile-app:
-    image: localhost/goupile-app:latest
+  goupile:
+    image: localhost/goupile:latest
     ports:
       - 8181:8181
     volumes:
