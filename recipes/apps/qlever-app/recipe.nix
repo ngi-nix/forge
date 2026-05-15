@@ -47,6 +47,9 @@
       preStart = ''
         qlever-ui-manage makemigrations --merge && qlever-ui-manage migrate
       '';
+      ports = [
+        "8080:8080"
+      ];
     };
 
     components.qlever-server = {
@@ -70,6 +73,9 @@
         "/var/lib/qlever/Qleverfile"
         "start"
         "--run-in-foreground"
+      ];
+      ports = [
+        "7019:7019"
       ];
     };
 
@@ -165,11 +171,6 @@
         };
       };
     };
-
-    ports = [
-      "8080:8080"
-      "7019:7019"
-    ];
   };
 
   test = {
