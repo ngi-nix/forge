@@ -13,7 +13,7 @@
     By default, the Olympics dataset is downloaded and indexed on startup.
     To use a different dataset, choose one from the [available use cases](https://docs.qlever.dev/use-cases) and update your `./Qleverfile` accordingly.
 
-    Once indexing is complete, open the UI in your browser at `http://localhost:8080` and run the following query:
+    Once indexing is complete, open the UI in your browser at [http://localhost:8080](http://localhost:8080) and run the following query:
 
     ```sparql
     SELECT * WHERE { ?s ?p ?o } LIMIT 10

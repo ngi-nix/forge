@@ -12,7 +12,7 @@
   usage = ''
     Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
-    It runs as a web service. It has been configured to run on http://localhost:8181.
+    It runs as a web service. It has been configured to run on [http://localhost:8181](http://localhost:8181).
   '';
 
   icon = ./icon.svg;

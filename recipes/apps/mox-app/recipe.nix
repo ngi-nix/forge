@@ -13,24 +13,26 @@
     Mox is a modern, full-featured, open source secure mail server providing
     SMTP, IMAP4, webmail, SPF/DKIM/DMARC, and more.
 
-    #### Administration
+    ##### Administration
 
     If running inside a container, connect to it with:
-    ```
+
+    ```bash
     podman-compose -f result/mox-app/compose.yaml exec mox-app bash
     ```
 
     Set admin password:
-    ```
+
+    ```bash
     echo "adminpassword" | mox -config /var/lib/mox/config/mox.conf setadminpassword
     chown mox /var/lib/mox/config/adminpasswd
     ```
 
-    #### URLs
+    ##### URLs
 
-    * Admin web interface: `http://localhost:8080`
-    * Account web interface: `http://localhost:8081`
-    * Webmail interface: `http://localhost:8081`
+    * Admin web interface: [http://localhost:8080](http://localhost:8080)
+    * Account web interface: [http://localhost:8081](http://localhost:8081)
+    * Webmail interface: [http://localhost:8082](http://localhost:8082)
 
   '';
 

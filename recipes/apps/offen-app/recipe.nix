@@ -15,12 +15,13 @@
 
     #### Access
 
-    Open the Offen interface at `http://localhost:3000`.
+    Open the Offen interface at [http://localhost:3000](http://localhost:3000).
 
     #### Initial Setup
 
     Create an account on first run:
-    ```
+
+    ```bash
     export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
     offen setup -name <account-name> -email <email> -password <password>
     ```

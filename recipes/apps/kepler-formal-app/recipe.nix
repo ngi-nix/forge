@@ -16,7 +16,7 @@
 
     Download example Verilog files
 
-    ```
+    ```bash
     mkdir example-data && cd example-data
 
     for file in \
@@ -32,7 +32,7 @@
 
     Run program
 
-    ```
+    ```bash
     kepler-formal -verilog \
       tinyrocket.v \
       tinyrocket_edited.v \
