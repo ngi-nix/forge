@@ -26,8 +26,6 @@ trap onExit EXIT
 clean
 set -ex
 
-mkdir -p "$rootDir/ui/build/js"
-
 # Warning(correctness): when using `nix build`,
 # be careful to either register the resulting output(s)
 # in $rootDir/ui/build as roots to nix's garbage-collector (GC)
@@ -50,10 +48,7 @@ RemainAfterExit=yes
 Slice=$slice.slice
 Environment=PATH=$PATH
 WorkingDirectory=$rootDir
-ExecStart=$(command -v nix) build -f "$rootDir" _forge-ui.passthru.bootstrapCss -o "$rootDir/ui/build/bootstrap" --show-trace
-ExecStart=$(command -v nix) build -f "$rootDir" _forge-options -o "$rootDir/ui/build/forge-options.json" --show-trace
-ExecStart=$(command -v nix) build -f "$rootDir" _forge-docs -o "$rootDir/ui/build/docs" --show-trace
-ExecStart=$(command -v nix) build -f "$rootDir" highlight-js -o "$rootDir/ui/build/js/highlight.min.js" --show-trace
+ExecStart=$(command -v nix) run -f "$rootDir" _forge-ui-dev --show-trace
 ExecStart=$BACKEND_COMMAND
 ExecStart=$rootDir/flake/develop/commands/dev/forge-ui/build_app_resources.py
 EOT
