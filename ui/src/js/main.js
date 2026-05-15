@@ -2,6 +2,7 @@ import { initClipboard } from "./Clipboard.js";
 import { initNavigation } from "./Navigation.js";
 import { getPreferences, initPreferences } from "./Preferences.js";
 import { initSmoothScroll } from "./SmoothScroll.js";
+import "./CodeHighlightJS.js";
 
 // work around github pages adding extra trailing slash
 if (
