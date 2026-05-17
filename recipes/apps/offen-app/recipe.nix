@@ -59,7 +59,7 @@
     runtimes = {
       container = {
         enable = true;
-        packages = [
+        components.offen.packages = [
           pkgs.bash # required for entering the container
           pkgs.coreutils # required for mkdir
           pkgs.mypkgs.offen # required for admin tasks

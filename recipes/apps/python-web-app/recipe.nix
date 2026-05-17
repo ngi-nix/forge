@@ -60,10 +60,8 @@
     runtimes = {
       container = {
         enable = true;
-        packages = [ pkgs.mypkgs.python-web ];
-        # Alternatively, we can re-use attributes with `config`:
-        #packages = [ config.services.python-web.command ];
         composeFile = ./compose.yaml;
+        components.python-web.packages = [ pkgs.mypkgs.python-web ];
       };
 
       nixos = {

@@ -41,8 +41,8 @@
     runtimes = {
       container = {
         enable = true;
-        packages = [ pkgs.goupile ];
         composeFile = ./compose.yaml;
+        components.goupile.packages = [ pkgs.goupile ];
       };
 
       nixos = {
