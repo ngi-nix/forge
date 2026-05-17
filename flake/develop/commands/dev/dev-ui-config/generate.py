@@ -88,7 +88,7 @@ def generate_app_recipe(name, index, is_test_app=False):
     runtimes = {{
       container = {{
         enable = {container_en};
-        packages = [ pkgs.hello ];
+        components.{name}.packages = [ pkgs.hello ];
       }};
       nixos = {{
         enable = {nixos_vm_en};

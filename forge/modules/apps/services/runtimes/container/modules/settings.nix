@@ -1,7 +1,8 @@
 {
   app,
 
-  config,
+  service,
+  componentConfig,
   pkgs,
   lib,
   ...
@@ -12,17 +13,15 @@
   container = {
     copyToRoot = pkgs.buildEnv {
       name = "runtime-bins";
-      paths = config.packages;
+      paths = componentConfig.packages;
       pathsToLink = [ "/bin" ];
     };
 
-    imageConfig = config.extraConfig // {
+    imageConfig = componentConfig.extraConfig // {
       Env =
         let
           # { K = "V"; } -> [ "K=V" ]
           envAttrsToList = attrs: lib.mapAttrsToList (n: v: "${n}=${v}") attrs;
-
-          appEnv = lib.concatMapAttrs (_: value: value.environment) app.services.components;
 
           # extraConfig.Env follows OCI spec: list of "K=V" strings
           containerEnv = lib.listToAttrs (
@@ -35,17 +34,17 @@
                 name = lib.head parts;
                 value = lib.concatStringsSep "=" (lib.tail parts);
               }
-            ) (config.extraConfig.Env or [ ])
+            ) (componentConfig.extraConfig.Env or [ ])
           );
 
           # NOTE: we merge Attrs to remove duplicate keys
-          envList = appEnv // containerEnv;
+          envList = service.environment // containerEnv;
         in
         envAttrsToList envList;
     };
   };
 
-  startup.runOnStartup = lib.mkIf (config.setup != "") (
-    pkgs.writeShellScript "container-setup" config.setup
+  startup.runOnStartup = lib.mkIf (componentConfig.setup != "") (
+    pkgs.writeShellScript "container-setup" componentConfig.setup
   );
 }
