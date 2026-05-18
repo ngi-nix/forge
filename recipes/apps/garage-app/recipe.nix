@@ -119,4 +119,11 @@
       "3902:3902"
     ];
   };
+
+  test = {
+    script = ''
+      curl -f --retry 10 --retry-max-time 120 --retry-all-errors \
+        http://localhost:3902/metrics
+    '';
+  };
 }
