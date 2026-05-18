@@ -44,9 +44,6 @@
 
   services = {
     components.offen = {
-      preStart = ''
-        mkdir --parents --verbose /var/lib/offen
-      '';
       command = pkgs.mypkgs.offen;
       argv = [ "serve" ];
       environment = {

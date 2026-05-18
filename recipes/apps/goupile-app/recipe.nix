@@ -42,16 +42,10 @@
       container = {
         enable = true;
         packages = [ pkgs.goupile ];
-        composeFile = ./compose.yaml;
       };
 
       nixos = {
         enable = true;
-        extraConfig = {
-          systemd.tmpfiles.rules = [
-            "d /var/lib/goupile 0700 root root -"
-          ];
-        };
       };
     };
 

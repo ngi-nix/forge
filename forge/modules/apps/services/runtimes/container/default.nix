@@ -95,13 +95,17 @@
             config.composeFile
           else
             pkgs.writeText "${app.name}-compose.yaml" (
+              let
+                serviceNames = builtins.attrNames app.services.components;
+              in
               lib.generators.toYAML { } {
                 services.${app.name} = {
                   image = "localhost/${app.name}:latest";
-                }
-                // lib.optionalAttrs (app.services.ports != [ ]) {
+                  volumes = map (n: "${n}-data:/var/lib/${n}") serviceNames;
+                } // lib.optionalAttrs (app.services.ports != [ ]) {
                   ports = app.services.ports;
                 };
+                volumes = lib.listToAttrs (map (n: lib.nameValuePair "${n}-data" null) serviceNames);
               }
             );
         build-oci-image = pkgs.writeShellScriptBin "build-oci-image" ''
