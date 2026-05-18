@@ -120,7 +120,7 @@ in
             test = pkgs.testers.runCommand {
               name = "${pkg.name}-test";
               buildInputs = [ finalPkg ] ++ pkg.test.packages;
-              script = pkg.test.script + "\ntouch $out";
+              script = lib.optionalString (pkg.test.script != null) pkg.test.script + "\ntouch $out";
             };
             devenv = pkgs.mkShell {
               dontBuild = true;

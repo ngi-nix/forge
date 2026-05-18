@@ -28,4 +28,10 @@
       pkgs.python3Packages.psycopg2
     ];
   };
+
+  # python-web doesn't provide any --version or similar option which we can use
+  # to test
+  test.script = ''
+    test -x $(command -v python-web)
+  '';
 }

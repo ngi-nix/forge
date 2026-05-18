@@ -155,15 +155,14 @@
         example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
       };
       script = lib.mkOption {
-        type = lib.types.str;
-        default = ''
-          echo "Test script"
-        '';
+        type = lib.types.nullOr lib.types.str;
+        default = null;
         description = ''
-          Bash script to run package tests.
-
+          Bash script to test package.
           The package being tested is available in PATH.
-          Run with: nix build .#<package>.test
+
+          Launch test:
+            - nix build .#<package>.test
         '';
         example = lib.literalExpression ''
           '''

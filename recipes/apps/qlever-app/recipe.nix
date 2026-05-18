@@ -170,25 +170,25 @@
       "8080:8080"
       "7019:7019"
     ];
-  };
 
-  test = {
-    script = ''
-      curl="curl --retry 40 --retry-max-time 240 --retry-all-errors"
+    test = {
+      script = ''
+        curl="curl --retry 40 --retry-max-time 240 --retry-all-errors"
 
-      sleep 30
+        sleep 30
 
-      # UI accessible
-      $curl --location localhost:8080 | grep -i "qlever"
+        # UI accessible
+        $curl --location localhost:8080 | grep -i "qlever"
 
-      sleep 30
+        sleep 30
 
-      # query indexed data
-      result=$($curl -s localhost:7019 \
-        -H "Accept: text/tab-separated-values" \
-        --data-urlencode "query=SELECT * WHERE { ?s ?p ?o } LIMIT 10")
-      echo "$result"
-      test "$(printf '%s\n' "$result" | wc -l)" -eq 11
-    '';
+        # query indexed data
+        result=$($curl -s localhost:7019 \
+          -H "Accept: text/tab-separated-values" \
+          --data-urlencode "query=SELECT * WHERE { ?s ?p ?o } LIMIT 10")
+        echo "$result"
+        test "$(printf '%s\n' "$result" | wc -l)" -eq 11
+      '';
+    };
   };
 }

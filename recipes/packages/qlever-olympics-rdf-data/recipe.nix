@@ -32,4 +32,10 @@
       install -D olympics.nt -t $out
     '';
   };
+
+  test = {
+    script = ''
+      file ${pkgs.mypkgs.qlever-olympics-rdf-data}/olympics.nt | grep "ASCII text"
+    '';
+  };
 }

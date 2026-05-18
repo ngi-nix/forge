@@ -34,7 +34,11 @@
           machine.start()
           machine.wait_for_unit("multi-user.target")
           machine.succeed("${lib.getExe containerRuntime.result.build} --detach")
-          machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" config.script}")
+          machine.succeed("${
+            pkgs.writeShellScript "${app.name}-container-test-script" (
+              lib.optionalString (config.script != null) config.script
+            )
+          }")
         '';
       }).overrideTestDerivation
         (_: lib.optionalAttrs (!config.sandbox) { __noChroot = true; })

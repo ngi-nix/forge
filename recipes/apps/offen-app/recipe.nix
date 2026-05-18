@@ -75,13 +75,13 @@
     };
 
     ports = [ "3000:3000" ];
+
+    test.script = ''
+      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+      export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
+      offen setup -name test -email test@localhost -password test123456
+      $curl localhost:3000 | grep "Offen Fair Web Analytics"
+    '';
   };
-
-  test.script = ''
-    curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-    export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
-    offen setup -name test -email test@localhost -password test123456
-    $curl localhost:3000 | grep "Offen Fair Web Analytics"
-  '';
 }

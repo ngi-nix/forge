@@ -24,4 +24,11 @@
       pkgs.cmake
     ];
   };
+
+  test = {
+    packages = [ pkgs.binutils ];
+    script = ''
+      ldd ${pkgs.mypkgs.tslib}/lib/libts.so
+    '';
+  };
 }

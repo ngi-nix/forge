@@ -58,11 +58,14 @@
     };
 
     ports = [ "8000:8000" ];
+
+    test = {
+      packages = [ pkgs.curl ];
+      script = ''
+        curl="curl --retry 8 --retry-max-time 120 --retry-all-errors"
+        $curl localhost:8000 | grep -q "IronCalc"
+      '';
+    };
   };
 
-  test.packages = [ pkgs.curl ];
-  test.script = ''
-    curl="curl --retry 8 --retry-max-time 120 --retry-all-errors"
-    $curl localhost:8000 | grep -q "IronCalc"
-  '';
 }

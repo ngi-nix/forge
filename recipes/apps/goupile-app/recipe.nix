@@ -56,13 +56,14 @@
     };
 
     ports = [ "8181:8181" ];
+
+    test = {
+      script = ''
+        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+        $curl --location localhost:8181 | grep -q "Goupile" >/dev/null
+      '';
+    };
   };
 
-  test = {
-    script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-      $curl --location localhost:8181 | grep -q "Goupile" >/dev/null
-    '';
-  };
 }

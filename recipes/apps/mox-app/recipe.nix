@@ -147,13 +147,13 @@
       "8081:8081"
       "8082:8082"
     ];
+
+    test.script = ''
+      curl="curl --retry 20 --retry-max-time 120 --retry-all-errors"
+
+      $curl --location localhost:8080 | grep "Mox Account"
+      $curl --location localhost:8081/admin | grep "Mox Admin"
+      $curl --location localhost:8082/webmail | grep "Mox Webmail"
+    '';
   };
-
-  test.script = ''
-    curl="curl --retry 20 --retry-max-time 120 --retry-all-errors"
-
-    $curl --location localhost:8080 | grep "Mox Account"
-    $curl --location localhost:8081/admin | grep "Mox Admin"
-    $curl --location localhost:8082/webmail | grep "Mox Webmail"
-  '';
 }

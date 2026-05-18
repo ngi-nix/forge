@@ -66,5 +66,14 @@
       default = { };
       description = "Portable services runtimes.";
     };
+
+    test = lib.mkOption {
+      type = lib.types.submoduleWith {
+        inherit specialArgs;
+        modules = [ ../test ];
+      };
+      default = { };
+      description = "Test configuration.";
+    };
   };
 }

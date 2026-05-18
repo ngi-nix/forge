@@ -82,22 +82,22 @@
     };
 
     ports = [ "5000:5000" ];
-  };
 
-  test = {
-    script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+    test = {
+      script = ''
+        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
 
-      $curl -X POST localhost:5000/init
+        $curl -X POST localhost:5000/init
 
-      $curl -X POST \
-        --header "Content-Type: application/json" \
-        --data '{"name":"username"}' \
-        localhost:5000/users
+        $curl -X POST \
+          --header "Content-Type: application/json" \
+          --data '{"name":"username"}' \
+          localhost:5000/users
 
-      $curl localhost:5000/users
-    '';
-    # test-container requires database image from Internet registry
-    sandbox = false;
+        $curl localhost:5000/users
+      '';
+      # test-container requires database image from Internet registry
+      sandbox = false;
+    };
   };
 }

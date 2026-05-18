@@ -79,11 +79,11 @@
       "3001:3001"
       "3002:3002"
     ];
+
+    test.script = ''
+      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+      $curl localhost:3002 | grep "Audio Stream"
+    '';
   };
-
-  test.script = ''
-    curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-    $curl localhost:3002 | grep "Audio Stream"
-  '';
 }

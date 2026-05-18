@@ -40,21 +40,18 @@
     };
 
     script = lib.mkOption {
-      type = lib.types.str;
-      default = ''
-        echo "Test script"
-      '';
+      type = lib.types.nullOr lib.types.str;
+      default = null;
       description = ''
-        Bash script to test application services inside a NixOS machine
-        or container.
+        Bash script to test the application inside a NixOS machine or container.
 
-        Launch tests with:
+        Launch test:
           - nix build .#<app>.test
           - nix build .#<app>.test-container
       '';
       example = lib.literalExpression ''
         '''
-        curl -f http://localhost:5000/users
+        curl -f http://localhost:8000 | grep "Hello"
         '''
       '';
     };

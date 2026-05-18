@@ -78,6 +78,10 @@ in
                     Package '${pkg.name}': license is empty.
                   '';
                 }
+                {
+                  condition = pkg.test.script == null;
+                  message = "Package '${pkg.name}' test is missing. Use test.script option to add a test.";
+                }
               ]) cfg
             );
 
