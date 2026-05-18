@@ -1,13 +1,10 @@
 {
   writeShellScriptBin,
-  callPackage,
   _forge-ui,
   _forge-options,
   _forge-docs,
+  highlight-js,
 }:
-let
-  highlight-js = callPackage ./highlight-js.nix { };
-in
 writeShellScriptBin "forge-ui-dev" ''
   out=./ui/build
   mkdir -p $out/js $out/css

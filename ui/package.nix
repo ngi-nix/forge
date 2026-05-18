@@ -3,13 +3,13 @@
   fetchzip,
   jq,
   symlinkJoin,
-  callPackage,
 
   appIcons,
 
   _forge-config,
   _forge-docs,
   _forge-options,
+  highlight-js,
   ...
 }:
 
@@ -35,8 +35,6 @@ let
     url = "https://github.com/twbs/bootstrap/releases/download/v${version}/bootstrap-${version}-dist.zip";
     hash = "sha256-StRhHJIRGzguLlo0BGOAMy0PCCmMovzgU/5xZJgVrqQ=";
   };
-
-  highlight-js = callPackage ../flake/packages/highlight-js.nix { };
 in
 symlinkJoin {
   name = "forge-ui";
