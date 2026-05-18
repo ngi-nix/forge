@@ -17,7 +17,11 @@
 
     If running inside a container, connect to it with:
     ```
+    # podman
     podman-compose -f result/mox-app/compose.yaml exec mox-app bash
+
+    # docker
+    docker-compose -f result/mox-app/compose.yaml exec mox-app bash
     ```
 
     Set admin password:
@@ -150,10 +154,10 @@
   };
 
   test.script = ''
-    curl="curl --retry 20 --retry-max-time 120 --retry-all-errors"
+    curl="curl -sS --retry 20 --retry-max-time 120 --retry-all-errors"
 
-    $curl --location localhost:8080 | grep "Mox Account"
-    $curl --location localhost:8081/admin | grep "Mox Admin"
-    $curl --location localhost:8082/webmail | grep "Mox Webmail"
+    $curl --location localhost:8080 | grep "Mox Account" >/dev/null
+    $curl --location localhost:8081/admin | grep "Mox Admin" >/dev/null
+    $curl --location localhost:8082/webmail | grep "Mox Webmail" >/dev/null
   '';
 }

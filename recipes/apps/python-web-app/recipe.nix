@@ -14,12 +14,14 @@
     managing a list of users.
 
     * Initialize database
-    ```
+
+    ```bash
     curl -X POST localhost:5000/init
     ```
 
     * Add a new user
-    ```
+
+    ```shell
     curl -X POST \
       --header "Content-Type: application/json" \
       --data '{"name":"username"}' \
@@ -27,7 +29,8 @@
     ```
 
     * Get list of all users
-    ```
+
+    ```bash
     curl localhost:5000/users
     ```
 

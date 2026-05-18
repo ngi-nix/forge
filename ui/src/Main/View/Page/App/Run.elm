@@ -55,7 +55,10 @@ viewPageAppRun model pageApp =
                             ]
                         , div [ class "modal-body" ]
                             [ viewPageAppRunRuntimes model pageApp
-                            , div [ class "tab-content mb-5 p-3 border rounded" ]
+                            , div
+                                [ class "tab-content mb-5 p-3 border rounded"
+                                , style "border-color" "#2579ab !important"
+                                ]
                                 [ viewPageAppRunInstructions model pageApp ]
                             ]
                         ]
@@ -66,7 +69,7 @@ viewPageAppRun model pageApp =
 
 viewPageAppRunRuntimes : Model -> PageApp -> Html Update
 viewPageAppRunRuntimes model pageApp =
-    ul [ class "nav nav-pills mb-4" ]
+    ul [ class "nav nav-pills mb-3" ]
         (pageApp.pageApp_app
             |> listAppRuntimeAvailable
             |> List.map (viewPageAppRunRuntime model pageApp)
@@ -113,12 +116,11 @@ viewPageAppRunInstructions model pageApp =
                 [ viewPageAppRunNixInstall model pageApp
                 , hr [] []
                 , ul
-                    [ class "nav nav-underline mb-1"
+                    [ class "nav nav-underline mb-2"
                     ]
                     (listPreferencesInstall
                         |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
                     )
-                , br [] []
                 , case appRuntime of
                     AppRuntime_Program ->
                         if pageApp.pageApp_app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
@@ -152,56 +154,56 @@ viewPageAppRunInstructions model pageApp =
 
 viewPageAppRunNixInstall : Model -> PageApp -> Html Update
 viewPageAppRunNixInstall model pageApp =
-    div [ class "accordion" ]
+    div [ class "accordion mb-3" ]
         [ details [ class "accordion-item" ]
             [ summary [ class "accordion-button accordion-header fw-bold" ]
                 [ text "Install Nix" ]
             , div [ class "accordion-body" ]
-                ([ ul
-                    [ class "nav nav-underline mb-1"
+                [ ul
+                    [ class "nav nav-underline mb-3"
                     ]
                     (listPreferencesInstall
                         |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
                     )
-                 , p [ class "mb-1" ]
+                , p [ class "mb-1" ]
                     [ text "1. Install Nix "
                     , a [ href "https://github.com/NixOS/nix-installer#nix-installer", target "_blank" ]
                         [ text "(learn more about this installer)." ]
                     ]
-                 , case model.model_preferences.preferences_install of
+                , case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
-                        codeBlock <|
+                        shellCodeBlock <|
                             String.join "\n"
                                 [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable-flakes" ]
 
                     PreferencesInstall_NixTraditional ->
-                        codeBlock <|
+                        shellCodeBlock <|
                             String.join "\n"
                                 [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
-                 , small [ class "mb-1" ]
+                , small [ class "mb-1" ]
                     [ text "to uninstall, run:" ]
-                 , codeBlock <|
+                , shellCodeBlock <|
                     "/nix/nix-installer uninstall"
-                 ]
-                    ++ (case model.model_preferences.preferences_install of
-                            PreferencesInstall_NixFlakes ->
-                                [ p [ class "mt-3 mb-1" ]
-                                    [ text "2. Accept binaries pre-built by NGI Forge (optional, highly recommended) " ]
-                                , codeBlock <|
-                                    "export NIX_CONFIG=\"accept-flake-config = true\""
-                                ]
+                , case model.model_preferences.preferences_install of
+                    PreferencesInstall_NixFlakes ->
+                        div []
+                            [ p [ class "mt-3 mb-1" ]
+                                [ text "2. Accept binaries pre-built by NGI Forge (optional, highly recommended) " ]
+                            , shellCodeBlock <|
+                                "export NIX_CONFIG=\"accept-flake-config = true\""
+                            ]
 
-                            PreferencesInstall_NixTraditional ->
-                                [ p [ class "mt-3 mb-1" ]
-                                    [ text "2. Configure substitutors (optional, highly recommended)" ]
-                                , codeBlock <|
-                                    String.join "\n"
-                                        [ "export NIX_CONFIG='substituters = https://cache.nixos.org https://ngi-forge.cachix.org"
-                                        , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0='"
-                                        ]
-                                ]
-                       )
-                )
+                    PreferencesInstall_NixTraditional ->
+                        div []
+                            [ p [ class "mt-3 mb-1" ]
+                                [ text "2. Configure substitutors (optional, highly recommended)" ]
+                            , shellCodeBlock <|
+                                String.join "\n"
+                                    [ "export NIX_CONFIG='substituters = https://cache.nixos.org https://ngi-forge.cachix.org"
+                                    , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0='"
+                                    ]
+                            ]
+                ]
             ]
         ]
 
@@ -266,7 +268,7 @@ viewPageAppRunProgram model pageApp =
         [ p [ style "margin-bottom" "0em" ]
             [ text "Launch the program" ]
         , br [] []
-        , codeBlock <|
+        , shellCodeBlock <|
             String.concat
                 (case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
@@ -280,11 +282,7 @@ viewPageAppRunProgram model pageApp =
                     PreferencesInstall_NixTraditional ->
                         [ "nix-shell \\\n"
                         , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                        , "  -p '(import <forge> {})"
-                        , "."
-                        , pageApp.pageApp_app.app_name
-                        , ".program"
-                        , "'"
+                        , "  -p '(import <forge> {})." ++ pageApp.pageApp_app.app_name ++ ".program'"
                         , case pageApp.pageApp_app.app_programs.appPrograms_runCommand of
                             "" ->
                                 ""
@@ -292,142 +290,232 @@ viewPageAppRunProgram model pageApp =
                             exec ->
                                 String.concat
                                     [ " \\\n"
-                                    , "--command "
-                                    , exec
+                                    , "--command " ++ exec
                                     ]
                         ]
                 )
         ]
 
 
+plainContainer : Html Update -> Html Update
+plainContainer content =
+    div [ class "pst-tab-content-container mt-4" ]
+        [ content ]
+
+
+tabbedContainer : Model -> PageApp -> Html Update -> Html Update
+tabbedContainer model pageApp content =
+    div [ class "mb-3 mt-3" ]
+        [ ul [ class "pst-tab-set" ]
+            (listPreferencesContainer
+                |> List.map (viewPageAppRunContainerPreferences model pageApp)
+            )
+        , div [ class "pst-tab-content-container" ]
+            [ content ]
+        ]
+
+
+viewPageAppRunContainerPreferences : Model -> PageApp -> PreferencesContainer -> Html Update
+viewPageAppRunContainerPreferences model _ preferencesContainer =
+    let
+        preferences =
+            model.model_preferences
+
+        isActive =
+            model.model_preferences.preferences_container == preferencesContainer
+
+        labelClasses =
+            [ "pst-tab-label"
+            , if isActive then
+                "active"
+
+              else
+                ""
+            ]
+                |> String.join " "
+    in
+    li [ class "pst-tab-item" ]
+        [ button
+            [ class labelClasses
+            , style "cursor" "pointer"
+            , onClick (Update_SetPreferences { preferences | preferences_container = preferencesContainer })
+            ]
+            (case preferencesContainer of
+                PreferencesContainer_Podman ->
+                    [ text "podman"
+                    ]
+
+                PreferencesContainer_Docker ->
+                    [ text "docker"
+                    ]
+            )
+        ]
+
+
 viewPageAppRunShell : Model -> PageApp -> Html Update
 viewPageAppRunShell model pageApp =
-    div []
-        [ p [ style "margin-bottom" "0em" ]
-            [ text "Enter a shell environment with CLI or GUI programs available" ]
-        , br [] []
-        , codeBlock <|
-            String.concat
-                (case model.model_preferences.preferences_install of
-                    PreferencesInstall_NixFlakes ->
-                        [ "nix shell "
-                        , showForgeInputFlakes model
-                        , "#"
-                        , pageApp.pageApp_app.app_name
-                        ]
+    div [ class "accordion pst-colorless" ]
+        [ details [ class "accordion-item", attribute "open" "" ]
+            [ summary [ class "accordion-button accordion-header" ]
+                [ text "Enter a shell environment with CLI or GUI programs available" ]
+            , plainContainer <|
+                div [ class "accordion-body" ]
+                    [ shellCodeBlock <|
+                        String.concat
+                            (case model.model_preferences.preferences_install of
+                                PreferencesInstall_NixFlakes ->
+                                    [ "nix shell "
+                                    , showForgeInputFlakes model
+                                    , "#"
+                                    , pageApp.pageApp_app.app_name
+                                    ]
 
-                    PreferencesInstall_NixTraditional ->
-                        [ "nix-shell \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                        , "  -p '(import <forge> {})"
-                        , "."
-                        , pageApp.pageApp_app.app_name
-                        , "' "
-                        ]
-                )
+                                PreferencesInstall_NixTraditional ->
+                                    [ "nix-shell \\\n"
+                                    , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                                    , "  -p '(import <forge> {})"
+                                    , "."
+                                    , pageApp.pageApp_app.app_name
+                                    , "' "
+                                    ]
+                            )
+                    ]
+            ]
         ]
 
 
 viewPageAppRunContainer : Model -> PageApp -> Html Update
 viewPageAppRunContainer model pageApp =
+    let
+        ( runScript, composeSuffix, containerEngine ) =
+            case model.model_preferences.preferences_container of
+                PreferencesContainer_Podman ->
+                    ( "./result/bin/run-podman", ".run-podman-compose", "podman" )
+
+                PreferencesContainer_Docker ->
+                    ( "./result/bin/run-docker", ".run-docker-compose", "docker" )
+
+        composeScript =
+            "./result/bin/" ++ String.dropLeft 1 composeSuffix
+    in
     div []
-        [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI containers" ]
-        , br [] []
-        , codeBlock <|
-            String.join "\n"
-                [ case model.model_preferences.preferences_install of
-                    PreferencesInstall_NixFlakes ->
-                        String.concat
-                            [ "nix run "
-                            , showForgeInputFlakes model
-                            , "#"
-                            , pageApp.pageApp_app.app_name
-                            , ".container"
-                            ]
+        [ div [ class "accordion pst-colorless" ]
+            [ details [ class "accordion-item", attribute "open" "" ]
+                [ summary [ class "accordion-button accordion-header" ]
+                    [ text "Run application services in OCI containers" ]
+                , plainContainer <|
+                    div [ class "accordion-body" ]
+                        [ shellCodeBlock <|
+                            String.join "\n"
+                                [ case model.model_preferences.preferences_install of
+                                    PreferencesInstall_NixFlakes ->
+                                        String.concat
+                                            [ "nix run "
+                                            , showForgeInputFlakes model
+                                            , "#"
+                                            , pageApp.pageApp_app.app_name
+                                            , ".container"
+                                            ]
 
-                    PreferencesInstall_NixTraditional ->
-                        String.concat
-                            [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                            , "  -E '(import <forge> {})"
-                            , "."
-                            , pageApp.pageApp_app.app_name
-                            , ".container"
-                            , "' \n"
-                            , "\n"
-                            , "./result/bin/run-container"
-                            ]
+                                    PreferencesInstall_NixTraditional ->
+                                        String.concat
+                                            [ "nix-shell \\\n"
+                                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                                            , "  -p '(import <forge> {})." ++ pageApp.pageApp_app.app_name ++ ".container'"
+                                            , "\\\n"
+                                            , "--command run-container"
+                                            ]
+                                ]
+                        ]
                 ]
-        , hr [] []
-        , viewPageAppRunContainerBuildOCI model pageApp
-        ]
+            ]
+        , div [ class "accordion pst-colorless mt-3" ]
+            [ details [ class "accordion-item" ]
+                [ summary [ class "accordion-button accordion-header" ] [ text "Build and Run the oci container image manually" ]
+                , tabbedContainer model pageApp <|
+                    div [ class "accordion-body" ]
+                        [ p [ class "mb-3" ] [ text "Build the container script" ]
+                        , shellCodeBlock <|
+                            case model.model_preferences.preferences_install of
+                                PreferencesInstall_NixFlakes ->
+                                    String.join "\n"
+                                        [ String.concat
+                                            [ "nix build "
+                                            , showForgeInputFlakes model
+                                            , "#"
+                                            , pageApp.pageApp_app.app_name
+                                            , ".container"
+                                            ]
+                                        ]
 
-
-viewPageAppRunContainerBuildOCI : Model -> PageApp -> Html Update
-viewPageAppRunContainerBuildOCI model pageApp =
-    details []
-        [ summary [] [ text "Build container image manually" ]
-        , br [] []
-        , codeBlock <|
-            case model.model_preferences.preferences_install of
-                PreferencesInstall_NixFlakes ->
-                    String.join "\n"
-                        [ String.concat
-                            [ "nix build "
-                            , showForgeInputFlakes model
-                            , "#"
-                            , pageApp.pageApp_app.app_name
-                            , ".container"
-                            ]
-                        , ""
-                        , "./result/bin/build-oci-image"
+                                PreferencesInstall_NixTraditional ->
+                                    String.concat
+                                        [ "nix-build \\\n"
+                                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                                        , "  -E '(import <forge> {})." ++ pageApp.pageApp_app.app_name ++ ".container'"
+                                        ]
+                        , p [ class "mb-3" ] [ text "Build the oci container tarball" ]
+                        , shellCodeBlock <|
+                            "./result/bin/build-oci-image"
+                        , p [ class "mb-3" ] [ text "Run the container" ]
+                        , shellCodeBlock <|
+                            runScript
                         ]
-
-                PreferencesInstall_NixTraditional ->
-                    String.concat
-                        [ "nix-build \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                        , "  -E '(import <forge> {})"
-                        , "."
-                        , pageApp.pageApp_app.app_name
-                        , ".container"
-                        , "' \n"
-                        , "\n"
-                        , "./result/bin/build-oci-image"
+                ]
+            ]
+        , div [ class "accordion pst-colorless mt-3" ]
+            [ details [ class "accordion-item" ]
+                [ summary [ class "accordion-button accordion-header" ] [ text "Advanced & Administration" ]
+                , tabbedContainer model pageApp <|
+                    div [ class "accordion-body" ]
+                        [ p [ class "mb-3" ] [ text "Use these helper scripts to manage the running application (logs, exec, stop, etc.):" ]
+                        , p [ class "mb-3" ] [ text "View logs" ]
+                        , shellCodeBlock <|
+                            composeScript
+                                ++ " logs -f"
+                        , p [ class "mb-3" ] [ text "Enter the container" ]
+                        , shellCodeBlock <|
+                            composeScript
+                                ++ " exec "
+                                ++ pageApp.pageApp_app.app_name
+                                ++ " bash"
                         ]
+                ]
+            ]
         ]
 
 
 viewPageAppRunNixOS : Model -> PageApp -> Html Update
 viewPageAppRunNixOS model pageApp =
     div []
-        [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM" ]
-        , br [] []
-        , codeBlock <|
-            case model.model_preferences.preferences_install of
-                PreferencesInstall_NixFlakes ->
-                    String.concat
-                        [ "nix run "
-                        , showForgeInputFlakes model
-                        , "#"
-                        , pageApp.pageApp_app.app_name
-                        , ".vm"
-                        ]
+        [ div [ class "accordion pst-colorless" ]
+            [ details [ class "accordion-item", attribute "open" "" ]
+                [ summary [ class "accordion-button accordion-header" ]
+                    [ text "Run application services in a NixOS VM" ]
+                , plainContainer <|
+                    div [ class "accordion-body" ]
+                        [ shellCodeBlock <|
+                            case model.model_preferences.preferences_install of
+                                PreferencesInstall_NixFlakes ->
+                                    String.concat
+                                        [ "nix run "
+                                        , showForgeInputFlakes model
+                                        , "#"
+                                        , pageApp.pageApp_app.app_name
+                                        , ".vm"
+                                        ]
 
-                PreferencesInstall_NixTraditional ->
-                    String.join "\n"
-                        [ String.concat
-                            [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                            , "  -E '(import <forge> {})"
-                            , "."
-                            , pageApp.pageApp_app.app_name
-                            , ".vm"
-                            , "' "
-                            ]
-                        , ""
-                        , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
+                                PreferencesInstall_NixTraditional ->
+                                    String.concat
+                                        [ "nix-shell \\\n"
+                                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                                        , "  -p '(import <forge> {})." ++ pageApp.pageApp_app.app_name ++ ".vm' "
+                                        , "\\\n"
+                                        , "--command " ++ "run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
+                                        ]
                         ]
+                ]
+            ]
         , hr [] []
         , viewPageAppRunNixOSModule model pageApp
         ]
@@ -435,45 +523,50 @@ viewPageAppRunNixOS model pageApp =
 
 viewPageAppRunNixOSModule : Model -> PageApp -> Html Update
 viewPageAppRunNixOSModule model pageApp =
-    details []
-        [ summary [] [ text "Enable module in a NixOS configuration" ]
-        , br [] []
-        , codeBlock <|
-            case model.model_preferences.preferences_install of
-                PreferencesInstall_NixFlakes ->
-                    String.join "\n"
-                        [ "{"
-                        , "  inputs.forge.url = \"" ++ showForgeInputFlakesLatest model ++ "\";"
-                        , ""
-                        , "  outputs = { nixpkgs, forge, ... }: {"
-                        , "    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {"
-                        , "      modules = ["
-                        , "        forge.packages.${system}." ++ pageApp.pageApp_app.app_name ++ ".nixosModules.default"
-                        , "        # ..."
-                        , "      ];"
-                        , "    };"
-                        , "  };"
-                        , "}"
-                        ]
+    div [ class "accordion pst-colorless" ]
+        [ details [ class "accordion-item" ]
+            [ summary [ class "accordion-button accordion-header" ]
+                [ text "Enable module in a NixOS configuration" ]
+            , plainContainer <|
+                div [ class "accordion-body" ]
+                    [ nixCodeBlock <|
+                        case model.model_preferences.preferences_install of
+                            PreferencesInstall_NixFlakes ->
+                                String.join "\n"
+                                    [ "{"
+                                    , "  inputs.forge.url = \"" ++ showForgeInputFlakesLatest model ++ "\";"
+                                    , ""
+                                    , "  outputs = { nixpkgs, forge, ... }: {"
+                                    , "    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {"
+                                    , "      modules = ["
+                                    , "        forge.packages.${system}." ++ pageApp.pageApp_app.app_name ++ ".nixosModules.default"
+                                    , "        # ..."
+                                    , "      ];"
+                                    , "    };"
+                                    , "  };"
+                                    , "}"
+                                    ]
 
-                PreferencesInstall_NixTraditional ->
-                    let
-                        forgeUrl =
-                            (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ commit ++ ".tar.gz"
-                    in
-                    String.join "\n"
-                        [ "{ config, pkgs, ... }:"
-                        , ""
-                        , "let"
-                        , "  forge-url = \"" ++ forgeUrl ++ "\";"
-                        , "  forge = import \"${builtins.fetchTarball forge-url}\" { inherit pkgs; };"
-                        , "in {"
-                        , "  imports = ["
-                        , "    forge.forgePkgs." ++ pageApp.pageApp_app.app_name ++ ".nixosModules.default"
-                        , "  ];"
-                        , "  # ..."
-                        , "}"
-                        ]
+                            PreferencesInstall_NixTraditional ->
+                                let
+                                    forgeUrl =
+                                        (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ commit ++ ".tar.gz"
+                                in
+                                String.join "\n"
+                                    [ "{ config, pkgs, ... }:"
+                                    , ""
+                                    , "let"
+                                    , "  forge-url = \"" ++ forgeUrl ++ "\";"
+                                    , "  forge = import \"${builtins.fetchTarball forge-url}\" { inherit pkgs; };"
+                                    , "in {"
+                                    , "  imports = ["
+                                    , "    forge.forgePkgs." ++ pageApp.pageApp_app.app_name ++ ".nixosModules.default"
+                                    , "  ];"
+                                    , "  # ..."
+                                    , "}"
+                                    ]
+                    ]
+            ]
         ]
 
 

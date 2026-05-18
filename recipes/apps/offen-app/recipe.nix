@@ -20,7 +20,8 @@
     #### Initial Setup
 
     Create an account on first run:
-    ```
+
+    ```shell
     export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
     offen setup -name <account-name> -email <email> -password <password>
     ```

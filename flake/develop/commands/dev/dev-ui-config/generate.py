@@ -223,7 +223,7 @@ def main():
     out_path.symlink_to(real_file.relative_to(out_path.parent))
     print(f"Mock config symlinked: {out_path} -> {real_file}")
 
-    sys.path.append("@devUIDir@")
+    sys.path.append("@forgeUIDir@")
     try:
         from build_app_resources import populate_resources_dir
 

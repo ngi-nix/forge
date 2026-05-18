@@ -15,7 +15,7 @@
 
     #### Scan a binary file
 
-    ```
+    ```shell
     bang scan -u /tmp/bang-results /path/to/firmware.bin
     ```
 

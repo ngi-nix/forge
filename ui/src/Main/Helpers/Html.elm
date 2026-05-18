@@ -1,24 +1,135 @@
 module Main.Helpers.Html exposing (..)
 
-import Html exposing (Attribute, Html, button, code, div, pre, text)
-import Html.Attributes exposing (class)
+import Html exposing (Attribute, Html, button, code, div, node, pre, text)
+import Html.Attributes exposing (attribute, class)
 import Html.Events
 import Json.Decode
 import Main.Icons exposing (iconCopy)
 import Main.Update.Types exposing (..)
+import Parser
+import SyntaxHighlight as SH exposing (HCode, gitHub, toBlockHtml, useTheme)
 
 
-codeBlock : String -> Html Update
-codeBlock content =
-    div [ class "markdown-content position-relative" ]
-        [ button
-            [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
-            , onClick (Update_CopyToClipboard content)
+type CodeHighlightEngine
+    = CodeHighlightEngine_ElmSyntaxHighlight
+    | CodeHighlightEngine_HighlightJS
+
+
+codeHighlightRenderer : String -> CodeHighlightEngine
+codeHighlightRenderer lang =
+    let
+        elmSHLangs =
+            [ "nix", "python", "python3", "py", "json", "sql", "sparql", "" ]
+    in
+    if List.any (\n -> n == lang) elmSHLangs then
+        CodeHighlightEngine_ElmSyntaxHighlight
+
+    else
+        CodeHighlightEngine_HighlightJS
+
+
+elmSHlangCodeToParser : String -> (String -> Result (List Parser.DeadEnd) HCode)
+elmSHlangCodeToParser lang =
+    case lang of
+        "nix" ->
+            SH.nix
+
+        "python" ->
+            SH.python
+
+        "python3" ->
+            SH.python
+
+        "py" ->
+            SH.python
+
+        "json" ->
+            SH.json
+
+        "sql" ->
+            SH.sql
+
+        "sparql" ->
+            SH.sql
+
+        _ ->
+            SH.noLang
+
+
+type alias CodeBlock =
+    { body : String
+    , language : Maybe String
+    }
+
+
+plainCodeBlock : String -> Html Update
+plainCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Nothing
+        }
+
+
+nixCodeBlock : String -> Html Update
+nixCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Just "nix"
+        }
+
+
+shellCodeBlock : String -> Html Update
+shellCodeBlock content =
+    codeBlock
+        { body = content
+        , language = Just "bash"
+        }
+
+
+codeBlock : CodeBlock -> Html Update
+codeBlock body =
+    let
+        lang =
+            body.language
+                |> Maybe.withDefault ""
+
+        renderEngine =
+            codeHighlightRenderer lang
+
+        parser =
+            lang
+                |> elmSHlangCodeToParser
+
+        copyBtn =
+            button
+                [ class "btn btn-sm btn-secondary position-absolute top-0 end-0 m-2 button copy"
+                , onClick (Update_CopyToClipboard body.body)
+                ]
+                [ iconCopy ]
+    in
+    if renderEngine == CodeHighlightEngine_ElmSyntaxHighlight then
+        div [ class "markdown-content position-relative" ]
+            [ useTheme gitHub
+            , copyBtn
+            , parser body.body
+                |> Result.map (toBlockHtml Nothing)
+                |> Result.withDefault
+                    (pre
+                        [ class "p-3 rounded border border-secondary" ]
+                        [ code [] [ text body.body ] ]
+                    )
             ]
-            [ iconCopy ]
-        , pre [ class "p-3 rounded border border-secondary" ]
-            [ code [] [ text content ] ]
-        ]
+
+    else
+        div [ class "markdown-content position-relative" ]
+            [ copyBtn
+            , node
+                "highlightjs-code"
+                [ attribute "language" lang
+                , attribute "body" body.body
+                ]
+                []
+            ]
 
 
 {-| `onClick` is like `Html.Events.onClick`
