@@ -44,6 +44,7 @@
         ROCKET_ADDRESS = "0.0.0.0";
         IRONCALC_DB_PATH = "/var/lib/ironcalc/ironcalc.sqlite";
       };
+      ports = [ "8000:8000" ];
     };
 
     runtimes.container = {
@@ -56,8 +57,6 @@
       enable = true;
       packages = [ pkgs.mypkgs.ironcalc ];
     };
-
-    ports = [ "8000:8000" ];
   };
 
   test.packages = [ pkgs.curl ];

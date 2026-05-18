@@ -54,6 +54,7 @@
         OFFEN_DATABASE_DIALECT = "sqlite3";
         OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
       };
+      ports = [ "3000:3000" ];
     };
 
     runtimes = {
@@ -73,8 +74,6 @@
         ];
       };
     };
-
-    ports = [ "3000:3000" ];
   };
 
   test.script = ''

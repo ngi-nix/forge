@@ -6,19 +6,6 @@
 }:
 {
   options = {
-    ports = lib.mkOption {
-      type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
-      default = [ ];
-      description = ''
-        List of ports exposed by the application's services.
-
-        Format: HOST_PORT:SERVICE_PORT
-      '';
-      example = lib.literalExpression ''
-        [ "8000:8000" "5432:5432" ]
-      '';
-    };
-
     components = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submoduleWith {

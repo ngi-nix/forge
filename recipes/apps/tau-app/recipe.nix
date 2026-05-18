@@ -57,6 +57,10 @@
         source = ./config.toml;
         path = "tau/tower.toml";
       };
+      ports = [
+        "3001:3001"
+        "3002:3002"
+      ];
     };
 
     runtimes = {
@@ -74,11 +78,6 @@
         ];
       };
     };
-
-    ports = [
-      "3001:3001"
-      "3002:3002"
-    ];
   };
 
   test.script = ''
