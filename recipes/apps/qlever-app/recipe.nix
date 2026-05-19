@@ -84,8 +84,6 @@
         enable = true;
         components.qlever-ui = {
           packages = with pkgs; [
-            # bash
-            # coreutils
             mypkgs.qlever-ui
             rsync
             subversion
@@ -113,24 +111,10 @@
             curl
             mypkgs.qlever
             mypkgs.qlever-control
-            # rsync
-            unzip
           ];
           extraConfig = {
             WorkingDir = "/var/lib/qlever";
           };
-          setup =
-            # bash
-            ''
-              WORKDIR=/var/lib/qlever
-
-              # # only copy db on first run so we don't overwrite it
-              # if [ ! -d "$WORKDIR/db" ]; then
-              #   rsync -a --chmod=u=rwX,g=rwX,o=rX ${pkgs.mypkgs.qlever-ui}/opt/db "$WORKDIR"
-              # fi
-
-              # rsync -a --chmod=u=rwX,go=rX --exclude='/db/' ${pkgs.mypkgs.qlever-ui}/opt/ "$WORKDIR"
-            '';
         };
       };
 
