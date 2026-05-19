@@ -2,7 +2,11 @@
   app,
 
   service,
-  componentConfig,
+  componentConfig ? {
+    setup = "";
+    packages = [ ];
+    extraConfig = { };
+  },
   pkgs,
   lib,
   ...
