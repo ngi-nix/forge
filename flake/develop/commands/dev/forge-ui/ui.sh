@@ -10,6 +10,10 @@ listenPort="${listenPort:-@defaultListenPort@}"
 unit=ngi_nix_dev-"$listenPort"
 slice=session-"$unit"
 
+nix="$(command -v nix)"
+elm_review="$(command -v elm-review)"
+elm_watch="$(command -v elm-watch)"
+
 function clean {
   systemctl --user stop "$slice".slice || true
   rm -f /run/user/"$UID"/systemd/user/"$unit"-*
@@ -36,7 +40,7 @@ if [ "@mockBackend@" = "true" ]; then
   # Using the explicit path from our devshell environment
   BACKEND_COMMAND="$DEVSHELL_DIR/bin/dev-ui-config @numApps@ @numPackages@ \"$rootDir/ui/build/forge-config.json\""
 else
-  BACKEND_COMMAND="$(command -v nix) build -f \"$rootDir\" _forge-config -o \"$rootDir/ui/build/forge-config.json\" --show-trace"
+  BACKEND_COMMAND="$nix build -f \"$rootDir\" _forge-config -o \"$rootDir/ui/build/forge-config.json\" --show-trace"
 fi
 
 systemctl --user edit --runtime --force --full "$unit"-backend.service --stdin <<EOT
@@ -48,7 +52,7 @@ RemainAfterExit=yes
 Slice=$slice.slice
 Environment=PATH=$PATH
 WorkingDirectory=$rootDir
-ExecStart=$(command -v nix) run -f "$rootDir" _forge-ui-dev --show-trace
+ExecStart=$nix run -f "$rootDir" _forge-ui-dev --show-trace
 ExecStart=$BACKEND_COMMAND
 ExecStart=$rootDir/flake/develop/commands/dev/forge-ui/build_app_resources.py
 EOT
@@ -63,8 +67,8 @@ Type=simple
 Slice=$slice.slice
 WorkingDirectory=$rootDir/ui
 Environment=ELM_WATCH_HOST="${ELM_WATCH_HOST:-"127.0.0.1"}"
-Environment=PATH=$(dirname "$(command -v elm-review)"):$PATH
-ExecStart=$(command -v elm-watch) hot
+Environment=PATH=$(dirname "$elm_review"):$PATH
+ExecStart=$elm_watch hot
 EOT
 
 # Remark(correctness): --serve-fallback= prevents 404 errors
