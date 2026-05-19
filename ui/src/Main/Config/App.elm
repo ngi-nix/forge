@@ -84,8 +84,19 @@ decodeAppProgramsRuntimesShell =
         (Decode.field "enable" Decode.bool)
 
 
+type alias AppComponent =
+    { appComponent_ports : List String
+    }
+
+
+decodeAppComponent : Decoder AppComponent
+decodeAppComponent =
+    Decode.map AppComponent
+        (Decode.field "ports" (Decode.list Decode.string))
+
+
 type alias AppServices =
-    { appServices_ports : List String
+    { appServices_components : Dict String AppComponent
     , appServices_runtimes : AppServicesRuntimes
     }
 
@@ -93,7 +104,7 @@ type alias AppServices =
 decodeAppServices : Decoder AppServices
 decodeAppServices =
     Decode.map2 AppServices
-        (Decode.field "ports" (Decode.list Decode.string))
+        (Decode.field "components" (Decode.dict decodeAppComponent))
         (Decode.field "runtimes" decodeAppServicesRuntimes)
 
 
@@ -263,3 +274,10 @@ decodeAppLinks =
         (Decode.maybe (Decode.at [ "docs", "url" ] Decode.string))
         (Decode.maybe (Decode.at [ "source", "url" ] Decode.string))
         (Decode.maybe (Decode.at [ "website", "url" ] Decode.string))
+
+
+getAppServicesPorts : AppServices -> List String
+getAppServicesPorts services =
+    services.appServices_components
+        |> Dict.toList
+        |> List.concatMap (Tuple.second >> .appComponent_ports)

@@ -136,7 +136,7 @@ viewPageAppConfiguration _ pageApp =
                 ]
                 []
             ]
-        , if List.isEmpty pageApp.pageApp_app.app_services.appServices_ports then
+        , if List.isEmpty (getAppServicesPorts pageApp.pageApp_app.app_services) then
             text ""
 
           else
@@ -148,7 +148,7 @@ viewPageAppConfiguration _ pageApp =
                     , style "list-style-type" "none"
                     , style "padding" "0px"
                     ]
-                    (pageApp.pageApp_app.app_services.appServices_ports
+                    (getAppServicesPorts pageApp.pageApp_app.app_services
                         |> List.map (\p -> li [] [ text (String.replace ":" " → " p) ])
                     )
                 ]
