@@ -50,6 +50,9 @@
       ports = [
         "8080:8080"
       ];
+      after = [
+        "qlever-server"
+      ];
     };
 
     components.qlever-server = {
@@ -147,14 +150,6 @@
               StateDirectory = [ "qlever" ];
               WorkingDirectory = "/var/lib/qlever";
             };
-            after = [
-              "qlever-app-setup.service"
-              "qlever-server.service"
-            ];
-            requires = [
-              "qlever-app-setup.service"
-              "qlever-server.service"
-            ];
           };
 
           systemd.services."qlever-server" = {

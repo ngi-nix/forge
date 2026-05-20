@@ -12,6 +12,14 @@
   ];
 
   options = {
+    name = lib.mkOption {
+      internal = true;
+      readOnly = true;
+      type = lib.types.str;
+      default = name;
+      description = "Name of service component.";
+    };
+
     command = lib.mkOption {
       type = lib.types.either lib.types.package lib.types.str;
       description = "Main command to use for the service.";
@@ -63,5 +71,15 @@
       '';
     };
 
+    after = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = ''
+        List of service components that need to be started before this one.
+      '';
+      example = lib.literalExpression ''
+        [ "foobar-server" ]
+      '';
+    };
   };
 }

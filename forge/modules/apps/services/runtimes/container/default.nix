@@ -130,6 +130,7 @@
                 services = lib.mapAttrs (name: service: {
                   image = "localhost/${name}:latest";
                   ports = service.ports;
+                  depends_on = lib.genAttrs service.after (_name: { });
                 }) app.services.components;
               }
             );

@@ -16,8 +16,16 @@
     services = import ../../mkNimiImports.nix { inherit lib service serviceName; };
   }) app.services.components;
 
-  systemd.services = lib.mapAttrs (_: service: {
-    environment = service.environment;
-    serviceConfig.PassEnvironment = builtins.attrNames service.environment;
-  }) app.services.components;
+  systemd.services = lib.mapAttrs (
+    _: service:
+    let
+      serviceAfterUntis = map (a: a + ".service") service.after;
+    in
+    {
+      environment = service.environment;
+      serviceConfig.PassEnvironment = lib.attrNames service.environment;
+      after = serviceAfterUntis;
+      requires = serviceAfterUntis;
+    }
+  ) app.services.components;
 }
