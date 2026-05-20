@@ -6,12 +6,12 @@
   options = {
     program = {
       enable = lib.mkEnableOption ''
-        Single program runtime
+        Program runtime
       '';
     };
     shell = {
       enable = lib.mkEnableOption ''
-        Programs shell environment
+        Shell runtime
       '';
     };
   };
