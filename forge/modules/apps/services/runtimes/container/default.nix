@@ -107,7 +107,7 @@
     result.modules = lib.mapAttrs (serviceName: service: {
       settings = import ./modules/settings.nix (
         {
-          inherit service;
+          inherit service serviceName;
         }
         // args
         // lib.optionalAttrs (config.components ? ${serviceName}) {
