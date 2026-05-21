@@ -42,7 +42,7 @@
       ];
       environment = {
         DJANGO_SETTINGS_MODULE = "qlever.settings";
-        QLEVERUI_DATABASE_URL = "sqlite:////var/lib/qlever/db/qleverui.sqlite3"; # FIXME
+        QLEVERUI_DATABASE_URL = "sqlite:////var/lib/qlever-ui/db/qleverui.sqlite3";
       };
       preStart = ''
         qlever-ui-manage makemigrations --merge && qlever-ui-manage migrate
@@ -61,7 +61,7 @@
         path = "olympics.nt";
       };
       preStart = ''
-        WORKDIR=/var/lib/qlever
+        WORKDIR=/var/lib/qlever-server
 
         echo "Installing configuration files ..."
         install -D ${./Qleverfile} "$WORKDIR"/Qleverfile
@@ -73,7 +73,7 @@
       command = pkgs.mypkgs.qlever-control;
       argv = [
         "--qleverfile"
-        "/var/lib/qlever/Qleverfile"
+        "/var/lib/qlever-server/Qleverfile"
         "start"
         "--run-in-foreground"
       ];
@@ -92,12 +92,12 @@
             subversion
           ];
           imageConfig = {
-            WorkingDir = "/var/lib/qlever";
+            WorkingDir = "/var/lib/qlever-ui";
           };
           setup =
             # bash
             ''
-              WORKDIR=/var/lib/qlever
+              WORKDIR=/var/lib/qlever-ui
 
               # only copy db on first run so we don't overwrite it
               if [ ! -d "$WORKDIR/db" ]; then
@@ -116,7 +116,7 @@
             mypkgs.qlever-control
           ];
           imageConfig = {
-            WorkingDir = "/var/lib/qlever";
+            WorkingDir = "/var/lib/qlever-server";
           };
         };
       };
@@ -130,11 +130,9 @@
               rsync
             ];
             serviceConfig = {
-              User = "qlever-ui";
-              Group = "qlever-ui";
               DynamicUser = true;
-              StateDirectory = [ "qlever" ];
-              WorkingDirectory = "/var/lib/qlever";
+              StateDirectory = [ "qlever-ui" ];
+              WorkingDirectory = "/var/lib/qlever-ui";
             };
           };
 
@@ -144,11 +142,9 @@
               subversion
             ];
             serviceConfig = {
-              User = "qlever-ui";
-              Group = "qlever-ui";
               DynamicUser = true;
-              StateDirectory = [ "qlever" ];
-              WorkingDirectory = "/var/lib/qlever";
+              StateDirectory = [ "qlever-ui" ];
+              WorkingDirectory = "/var/lib/qlever-ui";
             };
           };
 
@@ -160,11 +156,9 @@
               unzip
             ];
             serviceConfig = {
-              User = "qlever-ui";
-              Group = "qlever-ui";
               DynamicUser = true;
-              StateDirectory = [ "qlever" ];
-              WorkingDirectory = "/var/lib/qlever";
+              StateDirectory = [ "qlever-server" ];
+              WorkingDirectory = "/var/lib/qlever-server";
             };
           };
         };
