@@ -89,16 +89,9 @@
         enable = true;
         components.mox = {
           setup = ''
-            # Use a public DNSSEC-validating resolver
-            echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-
-            # Add mox group and user required by mox server
-            groupadd --system mox || true
-            useradd --system --no-create-home --shell /sbin/nologin --gid mox mox || true
-
             # Create Mox keys and data files
-            if ! [ -d /var/lib/mox ]; then
-              mkdir -p /var/lib/mox && cd /var/lib/mox
+            if ! [ -d /var/lib/mox/config ]; then
+              mkdir -p /var/lib/mox/config && cd /var/lib/mox
 
               # Generate DKIM keys
               mkdir -p config/dkim
@@ -114,28 +107,13 @@
             pkgs.bash # required for entering the container
             pkgs.coreutils # required for mkdir, echo
             pkgs.mypkgs.mox # required for admin tasks
-            pkgs.shadow # required for useradd
           ];
         };
       };
 
       nixos = {
         enable = true;
-        setup = ''
-          # Create Mox keys and data files
-          if ! [ -d /var/lib/mox ]; then
-            mkdir -p /var/lib/mox && cd /var/lib/mox
-
-            # Generate DKIM keys
-            mkdir -p config/dkim
-            ${pkgs.mypkgs.mox}/bin/mox dkim genrsa > config/dkim/dkima.rsa2048.privatekey.pkcs8.pem
-            ${pkgs.mypkgs.mox}/bin/mox dkim genrsa > config/dkim/dkimb.rsa2048.privatekey.pkcs8.pem
-
-            # Create data directory
-            mkdir data
-            chown mox:mox data
-          fi
-        '';
+        setup = config.services.runtimes.container.components.mox.setup;
         packages = [ pkgs.mypkgs.mox ];
         nixosConfig = {
           networking.enableIPv6 = false;
