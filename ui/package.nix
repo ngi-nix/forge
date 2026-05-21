@@ -3,6 +3,7 @@
   fetchzip,
   jq,
   symlinkJoin,
+  esbuild,
 
   appIcons,
 
@@ -46,15 +47,24 @@ symlinkJoin {
     # Copy static files
     cp ${./src/index.html} index.html
     cp ${./src/favicon.svg} favicon.svg
+
+    mkdir -p css js/src
+
     cp -aR ${./src/css}/. css
-    cp -aR ${./src/js}/. js
+    cp -aR ${./src/js}/. js/src
+
     chmod -R u+w css js
+
     install -D ${bootstrapCss}/css/bootstrap.min.css bootstrap/css/bootstrap.min.css
-    install -D ${highlight-js}/highlight.min.js js/highlight.min.js
     install -D ${highlight-js}/theme.css css/highlightjs-theme.css
+
+    install -D ${highlight-js}/highlight.min.js js/highlight.min.js
 
     # Rename minimized Elm output
     mv js/Elm.min.js js/Elm.js
+
+    ${esbuild}/bin/esbuild --bundle --outfile=js/main.js --minify js/src/main.js
+    rm -rf js/src
 
     # Symlink config files
     ln -s ${_forge-config} forge-config.json
