@@ -19,6 +19,7 @@ type alias Model =
     , model_preferences : Preferences
     , model_navbarExpanded : Bool
     , model_RecipeOptions : RecipeOptions
+    , model_askFeedback : Bool
     }
 
 

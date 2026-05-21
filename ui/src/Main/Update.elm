@@ -83,6 +83,9 @@ update upd modelInit =
             , setPreferences prefs
             )
 
+        Update_DismissFeedback ->
+            ( { model | model_askFeedback = False }, Cmd.none )
+
         Update_CycleTheme ->
             let
                 preferences =

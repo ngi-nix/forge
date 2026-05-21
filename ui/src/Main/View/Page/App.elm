@@ -24,7 +24,8 @@ viewPageApp model pageApp =
         [ div [ class "row" ]
             [ div
                 [ class "col-12 col-lg-9" ]
-                [ viewPageAppHeader model pageApp
+                [ viewPageAppFeedback model
+                , viewPageAppHeader model pageApp
                 , viewPageAppDescription model pageApp
                 , viewPageAppRun model pageApp
                 ]
@@ -83,6 +84,30 @@ viewPageAppHeader _ pageApp =
             ]
             [ text "Run" ]
         ]
+
+
+viewPageAppFeedback : Model -> Html Update
+viewPageAppFeedback model =
+    if not model.model_askFeedback then
+        text ""
+
+    else
+        div [ class "alert alert-info alert-dismissible mt-3", attribute "data-testid" "feedback-message" ]
+            [ text "Tried this app? We'd love to "
+            , a
+                [ href "https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e95?pvs=105"
+                , target "_blank"
+                , rel "noopener"
+                ]
+                [ text "know how it went" ]
+            , text "."
+            , button
+                [ class "btn-close"
+                , attribute "aria-label" "Close"
+                , onClick Update_DismissFeedback
+                ]
+                []
+            ]
 
 
 viewPageAppDescription : Model -> PageApp -> Html Update
