@@ -97,6 +97,9 @@ in
               // lib.optionalAttrs app.services.runtimes.container.enable {
                 container = app.services.runtimes.container.result.build;
               }
+              // lib.optionalAttrs app.services.runtimes.container.enable {
+                services = app.services.runtimes.container.result.shellRunner;
+              }
               // lib.optionalAttrs app.services.runtimes.nixos.enable {
                 vm = app.services.runtimes.nixos.result.build;
                 nixosModules.default = {
