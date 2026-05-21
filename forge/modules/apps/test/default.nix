@@ -16,7 +16,7 @@
     packages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
-      description = "Additional packages required for running tests.";
+      description = "List of packages available in the test script.";
       example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
     };
 
@@ -26,16 +26,18 @@
       description = ''
         Enable the Nix sandbox when running tests.
 
-        Set to false to allow internet access during tests, which may be
+        Set to _false_ to allow internet access during tests, which may be
         required when tests need to download additional resources at runtime,
         such as container images pulled by compose files.
 
-        When disabled, tests must be launched with Nix sandbox relaxed.
+        When disabled, tests must be launched with Nix sandbox set to relaxed
+        using following commands:
 
-          - nix build .#<app>.test --option sandbox relaxed --builders ""
-          - nix build .#<app>.test-container --option sandbox relaxed --builders ""
+          - `nix build .#<app>.test --option sandbox relaxed --builders ""`
+          - `nix build .#<app>.test-container --option sandbox relaxed --builders ""`
 
-        Disable sandbox only when necessary.
+        Disabling sandbox can cause problems with test reproducibility.
+        Use only when necessary.
       '';
     };
 
@@ -45,17 +47,14 @@
         echo "Test script"
       '';
       description = ''
-        Bash script to test application services inside a NixOS machine
-        or container.
+        Script to test application services inside a NixOS machine or container.
 
         Launch tests with:
-          - nix build .#<app>.test
-          - nix build .#<app>.test-container
+          - `nix build .#<app>.test`
+          - `nix build .#<app>.test-container`
       '';
-      example = lib.literalExpression ''
-        '''
-        curl -f http://localhost:5000/users
-        '''
+      example = ''
+        curl --fail http://localhost:5000 | grep "Hello"
       '';
     };
 

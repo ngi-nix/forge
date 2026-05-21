@@ -13,38 +13,54 @@
   options = {
     # General configuration
     name = lib.mkOption {
-      type = lib.types.str;
-      default = "my-application";
+      type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
+      default = "forge-app";
+      description = "Application name. Only letters, numbers and hyphens are allowed.";
+      example = "my-hello-app";
     };
     displayName = lib.mkOption {
       type = lib.types.str;
       default = config.name;
       description = "Human readable application name. Defaults to `name` if not set.";
+      example = "My Hello Application";
     };
     description = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.strMatching "^$|^.{1,119}\\.$";
       default = "";
+      description = "Short application description. Maximum 120 characters.";
+      example = "A fast and secure web server for self-hosted applications.";
     };
     usage = lib.mkOption {
       type = lib.types.str;
       default = "";
       description = "Application usage description in markdown format.";
+      example = ''
+        Launch the application in your browser at `http://localhost:8080`.
+
+        ## Default credentials
+
+        - Username: `admin`
+        - Password: `admin`
+      '';
     };
     icon = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
-      description = "Path to application icon (SVG file). If not specified, a default icon will be used.";
+      description = ''
+        Path to application icon in SVG format. If not specified, a default icon
+        will be used.
+      '';
       example = lib.literalExpression "./icon.svg";
     };
     links = lib.mkOption {
       type = lib.types.submodule ./links.nix;
       default = { };
-      description = "Links related to this project";
+      description = "Links related to this project.";
     };
     ngi = lib.mkOption {
       type = lib.types.submodule ./ngi;
       default = { };
-      description = "NGI-specific options.";
+      description = "NGI specific options.";
     };
 
     # Portable services configuration
@@ -63,7 +79,7 @@
         modules = [ ./services ];
       };
       default = { };
-      description = "Portable services configuration.";
+      description = "Services configuration.";
     };
 
     # Programs configuration

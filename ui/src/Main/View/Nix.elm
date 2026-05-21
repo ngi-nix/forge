@@ -1,9 +1,9 @@
 module Main.View.Nix exposing (..)
 
 import Html exposing (Html, code, text)
+import Html.Attributes exposing (style)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
@@ -20,7 +20,7 @@ viewNixLiteralExpression : NixLiteralExpression -> Html Update
 viewNixLiteralExpression lit =
     case lit.nixLiteralExpression_type of
         "literalExpression" ->
-            code [] [ text lit.nixLiteralExpression_text ]
+            code [ style "white-space" "pre" ] [ text lit.nixLiteralExpression_text ]
 
         _ ->
             text lit.nixLiteralExpression_text

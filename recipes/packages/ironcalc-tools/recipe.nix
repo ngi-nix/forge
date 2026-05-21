@@ -8,7 +8,7 @@
 {
   name = "ironcalc-tools";
   version = "0.7.1-unstable-2026-04-29";
-  description = "IronCalc helper tools";
+  description = "IronCalc helper tools.";
   homePage = "https://www.ironcalc.com";
   license = with lib.licenses; [
     mit

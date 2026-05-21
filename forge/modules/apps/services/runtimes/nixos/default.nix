@@ -9,19 +9,27 @@
 }@args:
 {
   options = {
-    enable = lib.mkEnableOption "NixOS/VM output";
+    enable = lib.mkEnableOption "NixOS runtime";
 
     setup = lib.mkOption {
       type = lib.types.str;
       default = "";
-      description = "Script to run once at startup.";
+      description = ''
+        Script to run once at system startup.
+        Use this option for one-off system preparation steps.
+      '';
+      example = ''
+        # bash
+        echo "Creating directory structure ..."
+        mkdir --parents /var/lib/service/config /var/lib/service/db
+      '';
     };
 
     packages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
       description = ''
-        Packages to add to the NixOS system.
+        List of packages to add to the NixOS system.
 
         This is a convenience option equivalent to setting
         `nixosConfig.environment.systemPackages`.
@@ -35,7 +43,8 @@
       description = ''
         NixOS system configuration.
 
-        Available options: <https://search.nixos.org/options>
+        See the list of available
+        [NixOS options](https://search.nixos.org/options) .
       '';
       example = lib.literalExpression ''
         {

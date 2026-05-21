@@ -7,15 +7,15 @@
     # General configuration
     name = lib.mkOption {
       type = lib.types.str;
-      default = "my-package";
+      default = "forge-package";
       description = "Package name.";
       example = "hello";
     };
     description = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.strMatching "^$|^.{1,119}\\.$";
       default = "";
-      description = "Package description.";
-      example = "A program that prints greeting messages";
+      description = "Short package description. Maximum 120 characters.";
+      example = "A program that prints greeting messages.";
     };
     version = lib.mkOption {
       type = lib.types.str;
@@ -24,10 +24,10 @@
       example = "2.12.1";
     };
     homePage = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.strMatching "[a-zA-Z][a-zA-Z0-9+\-.]*://[^ \t\n]+";
       default = "";
       description = "Package home page URL.";
-      example = "https://www.gnu.org/software/hello/hello-2.12.1.tar.gz";
+      example = "https://www.gnu.org/software/hello/";
     };
     mainProgram = lib.mkOption {
       type = lib.types.str;
@@ -45,7 +45,13 @@
         ];
       default = [ ];
       description = "License, or licenses, for the package.";
-      example = lib.literalExpression "lib.licenses.gpl3Only";
+      example = ''
+        # Single license
+        lib.licenses.gpl3Only
+
+        # Multiple licenses
+        [ lib.licenses.mit lib.licenses.asl20 ]
+      '';
     };
 
     # Source configuration
@@ -56,12 +62,28 @@
         description = ''
           Git repository URL with revision.
 
-          Formats:
-            - platform:owner/repo/revision
-            - git:url?tag=version
-            - git:url?rev=hash
+          Supported forges:
+            - `github:owner/repo/revision`
+            - `gitlab:owner/repo/revision`
+            - `codeberg:owner/repo/revision`
+            - `forgejo:domain/owner/repo/revision`
+            - `gitea:domain/owner/repo/revision`
+            - `git:https://url?rev=hash`
+            - `git:https://url?tag=version`
         '';
-        example = "github:my-user/my-repo/v1.0.0";
+        example = lib.literalExpression ''
+          # GitHub
+          "github:my-user/my-repo/v1.0.0"
+
+          # Codeberg
+          "codeberg:my-user/my-repo/v1.0.0"
+
+          # Self-hosted Forgejo instance
+          "forgejo:git.example.com/my-user/my-repo/v1.0.0"
+
+          # Arbitrary git URL
+          "git:https://git.example.com/my-repo?tag=v1.0.0"
+        '';
       };
       url = lib.mkOption {
         type = lib.types.nullOr (lib.types.strMatching "^.*://.*");
@@ -89,7 +111,7 @@
         type = lib.types.bool;
         default = false;
         description = ''
-          Fetch git submodules along with the repository source.
+          Fetch Git submodules along with the repository source.
 
           Only applicable when using `source.git`.
         '';
@@ -99,7 +121,7 @@
         type = lib.types.listOf lib.types.path;
         default = [ ];
         description = ''
-          List of patch files to apply to the source code.
+          List of patch files to be applied to the source code.
 
           Patches are applied in the order specified using the patch command.
         '';
@@ -118,14 +140,29 @@
         type = lib.types.attrsOf lib.types.anything;
         default = { };
         description = ''
-          Expert option.
+          Extra attributes merged into the derivation produced by the selected builder.
 
-          Set extra Nix derivation attributes.
+          Use this to pass builder-specific phase hooks (`preConfigure`,
+          `postInstall`, …), environment variables, or any other
+          `stdenv.mkDerivation` attribute not exposed as a dedicated option.
+          Attributes set here take precedence over the builder defaults.
+
+          Expert option. For more information see the
+          [Nixpkgs manual](https://nixos.org/manual/nixpkgs/unstable/).
         '';
         example = lib.literalExpression ''
           {
-            preConfigure = "export HOME=$(mktemp -d)"
-            postInstall = "rm $out/somefile.txt"
+            # Set HOME for tools that require a writable home directory
+            preConfigure = "export HOME=$(mktemp -d)";
+
+            # Remove unwanted files from the output
+            postInstall = "rm $out/share/doc/my-package/INSTALL";
+
+            # Pass extra flags to configure
+            configureFlags = [ "--disable-static" "--enable-shared" ];
+
+            # Set an environment variable for the build
+            MY_VARIABLE = "value";
           }
         '';
       };
@@ -136,6 +173,7 @@
           Enable interactive package build environment for debugging.
 
           Launch environment:
+
           ```
           mkdir dev && cd dev
           nix develop .#<package>
@@ -151,7 +189,7 @@
       packages = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
-        description = "Additional packages required for running tests.";
+        description = "List of packages available in the test script.";
         example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
       };
       script = lib.mkOption {
@@ -160,26 +198,25 @@
           echo "Test script"
         '';
         description = ''
-          Bash script to run package tests.
-
+          Script to test the package.
           The package being tested is available in PATH.
-          Run with: nix build .#<package>.test
+
+          Launch test with:
+            - `nix build .#<package>.test`
         '';
-        example = lib.literalExpression ''
-          '''
+        example = ''
           hello | grep "Hello, world"
-          '''
         '';
       };
     };
 
     # Development configuration
-    development = {
+    develop = {
       packages = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
         description = ''
-          Additional packages to include in the development environment.
+          List of packages available in the development environment.
 
           All build inputs are automatically included.
         '';
@@ -195,15 +232,14 @@
           echo "or from the upstream repository and you are all set to start hacking."
         '';
         description = ''
-          Bash script to run when entering the development environment.
+          Script which is launched when entering the development environment.
 
-          Enter with: nix develop .#<package>
+          Enter with:
+            - `nix develop .#<package>`
         '';
-        example = lib.literalExpression ''
-          '''
+        example = ''
           echo "Welcome to my-package development environment!"
           echo "Run 'make' to build the project"
-          '''
         '';
       };
     };

@@ -7,7 +7,7 @@
 
 {
   name = "ironcalc-nodejs";
-  description = "Node.js bindings for IronCalc";
+  description = "Node.js bindings for IronCalc.";
   homePage = "https://www.ironcalc.com";
   version = "0.7.1-unstable-2026-04-29";
   license = with lib.licenses; [

@@ -8,7 +8,7 @@
 {
   name = "tau-radio";
   version = "0.2.101-unstable-2025-12-17";
-  description = "Web radio - Hijacks audio device using CLAP and Ogg/Opus";
+  description = "Web radio - Hijacks audio device using CLAP and Ogg/Opus.";
   homePage = "https://github.com/tau-org/tau-radio";
   mainProgram = "tau-radio";
   license = lib.licenses.eupl12;

@@ -8,7 +8,7 @@
 {
   name = "ironcalc-docs";
   version = "0.7.1-unstable-2026-04-29";
-  description = "Ironcalc documentation site";
+  description = "Ironcalc documentation site.";
   homePage = "https://docs.ironcalc.com";
   license = with lib.licenses; [
     mit

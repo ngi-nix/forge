@@ -22,19 +22,27 @@
 
     command = lib.mkOption {
       type = lib.types.either lib.types.package lib.types.str;
-      description = "Main command to use for the service.";
+      description = "Main command used to launch a service.";
+      example = lib.literalExpression ''
+        # Package
+        pkgs.hello
+
+        # Explicit binary path
+        "''${pkgs.hello}/bin/hello"
+      '';
     };
 
     argv = lib.mkOption {
       type = lib.types.listOf lib.types.singleLineStr;
       default = [ ];
       description = "List of arguments that will be passed to the main program.";
+      example = lib.literalExpression ''[ "--config" "service.toml" ]'';
     };
 
     environment = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       default = { };
-      description = "Environment variables.";
+      description = "Environment variables passed to the service.";
       example = lib.literalExpression ''
         {
           DEBUG = "1";
@@ -56,15 +64,21 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
       apply = self: if self != null then pkgs.writeShellScript "${name}-pre-start" self else null;
+      example = lib.literalExpression ''
+        # bash
+        echo "Running DB migration ..."
+        program-manage makemigrations && program-manage migrate
+      '';
     };
 
     ports = lib.mkOption {
       type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
       default = [ ];
       description = ''
-        List of ports exposed by the application's services.
+        List of ports exposed by the service.
 
-        Format: HOST_PORT:SERVICE_PORT
+        Format:
+          _HOST_PORT:SERVICE_PORT_
       '';
       example = lib.literalExpression ''
         [ "8000:8000" "5432:5432" ]

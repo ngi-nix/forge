@@ -17,16 +17,6 @@
       );
       default = { };
       description = "Portable service components.";
-      example = lib.literalExpression ''
-        {
-          service1 = {
-            command = pkgs.mypkgs.service1;
-          };
-          service2 = {
-            command = pkgs.mypkgs.service2;
-          };
-        }
-      '';
       # map user-config to a format which can be used by modular services
       apply =
         self:

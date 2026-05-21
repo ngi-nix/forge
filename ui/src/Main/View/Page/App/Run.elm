@@ -285,7 +285,7 @@ viewPageAppRunProgram model pageApp =
                         , pageApp.pageApp_app.app_name
                         , ".program"
                         , "'"
-                        , case pageApp.pageApp_app.app_programs.appPrograms_runCommand of
+                        , case pageApp.pageApp_app.app_programs.appPrograms_runProgram of
                             "" ->
                                 ""
 

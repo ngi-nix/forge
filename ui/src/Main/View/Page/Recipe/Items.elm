@@ -75,7 +75,11 @@ viewPageRecipeOptionsItem _ page ( optionPath, option ) =
 
             Just nixLitExpr ->
                 div []
-                    [ span [ class "fw-bold" ] [ text "Example: " ]
-                    , nixLitExpr |> viewNixLiteralExpression
+                    [ span [ class "fw-bold" ] [ text "Example:" ]
+                    , if String.contains "\n" nixLitExpr.nixLiteralExpression_text then
+                        div [] [ nixLitExpr |> viewNixLiteralExpression ]
+
+                      else
+                        span [] [ text " ", nixLitExpr |> viewNixLiteralExpression ]
                     ]
         ]
