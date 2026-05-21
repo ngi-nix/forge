@@ -3,50 +3,28 @@
   ...
 }:
 let
-  link-submodule = lib.types.submodule (
-    { name, ... }:
-    {
-      options = {
-        text = lib.mkOption {
-          description = "link text";
-          type = lib.types.str;
-          default = name;
-        };
-        description = lib.mkOption {
-          description = "long-form description of the linked resource";
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-        };
-        url = lib.mkOption {
-          # basic check for the URI syntax
-          # https://www.rfc-editor.org/rfc/rfc3986#section-3.1
-          type = lib.types.strMatching "[a-zA-Z][a-zA-Z0-9+\-.]*://[^ \t\n]+";
-          description = "URL of the linked resource";
-        };
-      };
-    }
-  );
-
-  # - `links.website = "https://foobar.com";`
-  # - `links.website = { text = "Homepage"; url = "https://foobar.com"; };`
-  link = lib.types.coercedTo lib.types.str (url: { inherit url; }) link-submodule;
+  # https://www.rfc-editor.org/rfc/rfc3986#section-3.1
+  link = lib.types.strMatching "[a-zA-Z][a-zA-Z0-9+\-.]*://[^ \t\n]+";
 in
 {
   options = {
     website = lib.mkOption {
       type = lib.types.nullOr link;
-      description = "Project website.";
       default = null;
+      description = "Project website URL.";
+      example = "https://example.com";
     };
     source = lib.mkOption {
       type = lib.types.nullOr link;
-      description = "Project source code.";
       default = null;
+      description = "Project source code URL.";
+      example = "https://github.com/example/project";
     };
     docs = lib.mkOption {
       type = lib.types.nullOr link;
-      description = "Project documentation.";
       default = null;
+      description = "Project documentation URL.";
+      example = "https://example.com/docs";
     };
   };
 }

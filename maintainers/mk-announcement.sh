@@ -39,8 +39,8 @@ SURVEY_URL="https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e9
 NAME=$(jq -r '.displayName' <<<"$json_content")
 summary=$(jq -r '.description | rtrimstr(".") as $s | ($s[0:1] | ascii_downcase) + $s[1:]' <<<"$json_content")
 homepage_url=$(jq -r '
-    if .links.website != null then .links.website.url
-    elif .links.source != null then .links.source.url
+    if .links.website != null then .links.website
+    elif .links.source != null then .links.source
     else "<ADD_HOMEPAGE_URL>"
     end
 ' <<<"$json_content")

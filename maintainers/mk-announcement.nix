@@ -27,9 +27,9 @@ lib.listToAttrs (
 
         HOMEPAGE_URL =
           if app.links.website != null then
-            app.links.website.url
+            app.links.website
           else if app.links.source != null then
-            app.links.source.url
+            app.links.source
           else
             "<ADD_HOMEPAGE_URL>";
 
