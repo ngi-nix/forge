@@ -131,8 +131,8 @@ in
               inputsFrom = [
                 finalPkg
               ];
-              packages = pkg.development.packages;
-              shellHook = pkg.development.shellHook;
+              packages = pkg.develop.packages;
+              shellHook = pkg.develop.shellHook;
             };
           };
 

@@ -75,7 +75,7 @@ in
 {
   name = "qlever";
   version = "0.5.46";
-  description = "Graph database implementing the RDF and SPARQL standards";
+  description = "Graph database implementing the RDF and SPARQL standards.";
   license = lib.licenses.asl20;
 
   homePage = "https://github.com/ad-freiburg/qlever";

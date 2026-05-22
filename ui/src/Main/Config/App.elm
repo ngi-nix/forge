@@ -54,7 +54,7 @@ type alias AppProgramsRuntimes =
 
 type alias AppPrograms =
     { appPrograms_runtimes : AppProgramsRuntimes
-    , appPrograms_runCommand : String
+    , appPrograms_runProgram : String
     }
 
 
@@ -62,7 +62,7 @@ decodeAppPrograms : Decoder AppPrograms
 decodeAppPrograms =
     Decode.map2 AppPrograms
         (Decode.field "runtimes" decodeAppProgramsRuntimes)
-        (Decode.field "runCommand" Decode.string)
+        (Decode.field "runProgram" Decode.string)
 
 
 decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes

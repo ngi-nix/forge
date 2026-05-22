@@ -8,7 +8,7 @@
 {
   name = "qlever-ui-frontend";
   version = "0-unstable-2026-04-16";
-  description = "Frontend for QLever UI";
+  description = "Frontend for QLever UI.";
   homePage = "https://github.com/qlever-dev/qlever-ui";
   license = lib.licenses.asl20;
 

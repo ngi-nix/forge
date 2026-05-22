@@ -8,7 +8,7 @@
 {
   name = "tslib";
   version = "1.24";
-  description = "Touchscreen access library";
+  description = "Touchscreen access library.";
   homePage = "http://www.tslib.org/";
   mainProgram = "";
   license = lib.licenses.lgpl21;

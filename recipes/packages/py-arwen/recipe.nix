@@ -8,7 +8,7 @@
 {
   name = "py-arwen";
   version = "0.0.5-unstable-2026-04-07";
-  description = "Python library for cross-platform patching of shared libraries";
+  description = "Python library for cross-platform patching of shared libraries.";
   homePage = "https://github.com/nichmor/arwen";
   license = lib.licenses.mit;
 

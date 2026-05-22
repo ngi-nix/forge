@@ -9,12 +9,16 @@
 }@args:
 {
   options = {
-    enable = lib.mkEnableOption "container image output";
+    enable = lib.mkEnableOption "Container runtime";
 
     composeFile = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
-      description = "Path to the application container's compose file. When null, a default compose file is generated.";
+      description = ''
+        Path to the custom container compose file.
+        Set to null to automatically generate this file.
+      '';
+      example = lib.literalExpression "./compose.yaml";
     };
 
     components = lib.mkOption {
@@ -22,15 +26,24 @@
         lib.types.submodule {
           options = {
             setup = lib.mkOption {
-              type = lib.types.str;
+              type = lib.types.lines;
               default = "";
-              description = "Script to run once at container startup.";
+              description = ''
+                Script to run once at the container startup.
+                Use this option for one-off system preparation steps.
+              '';
+              example = ''
+                # bash
+                echo "Creating directory structure ..."
+                mkdir --parents /var/lib/service/config /var/lib/service/db
+              '';
             };
 
             packages = lib.mkOption {
               type = lib.types.listOf lib.types.package;
               default = [ ];
-              description = "List of packages to add to the container's `/bin` directory.";
+              description = "List of packages to add to the container.";
+              example = lib.literalExpression "[ pkgs.curl ]";
             };
 
             imageConfig = lib.mkOption {
@@ -39,7 +52,8 @@
               description = ''
                 OCI image configuration.
 
-                Available options: <https://specs.opencontainers.org/image-spec/config/#properties>
+                See the list of available
+                [OCI image configuration options](https://specs.opencontainers.org/image-spec/config/#properties) .
               '';
               example = lib.literalExpression ''
                 {
@@ -51,7 +65,7 @@
         }
       );
       default = { };
-      description = "Per-component container configuration.";
+      description = "Per-component container runtime configuration.";
       apply =
         self:
         let

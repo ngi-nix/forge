@@ -9,7 +9,7 @@
 {
   name = "requests-sse";
   version = "0.5.3";
-  description = "Server-sent events python client library based on requests";
+  description = "Server-sent events python client library based on requests.";
   license = lib.licenses.asl20;
 
   homePage = "https://github.com/overcat/requests-sse";

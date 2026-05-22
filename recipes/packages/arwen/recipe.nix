@@ -8,7 +8,7 @@
 {
   name = "arwen";
   version = "0.0.5-unstable-2026-04-07";
-  description = "Cross-platform patching of shared libraries in Rust";
+  description = "Cross-platform patching of shared libraries in Rust.";
   homePage = "https://github.com/nichmor/arwen";
   mainProgram = "arwen";
   license = lib.licenses.mit;

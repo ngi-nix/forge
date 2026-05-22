@@ -7,7 +7,7 @@
 
 {
   name = "hello-nix";
-  description = "Hello Nix package built from local source";
+  description = "Hello Nix package built from local source.";
   homePage = "https://github.com/ngi-nix/ngi-forge";
   mainProgram = "hello";
 

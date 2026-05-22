@@ -7,21 +7,32 @@
     enable = lib.mkEnableOption ''
       Python application builder for executable Python programs.
 
-      Uses buildPythonApplication which prevents the package from being used as a dependency'';
+      Uses `buildPythonApplication` from Nixpkgs, which builds Python packages
+      following PEP-517 (`pyproject.toml`) as standalone applications not
+      importable as a dependency by other Python packages.
+
+      For more information, see the
+      [Nixpkgs Python documentation](https://nixos.org/manual/nixpkgs/unstable/#python)
+    '';
     packages = {
       build-system = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
-        description = "PEP-517 build system dependencies.";
+        description = ''
+          List of PEP-517 build system dependencies (e.g. setuptools, hatchling).
+
+          Mapped to `build-system`.
+        '';
         example = lib.literalExpression "[ pkgs.python3Packages.setuptools pkgs.python3Packages.wheel ]";
       };
       build = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
         description = ''
-          Native build-time dependencies.
+          List of non-Python native build-time dependencies needed during the
+          build, such as pkg-config or compilers.
 
-          Use this for tools needed during the build, such as pkg-config or compilers.
+          Mapped to `nativeBuildInputs`.
         '';
         example = lib.literalExpression "[ pkgs.pkg-config pkgs.kaitai-struct-compiler ]";
       };
@@ -29,25 +40,31 @@
         type = lib.types.listOf lib.types.package;
         default = [ ];
         description = ''
-          Native runtime dependencies.
+          List of non-Python native runtime dependencies needed at runtime, such
+          as C libraries.
 
-          Use this for non-Python libraries or tools needed at runtime.
+          Mapped to `buildInputs`.
         '';
         example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite ]";
       };
       dependencies = lib.mkOption {
         type = lib.types.listOf lib.types.package;
         default = [ ];
-        description = "Runtime dependencies (PEP-621).";
+        description = ''
+          List of Python runtime dependencies required at runtime (PEP-621).
+
+          Mapped to `dependencies`.
+        '';
         example = lib.literalExpression "[ pkgs.python3Packages.click pkgs.python3Packages.requests ]";
       };
       optional-dependencies = lib.mkOption {
         type = lib.types.attrsOf (lib.types.listOf lib.types.package);
         default = { };
         description = ''
-          PEP-621 optional dependencies (extras).
+          List of optional Python runtime dependencies grouped by extra name
+          (PEP-621 extras).
 
-          These are additional dependencies that can be installed optionally.
+          Mapped to `optional-dependencies`.
         '';
         example = lib.literalExpression ''
           {
@@ -60,10 +77,11 @@
         type = lib.types.listOf lib.types.package;
         default = [ ];
         description = ''
-          Test dependencies.
+          List of test dependencies needed to run the test suite.
 
-          Packages needed to run the test suite. When non-empty, tests are
-          automatically enabled (doCheck = true).
+          When non-empty, tests are automatically enabled (`doCheck = true`).
+
+          Mapped to `nativeCheckInputs`.
         '';
         example = lib.literalExpression "[ pkgs.python3Packages.pytestCheckHook ]";
       };
@@ -72,9 +90,10 @@
       type = lib.types.listOf lib.types.str;
       default = [ ];
       description = ''
-        List of Python modules to verify can be imported after installation.
+        List of Python modules to import-check after installation as a smoke
+        test.
 
-        This provides a simple smoke test to ensure the package was built correctly.
+        Mapped to `pythonImportsCheck`.
       '';
       example = [
         "myapp"
@@ -87,8 +106,11 @@
       description = ''
         Remove version constraints from specified dependencies.
 
-        Use when the package requires specific versions but works fine with versions in nixpkgs.
-        Set to true to relax all dependencies, or provide a list of dependency names.
+        Use when the package specifies strict version bounds that are still
+        satisfied by the versions available in Nixpkgs. Set to `true` to relax
+        all dependencies, or list specific dependency names.
+
+        Mapped to `pythonRelaxDeps`.
       '';
       example = [
         "click"
@@ -101,7 +123,10 @@
       description = ''
         List of pytest test names to skip.
 
-        Useful for disabling flaky or network-dependent tests.
+        Useful for disabling flaky or network-dependent tests that cannot pass
+        in the Nix sandbox.
+
+        Mapped to `disabledTests`.
       '';
       example = [
         "test_network"

@@ -8,7 +8,7 @@
     packages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
-      description = "Packages to include in the shell environment.";
+      description = "Packages to include in the _shell_ runtime.";
       example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
     };
 
@@ -23,16 +23,17 @@
     mainPackage = lib.mkOption {
       type = lib.types.nullOr lib.types.package;
       default = null;
-      description = "Main package for the application";
+      description = "Package launched by the _program_ runtime.";
+      example = lib.literalExpression "pkgs.hello";
     };
 
-    runCommand = lib.mkOption {
+    runProgram = lib.mkOption {
       type = lib.types.str;
       internal = true;
       readOnly = true;
       default = config.mainPackage.meta.mainProgram or "";
       defaultText = lib.literalExpression ''config.mainPackage.meta.mainProgram or ""'';
-      description = "Main command for the application";
+      description = "Program used to launch the `mainPackage`.";
     };
   };
 }

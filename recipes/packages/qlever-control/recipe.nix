@@ -9,7 +9,7 @@
 {
   name = "qlever-control";
   version = "0.5.46";
-  description = "Command-line tool for controlling the QLever graph database";
+  description = "Command-line tool for controlling the QLever graph database.";
   license = lib.licenses.asl20;
 
   homePage = "https://github.com/qlever-dev/qlever-control";
