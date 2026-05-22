@@ -13,9 +13,9 @@
   options = {
     # General configuration
     name = lib.mkOption {
-      type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
-      default = "forge-app";
-      description = "Application name. Only letters, numbers and hyphens are allowed.";
+      type = lib.types.strMatching "^[a-zA-Z0-9-]+-app$";
+      default = "noname-app";
+      description = "Application name. Only letters, numbers and hyphens are allowed. The name must end with the \"-app\" suffix.";
       example = "my-hello-app";
     };
     displayName = lib.mkOption {

@@ -6,9 +6,9 @@
   options = {
     # General configuration
     name = lib.mkOption {
-      type = lib.types.str;
-      default = "forge-package";
-      description = "Package name.";
+      type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
+      default = "noname";
+      description = "Package name. Only letters, numbers and hyphens are allowed.";
       example = "hello";
     };
     description = lib.mkOption {

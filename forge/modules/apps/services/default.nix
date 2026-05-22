@@ -16,7 +16,7 @@
         }
       );
       default = { };
-      description = "Portable service components.";
+      description = "Portable services components.";
       # map user-config to a format which can be used by modular services
       apply =
         self:

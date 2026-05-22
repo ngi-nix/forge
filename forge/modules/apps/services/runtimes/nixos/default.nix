@@ -12,7 +12,7 @@
     enable = lib.mkEnableOption "NixOS runtime";
 
     setup = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.lines;
       default = "";
       description = ''
         Script to run once at system startup.

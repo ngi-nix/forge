@@ -28,7 +28,7 @@
           description = "list of subgrants under the ${name} fund.";
           type = lib.types.listOf lib.types.str;
           default = [ ];
-          example = lib.literalExpression ''[ "Hello-rust" ]'';
+          example = [ "Hello-rust" ];
         }
       );
 }

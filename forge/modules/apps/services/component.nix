@@ -36,7 +36,10 @@
       type = lib.types.listOf lib.types.singleLineStr;
       default = [ ];
       description = "List of arguments that will be passed to the main program.";
-      example = lib.literalExpression ''[ "--config" "service.toml" ]'';
+      example = [
+        "--config"
+        "service.toml"
+      ];
     };
 
     environment = lib.mkOption {

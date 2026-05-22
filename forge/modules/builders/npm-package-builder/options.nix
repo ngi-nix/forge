@@ -71,7 +71,7 @@
 
         Mapped to `npmInstallFlags`.
       '';
-      example = lib.literalExpression ''[ "--ignore-scripts" ]'';
+      example = [ "--ignore-scripts" ];
     };
   };
 }

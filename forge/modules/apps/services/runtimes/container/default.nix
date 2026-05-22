@@ -26,7 +26,7 @@
         lib.types.submodule {
           options = {
             setup = lib.mkOption {
-              type = lib.types.str;
+              type = lib.types.lines;
               default = "";
               description = ''
                 Script to run once at the container startup.
