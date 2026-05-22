@@ -1,0 +1,81 @@
+services:
+  funkwhale-server:
+    image: localhost/funkwhale-server:latest
+    restart: always
+    volumes:
+      - funkwhale-data:/var/lib/funkwhale
+    depends_on:
+      - postgres
+      - redis
+      - funkwhale-typesense
+  funkwhale-web:
+    image: nginx:alpine
+    entrypoint: ["/bin/sh", "-c"]
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - funkwhale-data:/var/lib/funkwhale
+    depends_on:
+      - funkwhale-server
+    command: >
+      "while [ ! -f /var/lib/funkwhale/nginx/funkwhale.conf ]; do sleep 1; done &&
+       sed -i 's/127.0.0.1/funkwhale-server/g' /var/lib/funkwhale/nginx/funkwhale.conf &&
+       cp /var/lib/funkwhale/nginx/funkwhale.conf /etc/nginx/conf.d/default.conf &&
+       exec nginx -g 'daemon off;'"
+  funkwhale-worker:
+    image: localhost/funkwhale-server:latest
+    entrypoint: ["/bin/sh", "-c"]
+    restart: always
+    volumes:
+      - funkwhale-data:/var/lib/funkwhale
+    command: >
+      "export PATH=$PATH:/bin &&
+       while [ ! -f /var/lib/funkwhale/config/django_secret_key.env ]; do sleep 1; done &&
+       . /var/lib/funkwhale/config/django_secret_key.env &&
+       export DJANGO_SECRET_KEY &&
+       exec celery --app funkwhale_api.taskapp worker --loglevel INFO"
+    depends_on:
+      - funkwhale-server
+  funkwhale-beat:
+    image: localhost/funkwhale-server:latest
+    entrypoint: ["/bin/sh", "-c"]
+    restart: always
+    volumes:
+      - funkwhale-data:/var/lib/funkwhale
+    command: >
+      "export PATH=$PATH:/bin &&
+       while [ ! -f /var/lib/funkwhale/config/django_secret_key.env ]; do sleep 1; done &&
+       . /var/lib/funkwhale/config/django_secret_key.env &&
+       export DJANGO_SECRET_KEY &&
+       exec celery --app funkwhale_api.taskapp beat --loglevel INFO"
+    depends_on:
+      - funkwhale-server
+  postgres:
+    image: postgres:17-alpine
+    entrypoint: ["/bin/sh", "-c"]
+    restart: always
+    command: >
+      "if [ -f /var/lib/postgresql/data/pg_hba.conf ]; then
+         grep -q '0.0.0.0/0' /var/lib/postgresql/data/pg_hba.conf || echo 'host all all 0.0.0.0/0 trust' >> /var/lib/postgresql/data/pg_hba.conf;
+       fi;
+       exec docker-entrypoint.sh postgres -c listen_addresses='*'"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis-data:/data
+  funkwhale-typesense:
+    image: localhost/funkwhale-typesense:latest
+    restart: always
+    volumes:
+      - typesense-data:/var/lib/typesense
+volumes:
+  funkwhale-data:
+  postgres-data:
+  redis-data:
+  typesense-data:
