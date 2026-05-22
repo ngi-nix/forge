@@ -235,7 +235,7 @@
           Script which is launched when entering the development environment.
 
           Enter with:
-            - `nix develop .#<package>`
+            - `nix develop .#<package>.devenv`
         '';
         example = ''
           echo "Welcome to my-package development environment!"
