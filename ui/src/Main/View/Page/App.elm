@@ -16,6 +16,7 @@ import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
 import Main.Update.Types exposing (..)
 import Main.View.Page.App.Run exposing (..)
+import Maybe.Extra as Maybe
 
 
 viewPageApp : Model -> PageApp -> Html Update
@@ -217,23 +218,20 @@ viewPageAppResources model pageApp =
             ]
         , ul [ class "", style "padding-left" "10px" ]
             (List.concat
-                [ viewPageAppResourcesItem "Homepage" pageApp.pageApp_app.app_links.appLinks_website
-                , viewPageAppResourcesItem "Documentation" pageApp.pageApp_app.app_links.appLinks_docs
-                , viewPageAppResourcesItem "Source Repository" pageApp.pageApp_app.app_links.appLinks_source
-                , viewPageAppResourcesItem "Forge Recipe" (Just (showAppRecipeLink model pageApp.pageApp_app))
+                [ viewPageAppResourcesItem "Homepage" (pageApp.pageApp_app.app_links.appLinks_website |> Maybe.toList)
+                , viewPageAppResourcesItem "Documentation" (pageApp.pageApp_app.app_links.appLinks_docs |> Maybe.toList)
+                , viewPageAppResourcesItem "Source Repository" (pageApp.pageApp_app.app_links.appLinks_source |> Maybe.toList)
+                , viewPageAppResourcesItem "Forge Recipe" pageApp.pageApp_app.app_recipeUrls
                 ]
             )
         ]
 
 
-viewPageAppResourcesItem : String -> Maybe String -> List (Html msg)
-viewPageAppResourcesItem name value =
-    case value of
-        Nothing ->
-            []
-
-        Just url ->
-            [ li [ class "list-group-item bg-transparent px-0 mb-3" ]
+viewPageAppResourcesItem : String -> List String -> List (Html msg)
+viewPageAppResourcesItem name =
+    List.map
+        (\url ->
+            li [ class "list-group-item bg-transparent px-0 mb-3" ]
                 [ a
                     [ href url
                     , target "_blank"
@@ -241,16 +239,7 @@ viewPageAppResourcesItem name value =
                     ]
                     [ text name ]
                 ]
-            ]
-
-
-showAppRecipeLink : Model -> App -> String
-showAppRecipeLink model app =
-    String.join "/"
-        [ model.model_config.config_repository |> showNixUrl
-        , "blob/" ++ commit
-        , app.app_recipePath
-        ]
+        )
 
 
 viewPageAppNgiGrants : Model -> PageApp -> Html msg

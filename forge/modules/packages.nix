@@ -32,7 +32,9 @@
               '';
               type = lib.types.attrsOf (
                 lib.types.submoduleWith {
-                  inherit specialArgs;
+                  specialArgs = specialArgs // {
+                    inherit (forgeArgs.config) repositories;
+                  };
                   modules = [ packages/package.nix ];
                 }
               );

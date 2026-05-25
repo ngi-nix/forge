@@ -215,7 +215,7 @@
           install -D ${effectiveComposeFile} $out/${app.name}/compose.yaml
         '';
 
-        cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${builtins.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl}/tmp";
+        cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${builtins.hashString "md5" specialArgs.forgeConfig.forge.repository.nixUrl}/tmp";
 
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
           CACHE_DIR="${cacheDir}"

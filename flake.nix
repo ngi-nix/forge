@@ -73,17 +73,6 @@
         # > warning: unknown flake output 'flakeConfig'
         # Issue: https://github.com/NixOS/nix/issues/6381
         flake.flakeConfig = flakeArgs.config;
-
-        perSystem =
-          { system, ... }:
-          {
-            forge = {
-              repositoryUrl = "github:ngi-nix/forge";
-              recipeDirs = {
-                packages = "recipes/packages";
-                apps = "recipes/apps";
-              };
-            };
-          };
+        flake.flakeOptions = flakeArgs.options;
       });
 }

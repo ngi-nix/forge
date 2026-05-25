@@ -1,6 +1,6 @@
 module Main.Helpers.Html exposing (..)
 
-import Html exposing (Attribute, Html, button, code, div, node, pre, text)
+import Html exposing (Attribute, Html, button, div, node)
 import Html.Attributes exposing (attribute, class)
 import Html.Events
 import Json.Decode

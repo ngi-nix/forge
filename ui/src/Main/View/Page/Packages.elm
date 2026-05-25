@@ -99,14 +99,18 @@ viewPagePackagesItem model pagePackages package =
         , div [ class "d-flex gap-3" ]
             (List.append
                 (package.package_licenses |> List.map viewLicense)
-                [ a
-                    [ href <| showPackageRecipeLink model package
-                    , target "_blank"
-                    , rel "noopener"
-                    , onClickStopPropagation
-                    ]
-                    [ text "Forge Recipe" ]
-                ]
+                (package.package_recipeUrls
+                    |> List.map
+                        (\recipeUrl ->
+                            a
+                                [ href recipeUrl
+                                , target "_blank"
+                                , rel "noopener"
+                                , onClickStopPropagation
+                                ]
+                                [ text "Forge Recipe" ]
+                        )
+                )
             )
         ]
 
@@ -130,12 +134,3 @@ viewLicense obj =
 
         Nothing ->
             span [] [ text label ]
-
-
-showPackageRecipeLink : Model -> Package -> String
-showPackageRecipeLink model package =
-    String.join "/"
-        [ model.model_config.config_repository |> showNixUrl
-        , "blob/" ++ commit
-        , package.package_recipePath
-        ]

@@ -271,7 +271,7 @@ viewPageAppRunProgram model pageApp =
                 (case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
                         [ "nix run "
-                        , showForgeInputFlakes model
+                        , model.model_config.config_repository.repository_nixUrl
                         , "#"
                         , pageApp.pageApp_app.app_pname
                         , ".program"
@@ -279,7 +279,7 @@ viewPageAppRunProgram model pageApp =
 
                     PreferencesInstall_NixTraditional ->
                         [ "nix-shell \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                        , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
                         , pageApp.pageApp_app.app_pname
@@ -311,14 +311,14 @@ viewPageAppRunShell model pageApp =
                 (case model.model_preferences.preferences_install of
                     PreferencesInstall_NixFlakes ->
                         [ "nix shell "
-                        , showForgeInputFlakes model
+                        , model.model_config.config_repository.repository_nixUrl
                         , "#"
                         , pageApp.pageApp_app.app_pname
                         ]
 
                     PreferencesInstall_NixTraditional ->
                         [ "nix-shell \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                        , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
                         , pageApp.pageApp_app.app_pname
@@ -339,7 +339,7 @@ viewPageAppRunContainer model pageApp =
                     PreferencesInstall_NixFlakes ->
                         String.concat
                             [ "nix run "
-                            , showForgeInputFlakes model
+                            , model.model_config.config_repository.repository_nixUrl
                             , "#"
                             , pageApp.pageApp_app.app_pname
                             , ".container"
@@ -348,7 +348,7 @@ viewPageAppRunContainer model pageApp =
                     PreferencesInstall_NixTraditional ->
                         String.concat
                             [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                            , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
                             , pageApp.pageApp_app.app_pname
@@ -374,7 +374,7 @@ viewPageAppRunContainerBuildOCI model pageApp =
                     String.join "\n"
                         [ String.concat
                             [ "nix build "
-                            , showForgeInputFlakes model
+                            , model.model_config.config_repository.repository_nixUrl
                             , "#"
                             , pageApp.pageApp_app.app_pname
                             , ".container"
@@ -386,7 +386,7 @@ viewPageAppRunContainerBuildOCI model pageApp =
                 PreferencesInstall_NixTraditional ->
                     String.concat
                         [ "nix-build \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                        , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                         , "  -E '(import <forge> {})"
                         , "."
                         , pageApp.pageApp_app.app_pname
@@ -408,7 +408,7 @@ viewPageAppRunNixOS model pageApp =
                 PreferencesInstall_NixFlakes ->
                     String.concat
                         [ "nix run "
-                        , showForgeInputFlakes model
+                        , model.model_config.config_repository.repository_nixUrl
                         , "#"
                         , pageApp.pageApp_app.app_pname
                         , ".vm"
@@ -418,7 +418,7 @@ viewPageAppRunNixOS model pageApp =
                     String.join "\n"
                         [ String.concat
                             [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                            , "  -I forge='" ++ model.model_config.config_repository.repository_archiveUrl ++ "' \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
                             , pageApp.pageApp_app.app_pname
@@ -447,7 +447,7 @@ viewPageAppRunNixOSModule model pageApp =
                 PreferencesInstall_NixFlakes ->
                     String.join "\n"
                         [ "{"
-                        , "  inputs.forge.url = \"" ++ showForgeInputFlakesLatest model ++ "\";"
+                        , "  inputs.forge.url = \"" ++ model.model_config.config_repository.repository_nixUrlLatest ++ "\";"
                         , ""
                         , "  outputs = { nixpkgs, forge, ... }: {"
                         , "    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {"
@@ -461,15 +461,11 @@ viewPageAppRunNixOSModule model pageApp =
                         ]
 
                 PreferencesInstall_NixTraditional ->
-                    let
-                        forgeUrl =
-                            (model.model_config.config_repository |> showNixUrl) ++ "/archive/" ++ commit ++ ".tar.gz"
-                    in
                     String.join "\n"
                         [ "{ config, pkgs, ... }:"
                         , ""
                         , "let"
-                        , "  forge-url = \"" ++ forgeUrl ++ "\";"
+                        , "  forge-url = \"" ++ model.model_config.config_repository.repository_archiveUrl ++ "\";"
                         , "  forge = import \"${builtins.fetchTarball forge-url}\" { inherit pkgs; };"
                         , "in {"
                         , "  imports = ["
@@ -478,35 +474,4 @@ viewPageAppRunNixOSModule model pageApp =
                         , "  # ..."
                         , "}"
                         ]
-        ]
-
-
-showForgeInputTraditional : Model -> String
-showForgeInputTraditional model =
-    String.concat
-        [ model.model_config.config_repository |> showNixUrl
-        , "/archive/"
-        , shortCommit
-        , ".tar.gz\""
-        ]
-
-
-showForgeInputFlakes : Model -> String
-showForgeInputFlakes model =
-    String.concat
-        [ model.model_config.config_repository
-        , case commit of
-            "master" ->
-                ""
-
-            _ ->
-                "/" ++ shortCommit
-        ]
-
-
-showForgeInputFlakesLatest : Model -> String
-showForgeInputFlakesLatest model =
-    String.concat
-        [ model.model_config.config_repository
-        , "/master"
         ]

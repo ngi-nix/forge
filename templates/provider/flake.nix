@@ -14,16 +14,23 @@
 
   outputs =
     inputs:
-    inputs.ngi-forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    inputs.ngi-forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } (flakeArgs: {
       systems = [ "x86_64-linux" ];
       imports = [ inputs.ngi-forge.flakeModules.base ];
 
+      # To access the toplevel `config` while debugging in `nix repl .`
+      flake.flakeConfig = flakeArgs.config;
+
       perSystem =
-        { system, ... }:
+        { system, lib, ... }:
         {
           forge = {
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
+            repositories.${lib.unsafeDiscardStringContext inputs.self} = repo: {
+              homeUrl = "https://github.com/" + repo.config.path;
+              path = "my-user/my-repository";
+            };
           };
         };
-    };
+    });
 }

@@ -1,5 +1,10 @@
 {
   lib,
+  self-inputs,
+  forge-inputs,
+  ngi-forge-lib,
+  repositories,
+  options,
   name,
   ...
 }:
@@ -261,11 +266,13 @@
       };
     };
 
-    recipePath = lib.mkOption {
-      type = lib.types.str;
-      default = "";
+    recipeUrls = lib.mkOption {
+      type = lib.types.anything;
       internal = true;
-      description = "Path to the recipe.nix file relative to the flake root. Set automatically by the recipe loader.";
+      default = ngi-forge-lib.recipeUrls [ self-inputs forge-inputs ] repositories (
+        lib.removeAttrs options [ "recipeUrls" ]
+      );
+      description = "URLs to where the recipe's options have been defined.";
     };
   };
 }

@@ -1,7 +1,12 @@
 {
   config,
   lib,
+  self-inputs,
+  forge-inputs,
+  ngi-forge-lib,
+  repositories,
   name,
+  options,
   specialArgs,
   ...
 }:
@@ -118,13 +123,13 @@
       description = "Test configuration.";
     };
 
-    # Warning(correctness): this currently remains empty,
-    # as it's currently ill-defined: a recipe can be a merge of multiple files.
-    recipePath = lib.mkOption {
-      type = lib.types.str;
-      default = "";
+    recipeUrls = lib.mkOption {
+      type = lib.types.anything;
       internal = true;
-      description = "Path to the recipe.nix file relative to the flake root. Set automatically by the recipe loader.";
+      default = ngi-forge-lib.recipeUrls [ self-inputs forge-inputs ] repositories (
+        lib.removeAttrs options [ "recipeUrls" ]
+      );
+      description = "URLs to where the recipe's options have been defined.";
     };
 
     result = {
@@ -135,7 +140,7 @@
         internal = true;
         readOnly = true;
         type = with lib.types; functionTo str;
-        default = self: "nixos-vm-config";
+        default = self: "result";
       };
     };
   };

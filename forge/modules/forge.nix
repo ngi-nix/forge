@@ -2,9 +2,10 @@
   config,
   lib,
   pkgs,
+  system,
   self-inputs,
   forge-inputs,
-  system,
+  ngi-forge-lib,
   ...
 }:
 {
@@ -15,8 +16,9 @@
       specialArgs = {
         inherit system;
         forgeConfig = config;
-        inputs = self-inputs;
         inherit forge-inputs;
+        inherit ngi-forge-lib;
+        inherit self-inputs;
         pkgs = pkgs.extend (
           finalPkgs: previousPkgs:
           # Extend `pkgs` with the `packages` from the forge.
@@ -31,50 +33,7 @@
           }
         );
       };
-      modules = [
-        {
-          options = {
-
-            repositoryUrl = lib.mkOption {
-              type = lib.types.str;
-              default = "github:ngi-nix/forge";
-              description = ''
-                NGI Forge repository URL.
-              '';
-              example = "github:ngi-nix/forge";
-            };
-
-            recipeDirs = {
-              packages = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                default = "recipes/packages";
-                description = ''
-                  Directory containing package recipe files.
-                  Each recipe should be a recipe.nix file in a subdirectory
-                  (e.g., recipes/packages/hello/recipe.nix).
-
-                  Set to null to disable automatic package recipe loading.
-                '';
-                example = "recipes/packages";
-              };
-
-              apps = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                default = "recipes/apps";
-                description = ''
-                  Directory containing app recipe files.
-                  Each recipe should be a recipe.nix file in a subdirectory
-                  (e.g., recipes/apps/my-app/recipe.nix).
-
-                  Set to null to disable automatic app recipe loading.
-                '';
-                example = "recipes/apps";
-              };
-            };
-
-          };
-        }
-      ];
+      modules = [ ];
     };
   };
 }
