@@ -39,6 +39,23 @@ lib.listToAttrs (
           (lib.strings.concatStringsSep ", ")
         ];
 
+        RUNTIMES =
+          let
+            appRuntimes = app.services.runtimes // app.programs.runtimes;
+            enabledAppRuntimes = lib.filterAttrs (_: runtime: runtime.enable) appRuntimes;
+          in
+          lib.concatMapAttrsStringSep " or " (
+            name: value:
+            if name == "shell" then
+              "shell environment"
+            else if name == "program" then
+              "binary executable"
+            else if name == "nixos" then
+              "NixOS VM"
+            else
+              name
+          ) enabledAppRuntimes;
+
         LINKS =
           let
             appLinks = lib.filterAttrs (_: link: link != null) app.links;
@@ -65,7 +82,7 @@ lib.listToAttrs (
 
         ### Try it out
 
-        Visit the [application page](${APP_URL}), launch ${NAME} in a shell environment, container, or NixOS VM and follow the usage instructions.
+        Visit the [application page](${APP_URL}), launch ${NAME} in a ${RUNTIMES} and follow the usage instructions.
 
         ### Links
 
