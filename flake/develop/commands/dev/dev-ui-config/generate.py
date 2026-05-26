@@ -161,7 +161,7 @@ def main():
             f.write(generate_app_recipe(test_app_name, 0, is_test_app=True))
 
         for i in range(num_apps):
-            app_name = f"mock-app-{i}"
+            app_name = f"mock-{i}-app"
             (apps_dir / app_name).mkdir(parents=True)
             with open(apps_dir / app_name / "recipe.nix", "w") as f:
                 f.write(generate_app_recipe(app_name, i))
