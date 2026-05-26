@@ -133,19 +133,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
-        run_command(
-            [
-                "git",
-                "archive",
-                "--format=tar",
-                "HEAD",
-                "-o",
-                str(temp_path / "repo.tar"),
-            ],
-            cwd=str(git_root),
-            check=True,
-        )
-        run_command(["tar", "-xf", "repo.tar"], cwd=str(temp_path), check=True)
+        shutil.copytree(git_root, temp_path, dirs_exist_ok=True)
 
         mock_recipes_root = temp_path / "recipes"
         if mock_recipes_root.exists():
