@@ -74,6 +74,29 @@
       '';
     };
 
+    user = lib.mkOption {
+      type = lib.types.enum [
+        "root"
+        "prefer-dynamic"
+        "non-privileged"
+      ];
+      default = "prefer-dynamic";
+      description = ''
+        User account under which the service runs.
+
+        - `root`: service runs as root. A non-privileged user and group named
+          after the service are also created for services that start as root
+          and then drop privileges.
+
+        - `prefer-dynamic`: on NixOS runtime , uses `DynamicUser` - no physical
+          user or group account is created. On container runtime, uses a
+          non-privileged user named after the service.
+
+        - `non-privileged`: service always runs as a non-privileged user named
+          after the service.
+      '';
+    };
+
     ports = lib.mkOption {
       type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
       default = [ ];

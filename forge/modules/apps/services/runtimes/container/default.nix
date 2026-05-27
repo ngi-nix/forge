@@ -128,7 +128,7 @@
     result.modules = lib.mapAttrs (serviceName: service: {
       settings = import ./modules/settings.nix (
         {
-          inherit service;
+          inherit service serviceName;
         }
         // args
         // lib.optionalAttrs (config.components ? ${serviceName}) {
@@ -164,6 +164,7 @@
                   image = "localhost/${name}:latest";
                   ports = service.ports;
                   depends_on = lib.genAttrs service.after (_name: { });
+                  tmpfs = [ "/tmp:rw,size=64m" ];
                 }) app.services.components;
               }
             );

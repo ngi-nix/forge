@@ -2,6 +2,7 @@
   app,
 
   service,
+  serviceName,
   componentConfig ? {
     setup = "";
     packages = [ ];
@@ -15,13 +16,32 @@
   binName = "${app.name}-service";
 
   container = {
-    copyToRoot = pkgs.buildEnv {
-      name = "runtime-bins";
-      paths = componentConfig.packages;
-      pathsToLink = [ "/bin" ];
-    };
+    copyToRoot =
+      let
+        uid = "1001";
+        gid = "1001";
+        etcFiles = pkgs.runCommand "etc-${serviceName}" { } ''
+          mkdir -p $out/etc
+          echo 'root:x:0:0:root:/root:/bin/sh' > $out/etc/passwd
+          echo '${serviceName}:x:${uid}:${gid}:${serviceName}:/var/lib/${serviceName}:/sbin/nologin' >> $out/etc/passwd
+          echo 'root:x:0:' > $out/etc/group
+          echo '${serviceName}:x:${gid}:' >> $out/etc/group
+          echo 'root:!:0::::::' > $out/etc/shadow
+          echo '${serviceName}:!:1::::::' >> $out/etc/shadow
+          echo 'hosts: files dns' > $out/etc/nsswitch.conf
+        '';
+      in
+      pkgs.buildEnv {
+        name = "runtime-bins";
+        paths = componentConfig.packages ++ [ etcFiles ];
+        pathsToLink = [
+          "/bin"
+          "/etc"
+        ];
+      };
 
     imageConfig = componentConfig.imageConfig // {
+      User = if service.user == "root" then "root" else serviceName;
       Env =
         let
           # { K = "V"; } -> [ "K=V" ]

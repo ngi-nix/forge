@@ -129,7 +129,6 @@
                 rsync
               ];
               serviceConfig = {
-                DynamicUser = true;
                 StateDirectory = [ "qlever-ui" ];
                 WorkingDirectory = "/var/lib/qlever-ui";
               };
@@ -141,7 +140,6 @@
                 subversion
               ];
               serviceConfig = {
-                DynamicUser = true;
                 StateDirectory = [ "qlever-ui" ];
                 WorkingDirectory = "/var/lib/qlever-ui";
               };
@@ -155,7 +153,6 @@
                 unzip
               ];
               serviceConfig = {
-                DynamicUser = true;
                 StateDirectory = [ "qlever-server" ];
                 WorkingDirectory = "/var/lib/qlever-server";
               };

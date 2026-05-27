@@ -41,15 +41,23 @@
         container = {
           enable = true;
           composeFile = ./compose.yaml;
-          components.goupile.packages = [ pkgs.goupile ];
+          components.goupile = {
+            packages = [ pkgs.goupile ];
+            imageConfig.Volumes = {
+              "/var/lib/goupile" = { };
+            };
+          };
         };
 
         nixos = {
           enable = true;
           nixosConfig = {
-            systemd.tmpfiles.rules = [
-              "d /var/lib/goupile 0700 root root -"
-            ];
+            systemd.services."goupile" = {
+              serviceConfig = {
+                StateDirectory = [ "goupile" ];
+                WorkingDirectory = "/var/lib/goupile";
+              };
+            };
           };
         };
       };

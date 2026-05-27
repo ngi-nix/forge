@@ -59,11 +59,16 @@
       runtimes = {
         container = {
           enable = true;
-          components.offen.packages = [
-            pkgs.bash # required for entering the container
-            pkgs.coreutils # required for mkdir
-            pkgs.offen # required for admin tasks
-          ];
+          components.offen = {
+            packages = [
+              pkgs.bash # required for entering the container
+              pkgs.coreutils # required for mkdir
+              pkgs.offen # required for admin tasks
+            ];
+            imageConfig.Volumes = {
+              "/var/lib/offen" = { };
+            };
+          };
         };
 
         nixos = {
@@ -71,6 +76,14 @@
           packages = [
             pkgs.offen # required for admin tasks
           ];
+          nixosConfig = {
+            systemd.services."offen" = {
+              serviceConfig = {
+                StateDirectory = [ "offen" ];
+                WorkingDirectory = "/var/lib/offen";
+              };
+            };
+          };
         };
       };
     };
