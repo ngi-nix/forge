@@ -90,9 +90,6 @@
               rsync
               subversion
             ];
-            imageConfig = {
-              WorkingDir = "/var/lib/qlever-ui";
-            };
             setup =
               # bash
               ''
@@ -114,9 +111,6 @@
               qlever
               qlever-control
             ];
-            imageConfig = {
-              WorkingDir = "/var/lib/qlever-server";
-            };
           };
         };
 
@@ -128,10 +122,6 @@
               path = with pkgs; [
                 rsync
               ];
-              serviceConfig = {
-                StateDirectory = [ "qlever-ui" ];
-                WorkingDirectory = "/var/lib/qlever-ui";
-              };
             };
 
             systemd.services."qlever-ui" = {
@@ -139,10 +129,6 @@
                 qlever-ui
                 subversion
               ];
-              serviceConfig = {
-                StateDirectory = [ "qlever-ui" ];
-                WorkingDirectory = "/var/lib/qlever-ui";
-              };
             };
 
             systemd.services."qlever-server" = {
@@ -152,10 +138,6 @@
                 qlever-control
                 unzip
               ];
-              serviceConfig = {
-                StateDirectory = [ "qlever-server" ];
-                WorkingDirectory = "/var/lib/qlever-server";
-              };
             };
           };
         };

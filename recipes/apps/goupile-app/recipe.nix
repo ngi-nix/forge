@@ -40,25 +40,11 @@
       runtimes = {
         container = {
           enable = true;
-          composeFile = ./compose.yaml;
-          components.goupile = {
-            packages = [ pkgs.goupile ];
-            imageConfig.Volumes = {
-              "/var/lib/goupile" = { };
-            };
-          };
+          components.goupile.packages = [ pkgs.goupile ];
         };
 
         nixos = {
           enable = true;
-          nixosConfig = {
-            systemd.services."goupile" = {
-              serviceConfig = {
-                StateDirectory = [ "goupile" ];
-                WorkingDirectory = "/var/lib/goupile";
-              };
-            };
-          };
         };
       };
     };

@@ -1,7 +1,0 @@
-services:
-  ironcalc:
-    image: localhost/ironcalc:latest
-    environment:
-      - ROCKET_ADDRESS=0.0.0.0
-    ports:
-      - 8000:8000

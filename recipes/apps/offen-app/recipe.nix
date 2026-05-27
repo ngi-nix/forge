@@ -43,9 +43,6 @@
 
     services = {
       components.offen = {
-        preStart = ''
-          mkdir --parents --verbose /var/lib/offen
-        '';
         command = pkgs.offen;
         argv = [ "serve" ];
         environment = {
@@ -65,9 +62,6 @@
               pkgs.coreutils # required for mkdir
               pkgs.offen # required for admin tasks
             ];
-            imageConfig.Volumes = {
-              "/var/lib/offen" = { };
-            };
           };
         };
 
@@ -76,14 +70,6 @@
           packages = [
             pkgs.offen # required for admin tasks
           ];
-          nixosConfig = {
-            systemd.services."offen" = {
-              serviceConfig = {
-                StateDirectory = [ "offen" ];
-                WorkingDirectory = "/var/lib/offen";
-              };
-            };
-          };
         };
       };
     };

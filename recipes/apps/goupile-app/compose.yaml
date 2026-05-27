@@ -1,9 +1,0 @@
-services:
-  goupile:
-    image: localhost/goupile:latest
-    ports:
-      - 8181:8181
-    volumes:
-      - goupile-data:/var/lib/goupile
-volumes:
-  goupile-data:

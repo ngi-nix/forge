@@ -48,26 +48,14 @@
 
       runtimes.container = {
         enable = true;
-        composeFile = ./compose.yaml;
         components.ironcalc = {
           packages = [ pkgs.ironcalc ];
-          imageConfig.Volumes = {
-            "/var/lib/ironcalc" = { };
-          };
         };
       };
 
       runtimes.nixos = {
         enable = true;
         packages = [ pkgs.ironcalc ];
-        nixosConfig = {
-          systemd.services."ironcalc" = {
-            serviceConfig = {
-              StateDirectory = [ "ironcalc" ];
-              WorkingDirectory = "/var/lib/ironcalc";
-            };
-          };
-        };
       };
     };
 
