@@ -22,14 +22,12 @@
 
     command = lib.mkOption {
       type = lib.types.either lib.types.package lib.types.str;
-      description = "Main command used to launch a service.";
-      example = lib.literalExpression ''
-        # Package
-        pkgs.hello
+      description = ''
+        Main command used to launch a service.
 
-        # Explicit binary path
-        "''${pkgs.hello}/bin/hello"
+        Can be a package (e.g. `pkgs.hello`) or an explicit binary path.
       '';
+      example = lib.literalExpression ''"''${pkgs.hello}/bin/hello"'';
     };
 
     argv = lib.mkOption {
@@ -67,7 +65,7 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
       apply = self: if self != null then pkgs.writeShellScript "${name}-pre-start" self else null;
-      example = lib.literalExpression ''
+      example = ''
         # bash
         echo "Running DB migration ..."
         program-manage makemigrations && program-manage migrate

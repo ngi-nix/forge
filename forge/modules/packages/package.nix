@@ -44,14 +44,12 @@
           (listOf (either attrs str))
         ];
       default = [ ];
-      description = "License, or licenses, for the package.";
-      example = ''
-        # Single license
-        lib.licenses.gpl3Only
+      description = ''
+        License, or licenses, for the package.
 
-        # Multiple licenses
-        [ lib.licenses.mit lib.licenses.asl20 ]
+        Can be a single license (e.g. `lib.licenses.gpl3Only`) or a list of licenses.
       '';
+      example = lib.literalExpression "[ lib.licenses.mit lib.licenses.asl20 ]";
     };
 
     # Source configuration
@@ -202,7 +200,10 @@
           The package being tested is available in PATH.
 
           Launch test with:
-            - `nix build .#<package>.test`
+
+          ```
+          nix build .#<package>.test
+          ```
         '';
         example = ''
           hello | grep "Hello, world"
@@ -235,7 +236,10 @@
           Script which is launched when entering the development environment.
 
           Enter with:
-            - `nix develop .#<package>.devenv`
+
+          ```
+          nix develop .#<package>.devenv
+          ```
         '';
         example = ''
           echo "Welcome to my-package development environment!"

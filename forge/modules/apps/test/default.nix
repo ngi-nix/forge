@@ -33,8 +33,10 @@
         When disabled, tests must be launched with Nix sandbox set to relaxed
         using following commands:
 
-          - `nix build .#<app>.test --option sandbox relaxed --builders ""`
-          - `nix build .#<app>.test-container --option sandbox relaxed --builders ""`
+        ```
+        nix build .#<app>.test --option sandbox relaxed --builders ""
+        nix build .#<app>.test-container --option sandbox relaxed --builders ""
+        ```
 
         Disabling sandbox can cause problems with test reproducibility.
         Use only when necessary.
@@ -50,8 +52,11 @@
         Script to test application services inside a NixOS machine or container.
 
         Launch tests with:
-          - `nix build .#<app>.test`
-          - `nix build .#<app>.test-container`
+
+        ```
+        nix build .#<app>.test
+        nix build .#<app>.test-container
+        ```
       '';
       example = ''
         curl --fail http://localhost:5000 | grep "Hello"
