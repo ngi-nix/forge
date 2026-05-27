@@ -15,6 +15,7 @@ in
     before = [ "multi-user.target" ] ++ serviceUnits;
     requiredBy = serviceUnits;
     after = [ "network.target" ];
+    path = config.packages;
     script = config.setup;
     serviceConfig = {
       Type = "oneshot";

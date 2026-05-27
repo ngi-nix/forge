@@ -38,6 +38,7 @@
     in
     {
       environment = service.environment;
+      path = service.packages;
       serviceConfig = lib.mkMerge [
         {
           PassEnvironment = lib.attrNames service.environment;

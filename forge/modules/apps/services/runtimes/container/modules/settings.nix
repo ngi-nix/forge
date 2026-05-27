@@ -33,7 +33,7 @@
       in
       pkgs.buildEnv {
         name = "runtime-bins";
-        paths = componentConfig.packages ++ [ etcFiles ];
+        paths = componentConfig.packages ++ service.packages ++ [ etcFiles ];
         pathsToLink = [
           "/bin"
           "/etc"

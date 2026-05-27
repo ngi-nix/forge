@@ -108,6 +108,15 @@
       example = "/var/lib/myservice";
     };
 
+    packages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = ''
+        Additional packages available for the service.
+      '';
+      example = lib.literalExpression "[ pkgs.rsync pkgs.jq ]";
+    };
+
     ports = lib.mkOption {
       type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
       default = [ ];
