@@ -42,18 +42,32 @@ This specification guides LLMs in generating NGI Forge recipes - declarative con
 
 ### Accessing NGI Forge Packages
 
-Other packages built by NGI Forge can be referenced in recipes using `pkgs.mypkgs`:
+The derivation of packages built by NGI Forge can be referenced in recipes using `pkgs`:
 
 ```nix
+{ pkgs, ... }:
 {
-  # Reference another NGI Forge package
-  packages.run = [
-    pkgs.mypkgs.gdal  # Access gdal from NGI Forge
-  ];
+  packages.my-package = {
+    # Reference another NGI Forge package derivation
+    packages.run = [
+      pkgs.gdal  # Access gdal from NGI Forge
+    ];
+  };
 }
 ```
 
 This follows the same pattern as accessing nixpkgs packages (e.g., `pkgs.sqlite`).
+
+Whereas the configuration of other packages can be references using `packages`:
+
+```nix
+{ packages, ... }:
+{
+  packages.my-package = {
+    inherit (packages.bar) source;
+  };
+}
+```
 
 ### Important: Git Tracking Required
 
@@ -79,21 +93,22 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  name = "package-name";           # String, lowercase with hyphens
-  version = "1.0.0";               # String, semantic versioning
-  description = "Short description of the package.";
+  packages.my-package = {
+    version = "1.0.0";               # String, semantic versioning
+    description = "Short description of the package.";
 
-  # Source: EXACTLY ONE of these must be defined
-  source.git = "github:owner/repo/commit-or-tag";  # OR
-  source.url = "https://...";
-  source.hash = "sha256-...";      # Required with url, optional with git
+    # Source: EXACTLY ONE of these must be defined
+    source.git = "github:owner/repo/commit-or-tag";  # OR
+    source.url = "https://...";
+    source.hash = "sha256-...";      # Required with url, optional with git
 
-  # Builder: EXACTLY ONE must be enabled
-  build.standardBuilder.enable = true;      # OR
-  build.pythonAppBuilder.enable = true;     # OR
-  build.pythonPackageBuilder.enable = true; # OR
-  build.goPackageBuilder.enable = true;     # OR
-  build.rustPackageBuilder.enable = true;
+    # Builder: EXACTLY ONE must be enabled
+    build.standardBuilder.enable = true;      # OR
+    build.pythonAppBuilder.enable = true;     # OR
+    build.pythonPackageBuilder.enable = true; # OR
+    build.goPackageBuilder.enable = true;     # OR
+    build.rustPackageBuilder.enable = true;
+  };
 }
 ```
 
@@ -101,8 +116,10 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  homePage = "https://project-website.org";
-  mainProgram = "executable-name";  # Main binary name for the package
+  packages.my-package = {
+    homePage = "https://project-website.org";
+    mainProgram = "executable-name";  # Main binary name for the package
+  };
 }
 ```
 
@@ -114,19 +131,21 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  build.standardBuilder = {
-    enable = true;
-    packages.build = [
-      pkgs.cmake
-      pkgs.pkg-config
-    ];
-    packages.run = [
-      pkgs.openssl
-      pkgs.zlib
-    ];
-    packages.check = [
-      pkgs.cunit
-    ];
+  packages.my-package = {
+    build.standardBuilder = {
+      enable = true;
+      packages.build = [
+        pkgs.cmake
+        pkgs.pkg-config
+      ];
+      packages.run = [
+        pkgs.openssl
+        pkgs.zlib
+      ];
+      packages.check = [
+        pkgs.cunit
+      ];
+    };
   };
 }
 ```
@@ -143,25 +162,27 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  build.pythonAppBuilder = {
-    enable = true;
-    packages = {
-      build-system = [
-        pkgs.python3Packages.setuptools
-      ];
-      dependencies = [
-        pkgs.python3Packages.flask
-        pkgs.python3Packages.requests
-      ];
-      optional-dependencies = {      # PEP-621 extras (optional)
-        dev = [
-          pkgs.python3Packages.pytest
+  packages.my-package = {
+    build.pythonAppBuilder = {
+      enable = true;
+      packages = {
+        build-system = [
+          pkgs.python3Packages.setuptools
         ];
+        dependencies = [
+          pkgs.python3Packages.flask
+          pkgs.python3Packages.requests
+        ];
+        optional-dependencies = {      # PEP-621 extras (optional)
+          dev = [
+            pkgs.python3Packages.pytest
+          ];
+        };
       };
+      importsCheck = [ "myapp" ];      # Verify imports work (optional)
+      relaxDeps = [ "flask" ];         # Remove version constraints (optional)
+      disabledTests = [ "test_network" ]; # Skip specific tests (optional)
     };
-    importsCheck = [ "myapp" ];      # Verify imports work (optional)
-    relaxDeps = [ "flask" ];         # Remove version constraints (optional)
-    disabledTests = [ "test_network" ]; # Skip specific tests (optional)
   };
 }
 ```
@@ -190,25 +211,27 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  build.pythonPackageBuilder = {
-    enable = true;
-    packages = {
-      build-system = [
-        pkgs.python3Packages.setuptools
-      ];
-      dependencies = [
-        pkgs.python3Packages.numpy
-        pkgs.python3Packages.attrs
-      ];
-      optional-dependencies = {      # PEP-621 extras (optional)
-        dev = [
-          pkgs.python3Packages.pytest
+  packages.my-package = {
+    build.pythonPackageBuilder = {
+      enable = true;
+      packages = {
+        build-system = [
+          pkgs.python3Packages.setuptools
         ];
+        dependencies = [
+          pkgs.python3Packages.numpy
+          pkgs.python3Packages.attrs
+        ];
+        optional-dependencies = {      # PEP-621 extras (optional)
+          dev = [
+            pkgs.python3Packages.pytest
+          ];
+        };
       };
+      importsCheck = [ "mylib" ];      # Verify imports work (optional)
+      relaxDeps = [ "numpy" ];         # Remove version constraints (optional)
+      disabledTests = [ "test_slow" ]; # Skip specific tests (optional)
     };
-    importsCheck = [ "mylib" ];      # Verify imports work (optional)
-    relaxDeps = [ "numpy" ];         # Remove version constraints (optional)
-    disabledTests = [ "test_slow" ]; # Skip specific tests (optional)
   };
 }
 ```
@@ -244,19 +267,21 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  build.goPackageBuilder = {
-    enable = true;
-    packages.build = [
-      pkgs.pkg-config
-    ];
-    packages.run = [
-      pkgs.openssl
-    ];
-    packages.check = [
-      pkgs.gotestsum
-    ];
-    vendorHash = "sha256-...";
-    ldflags = [ "-X main.version=1.0.0" ];
+  packages.my-package = {
+    build.goPackageBuilder = {
+      enable = true;
+      packages.build = [
+        pkgs.pkg-config
+      ];
+      packages.run = [
+        pkgs.openssl
+      ];
+      packages.check = [
+        pkgs.gotestsum
+      ];
+      vendorHash = "sha256-...";
+      ldflags = [ "-X main.version=1.0.0" ];
+    };
   };
 }
 ```
@@ -279,21 +304,23 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 
 ```nix
 {
-  build.rustPackageBuilder = {
-    enable = true;
-    packages.build = [
-      pkgs.pkg-config
-      pkgs.rustPlatform.bindgenHook
-    ];
-    packages.run = [
-      pkgs.openssl
-      pkgs.sqlite
-    ];
-    packages.check = [
-      pkgs.cargo-nextest
-    ];
-    cargoHash = "sha256-...";
-    cargoBuildFlags = [ "--release" ];
+  packages.my-package = {
+    build.rustPackageBuilder = {
+      enable = true;
+      packages.build = [
+        pkgs.pkg-config
+        pkgs.rustPlatform.bindgenHook
+      ];
+      packages.run = [
+        pkgs.openssl
+        pkgs.sqlite
+      ];
+      packages.check = [
+        pkgs.cargo-nextest
+      ];
+      cargoHash = "sha256-...";
+      cargoBuildFlags = [ "--release" ];
+    };
   };
 }
 ```
@@ -317,11 +344,15 @@ error: flake does not provide attribute 'packages.x86_64-linux.<package-name>'
 **Format**: `forge:owner/repository/revision`
 
 ```nix
-source = {
-  git = "github:torvalds/linux/v6.1";  # Tag
-  git = "gitlab:group/project/abc123";  # Commit hash
-  hash = "sha256-...";  # Optional but recommended
-};
+{
+  packages.my-package = {
+    source = {
+      git = "github:torvalds/linux/v6.1";  # Tag
+      git = "gitlab:group/project/abc123";  # Commit hash
+      hash = "sha256-...";  # Optional but recommended
+    };
+  };
+}
 ```
 
 **Supported forges**: github, gitlab, codeberg, forgejo, gitea
@@ -331,11 +362,15 @@ source = {
 ### URL Sources
 
 ```nix
-source = {
-  url = "https://releases.example.com/package-1.0.0.tar.gz";
-  url = "mirror://gnu/hello/hello-2.12.1.tar.gz";  # Nix mirrors
-  hash = "sha256-...";  # REQUIRED
-};
+{
+  packages.my-package = {
+    source = {
+      url = "https://releases.example.com/package-1.0.0.tar.gz";
+      url = "mirror://gnu/hello/hello-2.12.1.tar.gz";  # Nix mirrors
+      hash = "sha256-...";  # REQUIRED
+    };
+  };
+}
 ```
 
 ### Patches
@@ -343,14 +378,18 @@ source = {
 Apply patch files to the source code before building:
 
 ```nix
-source = {
-  git = "github:owner/repo/v1.0.0";
-  hash = "sha256-...";
-  patches = [
-    ./fix-build-issue.patch
-    ./add-feature.patch
-  ];
-};
+{
+  packages.my-package = {
+    source = {
+      git = "github:owner/repo/v1.0.0";
+      hash = "sha256-...";
+      patches = [
+        ./fix-build-issue.patch
+        ./add-feature.patch
+      ];
+    };
+  };
+}
 ```
 
 **Notes**:
@@ -363,14 +402,18 @@ source = {
 ## Test Configuration
 
 ```nix
-test = {
-  packages = [ pkgs.curl ];  # Additional test dependencies
-  script = ''
-    # Test commands
-    $out/bin/program --version
-    $out/bin/program --help
-  '';
-};
+{
+  packages.my-package = {
+    test = {
+      packages = [ pkgs.curl ];  # Additional test dependencies
+      script = ''
+        # Test commands
+        $out/bin/program --version
+        $out/bin/program --help
+      '';
+    };
+  };
+}
 ```
 
 **Best practices**:
@@ -383,13 +426,17 @@ test = {
 ## Development Environment
 
 ```nix
-development = {
-  packages = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
-  shellHook = ''
-    echo "Development environment ready"
-    echo "Source code: clone from ${source.git}"
-  '';
-};
+{
+  packages.my-package = {
+    development = {
+      packages = [ pkgs.gdb pkgs.valgrind ];  # Dev tools
+      shellHook = ''
+        echo "Development environment ready"
+        echo "Source code: clone from ${source.git}"
+      '';
+    };
+  };
+}
 ```
 
 ## Advanced: extraAttrs
@@ -397,16 +444,20 @@ development = {
 For expert-level customization:
 
 ```nix
-build.extraAttrs = {
-  preConfigure = ''
-    export HOME=$(mktemp -d)
-  '';
-  postInstall = ''
-    wrapProgram $out/bin/program \
-      --set SOME_VAR value
-  '';
-  enableParallelBuilding = true;
-};
+{
+  packages.my-package = {
+    build.extraAttrs = {
+      preConfigure = ''
+        export HOME=$(mktemp -d)
+      '';
+      postInstall = ''
+        wrapProgram $out/bin/program \
+          --set SOME_VAR value
+      '';
+      enableParallelBuilding = true;
+    };
+  };
+}
 ```
 
 **Common use cases**:
@@ -422,24 +473,25 @@ build.extraAttrs = {
 
 ```nix
 {
-  name = "app-name";
-  displayName = "Human Readable Name";  # Optional: defaults to name if not set
-  description = "Application description.";
-  usage = ''
-    Usage instructions in markdown format.
+  apps.my-app = {
+    displayName = "Human Readable Name";  # Optional: defaults to name if not set
+    description = "Application description.";
+    usage = ''
+      Usage instructions in markdown format.
 
-    Supports markdown formatting, code blocks, etc.
-  '';  # Optional but highly recommended
+      Supports markdown formatting, code blocks, etc.
+    '';  # Optional but highly recommended
 
-  icon = ./icon.svg;  # Optional: Path to SVG icon file
+    icon = ./icon.svg;  # Optional: Path to SVG icon file
 
-  # Optional: Services configuration (portable services)
-  services = { ... };
+    # Optional: Services configuration (portable services)
+    services = { ... };
 
-  # Enable output types (at least one must be enabled):
-  programs = { ... };    # Shell bundle
-  container = { ... };   # OCI container image
-  nixos = { ... };       # NixOS VM
+    # Enable output types (at least one must be enabled):
+    programs = { ... };    # Shell bundle
+    container = { ... };   # OCI container image
+    nixos = { ... };       # NixOS VM
+  };
 }
 ```
 
@@ -471,15 +523,16 @@ Apps can optionally specify a custom icon in SVG format. When creating app recip
 
 ```nix
 {
-  name = "my-app";
-  displayName = "My Application";
-  description = "My application";
-  icon = ./logo.svg;  # Found in repository root
+  apps.my-app = {
+    displayName = "My Application";
+    description = "My application";
+    icon = ./logo.svg;  # Found in repository root
 
-  programs = {
-    runtimes.shell.enable = true;
+    programs = {
+      runtimes.shell.enable = true;
+    };
+    # ... rest of configuration
   };
-  # ... rest of configuration
 }
 ```
 
@@ -490,23 +543,27 @@ Apps can optionally specify a custom icon in SVG format. When creating app recip
 Services define processes that run within the application. They can be used across all output types (container, VM, etc.):
 
 ```nix
-services.components = {
-  my-service = {
-    command = pkgs.mypkgs.my-package;  # Package or string
-    argv = [ "--port" "8080" ];        # Additional arguments
-    ports = [ "8080:8080" ];           # HOST_PORT:SERVICE_PORT
-    environment = {                     # Environment variables
-      DATABASE_URL = "postgresql://localhost/db";
-      LOG_LEVEL = "info";
+{
+  apps.my-app = {
+    services.components = {
+      my-service = {
+        command = pkgs.my-package;  # Package or string
+        argv = [ "--port" "8080" ];        # Additional arguments
+        ports = [ "8080:8080" ];           # HOST_PORT:SERVICE_PORT
+        environment = {                     # Environment variables
+          DATABASE_URL = "postgresql://localhost/db";
+          LOG_LEVEL = "info";
+        };
+      };
+
+      another-service = {
+        command = "python";
+        argv = [ "-m" "http.server" "8000" ];
+        ports = [ "8000:8000" ];
+      };
     };
   };
-
-  another-service = {
-    command = "python";
-    argv = [ "-m" "http.server" "8000" ];
-    ports = [ "8000:8000" ];
-  };
-};
+}
 ```
 
 ### Programs (Shell Bundle)
@@ -514,17 +571,21 @@ services.components = {
 Creates a shell bundle with all required packages available in PATH:
 
 ```nix
-programs = {
-  packages = [
-    pkgs.mypkgs.my-package  # Reference packages from forge
-    pkgs.curl
-    pkgs.jq
-  ];
+{
+  apps.my-app = {
+    programs = {
+      packages = [
+        pkgs.my-package  # Reference packages from forge
+        pkgs.curl
+        pkgs.jq
+      ];
 
-  runtimes.shell = {
-    enable = true; # Set to true to enable programs bundle output
+      runtimes.shell = {
+        enable = true; # Set to true to enable programs bundle output
+      };
+    };
   };
-};
+}
 ```
 
 **Structure:**
@@ -539,32 +600,36 @@ programs = {
 Builds a single OCI-compliant container image:
 
 ```nix
-runtimes.container = {
-  enable = true;  # Set to true to enable container image output
+{
+  apps.my-app = {
+    runtimes.container = {
+      enable = true;  # Set to true to enable container image output
 
-  composeFile = ./compose.yaml;  # Optional: custom Docker Compose file
+      composeFile = ./compose.yaml;  # Optional: custom Docker Compose file
 
-  # Per-component container configuration
-  components.<name> = {
-    packages = [
-      pkgs.mypkgs.my-package  # Packages to include in /bin
-    ];
+      # Per-component container configuration
+      components.<name> = {
+        packages = [
+          pkgs.my-package  # Packages to include in /bin
+        ];
 
-    # OCI image configuration
-    # See: https://specs.opencontainers.org/image-spec/config/#properties
-    imageConfig = {
-      Cmd = [ "my-package" "--serve" ];  # Default command
-      Env = [                             # Environment variables
-        "PORT=8080"
-        "LOG_LEVEL=info"
-      ];
-      ExposedPorts = {
-        "8080/tcp" = { };
+        # OCI image configuration
+        # See: https://specs.opencontainers.org/image-spec/config/#properties
+        imageConfig = {
+          Cmd = [ "my-package" "--serve" ];  # Default command
+          Env = [                             # Environment variables
+            "PORT=8080"
+            "LOG_LEVEL=info"
+          ];
+          ExposedPorts = {
+            "8080/tcp" = { };
+          };
+          WorkingDir = "/app";
+        };
       };
-      WorkingDir = "/app";
     };
   };
-};
+}
 ```
 
 **Access:** `nix build .#<app>.container` to build the image script
@@ -576,35 +641,39 @@ runtimes.container = {
 Builds a complete NixOS virtual machine:
 
 ```nix
-runtimes.nixos = {
-  enable = true;  # Set to true to enable VM output
+{
+  apps.my-app = {
+    runtimes.nixos = {
+      enable = true;  # Set to true to enable VM output
 
-  # NixOS system configuration
-  # See: https://search.nixos.org/options
-  nixosConfig = {
-    services.postgresql = {
-      enable = true;
-      enableTCPIP = true;
-      authentication = ''
-        local all all trust
-        host all all 0.0.0.0/0 trust
-      '';
+      # NixOS system configuration
+      # See: https://search.nixos.org/options
+      nixosConfig = {
+        services.postgresql = {
+          enable = true;
+          enableTCPIP = true;
+          authentication = ''
+            local all all trust
+            host all all 0.0.0.0/0 trust
+          '';
+        };
+
+        services.nginx.enable = true;
+      };
+
+      # VM-specific settings
+      vm = {
+        cores = 4;           # Number of CPU cores (default: 4)
+        memorySize = 2048;   # RAM in MiB (default: 2048)
+        diskSize = 4096;     # Disk size in MiB (default: 4096)
+        forwardPorts = [     # Port forwarding (HOST:GUEST)
+          "8080:80"
+          "5432:5432"
+        ];
+      };
     };
-
-    services.nginx.enable = true;
   };
-
-  # VM-specific settings
-  vm = {
-    cores = 4;           # Number of CPU cores (default: 4)
-    memorySize = 2048;   # RAM in MiB (default: 2048)
-    diskSize = 4096;     # Disk size in MiB (default: 4096)
-    forwardPorts = [     # Port forwarding (HOST:GUEST)
-      "8080:80"
-      "5432:5432"
-    ];
-  };
-};
+}
 ```
 
 **Access:** `nix build .#<app>.vm` then run `./result/bin/run-*-vm`
@@ -630,70 +699,71 @@ Each app output type can be independently enabled or disabled:
 }:
 
 {
-  name = "python-web-app";
-  displayName = "Python Web Example";
-  description = "Simple web application with database backend.";
-  usage = ''
-    This is a simple example app which provides a web API.
+  apps.python-web-app = {
+    displayName = "Python Web Example";
+    description = "Simple web application with database backend.";
+    usage = ''
+      This is a simple example app which provides a web API.
 
-    * Initialize database
-    ```
-    curl -X POST localhost:5000/init
-    ```
+      * Initialize database
+      ```
+      curl -X POST localhost:5000/init
+      ```
 
-    * Add a new user
-    ```
-    curl -X POST --header "Content-Type: application/json" \
-      --data '{"name":"username"}' localhost:5000/users
-    ```
-  '';
+      * Add a new user
+      ```
+      curl -X POST --header "Content-Type: application/json" \
+        --data '{"name":"username"}' localhost:5000/users
+      ```
+    '';
 
-  # Define the web service
-  services.components.python-web = {
-    command = pkgs.mypkgs.python-web;
-    argv = [ "--host" "0.0.0.0" ];
-    ports = [ "5000:5000" ];
-    environment = {
-      FLASK_ENV = "production";
-    };
-  };
-
-  # Shell bundle with additional tools
-  programs = {
-    packages = [
-      pkgs.mypkgs.python-web
-      pkgs.curl
-      pkgs.postgresql
-    ];
-
-    runtimes.shell = {
-      enable = true;
-    };
-  };
-
-  # Container image
-  services.runtimes.container = {
-    enable = true;
-    composeFile = ./compose.yaml;
-    components.python-web = {
-      packages = [ pkgs.mypkgs.python-web ];
-      imageConfig = {
-        Env = [ "PORT=5000" ];
-        ExposedPorts = { "5000/tcp" = { }; };
+    # Define the web service
+    services.components.python-web = {
+      command = pkgs.python-web;
+      argv = [ "--host" "0.0.0.0" ];
+      ports = [ "5000:5000" ];
+      environment = {
+        FLASK_ENV = "production";
       };
     };
-  };
 
-  # VM with PostgreSQL
-  services.runtimes.nixos = {
-    enable = true;
-    nixosConfig = {
-      services.postgresql = {
+    # Shell bundle with additional tools
+    programs = {
+      packages = [
+        pkgs.python-web
+        pkgs.curl
+        pkgs.postgresql
+      ];
+
+      runtimes.shell = {
         enable = true;
-        enableTCPIP = true;
       };
     };
-    vm.forwardPorts = [ "5000:5000" ];
+
+    # Container image
+    services.runtimes.container = {
+      enable = true;
+      composeFile = ./compose.yaml;
+      components.python-web = {
+        packages = [ pkgs.python-web ];
+        imageConfig = {
+          Env = [ "PORT=5000" ];
+          ExposedPorts = { "5000/tcp" = { }; };
+        };
+      };
+    };
+
+    # VM with PostgreSQL
+    services.runtimes.nixos = {
+      enable = true;
+      nixosConfig = {
+        services.postgresql = {
+          enable = true;
+          enableTCPIP = true;
+        };
+      };
+      vm.forwardPorts = [ "5000:5000" ];
+    };
   };
 }
 ````
@@ -743,7 +813,11 @@ ELSE IF has configure script OR uses CMake OR standard Makefile:
 When hash is unknown:
 
 ```nix
-source.hash = "";  # Leave empty initially
+{
+  packages.my-package = {
+    source.hash = "";  # Leave empty initially
+  };
+}
 # Nix will error with correct hash, then update recipe
 ```
 
@@ -767,12 +841,11 @@ source.hash = "";  # Leave empty initially
   config,
   lib,
   pkgs,
-  mypkgs,
   ...
 }:
 
 {
-  name = "ripgrep";
+packages.ripgrep = {
   version = "14.0.0";
   description = "Fast line-oriented search tool.";
   homePage = "https://github.com/BurntSushi/ripgrep";
@@ -795,6 +868,7 @@ source.hash = "";  # Leave empty initially
   test.script = ''
     rg --version | grep "14.0.0"
   '';
+};
 }
 ```
 
@@ -802,15 +876,15 @@ source.hash = "";  # Leave empty initially
 
 ```nix
 {
+packages.nginx =
+{
   config,
   lib,
   pkgs,
-  mypkgs,
   ...
 }:
 
 {
-  name = "nginx";
   version = "1.24.0";
   description = "HTTP and reverse proxy server.";
   homePage = "https://nginx.org";
@@ -836,6 +910,7 @@ source.hash = "";  # Leave empty initially
   test.script = ''
     nginx -v 2>&1 | grep "1.24.0"
   '';
+};
 }
 ```
 
@@ -846,36 +921,36 @@ source.hash = "";  # Leave empty initially
   config,
   lib,
   pkgs,
-  mypkgs,
   ...
 }:
 
 {
-  name = "mypy";
-  version = "1.7.0";
-  description = "Static type checker for Python.";
-  homePage = "https://mypy-lang.org";
-  mainProgram = "mypy";
+  packages.mypy = {
+    version = "1.7.0";
+    description = "Static type checker for Python.";
+    homePage = "https://mypy-lang.org";
+    mainProgram = "mypy";
 
-  source = {
-    git = "github:python/mypy/v1.7.0";
-    hash = "sha256-...";
+    source = {
+      git = "github:python/mypy/v1.7.0";
+      hash = "sha256-...";
+    };
+
+    build.pythonAppBuilder = {
+      enable = true;
+      packages.build-system = [
+        pkgs.python3Packages.setuptools
+      ];
+      packages.dependencies = [
+        pkgs.python3Packages.typing-extensions
+        pkgs.python3Packages.mypy-extensions
+      ];
+    };
+
+    test.script = ''
+      mypy --version | grep "1.7.0"
+    '';
   };
-
-  build.pythonAppBuilder = {
-    enable = true;
-    packages.build-system = [
-      pkgs.python3Packages.setuptools
-    ];
-    packages.dependencies = [
-      pkgs.python3Packages.typing-extensions
-      pkgs.python3Packages.mypy-extensions
-    ];
-  };
-
-  test.script = ''
-    mypy --version | grep "1.7.0"
-  '';
 }
 ```
 
@@ -886,38 +961,38 @@ source.hash = "";  # Leave empty initially
   config,
   lib,
   pkgs,
-  mypkgs,
   ...
 }:
 
 {
-  name = "requests";
-  version = "2.31.0";
-  description = "Python HTTP library for humans.";
-  homePage = "https://requests.readthedocs.io";
-  mainProgram = "";  # No main program for libraries
+  packages.requests = {
+    version = "2.31.0";
+    description = "Python HTTP library for humans.";
+    homePage = "https://requests.readthedocs.io";
+    mainProgram = "";  # No main program for libraries
 
-  source = {
-    git = "github:psf/requests/v2.31.0";
-    hash = "sha256-...";
+    source = {
+      git = "github:psf/requests/v2.31.0";
+      hash = "sha256-...";
+    };
+
+    build.pythonPackageBuilder = {
+      enable = true;
+      packages.build-system = [
+        pkgs.python3Packages.setuptools
+      ];
+      packages.dependencies = [
+        pkgs.python3Packages.charset-normalizer
+        pkgs.python3Packages.idna
+        pkgs.python3Packages.urllib3
+        pkgs.python3Packages.certifi
+      ];
+    };
+
+    test.script = ''
+      python -c "import requests; print(requests.__version__)" | grep "2.31.0"
+    '';
   };
-
-  build.pythonPackageBuilder = {
-    enable = true;
-    packages.build-system = [
-      pkgs.python3Packages.setuptools
-    ];
-    packages.dependencies = [
-      pkgs.python3Packages.charset-normalizer
-      pkgs.python3Packages.idna
-      pkgs.python3Packages.urllib3
-      pkgs.python3Packages.certifi
-    ];
-  };
-
-  test.script = ''
-    python -c "import requests; print(requests.__version__)" | grep "2.31.0"
-  '';
 }
 ```
 
@@ -1441,52 +1516,59 @@ git add recipes/packages/<name>/recipe.nix
 This example demonstrates a complex CMake project with subdirectory structure:
 
 ```nix
-{ config, lib, pkgs, mypkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  packages,
+  ...
+}:
 
 {
-  name = "geodiff";
-  version = "2.0.4";
-  description = "Library for handling diffs for geospatial data (GeoPackage and PostGIS).";
-  homePage = "https://merginmaps.com";
-  mainProgram = "geodiff";
+  packages.geodiff = {
+    version = "2.0.4";
+    description = "Library for handling diffs for geospatial data (GeoPackage and PostGIS).";
+    homePage = "https://merginmaps.com";
+    mainProgram = "geodiff";
 
-  source = {
-    git = "github:MerginMaps/geodiff/2.0.4";
-    hash = "sha256-STWoSnBDl3K3F9SeXGvTy8TzZSAP6rZh3ebfMqdT/w0=";
-  };
-
-  build.standardBuilder = {
-    enable = true;
-    packages = {
-      # Build tools needed during compilation
-      build = [
-        pkgs.cmake        # CMake build system
-        pkgs.pkg-config   # For finding SQLite
-      ];
-      # Libraries needed at runtime
-      run = [
-        pkgs.sqlite       # Required dependency
-      ];
+    source = {
+      git = "github:MerginMaps/geodiff/2.0.4";
+      hash = "sha256-STWoSnBDl3K3F9SeXGvTy8TzZSAP6rZh3ebfMqdT/w0=";
     };
+
+    build.standardBuilder = {
+      enable = true;
+      packages = {
+        # Build tools needed during compilation
+        build = [
+          pkgs.cmake        # CMake build system
+          pkgs.pkg-config   # For finding SQLite
+        ];
+        # Libraries needed at runtime
+        run = [
+          pkgs.sqlite       # Required dependency
+        ];
+      };
+    };
+
+    build.extraAttrs = {
+      # CMakeLists.txt is in geodiff/geodiff/, not the root directory
+      # Repository structure: geodiff/geodiff/CMakeLists.txt
+      sourceRoot = "source/geodiff";
+
+      # Optional: Override CMake configuration flags
+      # cmakeFlags = [ "-DWITH_POSTGRESQL=OFF" ];
+
+      # Optional: Disable tests if they fail or are slow
+      # cmakeFlags = [ "-DENABLE_TESTS=OFF" ];
+    };
+
+    test.script = ''
+      # Minimum viable tests
+      geodiff --help
+      geodiff --version
+    '';
   };
-
-  build.extraAttrs = {
-    # CMakeLists.txt is in geodiff/geodiff/, not the root directory
-    # Repository structure: geodiff/geodiff/CMakeLists.txt
-    sourceRoot = "source/geodiff";
-
-    # Optional: Override CMake configuration flags
-    # cmakeFlags = [ "-DWITH_POSTGRESQL=OFF" ];
-
-    # Optional: Disable tests if they fail or are slow
-    # cmakeFlags = [ "-DENABLE_TESTS=OFF" ];
-  };
-
-  test.script = ''
-    # Minimum viable tests
-    geodiff --help
-    geodiff --version
-  '';
 }
 ```
 
@@ -1502,55 +1584,61 @@ This example demonstrates a complex CMake project with subdirectory structure:
 This example demonstrates a Python project with complex dependencies:
 
 ```nix
-{ config, lib, pkgs, mypkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
-  name = "fiona";
-  version = "1.10.1";
-  description = "Python library for reading and writing vector geospatial data files.";
-  homePage = "https://fiona.readthedocs.io";
-  mainProgram = "fio";
+  packages.fiona = {
+    version = "1.10.1";
+    description = "Python library for reading and writing vector geospatial data files.";
+    homePage = "https://fiona.readthedocs.io";
+    mainProgram = "fio";
 
-  source = {
-    git = "github:Toblerity/Fiona/1.10.1";
-    hash = "sha256-5NN6PBh+6HS9OCc9eC2TcBvkcwtI4DV8qXnz4tlaMXc=";
-  };
-
-  build.pythonAppBuilder = {
-    enable = true;
-    packages = {
-      # Python build system packages
-      build-system = [
-        pkgs.python3Packages.setuptools
-        pkgs.python3Packages.cython
-        pkgs.gdal  # GDAL also needed at build time for gdal-config
-      ];
-      # Python runtime dependencies
-      dependencies = [
-        pkgs.python3Packages.attrs
-        pkgs.python3Packages.certifi
-        pkgs.python3Packages.click
-        pkgs.python3Packages.click-plugins
-        pkgs.python3Packages.cligj
-        pkgs.python3Packages.cython
-        pkgs.gdal  # GDAL needed at runtime
-      ];
+    source = {
+      git = "github:Toblerity/Fiona/1.10.1";
+      hash = "sha256-5NN6PBh+6HS9OCc9eC2TcBvkcwtI4DV8qXnz4tlaMXc=";
     };
-  };
 
-  build.extraAttrs = {
-    # Relax Cython version constraint from ~=3.0.2 to accept any version
-    postPatch = ''
-      substituteInPlace pyproject.toml \
-        --replace-fail "cython~=3.0.2" cython
+    build.pythonAppBuilder = {
+      enable = true;
+      packages = {
+        # Python build system packages
+        build-system = [
+          pkgs.python3Packages.setuptools
+          pkgs.python3Packages.cython
+          pkgs.gdal  # GDAL also needed at build time for gdal-config
+        ];
+        # Python runtime dependencies
+        dependencies = [
+          pkgs.python3Packages.attrs
+          pkgs.python3Packages.certifi
+          pkgs.python3Packages.click
+          pkgs.python3Packages.click-plugins
+          pkgs.python3Packages.cligj
+          pkgs.python3Packages.cython
+          pkgs.gdal  # GDAL needed at runtime
+        ];
+      };
+    };
+
+    build.extraAttrs = {
+      # Relax Cython version constraint from ~=3.0.2 to accept any version
+      postPatch = ''
+        substituteInPlace pyproject.toml \
+          --replace-fail "cython~=3.0.2" cython
+      '';
+    };
+
+    test.script = ''
+      # Test both Python import and CLI tool
+      python -c "import fiona; print(fiona.__version__)"
+      fio --version
     '';
   };
-
-  test.script = ''
-    # Test both Python import and CLI tool
-    python -c "import fiona; print(fiona.__version__)"
-    fio --version
-  '';
 }
 ```
 

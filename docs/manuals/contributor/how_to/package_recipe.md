@@ -84,12 +84,13 @@ Start the package recipe with the following content:
 }:
 
 {
-  name = "package-name";       # lowercase with hyphens
-  version = "1.0.0";           # latest released version
-  description = "Short description of the package.";
-  homePage = "https://project-website.org";
-  mainProgram = "executable-name";
-  license = lib.licenses.gpl3Only;
+  packages.my-package = {    # lowercase with hyphens
+    version = "1.0.0";           # latest released version
+    description = "Short description of the package.";
+    homePage = "https://project-website.org";
+    mainProgram = "executable-name";
+    license = lib.licenses.gpl3Only;
+  };
 }
 ```
 

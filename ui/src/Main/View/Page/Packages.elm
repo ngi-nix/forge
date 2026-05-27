@@ -62,7 +62,7 @@ viewPagePackagesItem model pagePackages package =
             pagePackages.pagePackages_route
 
         itemId =
-            package.package_name
+            package.package_pname
 
         onClickRoute =
             Route_Packages
@@ -84,7 +84,7 @@ viewPagePackagesItem model pagePackages package =
                     [ class "mb-1"
                     ]
                     [ code []
-                        [ text package.package_name
+                        [ text package.package_pname
                         ]
                     , span
                         [ style "font-size" ".8rem"

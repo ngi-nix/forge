@@ -1,4 +1,5 @@
 {
+  lib,
   buildElmApplication,
   fetchzip,
   jq,
@@ -75,7 +76,7 @@ symlinkJoin {
     cp ${defaultIcon} resources/apps/app-icon.svg
 
     # Process each app: copy icons and create HTML routes
-    for app in $(${jq}/bin/jq '.apps.[].name' -r forge-config.json); do
+    for app in $(${lib.getExe jq} '.apps.[].name' -r forge-config.json); do
       # Copy custom icon if it exists, otherwise use default
       mkdir -p "resources/apps/$app"
       if [ -f "${appIcons}/$app/icon.svg" ]; then
@@ -87,6 +88,10 @@ symlinkJoin {
       # Create SPA routing for this app (github pages workaround)
       mkdir -p "app/$app"
       ln -s $out/index.html "app/$app/index.html"
+
+      # For backward compatibility with the -app namespace
+      mkdir -p "app/$app-app"
+      ln -s $out/index.html "app/$app-app/index.html"
     done
 
     for page in apps packages recipe recipe/options; do

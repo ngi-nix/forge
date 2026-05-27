@@ -5,7 +5,7 @@ import Main.Helpers.String exposing (..)
 
 
 type alias Package =
-    { package_name : PackageName
+    { package_pname : PackageName
     , package_description : String
     , package_version : String
     , package_homePage : String
@@ -19,7 +19,7 @@ type alias Package =
 decodePackage : Decoder Package
 decodePackage =
     Decode.map8 Package
-        (Decode.field "name" Decode.string)
+        (Decode.field "pname" Decode.string)
         (Decode.field "description" Decode.string)
         (Decode.field "version" Decode.string)
         (Decode.field "homePage" Decode.string)

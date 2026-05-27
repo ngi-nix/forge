@@ -8,7 +8,9 @@
 }:
 {
   imports = [
-    (lib.modules.importApply (inputs.nixpkgs + "/lib/services/config-data.nix") { inherit pkgs; })
+    (lib.modules.importApply (inputs.ngi-forge.inputs.nixpkgs + "/lib/services/config-data.nix") {
+      inherit pkgs;
+    })
   ];
 
   options = {

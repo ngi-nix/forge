@@ -1,69 +1,37 @@
 {
-  inputs,
   config,
   lib,
-  flake-parts-lib,
+  pkgs,
+  sharedBuildAttrs,
   ...
 }:
-
-let
-  inherit (flake-parts-lib) mkPerSystemOption;
-in
 {
-  options = {
-    perSystem = mkPerSystemOption (
-      {
-        config,
-        pkgs,
-        sharedBuildAttrs,
-        ...
-      }:
-      {
-        options.forge.packages = lib.mkOption {
-          type = lib.types.listOf (lib.types.submodule ./options.nix);
-        };
-
-        config = {
-          packages =
-            let
-              cfg = config.forge.packages;
-
-              goPackageBuilderPkgs = lib.listToAttrs (
-                map (pkg: {
-                  name = pkg.name;
-                  value = pkgs.callPackage (
-                    # Derivation start
-                    { }:
-                    pkgs.buildGoModule (
-                      finalAttrs:
-                      {
-                        pname = pkg.name;
-                        version = pkg.version;
-                        src = sharedBuildAttrs.pkgSource pkg;
-                        patches = pkg.source.patches;
-                        vendorHash = pkg.build.goPackageBuilder.vendorHash;
-                        modRoot = pkg.build.goPackageBuilder.modRoot;
-                        subPackages = pkg.build.goPackageBuilder.subPackages;
-                        ldflags = pkg.build.goPackageBuilder.ldflags;
-                        tags = pkg.build.goPackageBuilder.tags;
-                        proxyVendor = pkg.build.goPackageBuilder.proxyVendor;
-                        nativeBuildInputs = pkg.build.goPackageBuilder.packages.build;
-                        buildInputs = pkg.build.goPackageBuilder.packages.run;
-                        nativeCheckInputs = pkg.build.goPackageBuilder.packages.check;
-                        passthru = sharedBuildAttrs.pkgPassthru pkg finalAttrs.finalPackage;
-                        meta = sharedBuildAttrs.pkgMeta pkg;
-                      }
-                      // pkg.build.extraAttrs
-                      // lib.optionalAttrs pkg.build.debug sharedBuildAttrs.debugShellHookAttr
-                    )
-                    # Derivation end
-                  ) { };
-                }) (lib.filter (p: p.build.goPackageBuilder.enable == true) cfg)
-              );
-            in
-            goPackageBuilderPkgs;
-        };
-      }
-    );
-  };
+  packages = lib.mapAttrs (
+    packageName: package:
+    lib.mkIf package.build.goPackageBuilder.enable (
+      pkgs.buildGoModule (
+        finalAttrs:
+        {
+          inherit (package) pname version;
+          inherit (package.build.goPackageBuilder)
+            vendorHash
+            modRoot
+            subPackages
+            ldflags
+            tags
+            proxyVendor
+            ;
+          src = sharedBuildAttrs.pkgSource package;
+          patches = package.source.patches;
+          nativeBuildInputs = package.build.goPackageBuilder.packages.build;
+          buildInputs = package.build.goPackageBuilder.packages.run;
+          nativeCheckInputs = package.build.goPackageBuilder.packages.check;
+          passthru = sharedBuildAttrs.pkgPassthru package finalAttrs.finalPackage;
+          meta = sharedBuildAttrs.pkgMeta package;
+        }
+        // package.build.extraAttrs
+        // lib.optionalAttrs package.build.debug sharedBuildAttrs.debugShellHookAttr
+      )
+    )
+  ) config.forge.packages;
 }

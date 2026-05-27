@@ -1,71 +1,42 @@
 {
-  inputs,
-  config,
   lib,
-  flake-parts-lib,
+  config,
+  pkgs,
+  sharedBuildAttrs,
   ...
 }:
-
-let
-  inherit (flake-parts-lib) mkPerSystemOption;
-in
 {
-  options = {
-    perSystem = mkPerSystemOption (
-      {
-        config,
-        pkgs,
-        sharedBuildAttrs,
-        ...
-      }:
-      {
-        options.forge.packages = lib.mkOption {
-          type = lib.types.listOf (lib.types.submodule ./options.nix);
-        };
-
-        config = {
-          packages =
-            let
-              cfg = config.forge.packages;
-
-              pythonPackageBuilderPkgs = lib.listToAttrs (
-                map (pkg: {
-                  name = pkg.name;
-                  value = pkgs.callPackage (
-                    # Derivation start
-                    { }:
-                    pkgs.python3Packages.buildPythonPackage (
-                      finalAttrs:
-                      {
-                        pname = pkg.name;
-                        version = pkg.version;
-                        format = "pyproject";
-                        src = sharedBuildAttrs.pkgSource pkg;
-                        patches = pkg.source.patches;
-                        build-system = pkg.build.pythonPackageBuilder.packages.build-system;
-                        nativeBuildInputs = pkg.build.pythonPackageBuilder.packages.build;
-                        buildInputs = pkg.build.pythonPackageBuilder.packages.run;
-                        dependencies = pkg.build.pythonPackageBuilder.packages.dependencies;
-                        optional-dependencies = pkg.build.pythonPackageBuilder.packages.optional-dependencies;
-                        nativeCheckInputs = pkg.build.pythonPackageBuilder.packages.check;
-                        doCheck = pkg.build.pythonPackageBuilder.packages.check != [ ];
-                        pythonImportsCheck = pkg.build.pythonPackageBuilder.importsCheck;
-                        pythonRelaxDeps = pkg.build.pythonPackageBuilder.relaxDeps;
-                        disabledTests = pkg.build.pythonPackageBuilder.disabledTests;
-                        passthru = sharedBuildAttrs.pkgPassthru pkg finalAttrs.finalPackage;
-                        meta = sharedBuildAttrs.pkgMeta pkg;
-                      }
-                      // pkg.build.extraAttrs
-                      // lib.optionalAttrs pkg.build.debug sharedBuildAttrs.debugShellHookAttr
-                    )
-                    # Derivation end
-                  ) { };
-                }) (lib.filter (p: p.build.pythonPackageBuilder.enable == true) cfg)
-              );
-            in
-            pythonPackageBuilderPkgs;
-        };
-      }
-    );
-  };
+  packages = lib.mapAttrs (
+    packageName: package:
+    lib.mkIf package.build.pythonPackageBuilder.enable (
+      pkgs.python3Packages.buildPythonPackage (
+        finalAttrs:
+        {
+          inherit (package) pname version;
+          inherit (package.build.pythonPackageBuilder.packages)
+            build-system
+            dependencies
+            optional-dependencies
+            ;
+          inherit (package.build.pythonPackageBuilder)
+            disabledTests
+            ;
+          format = "pyproject";
+          src = sharedBuildAttrs.pkgSource package;
+          patches = package.source.patches;
+          nativeBuildInputs = package.build.pythonPackageBuilder.packages.build;
+          buildInputs = package.build.pythonPackageBuilder.packages.run;
+          nativeCheckInputs = package.build.pythonPackageBuilder.packages.check;
+          # Warning(usability): users may want to disable tests in one setting, ie. without erasing them.
+          doCheck = package.build.pythonPackageBuilder.packages.check != [ ];
+          pythonImportsCheck = package.build.pythonPackageBuilder.importsCheck;
+          pythonRelaxDeps = package.build.pythonPackageBuilder.relaxDeps;
+          passthru = sharedBuildAttrs.pkgPassthru package finalAttrs.finalPackage;
+          meta = sharedBuildAttrs.pkgMeta package;
+        }
+        // package.build.extraAttrs
+        // lib.optionalAttrs package.build.debug sharedBuildAttrs.debugShellHookAttr
+      )
+    )
+  ) config.forge.packages;
 }

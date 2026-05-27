@@ -31,14 +31,14 @@ updateRoutePackages route =
                         (\package ->
                             let
                                 -- Case Insensitive search
-                                package_name =
-                                    String.toLower package.package_name
+                                package_pname =
+                                    String.toLower package.package_pname
 
                                 package_description =
                                     String.toLower package.package_description
 
                                 name_matches =
-                                    String.contains search package_name
+                                    String.contains search package_pname
 
                                 desc_matches =
                                     String.contains search package_description

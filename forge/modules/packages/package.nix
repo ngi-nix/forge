@@ -1,15 +1,27 @@
 {
   lib,
+  name,
   ...
 }:
 {
+  imports = [
+    ../builders/standard-builder/options.nix
+    ../builders/go-builder/options.nix
+    ../builders/npm-package-builder/options.nix
+    ../builders/pnpm-package-builder/options.nix
+    ../builders/python-app-builder/options.nix
+    ../builders/python-package-builder/options.nix
+    ../builders/rust-package-builder/options.nix
+  ];
   options = {
     # General configuration
-    name = lib.mkOption {
+    pname = lib.mkOption {
       type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
-      default = "noname";
+      default = name;
       description = "Package name. Only letters, numbers and hyphens are allowed.";
       example = "hello";
+      readOnly = true;
+      internal = true;
     };
     description = lib.mkOption {
       type = lib.types.strMatching "^$|^.{1,119}\\.$";
@@ -137,7 +149,9 @@
 
       # Common builder options (available to all builders)
       extraAttrs = lib.mkOption {
-        type = lib.types.attrsOf lib.types.anything;
+        # `lazyAttrsOf` enables to use `pkgs` instead of `nixpkgs-pkgs`
+        # inside `extraAttrs`.
+        type = lib.types.lazyAttrsOf lib.types.anything;
         default = { };
         description = ''
           Extra attributes merged into the derivation produced by the selected builder.

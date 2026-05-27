@@ -25,7 +25,7 @@ system=$(nix eval --raw 'nixpkgs#stdenv.hostPlatform.system')
 
 json_content=$(
   nix build ".#packages.${system}._forge-config" --no-link --print-out-paths |
-    xargs jq ".apps[] | select(.name == \"$APP\")"
+    xargs jq ".apps.\"$APP\""
 )
 
 APP_URL="https://ngi-nix.github.io/forge/app/$APP/"

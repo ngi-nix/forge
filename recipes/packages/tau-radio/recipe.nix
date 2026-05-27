@@ -1,52 +1,52 @@
 {
-  config,
   pkgs,
   lib,
   ...
 }:
 
 {
-  name = "tau-radio";
-  version = "0.2.101-unstable-2025-12-17";
-  description = "Web radio - Hijacks audio device using CLAP and Ogg/Opus.";
-  homePage = "https://github.com/tau-org/tau-radio";
-  mainProgram = "tau-radio";
-  license = lib.licenses.eupl12;
+  packages.tau-radio = {
+    version = "0.2.101-unstable-2025-12-17";
+    description = "Web radio - Hijacks audio device using CLAP and Ogg/Opus.";
+    homePage = "https://github.com/tau-org/tau-radio";
+    mainProgram = "tau-radio";
+    license = lib.licenses.eupl12;
 
-  source = {
-    git = "github:tau-org/tau-radio/1847e4b4d91e941c19072752ed3afa95f2941a68";
-    hash = "sha256-DW37p4FCK78Yk4KUtOcSfgjZGXhRytQA3/fR+ZkijxQ=";
-  };
-
-  build.rustPackageBuilder = {
-    enable = true;
-    packages = {
-      build = with pkgs; [
-        pkg-config
-        rustPlatform.bindgenHook
-      ];
-      run =
-        with pkgs;
-        [
-          libogg
-          libopus
-          libopusenc
-          libshout
-        ]
-        ++ lib.optionals stdenv.hostPlatform.isLinux [
-          alsa-lib
-          jack2
-        ];
+    source = {
+      git = "github:tau-org/tau-radio/1847e4b4d91e941c19072752ed3afa95f2941a68";
+      hash = "sha256-DW37p4FCK78Yk4KUtOcSfgjZGXhRytQA3/fR+ZkijxQ=";
     };
-    cargoHash = "sha256-zqucj1iNsUdA06D+tDyYkevF/gio31JmcP00bk5PC18=";
-  };
 
-  build.extraAttrs = {
-    # fatal error: 'opus.h' file not found
-    env.NIX_CFLAGS_COMPILE = "-I${pkgs.libopus.dev}/include/opus";
-  };
+    build.rustPackageBuilder = {
+      enable = true;
+      packages = {
+        build = with pkgs; [
+          pkg-config
+          rustPlatform.bindgenHook
+        ];
+        run =
+          with pkgs;
+          [
+            libogg
+            libopus
+            libopusenc
+            libshout
+          ]
+          ++ lib.optionals stdenv.hostPlatform.isLinux [
+            alsa-lib
+            jack2
+          ];
+      };
+      cargoHash = "sha256-zqucj1iNsUdA06D+tDyYkevF/gio31JmcP00bk5PC18=";
+    };
 
-  test.script = ''
-    tau-radio --version
-  '';
+    build.extraAttrs = {
+      # fatal error: 'opus.h' file not found
+      env.NIX_CFLAGS_COMPILE = "-I${pkgs.libopus.dev}/include/opus";
+    };
+
+    test.script = ''
+      tau-radio --version
+    '';
+  };
 }

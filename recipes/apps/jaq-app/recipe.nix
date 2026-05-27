@@ -1,67 +1,66 @@
 {
-  config,
   pkgs,
-  lib,
   ...
 }:
 
 {
-  name = "jaq-app";
-  displayName = "jaq";
-  description = "Data wrangling tool focusing on correctness, speed, and simplicity.";
-  usage = ''
-    jaq is a fast and correct reimplementation of jq for processing JSON, YAML, TOML, XML, and CSV data.
+  apps.jaq = {
+    displayName = "jaq";
+    description = "Data wrangling tool focusing on correctness, speed, and simplicity.";
+    usage = ''
+      jaq is a fast and correct reimplementation of jq for processing JSON, YAML, TOML, XML, and CSV data.
 
-    #### Example
+      #### Example
 
-    Extract a field from a JSON file
+      Extract a field from a JSON file
 
-    ```bash
-    jaq '.name' file.json
-    ```
+      ```bash
+      jaq '.name' file.json
+      ```
 
-    Transform an array
+      Transform an array
 
-    ```bash
-    echo '[1,2,3]' | jaq '[.[] * 2]'
-    ```
+      ```bash
+      echo '[1,2,3]' | jaq '[.[] * 2]'
+      ```
 
-    Filter objects by condition
+      Filter objects by condition
 
-    ```bash
-    jaq '.[] | select(.age > 30)' data.json
-    ```
+      ```bash
+      jaq '.[] | select(.age > 30)' data.json
+      ```
 
-    Output raw strings without JSON encoding
+      Output raw strings without JSON encoding
 
-    ```bash
-    jaq -r '.items[].name' data.json
-    ```
-  '';
+      ```bash
+      jaq -r '.items[].name' data.json
+      ```
+    '';
 
-  links = {
-    docs = "https://gedenkt.at/jaq/manual";
-    source = "https://github.com/01mf02/jaq";
-  };
+    links = {
+      docs = "https://gedenkt.at/jaq/manual";
+      source = "https://github.com/01mf02/jaq";
+    };
 
-  ngi.grants = {
-    Commons = [
-      "Polyglot-jaq"
-    ];
-    Entrust = [
-      "jaq"
-    ];
-  };
+    ngi.grants = {
+      Commons = [
+        "Polyglot-jaq"
+      ];
+      Entrust = [
+        "jaq"
+      ];
+    };
 
-  icon = ./icon.svg;
+    icon = ./icon.svg;
 
-  programs = {
-    packages = [
-      pkgs.jaq
-    ];
+    programs = {
+      packages = [
+        pkgs.jaq
+      ];
 
-    runtimes.shell = {
-      enable = true;
+      runtimes.shell = {
+        enable = true;
+      };
     };
   };
 }

@@ -31,22 +31,7 @@ let
     # requires debug to be enabled in flake
     debug = flake.outputs.allSystems.${system};
 
-    # recipes
-    forge = {
-      apps = lib.listToAttrs (
-        map (v: {
-          name = v.name;
-          value = v;
-        }) default.debug.forge.apps
-      );
-
-      packages = lib.listToAttrs (
-        map (v: {
-          name = v.name;
-          value = v;
-        }) default.debug.forge.packages
-      );
-    };
+    inherit (default.debug) forge;
 
     # derivations
     forgeApps = lib.filterAttrs (
@@ -55,8 +40,5 @@ let
     forgePkgs = flake.outputs.packages.${system};
     shells = flake.outputs.devShells.${system};
   });
-
-  eval = module: (lib.evalModules { modules = [ module ]; });
-  call = default.callPackage;
 in
 default // flake.outputs.packages.${system}

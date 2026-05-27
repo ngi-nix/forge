@@ -23,7 +23,7 @@ jobs:
     with:
       template: provider
       package: hello-nix
-      app: hello-app
+      app: hello-nix
       test_shell: true
       test_forge_ui: true
 
@@ -33,7 +33,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'consumer'
     with:
       template: consumer
-      app: python-web-app
+      app: python-web
       test_shell: true
       test_container: true
       test_vm: true

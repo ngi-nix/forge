@@ -29,7 +29,7 @@ test.describe("Recipe Options Page", () => {
 
     await firstOption.click();
 
-    const escapedOptionName = optionName?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const escapedOptionName = encodeURI(optionName)?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     await expect(page).toHaveURL(new RegExp(`#${escapedOptionName}$`));
   });
 

@@ -1,27 +1,28 @@
 {
-  config,
   lib,
   pkgs,
+  packages,
   ...
 }:
 
 {
-  name = "tslib";
-  version = "1.24";
-  description = "Touchscreen access library.";
-  homePage = "http://www.tslib.org/";
-  mainProgram = "";
-  license = lib.licenses.lgpl21;
+  packages.tslib = {
+    version = "1.24";
+    description = "Touchscreen access library.";
+    homePage = "http://www.tslib.org/";
+    mainProgram = "";
+    license = lib.licenses.lgpl21;
 
-  source = {
-    git = "github:libts/tslib/${config.version}";
-    hash = "sha256-WrzOTZlceYnFXi5AI5vb+ZDSRoqUDk/yyCdBUWKn0sM=";
-  };
+    source = {
+      git = "github:libts/tslib/${packages.tslib.version}";
+      hash = "sha256-WrzOTZlceYnFXi5AI5vb+ZDSRoqUDk/yyCdBUWKn0sM=";
+    };
 
-  build.standardBuilder = {
-    enable = true;
-    packages.build = [
-      pkgs.cmake
-    ];
+    build.standardBuilder = {
+      enable = true;
+      packages.build = [
+        pkgs.cmake
+      ];
+    };
   };
 }

@@ -1,22 +1,30 @@
 {
   config,
   lib,
-  extendModules,
-
-  inputs,
-  nimi,
-  pkgs,
-  system,
+  name,
+  specialArgs,
   ...
 }:
 {
   options = {
     # General configuration
     name = lib.mkOption {
-      type = lib.types.strMatching "^[a-zA-Z0-9-]+-app$";
-      default = "noname-app";
-      description = "Application name. Only letters, numbers and hyphens are allowed. The name must end with the \"-app\" suffix.";
+      default = name;
+      type = lib.types.strMatching "^(‹name›|[a-zA-Z0-9-]+)$";
+      description = "Application name. Only letters, numbers and hyphens are allowed.";
+      example = "my-hello";
+      readOnly = true;
+      internal = true;
+    };
+    pname = lib.mkOption {
+      # The -app suffix acts as a namespace for applications
+      # when they're inserted into `allSystems.${system}.packages`.
+      default = "${config.name}-app";
+      type = lib.types.str;
+      description = "Package name to access the application, as in `nix run .#my-hello-app`.";
       example = "my-hello-app";
+      readOnly = true;
+      internal = true;
     };
     displayName = lib.mkOption {
       type = lib.types.str;
@@ -53,12 +61,22 @@
       example = lib.literalExpression "./icon.svg";
     };
     links = lib.mkOption {
-      type = lib.types.submodule ./links.nix;
+      type = lib.types.submoduleWith {
+        specialArgs = specialArgs // {
+          app = config;
+        };
+        modules = [ ./links.nix ];
+      };
       default = { };
       description = "Links related to this project.";
     };
     ngi = lib.mkOption {
-      type = lib.types.submodule ./ngi;
+      type = lib.types.submoduleWith {
+        specialArgs = specialArgs // {
+          app = config;
+        };
+        modules = [ ./ngi ];
+      };
       default = { };
       description = "NGI specific options.";
     };
@@ -67,13 +85,7 @@
     # https://nixos.org/manual/nixos/unstable/#modular-services
     services = lib.mkOption {
       type = lib.types.submoduleWith {
-        specialArgs = {
-          inherit
-            inputs
-            system
-            pkgs
-            nimi
-            ;
+        specialArgs = specialArgs // {
           app = config;
         };
         modules = [ ./services ];
@@ -84,22 +96,30 @@
 
     # Programs configuration
     programs = lib.mkOption {
-      type = lib.types.submodule ./programs;
+      type = lib.types.submoduleWith {
+        specialArgs = specialArgs // {
+          app = config;
+        };
+        modules = [ ./programs ];
+      };
       default = { };
       description = "Programs configuration.";
     };
 
     # Test configuration
     test = lib.mkOption {
-      type = lib.types.submodule {
-        imports = [ ./test ];
-        _module.args.app = config;
-        _module.args.pkgs = pkgs;
+      type = lib.types.submoduleWith {
+        specialArgs = specialArgs // {
+          app = config;
+        };
+        modules = [ ./test ];
       };
       default = { };
       description = "Test configuration.";
     };
 
+    # Warning(correctness): this currently remains empty,
+    # as it's currently ill-defined: a recipe can be a merge of multiple files.
     recipePath = lib.mkOption {
       type = lib.types.str;
       default = "";
@@ -108,12 +128,6 @@
     };
 
     result = {
-      extend = lib.mkOption {
-        internal = true;
-        readOnly = true;
-        default = module: (extendModules { modules = [ module ]; }).config;
-      };
-
       # HACK:
       # Prevent toJSON from attempting to convert the `eval` option,
       # which won't work because it's a whole NixOS evaluation.

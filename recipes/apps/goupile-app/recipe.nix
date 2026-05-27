@@ -1,67 +1,66 @@
 {
-  config,
-  lib,
   pkgs,
   ...
 }:
 
 {
-  name = "goupile-app";
-  displayName = "Goupile";
-  description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";
-  usage = ''
-    Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
+  apps.goupile = {
+    displayName = "Goupile";
+    description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";
+    usage = ''
+      Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
-    It runs as a web service. It has been configured to run on [http://localhost:8181](http://localhost:8181).
-  '';
+      It runs as a web service. It has been configured to run on [http://localhost:8181](http://localhost:8181).
+    '';
 
-  icon = ./icon.svg;
+    icon = ./icon.svg;
 
-  links = {
-    website = "https://goupile.org/en";
-    source = "https://github.com/Koromix/rygel";
-    docs = "https://goupile.org/en/docs";
-  };
-
-  ngi.grants = {
-    Core = [ "Goupile" ];
-  };
-
-  services = {
-    components = {
-      goupile = {
-        command = pkgs.goupile;
-        argv = [
-          "-C"
-          "${./goupile.ini}"
-        ];
-        ports = [ "8181:8181" ];
-      };
+    links = {
+      website = "https://goupile.org/en";
+      source = "https://github.com/Koromix/rygel";
+      docs = "https://goupile.org/en/docs";
     };
 
-    runtimes = {
-      container = {
-        enable = true;
-        composeFile = ./compose.yaml;
-        components.goupile.packages = [ pkgs.goupile ];
+    ngi.grants = {
+      Core = [ "Goupile" ];
+    };
+
+    services = {
+      components = {
+        goupile = {
+          command = pkgs.goupile;
+          argv = [
+            "-C"
+            "${./goupile.ini}"
+          ];
+          ports = [ "8181:8181" ];
+        };
       };
 
-      nixos = {
-        enable = true;
-        nixosConfig = {
-          systemd.tmpfiles.rules = [
-            "d /var/lib/goupile 0700 root root -"
-          ];
+      runtimes = {
+        container = {
+          enable = true;
+          composeFile = ./compose.yaml;
+          components.goupile.packages = [ pkgs.goupile ];
+        };
+
+        nixos = {
+          enable = true;
+          nixosConfig = {
+            systemd.tmpfiles.rules = [
+              "d /var/lib/goupile 0700 root root -"
+            ];
+          };
         };
       };
     };
-  };
 
-  test = {
-    script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+    test = {
+      script = ''
+        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
 
-      $curl --location localhost:8181 | grep -q "Goupile" >/dev/null
-    '';
+        $curl --location localhost:8181 | grep -q "Goupile" >/dev/null
+      '';
+    };
   };
 }

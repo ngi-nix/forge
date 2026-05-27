@@ -27,9 +27,8 @@ def generate_package_recipe(name, index):
   pkgs,
   ...
 }}:
-
 {{
-  name = "{name}";
+packages."{name}" = {{
   version = "0.0.{index}";
   description = "{fake.sentence()}";
   homePage = "{fake.url()}";
@@ -40,6 +39,7 @@ def generate_package_recipe(name, index):
   source.hash = lib.fakeHash;
 
   build.standardBuilder.enable = true;
+}};
 }}
 """
 
@@ -67,9 +67,8 @@ def generate_app_recipe(name, index, is_test_app=False):
   pkgs,
   ...
 }}:
-
 {{
-  name = "{name}";
+apps."{name}" = {{
   description = "{fake.sentence()}";
   usage = "{fake.text()}";
 
@@ -103,6 +102,7 @@ def generate_app_recipe(name, index, is_test_app=False):
     {"mainPackage = pkgs.hello;" if program_en == "true" else ""}
     runtimes.program.enable = {program_en};
   }};
+}};
 }}
 """
 
@@ -143,13 +143,13 @@ def main():
         _ = apps_dir.mkdir(parents=True), pkgs_dir.mkdir(parents=True)
 
         # Generate an unchanging test app
-        test_app_name = "mock-test-app"
+        test_app_name = "mock-test"
         (apps_dir / test_app_name).mkdir(parents=True)
         with open(apps_dir / test_app_name / "recipe.nix", "w") as f:
             _ = f.write(generate_app_recipe(test_app_name, 0, is_test_app=True))
 
         for i in range(num_apps):
-            app_name = f"mock-{i}-app"
+            app_name = f"mock-{i}"
             (apps_dir / app_name).mkdir(parents=True)
             with open(apps_dir / app_name / "recipe.nix", "w") as f:
                 f.write(generate_app_recipe(app_name, i))
