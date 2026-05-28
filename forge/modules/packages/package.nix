@@ -147,8 +147,7 @@
 
       # Common builder options (available to all builders)
       extraAttrs = lib.mkOption {
-        # `lazyAttrsOf` enables to use `pkgs` instead of `nixpkgs-pkgs`
-        # inside `extraAttrs`.
+        # `lazyAttrsOf` enables to use `pkgs` inside `extraAttrs`.
         type = lib.types.lazyAttrsOf lib.types.anything;
         default = { };
         description = ''
