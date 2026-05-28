@@ -17,7 +17,7 @@
           {
             inherit (package) pname version;
             inherit src;
-            inherit (builderCfg) fetcherVersion;
+            inherit (builderCfg) pnpm fetcherVersion;
             hash = builderCfg.pnpmDepsHash;
           }
           // lib.optionalAttrs (builderCfg.sourceRoot != null) {
@@ -33,8 +33,8 @@
           patches = package.source.patches or [ ];
 
           nativeBuildInputs = [
+            builderCfg.pnpm
             pkgs.pnpmConfigHook
-            pkgs.pnpm
             pkgs.nodejs
           ]
           ++ builderCfg.packages.build;

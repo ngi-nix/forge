@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -49,6 +50,21 @@
         '';
         example = lib.literalExpression "[ pkgs.chromium ]";
       };
+    };
+
+    pnpm = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.pnpm_10;
+      defaultText = lib.literalExpression "pkgs.pnpm_10";
+      description = ''
+        pnpm package used for fetching and building.
+
+        Pin pnpm to a specific package to avoid hash mismatch when the
+        pnpm version in nixpkgs changes.
+
+        Mapped to `pnpm`.
+      '';
+      example = lib.literalExpression "pkgs.pnpm_9";
     };
 
     fetcherVersion = lib.mkOption {
