@@ -47,7 +47,11 @@
                 packages = lib.mkOption {
                   type = lib.types.listOf lib.types.package;
                   default = [ ];
-                  description = "List of packages to add to the container.";
+                  description = ''
+                    List of packages available in the container.
+
+                    Use this option to add packages required by setup script.
+                  '';
                   example = lib.literalExpression "[ pkgs.curl ]";
                 };
 

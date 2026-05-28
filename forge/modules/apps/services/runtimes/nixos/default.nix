@@ -27,7 +27,9 @@
       type = lib.types.listOf lib.types.package;
       default = [ ];
       description = ''
-        List of packages to add to the NixOS system.
+        List of packages available in the NixOS system.
+
+        Use this option to add packages required by setup script.
 
         This is a convenience option equivalent to setting
         `nixosConfig.environment.systemPackages`.
