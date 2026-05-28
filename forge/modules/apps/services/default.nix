@@ -55,6 +55,20 @@
         ) self;
     };
 
+    extraComponents = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submoduleWith {
+          inherit specialArgs;
+          modules = [ ./extraComponent.nix ];
+        }
+      );
+      default = { };
+      description = ''
+        Additional application resources (like databases, reverse proxies, etc.) that are defined using NixOS systemd modules.
+        These components are run as dependencies alongside the main application.
+      '';
+    };
+
     runtimes = lib.mkOption {
       type = lib.types.submoduleWith {
         inherit specialArgs;
