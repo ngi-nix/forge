@@ -1,5 +1,29 @@
 {
   "nodes": {
+    "arion": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "haskell-flake": "haskell-flake",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1770259557,
+        "narHash": "sha256-EvZ09k9+mzXAngPzU2K7oLLUDlKoT1numb4bDb3Gtl4=",
+        "owner": "hercules-ci",
+        "repo": "arion",
+        "rev": "9b24cf65c72cb0e9616e437d55e1ac8e5c6bc715",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "arion",
+        "type": "github"
+      }
+    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -74,6 +98,22 @@
       "original": {
         "id": "flake-utils",
         "type": "indirect"
+      }
+    },
+    "haskell-flake": {
+      "locked": {
+        "lastModified": 1675296942,
+        "narHash": "sha256-u1X1sblozi5qYEcLp1hxcyo8FfDHnRUVX3dJ/tW19jY=",
+        "owner": "srid",
+        "repo": "haskell-flake",
+        "rev": "c2cafce9d57bfca41794dc3b99c593155006c71e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "srid",
+        "ref": "0.1.0",
+        "repo": "haskell-flake",
+        "type": "github"
       }
     },
     "import-tree": {
@@ -183,6 +223,7 @@
     },
     "root": {
       "inputs": {
+        "arion": "arion",
         "devshell": "devshell",
         "elm2nix": "elm2nix",
         "flake-parts": "flake-parts",

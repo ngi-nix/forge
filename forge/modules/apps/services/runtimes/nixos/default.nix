@@ -3,6 +3,7 @@
   forge-inputs,
   config,
   system,
+  app,
   ...
 }@args:
 {
@@ -114,6 +115,39 @@
         default = self: "nixos-vm-config";
       };
     };
+
+    extraComponents = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submoduleWith {
+          inherit (args) specialArgs;
+          modules = [
+            {
+              options = {
+                nixosConfig = lib.mkOption {
+                  type = with lib.types; deferredModule;
+                  default = { };
+                  description = "NixOS runtime-specific NixOS system configuration overrides.";
+                };
+              };
+            }
+          ];
+        }
+      );
+      default = { };
+      description = ''
+        NixOS runtime-specific overrides for extra components.
+        Use this to configure settings that are only applicable when running the component natively on NixOS (e.g., DNS mapping for localhost via networking.extraHosts).
+      '';
+      apply =
+        self:
+        let
+          knownComponents = lib.attrNames app.services.extraComponents;
+          unknownComponents = lib.subtractLists knownComponents (lib.attrNames self);
+        in
+        lib.throwIf (unknownComponents != [ ])
+          "services.runtimes.nixos.extraComponents: unknown extraComponent(s): ${lib.concatStringsSep ", " unknownComponents}. Must be one of: ${lib.concatStringsSep ", " knownComponents}"
+          self;
+    };
   };
 
   config = {
@@ -126,6 +160,11 @@
       packages = {
         environment.systemPackages = config.packages;
       };
+      extraComponents = {
+        imports =
+          (lib.mapAttrsToList (name: value: value.nixosConfig) app.services.extraComponents)
+          ++ (lib.mapAttrsToList (name: value: value.nixosConfig) config.extraComponents);
+      };
     };
 
     result.nixosModule = {
@@ -134,6 +173,7 @@
         config.result.modules.nimi
         config.result.modules.packages
         config.result.modules.nixosConfig
+        config.result.modules.extraComponents
       ];
     };
 

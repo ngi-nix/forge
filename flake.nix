@@ -37,6 +37,12 @@
       url = "github:ngi-nix/nimi/ngi-patches";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    arion = {
+      url = "github:hercules-ci/arion";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs =
