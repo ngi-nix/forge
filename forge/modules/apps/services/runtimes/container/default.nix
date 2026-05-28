@@ -136,7 +136,7 @@
         }
         // args
         // lib.optionalAttrs (config.components ? ${serviceName}) {
-          componentConfig = config.components.${serviceName};
+          runtimeConfig = config.components.${serviceName};
         }
       );
       services = import ../mkNimiImports.nix { inherit lib service serviceName; };

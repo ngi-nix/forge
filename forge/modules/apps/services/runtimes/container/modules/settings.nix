@@ -3,7 +3,7 @@
 
   service,
   serviceName,
-  componentConfig ? {
+  runtimeConfig ? {
     setup = "";
     packages = [ ];
     imageConfig = { };
@@ -33,7 +33,7 @@
       in
       pkgs.buildEnv {
         name = "runtime-bins";
-        paths = componentConfig.packages ++ service.packages ++ [ etcFiles ];
+        paths = service.packages ++ runtimeConfig.packages ++ [ etcFiles ];
         pathsToLink = [
           "/bin"
           "/etc"
@@ -44,9 +44,9 @@
       WorkingDir = service.stateDir;
       User = if service.user == "root" then "root" else serviceName;
     }
-    // componentConfig.imageConfig
+    // runtimeConfig.imageConfig
     // {
-      Volumes = (componentConfig.imageConfig.Volumes or { }) // {
+      Volumes = (runtimeConfig.imageConfig.Volumes or { }) // {
         "${service.stateDir}" = { };
       };
       Env =
@@ -65,7 +65,7 @@
                 name = lib.head parts;
                 value = lib.concatStringsSep "=" (lib.tail parts);
               }
-            ) (componentConfig.imageConfig.Env or [ ])
+            ) (runtimeConfig.imageConfig.Env or [ ])
           );
 
           # NOTE: we merge Attrs to remove duplicate keys
@@ -75,7 +75,7 @@
     };
   };
 
-  startup.runOnStartup = lib.mkIf (componentConfig.setup != "") (
-    pkgs.writeShellScript "container-setup" componentConfig.setup
+  startup.runOnStartup = lib.mkIf (runtimeConfig.setup != "") (
+    pkgs.writeShellScript "container-setup" runtimeConfig.setup
   );
 }
