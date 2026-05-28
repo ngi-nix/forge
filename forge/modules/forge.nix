@@ -16,10 +16,6 @@
         inputs = flakeInputs;
         # Extend `pkgs` with the per-system `packages`.
         pkgs = pkgs.extend (final: prev: config.packages);
-        # In rare cases (eg. when used in the `default` of an option),
-        # the non-extended `pkgs` must be used to avoid an `infinite recursion`,
-        # it is provided as `nixpkgs-pkgs`.
-        nixpkgs-pkgs = pkgs;
       };
       modules = [
         {

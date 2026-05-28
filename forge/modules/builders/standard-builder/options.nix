@@ -1,6 +1,6 @@
 {
   lib,
-  nixpkgs-pkgs,
+  pkgs,
   ...
 }:
 {
@@ -51,7 +51,7 @@
 
     stdenv = lib.mkOption {
       type = lib.types.package;
-      default = nixpkgs-pkgs.stdenv;
+      default = pkgs.stdenv;
       defaultText = lib.literalExpression "pkgs.stdenv";
       example = lib.literalExpression "pkgs.stdenvNoCC";
       description = ''

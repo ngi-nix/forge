@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 
@@ -18,6 +19,7 @@
 
     build.standardBuilder = {
       enable = true;
+      stdenv = pkgs.stdenv;
     };
 
     test.script = ''
