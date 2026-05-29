@@ -35,6 +35,9 @@
       * Webmail interface: [http://localhost:8082](http://localhost:8082)
 
     '';
+    maintainers = with lib.maintainers; [
+      ngi-team
+    ];
 
     links = {
       website = "https://www.xmox.nl/";
