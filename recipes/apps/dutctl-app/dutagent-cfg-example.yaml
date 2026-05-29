@@ -1,0 +1,50 @@
+---
+version: 1.0.0-alpha.1 # x-release-please-version
+devices:
+  device1:
+    desc: "Device 1"
+    cmds:
+      status:
+        desc: "Report status"
+        uses:
+          - module: dummy-status
+            passthrough: true
+  device2:
+    desc: "Device 2"
+    cmds:
+      status:
+        desc: "Report status"
+        uses:
+          - module: dummy-status
+            args:
+              - foo
+              - bar
+      repeat:
+        desc: "Repeat input"
+        uses:
+          - module: dummy-repeat
+            passthrough: true
+  device3:
+    desc: "Device 3"
+    cmds:
+      status:
+        desc: "Report status"
+        uses:
+          - module: dummy-status
+            passthrough: true
+      file-transfer:
+        desc: "Transfer a file"
+        args:
+          - name: source-file
+            desc: "Source file path"
+          - name: dest-file
+            desc: "Destination file path"
+        uses:
+          - module: dummy-status
+            args:
+              - transferring
+              - "${source-file}"
+          - module: dummy-ft
+            args:
+              - "${source-file}"
+              - "${dest-file}"
