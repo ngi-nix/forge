@@ -5,7 +5,7 @@ This software is in active development. Expect backwards incompatible changes.
 ## Features
 
 - Simple, type checked configuration recipes for **packages** and
-  **mutli-component applications** using
+  **multi-component applications** using
   [module system](https://nix.dev/tutorials/module-system/index.html)
 
 - [Web UI](https://ngi-nix.github.io/forge)

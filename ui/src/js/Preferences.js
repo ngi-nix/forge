@@ -14,7 +14,7 @@ const initDefaultPreferences = () => {
     localStorage.setItem("preferences", JSON.stringify(preferences));
   }
 
-  // Set the inital theme on page load
+  // Set the initial theme on page load
   document.documentElement.setAttribute("data-bs-theme", preferences.theme);
 
   return preferences;
