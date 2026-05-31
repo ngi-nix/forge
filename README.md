@@ -10,8 +10,6 @@ This software is in active development. Expect backwards incompatible changes.
 
 - [Web UI](https://ngi-nix.github.io/forge)
 
-- [LLMs support](./AGENTS.md)
-
 - Easy [self hosting](#self-hosting)
 
 ### Conceptual diagram
@@ -67,10 +65,6 @@ nix flake init --template github:ngi-nix/forge#provider
 - Add all new files to git
 
 - Start creating recipes in `recipes` directory
-
-## LLM agents
-
-LLM agents, read [these instructions](./AGENTS.md) first.
 
 ## Credits
 
