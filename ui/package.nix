@@ -45,6 +45,7 @@ symlinkJoin {
 
     # Copy static files
     cp ${./src/index.html} index.html
+    cp ${./src/404.html} 404.html
     cp ${./src/favicon.svg} favicon.svg
 
     mkdir -p css js/src

@@ -102,6 +102,7 @@ jobs:
         run: |
           mkdir -p deploy_dist/forge
           cp -rL result/. deploy_dist/forge/
+          cp deploy_dist/forge/404.html deploy_dist/404.html
 
       - name: Upload preview ui
         uses: actions/upload-artifact@v7
