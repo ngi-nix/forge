@@ -27,8 +27,6 @@ let
     enableOptimizations = true;
   };
 
-  agentsFile = ../AGENTS.md;
-
   defaultIcon = ./src/app-icon.svg;
 
   bootstrapCss = fetchzip rec {
