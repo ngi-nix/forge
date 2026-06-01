@@ -53,12 +53,7 @@ jobs:
       - name: Configure the baseUrl
         run: |
           set -x
-          repo_name="${{ github.event.repository.name }}"
-          if [[ "$repo_name" == *.github.io ]]; then
-            deploy_root="/"
-          else
-            deploy_root="/$repo_name/"
-          fi
+          deploy_root="/"
           sed -i "s|:baseUrl|$deploy_root|g" ui/src/Main/Model/Route.elm
           sed -i "s|<base href=\"/\"|<base href=\"$deploy_root\"|g" ui/src/index.html
 
