@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Download PR artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ui-build-preview
           run-id: ${{ github.event.workflow_run.id }}
@@ -44,7 +44,7 @@ jobs:
 
       - name: Set Pending Status
         if: env.PR_REV != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -63,7 +63,7 @@ jobs:
         run: echo "month=$(date +'%Y-%m')" >> "$GITHUB_OUTPUT"
 
       - name: Cache npx
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         if: env.PR_NUMBER != ''
         with:
           path: ~/.npm/_npx
@@ -97,7 +97,7 @@ jobs:
 
       - name: Post PR Comment
         if: env.PR_NUMBER != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -180,7 +180,7 @@ jobs:
 
       - name: Set Success Status
         if: env.PR_REV != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -197,7 +197,7 @@ jobs:
       - name: Set Failure Status
         # Only runs if a previous step failed, ensuring the PR isn't stuck "pending"
         if: failure() && env.PR_REV != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
