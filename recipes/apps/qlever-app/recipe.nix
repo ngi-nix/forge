@@ -102,10 +102,10 @@
 
                 # only copy db on first run so we don't overwrite it
                 if [ ! -d "$WORKDIR/db" ]; then
-                  rsync -a --chmod=u=rwX,g=rwX,o=rX ${pkgs.qlever-ui}/opt/db "$WORKDIR"
+                  rsync -a --no-owner --no-group --chmod=u=rwX,g=rwX,o=rX ${pkgs.qlever-ui}/opt/db "$WORKDIR"
                 fi
 
-                rsync -a --chmod=u=rwX,go=rX --exclude='/db/' ${pkgs.qlever-ui}/opt/ "$WORKDIR"
+                rsync -a --no-owner --no-group --chmod=u=rwX,go=rX --exclude='/db/' ${pkgs.qlever-ui}/opt/ "$WORKDIR"
               '';
             packages = with pkgs; [
               rsync # required by setup
