@@ -125,7 +125,7 @@
       };
     };
 
-    test.script = ''
+    test.services.script = ''
       curl="curl --retry 20 --retry-max-time 120 --retry-all-errors"
 
       $curl --location localhost:8080 | grep "Mox Account"

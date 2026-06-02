@@ -52,7 +52,7 @@
       };
     };
 
-    test = {
+    test.programs = {
       packages = [ pkgs.file ];
       script = ''
         echo "<html><body><h1>test</h1></body></html>" > /tmp/test.html
