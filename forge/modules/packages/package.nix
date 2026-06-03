@@ -240,9 +240,9 @@
         type = lib.types.str;
         default = ''
           echo -e "\nWelcome. This environment contains all dependencies required"
-          echo "to build $DEVENV_PACKAGE_NAME from source."
+          echo "to build $ENV_PACKAGE_NAME from source."
           echo
-          echo "Grab the source code from $DEVENV_PACKAGE_SOURCE"
+          echo "Grab the source code from $ENV_PACKAGE_SOURCE"
           echo "or from the upstream repository and you are all set to start hacking."
         '';
         description = ''
@@ -251,7 +251,7 @@
           Enter with:
 
           ```
-          nix develop .#<package>.devenv
+          nix develop .#<package>.env
           ```
         '';
         example = ''

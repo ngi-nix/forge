@@ -38,7 +38,7 @@
       // allPackages
 
       # All packages passthru attributes
-      // (passthruAttr "devenv")
+      // (passthruAttr "env")
       // (passthruAttr "test")
 
       # All apps passthru attributes
