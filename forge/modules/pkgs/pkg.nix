@@ -6,13 +6,14 @@
 }:
 {
   imports = [
-    ../builders/standard-builder
+    ../builders/beam-builder
     ../builders/go-builder
     ../builders/npm-package-builder
     ../builders/pnpm-package-builder
     ../builders/python-app-builder
     ../builders/python-package-builder
     ../builders/rust-package-builder
+    ../builders/standard-builder
     ../recipe-metadata.nix
     pkg/phases.nix
   ];
