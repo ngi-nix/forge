@@ -7,6 +7,7 @@
   imports = [
     ../builders/standard-builder
     ../builders/go-builder
+    ../builders/beam-builder
     ../builders/npm-package-builder
     ../builders/pnpm-package-builder
     ../builders/python-app-builder
