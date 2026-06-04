@@ -46,7 +46,9 @@
       // (passthruAttr "container")
       // (passthruAttr "vm")
       // (passthruAttr "test")
-      // (passthruAttr "test-container")
-      // (passthruAttr "test-program");
+      // (passthruAttr "test-services-container")
+      // (passthruAttr "test-services-nixos")
+      // (passthruAttr "test-programs")
+      // (passthruAttr "check-programs-main-package");
     };
 }

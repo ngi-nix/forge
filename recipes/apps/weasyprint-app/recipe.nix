@@ -52,10 +52,11 @@
       };
     };
 
-    test = {
+    test.programs = {
       packages = [ pkgs.file ];
       script = ''
         echo "<html><body><h1>test</h1></body></html>" > /tmp/test.html
+        export HOME=$(mktemp -d)
         weasyprint /tmp/test.html /tmp/output.pdf
         file /tmp/output.pdf | grep -q "PDF"
       '';

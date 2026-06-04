@@ -59,8 +59,7 @@
       };
     };
 
-    test.packages = [ pkgs.curl ];
-    test.script = ''
+    test.services.script = ''
       curl="curl --retry 8 --retry-max-time 120 --retry-all-errors"
       $curl localhost:8000 | grep -q "IronCalc"
     '';

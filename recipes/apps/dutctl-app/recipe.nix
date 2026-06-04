@@ -106,7 +106,7 @@
       };
     };
 
-    test.script = ''
+    test.services.script = ''
       # wait for agent to become ready
       for i in $(seq 1 10); do
         dutctl list 2>/dev/null | grep -q device1 && break

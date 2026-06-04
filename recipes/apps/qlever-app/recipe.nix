@@ -130,7 +130,7 @@
       };
     };
 
-    test = {
+    test.services = {
       script = ''
         curl="curl --retry 40 --retry-max-time 240 --retry-all-errors"
 

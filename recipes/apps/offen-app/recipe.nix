@@ -74,7 +74,7 @@
       };
     };
 
-    test.script = ''
+    test.services.script = ''
       curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
 
       export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"

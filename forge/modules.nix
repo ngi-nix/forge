@@ -13,7 +13,7 @@ let
         {
           imports = [
             # Definitions of options under `forge`.
-            modules/apps/default.nix
+            modules/apps
             modules/packages.nix
             modules/forge.nix
             # Packages building the forge.

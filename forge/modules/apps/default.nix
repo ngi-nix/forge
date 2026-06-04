@@ -43,11 +43,31 @@
         in
         # Passthru
         appDrv.overrideAttrs (_: {
-          passthru = appPassthru app appDrv;
+          passthru = mkPassthru app appDrv;
         });
 
       mkPassthru =
-        app:
+        app: finalApp:
+        let
+          testProgramsDrv = pkgs.testers.runCommand {
+            name = "${app.name}-test";
+            buildInputs = [ finalApp ] ++ app.test.programs.packages;
+            script = ''
+              ${app.test.programs.script}
+              touch $out
+            '';
+          };
+          tests =
+            lib.optionalAttrs (app.services.runtimes.container.enable && app.test.services.script != "") {
+              test-services-container = app.test.services.result.containerBuild;
+            }
+            // lib.optionalAttrs (app.services.runtimes.nixos.enable && app.test.services.script != "") {
+              test-services-nixos = app.test.services.result.build;
+            }
+            // lib.optionalAttrs (app.test.programs.script != "") {
+              test-programs = testProgramsDrv;
+            };
+        in
         lib.fix (self: {
           config = app;
         })
@@ -67,7 +87,7 @@
           };
         }
         // lib.optionalAttrs app.programs.runtimes.program.enable {
-          test-program =
+          check-programs-main-package =
             assert
               (app.programs.mainPackage != null)
               || throw "${app.name} has runtimes.program.enable but programs.mainPackage is missing";
@@ -76,15 +96,15 @@
               || throw "${app.name}'s programs.mainPackage is missing a meta.mainProgram attribute";
             app.programs.mainPackage;
         }
-        // lib.optionalAttrs (app.services.runtimes.container.enable && app.test.script != "") {
-          test-container = app.test.result.containerBuild;
-        }
-        // lib.optionalAttrs (app.services.runtimes.nixos.enable && app.test.script != "") {
-          test = app.test.result.build;
+        // tests
+        // {
+          test = pkgs.linkFarm "${app.name}-tests" (
+            lib.mapAttrsToList (name: path: {
+              name = lib.removePrefix "test-" name;
+              inherit path;
+            }) tests
+          );
         };
-
-      # finalApp parameter is currently not used in this function
-      appPassthru = app: finalApp: mkPassthru app;
     in
     {
       packages = lib.mapAttrs' (appName: app: {
