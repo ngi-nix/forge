@@ -3,6 +3,7 @@
   # Builders are currently setting values in their ancestors,
   # hence they cannot be imported nested in a submodule.
   imports = [
+    builders/beam.nix
     builders/go.nix
     builders/identity.nix
     builders/npm.nix
