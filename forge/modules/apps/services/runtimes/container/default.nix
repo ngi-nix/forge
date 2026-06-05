@@ -174,6 +174,7 @@
         settings.bubblewrap.environment = service.environment // {
           PATH = binPaths;
         };
+        settings.bubblewrap.prependFlags = [ "--clearenv" ];
         settings.bubblewrap.chdir = "/var/lib/${serviceName}";
         settings.bubblewrap.unshare.user = false;
         settings.bubblewrap.appendFlags = [
