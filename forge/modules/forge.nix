@@ -50,10 +50,8 @@
             repositoryUrl = lib.mkOption {
               type = lib.types.str;
               default = "github:ngi-nix/forge";
-              description = ''
-                NGI Forge repository URL.
-              '';
               example = "github:ngi-nix/forge";
+              description = "URL of the flake repository.";
             };
 
             recipeDirs = {

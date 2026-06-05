@@ -78,7 +78,7 @@
           { system, ... }:
           {
             forge = {
-              repositoryUrl = "github:ngi-nix/forge";
+              repositoryUrl = self.sourceInfo.url or "github:ngi-nix/forge";
               maintainerList = ./maintainers/maintainer-list.nix;
               recipeDirs = {
                 packages = "recipes/packages";

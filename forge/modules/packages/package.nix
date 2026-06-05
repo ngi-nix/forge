@@ -1,6 +1,8 @@
 {
+  config,
   lib,
   name,
+  specialArgs,
   ...
 }:
 {
@@ -12,7 +14,9 @@
     ../builders/python-app-builder/options.nix
     ../builders/python-package-builder/options.nix
     ../builders/rust-package-builder/options.nix
+    ../recipe-metadata.nix
   ];
+  config._recipeType = "packages";
   options = {
     # General configuration
     pname = lib.mkOption {
@@ -272,11 +276,5 @@
       };
     };
 
-    recipePath = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      internal = true;
-      description = "Path to the recipe.nix file relative to the flake root. Set automatically by the recipe loader.";
-    };
   };
 }

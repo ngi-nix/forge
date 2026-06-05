@@ -6,6 +6,8 @@
   ...
 }:
 {
+  imports = [ ../recipe-metadata.nix ];
+  config._recipeType = "apps";
   options = {
     # General configuration
     name = lib.mkOption {
@@ -127,15 +129,6 @@
       };
       default = { };
       description = "Test configuration.";
-    };
-
-    # Warning(correctness): this currently remains empty,
-    # as it's currently ill-defined: a recipe can be a merge of multiple files.
-    recipePath = lib.mkOption {
-      type = lib.types.str;
-      default = "";
-      internal = true;
-      description = "Path to the recipe.nix file relative to the flake root. Set automatically by the recipe loader.";
     };
 
     result = {

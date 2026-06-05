@@ -13,7 +13,7 @@
   };
 
   outputs =
-    inputs:
+    { self, ... }@inputs:
     inputs.ngi-forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
       imports = [ inputs.ngi-forge.flakeModules.base ];
@@ -22,8 +22,10 @@
         { system, ... }:
         {
           forge = {
-            imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
+            # NOTE: update the repository url to your forge. e.g. "github:username/forge-repo"
+            repositoryUrl = "github:ngi-nix/forge";
             maintainerList = ./maintainers/maintainer-list.nix;
+            imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
           };
         };
     };
