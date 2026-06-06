@@ -38,7 +38,7 @@
 
     ngi.grants = {
       Core = [
-        "WeasyPrint"
+        "Weasyprint"
       ];
     };
 
