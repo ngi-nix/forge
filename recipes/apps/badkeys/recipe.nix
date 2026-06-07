@@ -57,6 +57,7 @@
     test.programs.script = ''
       set -x
       openssl genrsa -out file.key
+
       badkeys -c rsawarnings -v file.key | grep -q 'ok'
 
       cat <<EOF >smallkey.pub
