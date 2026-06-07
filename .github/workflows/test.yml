@@ -36,7 +36,15 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Run checks
-        run: nix flake check --accept-flake-config --max-jobs 1 --option sandbox relaxed
+        run: |
+          nix flake prefetch-inputs .
+          NIXPKGS="$(nix eval --raw --expr '(builtins.getFlake (toString ./.)).inputs.nixpkgs.outPath' --impure)"
+          nix shell -L github:Mic92/nix-fast-build \
+            --override-input nixpkgs "$NIXPKGS" \
+            -c nix-fast-build -j 1 \
+              --no-nom --no-link \
+              --skip-cached --fail-fast \
+              --option sandbox relaxed
 
   lint:
     name: Run format checks
