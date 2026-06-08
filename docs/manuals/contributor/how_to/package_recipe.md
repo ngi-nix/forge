@@ -3,10 +3,8 @@
 ::: {important}
 For the list of all available configuration options for package recipes visit
 the
-[Package options reference](https://ngi-nix.github.io/forge/recipe/options?p=apps&s=packages).
+[package options reference](https://ngi-nix.github.io/forge/recipe/options?s=packages).
 :::
-
-## Step 1: Investigate the package
 
 Before writing a recipe, please spend some time to understand the software
 and gather the basic information from the package's source code repository:
@@ -47,13 +45,12 @@ Look for these files in the repository root:
 - Does the build download anything at build time? Nix builds run without network
   access - these must be patched out or disabled via build flags.
 
-## Step 2: Write the recipe
+## Recipe file
 
 Create the package recipe directory and recipe file:
 
 ```bash
 mkdir recipes/packages/<package-name>
-
 touch recipes/packages/<package-name>/recipe.nix
 ```
 
@@ -68,29 +65,27 @@ Nix can only see recipe files tracked by Git. If the file is not added
 to Git, the package will not be recognized.
 :::
 
-Start with the generic metadata, then add the source, enable and configure the
-package builder, and finally add the test.
-
-### Metadata
+## Metadata
 
 Start the package recipe with the following content:
 
 ```nix
 {
-  config,
-  lib,
   pkgs,
   ...
 }:
 
 {
-  packages.my-package = {    # lowercase with hyphens
+  packages.my-package = {        # lowercase with hyphens
     version = "1.0.0";           # latest released version
     description = "Short description of the package.";
     homePage = "https://project-website.org";
     mainProgram = "executable-name";
     license = lib.licenses.gpl3Only;
   };
+
+  # More configuration to be added here.
+  # ...
 }
 ```
 
@@ -103,7 +98,7 @@ nix eval nixpkgs#lib.licenses --json | jq
 
 :::
 
-### Source
+## Source
 
 Add a `source` block pointing to the upstream release. Leave `hash` empty for
 now:
@@ -119,7 +114,7 @@ For tarball releases use `source.url`.
 
 If the repository uses git submodules, add `source.submodules = true`.
 
-### Builder
+## Builder
 
 Enable exactly one builder and configure it as needed.
 
@@ -161,7 +156,7 @@ Nix will fail during the first build due to a missing source hash. Update
 `source.hash` with the value from the error output, then launch the build once
 again.
 
-#### Troubleshooting
+### Troubleshooting
 
 To troubleshoot build failures, enable _debug_ mode to enter an interactive
 build environment:
@@ -178,7 +173,7 @@ mkdir dev && cd dev
 nix develop .#<package-name>
 ```
 
-### Tests
+## Tests
 
 Add a test script to verify that package works correctly:
 
