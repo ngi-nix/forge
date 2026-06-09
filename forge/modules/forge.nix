@@ -19,8 +19,8 @@
         inherit forge-inputs;
         pkgs = pkgs.extend (
           finalPkgs: previousPkgs:
-          # Extend `pkgs` with the `packages` from the forge.
-          config.packages
+          # Extend `pkgs` with the packages from the forge.
+          lib.mapAttrs (packageName: package: package.result.derivation) config.forge.packages
           // {
             # `pkgs.pkgsOriginal` provides packages from the original `pkgs` (usually from Nixpkgs)
             # Eg. `pkgs.pkgsOriginal.offen` (Nixpkgs) and `pkgs.offen` (ngi-forge).

@@ -1,13 +1,14 @@
 module Main.Config.Package exposing (..)
 
 import Json.Decode as Decode exposing (Decoder)
-import Main.Config.App exposing (Maintainer, decodeMaintainer)
+import Main.Config.App exposing (..)
 import Main.Helpers.Json.Decode as Decode
 import Main.Helpers.String exposing (..)
 
 
 type alias Package =
     { package_pname : PackageName
+    , package_outputName : PackageName
     , package_description : String
     , package_version : String
     , package_homePage : String
@@ -23,6 +24,7 @@ decodePackage : Decoder Package
 decodePackage =
     Package
         |> Decode.flipMap (Decode.field "pname" Decode.string)
+        |> Decode.andMap (Decode.field "outputName" Decode.string)
         |> Decode.andMap (Decode.field "description" Decode.string)
         |> Decode.andMap (Decode.field "version" Decode.string)
         |> Decode.andMap (Decode.field "homePage" Decode.string)

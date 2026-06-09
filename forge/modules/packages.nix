@@ -2,14 +2,6 @@
 {
   imports = [
     ./assertions-warnings.nix
-    ./builders/shared.nix
-    ./builders/standard-builder
-    ./builders/go-builder
-    ./builders/npm-package-builder
-    ./builders/pnpm-package-builder
-    ./builders/python-app-builder
-    ./builders/python-package-builder
-    ./builders/rust-package-builder
   ];
 
   options.forge = lib.mkOption {
@@ -35,7 +27,10 @@
                   specialArgs = specialArgs // {
                     forgeOptions = forgeArgs.options;
                   };
-                  modules = [ packages/package.nix ];
+                  modules = [
+                    builders/shared.nix
+                    packages/package.nix
+                  ];
                 }
               );
             };
@@ -57,6 +52,10 @@
       assertionMessages = lib.concatMapStringsSep "\n" (x: "- ${x.message}") failedAssertions;
     in
     {
+      packages = lib.mapAttrs' (
+        packageName: package: lib.nameValuePair package.outputName package.result.derivation
+      ) config.forge.packages;
+
       # Collect warnings from packages
       warnings = lib.flatten (
         map (pkg: [

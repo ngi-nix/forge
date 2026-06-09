@@ -33,7 +33,7 @@
       example = lib.literalExpression ''
         [
           {
-            condition = config.forge.packages != [ ];
+            condition = config.forge.packages != { };
             message = "At least one package must be defined.";
           }
         ]

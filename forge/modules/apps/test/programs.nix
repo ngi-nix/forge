@@ -20,7 +20,7 @@
         Launch tests with:
 
         ```
-        nix build .#<app>.test-programs
+        nix build .#apps-<app-name>.test-programs
         ```
       '';
       example = ''

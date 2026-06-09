@@ -273,7 +273,7 @@ viewPageAppRunProgram model pageApp =
                         [ "nix run "
                         , showForgeInputFlakes model
                         , "#"
-                        , pageApp.pageApp_app.app_pname
+                        , pageApp.pageApp_app.app_outputName
                         , ".program"
                         ]
 
@@ -282,7 +282,7 @@ viewPageAppRunProgram model pageApp =
                         , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
-                        , pageApp.pageApp_app.app_pname
+                        , pageApp.pageApp_app.app_outputName
                         , ".program"
                         , "'"
                         , case pageApp.pageApp_app.app_programs.appPrograms_runProgram of
@@ -313,7 +313,7 @@ viewPageAppRunShell model pageApp =
                         [ "nix shell "
                         , showForgeInputFlakes model
                         , "#"
-                        , pageApp.pageApp_app.app_pname
+                        , pageApp.pageApp_app.app_outputName
                         ]
 
                     PreferencesInstall_NixTraditional ->
@@ -321,7 +321,7 @@ viewPageAppRunShell model pageApp =
                         , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                         , "  -p '(import <forge> {})"
                         , "."
-                        , pageApp.pageApp_app.app_pname
+                        , pageApp.pageApp_app.app_outputName
                         , "' "
                         ]
                 )
@@ -341,7 +341,7 @@ viewPageAppRunContainer model pageApp =
                             [ "nix run "
                             , showForgeInputFlakes model
                             , "#"
-                            , pageApp.pageApp_app.app_pname
+                            , pageApp.pageApp_app.app_outputName
                             , ".container"
                             ]
 
@@ -351,7 +351,7 @@ viewPageAppRunContainer model pageApp =
                             , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
-                            , pageApp.pageApp_app.app_pname
+                            , pageApp.pageApp_app.app_outputName
                             , ".container"
                             , "' \n"
                             , "\n"
@@ -376,7 +376,7 @@ viewPageAppRunContainerBuildOCI model pageApp =
                             [ "nix build "
                             , showForgeInputFlakes model
                             , "#"
-                            , pageApp.pageApp_app.app_pname
+                            , pageApp.pageApp_app.app_outputName
                             , ".container"
                             ]
                         , ""
@@ -389,7 +389,7 @@ viewPageAppRunContainerBuildOCI model pageApp =
                         , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                         , "  -E '(import <forge> {})"
                         , "."
-                        , pageApp.pageApp_app.app_pname
+                        , pageApp.pageApp_app.app_outputName
                         , ".container"
                         , "' \n"
                         , "\n"
@@ -410,7 +410,7 @@ viewPageAppRunNixOS model pageApp =
                         [ "nix run "
                         , showForgeInputFlakes model
                         , "#"
-                        , pageApp.pageApp_app.app_pname
+                        , pageApp.pageApp_app.app_outputName
                         , ".vm"
                         ]
 
@@ -421,7 +421,7 @@ viewPageAppRunNixOS model pageApp =
                             , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
                             , "  -E '(import <forge> {})"
                             , "."
-                            , pageApp.pageApp_app.app_pname
+                            , pageApp.pageApp_app.app_outputName
                             , ".vm"
                             , "' "
                             ]
@@ -429,7 +429,7 @@ viewPageAppRunNixOS model pageApp =
 
                         -- `nixos:system.name` is used in the executable name of `nixos:system.build.vm`,
                         -- and it defaults to `nixos:networking.hostName` which is set to `app.name` by the forge,
-                        -- hence use `app_name` not `app_pname` here.
+                        -- hence use `app_name` not `app_outputName` here.
                         , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
                         ]
         , hr [] []
@@ -452,7 +452,7 @@ viewPageAppRunNixOSModule model pageApp =
                         , "  outputs = { nixpkgs, forge, ... }: {"
                         , "    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {"
                         , "      modules = ["
-                        , "        forge.packages.${system}." ++ pageApp.pageApp_app.app_pname ++ ".nixosModules.default"
+                        , "        forge.packages.${system}." ++ pageApp.pageApp_app.app_outputName ++ ".nixosModules.default"
                         , "        # ..."
                         , "      ];"
                         , "    };"
@@ -473,7 +473,7 @@ viewPageAppRunNixOSModule model pageApp =
                         , "  forge = import \"${builtins.fetchTarball forge-url}\" { inherit pkgs; };"
                         , "in {"
                         , "  imports = ["
-                        , "    forge.forgePkgs." ++ pageApp.pageApp_app.app_pname ++ ".nixosModules.default"
+                        , "    forge.forgePkgs." ++ pageApp.pageApp_app.app_outputName ++ ".nixosModules.default"
                         , "  ];"
                         , "  # ..."
                         , "}"

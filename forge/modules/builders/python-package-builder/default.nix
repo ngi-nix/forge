@@ -6,37 +6,35 @@
   ...
 }:
 {
-  packages = lib.mapAttrs (
-    packageName: package:
-    lib.mkIf package.build.pythonPackageBuilder.enable (
-      pkgs.python3Packages.buildPythonPackage (
-        finalAttrs:
-        {
-          inherit (package) pname version;
-          inherit (package.build.pythonPackageBuilder.packages)
-            build-system
-            dependencies
-            optional-dependencies
-            ;
-          inherit (package.build.pythonPackageBuilder)
-            disabledTests
-            ;
-          format = "pyproject";
-          src = sharedBuildAttrs.pkgSource package;
-          patches = package.source.patches;
-          nativeBuildInputs = package.build.pythonPackageBuilder.packages.build;
-          buildInputs = package.build.pythonPackageBuilder.packages.run;
-          nativeCheckInputs = package.build.pythonPackageBuilder.packages.check;
-          # Warning(usability): users may want to disable tests in one setting, ie. without erasing them.
-          doCheck = package.build.pythonPackageBuilder.packages.check != [ ];
-          pythonImportsCheck = package.build.pythonPackageBuilder.importsCheck;
-          pythonRelaxDeps = package.build.pythonPackageBuilder.relaxDeps;
-          passthru = sharedBuildAttrs.pkgPassthru package finalAttrs.finalPackage;
-          meta = sharedBuildAttrs.pkgMeta package;
-        }
-        // package.build.extraAttrs
-        // lib.optionalAttrs package.build.debug sharedBuildAttrs.debugShellHookAttr
-      )
-    )
-  ) config.forge.packages;
+  imports = [ ./options.nix ];
+  config = lib.mkIf config.build.pythonPackageBuilder.enable {
+    result.derivation = pkgs.python3Packages.buildPythonPackage (
+      finalAttrs:
+      {
+        inherit (config) pname version;
+        inherit (config.build.pythonPackageBuilder.packages)
+          build-system
+          dependencies
+          optional-dependencies
+          ;
+        inherit (config.build.pythonPackageBuilder)
+          disabledTests
+          ;
+        format = "pyproject";
+        src = sharedBuildAttrs.pkgSource config;
+        patches = config.source.patches;
+        nativeBuildInputs = config.build.pythonPackageBuilder.packages.build;
+        buildInputs = config.build.pythonPackageBuilder.packages.run;
+        nativeCheckInputs = config.build.pythonPackageBuilder.packages.check;
+        # Warning(usability): users may want to disable tests in one setting, ie. without erasing them.
+        doCheck = config.build.pythonPackageBuilder.packages.check != [ ];
+        pythonImportsCheck = config.build.pythonPackageBuilder.importsCheck;
+        pythonRelaxDeps = config.build.pythonPackageBuilder.relaxDeps;
+        passthru = sharedBuildAttrs.pkgPassthru config finalAttrs.finalPackage;
+        meta = sharedBuildAttrs.pkgMeta config;
+      }
+      // config.build.extraAttrs
+      // lib.optionalAttrs config.build.debug sharedBuildAttrs.debugShellHookAttr
+    );
+  };
 }

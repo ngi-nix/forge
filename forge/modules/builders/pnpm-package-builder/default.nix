@@ -6,12 +6,11 @@
   ...
 }:
 {
-  packages = lib.mapAttrs (
-    packageName: package:
-    lib.mkIf package.build.pnpmPackageBuilder.enable (
+  imports = [ ./options.nix ];
+  config = lib.mkIf config.build.pnpmPackageBuilder.enable {
+    result.derivation =
       let
-        builderCfg = package.build.pnpmPackageBuilder;
-
+        builderCfg = config.build.pnpmPackageBuilder;
       in
       pkgs.stdenvNoCC.mkDerivation (
         finalAttrs:
@@ -28,10 +27,10 @@
           });
         in
         {
-          inherit (package) pname version;
+          inherit (config) pname version;
           inherit pnpmDeps;
-          src = sharedBuildAttrs.pkgSource package;
-          patches = package.source.patches or [ ];
+          src = sharedBuildAttrs.pkgSource config;
+          patches = config.source.patches or [ ];
 
           nativeBuildInputs = [
             builderCfg.pnpm
@@ -54,15 +53,14 @@
             runHook postInstall
           '';
 
-          passthru = sharedBuildAttrs.pkgPassthru package finalAttrs.finalPackage;
-          meta = sharedBuildAttrs.pkgMeta package;
+          passthru = sharedBuildAttrs.pkgPassthru config finalAttrs.finalPackage;
+          meta = sharedBuildAttrs.pkgMeta config;
         }
         // lib.optionalAttrs (builderCfg.sourceRoot != null) {
           inherit (builderCfg) sourceRoot;
         }
-        // package.build.extraAttrs
-        // lib.optionalAttrs package.build.debug sharedBuildAttrs.debugShellHookAttr
-      )
-    )
-  ) config.forge.packages;
+        // config.build.extraAttrs
+        // lib.optionalAttrs config.build.debug sharedBuildAttrs.debugShellHookAttr
+      );
+  };
 }

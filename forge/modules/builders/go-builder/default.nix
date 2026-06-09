@@ -6,32 +6,30 @@
   ...
 }:
 {
-  packages = lib.mapAttrs (
-    packageName: package:
-    lib.mkIf package.build.goPackageBuilder.enable (
-      pkgs.buildGoModule (
-        finalAttrs:
-        {
-          inherit (package) pname version;
-          inherit (package.build.goPackageBuilder)
-            vendorHash
-            modRoot
-            subPackages
-            ldflags
-            tags
-            proxyVendor
-            ;
-          src = sharedBuildAttrs.pkgSource package;
-          patches = package.source.patches;
-          nativeBuildInputs = package.build.goPackageBuilder.packages.build;
-          buildInputs = package.build.goPackageBuilder.packages.run;
-          nativeCheckInputs = package.build.goPackageBuilder.packages.check;
-          passthru = sharedBuildAttrs.pkgPassthru package finalAttrs.finalPackage;
-          meta = sharedBuildAttrs.pkgMeta package;
-        }
-        // package.build.extraAttrs
-        // lib.optionalAttrs package.build.debug sharedBuildAttrs.debugShellHookAttr
-      )
-    )
-  ) config.forge.packages;
+  imports = [ ./options.nix ];
+  config = lib.mkIf config.build.goPackageBuilder.enable {
+    result.derivation = pkgs.buildGoModule (
+      finalAttrs:
+      {
+        inherit (config) pname version;
+        inherit (config.build.goPackageBuilder)
+          vendorHash
+          modRoot
+          subPackages
+          ldflags
+          tags
+          proxyVendor
+          ;
+        src = sharedBuildAttrs.pkgSource config;
+        patches = config.source.patches;
+        nativeBuildInputs = config.build.goPackageBuilder.packages.build;
+        buildInputs = config.build.goPackageBuilder.packages.run;
+        nativeCheckInputs = config.build.goPackageBuilder.packages.check;
+        passthru = sharedBuildAttrs.pkgPassthru config finalAttrs.finalPackage;
+        meta = sharedBuildAttrs.pkgMeta config;
+      }
+      // config.build.extraAttrs
+      // lib.optionalAttrs config.build.debug sharedBuildAttrs.debugShellHookAttr
+    );
+  };
 }

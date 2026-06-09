@@ -1,29 +1,34 @@
 {
-  config,
   lib,
   name,
-  specialArgs,
   ...
 }:
 {
   imports = [
-    ../builders/standard-builder/options.nix
-    ../builders/go-builder/options.nix
-    ../builders/npm-package-builder/options.nix
-    ../builders/pnpm-package-builder/options.nix
-    ../builders/python-app-builder/options.nix
-    ../builders/python-package-builder/options.nix
-    ../builders/rust-package-builder/options.nix
+    ../builders/standard-builder
+    ../builders/go-builder
+    ../builders/npm-package-builder
+    ../builders/pnpm-package-builder
+    ../builders/python-app-builder
+    ../builders/python-package-builder
+    ../builders/rust-package-builder
     ../recipe-metadata.nix
   ];
   config._recipeType = "packages";
   options = {
-    # General configuration
     pname = lib.mkOption {
       type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
       default = name;
       description = "Package name. Only letters, numbers and hyphens are allowed.";
-      example = "hello";
+      example = "pkgs-hello";
+      readOnly = true;
+      internal = true;
+    };
+    outputName = lib.mkOption {
+      type = lib.types.str;
+      default = "pkgs-${name}";
+      description = "Output name.";
+      example = "pkgs-hello";
       readOnly = true;
       internal = true;
     };
@@ -202,7 +207,7 @@
 
           ```
           mkdir dev && cd dev
-          nix develop .#<package>
+          nix develop .#pkgs-''${package}
           ```
 
           and follow instructions.
@@ -230,7 +235,7 @@
           Launch test with:
 
           ```
-          nix build .#<package>.test
+          nix build .#pkgs-''${package}.test
           ```
         '';
         example = ''
@@ -266,7 +271,7 @@
           Enter with:
 
           ```
-          nix develop .#<package>.env
+          nix develop .#pkgs-''${package}.env
           ```
         '';
         example = ''
@@ -276,5 +281,12 @@
       };
     };
 
+    result = {
+      derivation = lib.mkOption {
+        type = lib.types.package;
+        internal = true;
+        description = "Resulting derivation of the package.";
+      };
+    };
   };
 }

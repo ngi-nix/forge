@@ -9,7 +9,6 @@
   imports = [ ../recipe-metadata.nix ];
   config._recipeType = "apps";
   options = {
-    # General configuration
     name = lib.mkOption {
       default = name;
       type = lib.types.strMatching "^(‹name›|[a-zA-Z0-9-]+)$";
@@ -18,13 +17,13 @@
       readOnly = true;
       internal = true;
     };
-    pname = lib.mkOption {
-      # The -app suffix acts as a namespace for applications
+    outputName = lib.mkOption {
+      # The apps- prefix namespaces applications
       # when they're inserted into `allSystems.${system}.packages`.
-      default = "${config.name}-app";
+      default = "apps-${config.name}";
       type = lib.types.str;
-      description = "Package name to access the application, as in `nix run .#my-hello-app`.";
-      example = "my-hello-app";
+      description = "Package name to access the application, as in `nix run .#apps-my-hello`.";
+      example = "apps-my-hello";
       readOnly = true;
       internal = true;
     };

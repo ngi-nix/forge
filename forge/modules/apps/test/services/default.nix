@@ -47,8 +47,8 @@
         using following commands:
 
         ```
-        nix build .#<app>.test-services-nixos --option sandbox relaxed --builders ""
-        nix build .#<app>.test-services-container --option sandbox relaxed --builders ""
+        nix build .#apps-<app-name>.test-services-nixos --option sandbox relaxed --builders ""
+        nix build .#apps-<app-name>.test-services-container --option sandbox relaxed --builders ""
         ```
 
         Disabling sandbox can cause problems with test reproducibility.
@@ -65,8 +65,8 @@
         Launch tests with:
 
         ```
-        nix build .#<app>.test-services-container
-        nix build .#<app>.test-services-nixos
+        nix build .#apps-<app-name>.test-services-container
+        nix build .#apps-<app-name>.test-services-nixos
         ```
       '';
       example = ''

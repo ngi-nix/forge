@@ -114,8 +114,7 @@
     in
     {
       packages = lib.mapAttrs' (appName: app: {
-        # Insert the -app suffix to create a namespace for applications.
-        name = "${appName}-app";
+        name = app.outputName;
         value = shellBundle app;
       }) config.forge.apps;
     };

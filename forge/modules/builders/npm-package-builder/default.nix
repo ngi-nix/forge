@@ -6,28 +6,26 @@
   ...
 }:
 {
-  packages = lib.mapAttrs (
-    packageName: package:
-    lib.mkIf package.build.npmPackageBuilder.enable (
-      pkgs.buildNpmPackage (
-        finalAttrs:
-        {
-          inherit (package) pname version;
-          inherit (package.build.npmPackageBuilder)
-            npmDepsHash
-            npmInstallFlags
-            ;
-          src = sharedBuildAttrs.pkgSource package;
-          patches = package.source.patches or [ ];
-          nativeBuildInputs = [ pkgs.nodejs ] ++ package.build.npmPackageBuilder.packages.build;
-          buildInputs = package.build.npmPackageBuilder.packages.run;
-          nativeCheckInputs = package.build.npmPackageBuilder.packages.check;
-          passthru = sharedBuildAttrs.pkgPassthru package finalAttrs.finalPackage;
-          meta = sharedBuildAttrs.pkgMeta package;
-        }
-        // package.build.extraAttrs
-        // lib.optionalAttrs package.build.debug sharedBuildAttrs.debugShellHookAttr
-      )
-    )
-  ) config.forge.packages;
+  imports = [ ./options.nix ];
+  config = lib.mkIf config.build.npmPackageBuilder.enable {
+    result.derivation = pkgs.buildNpmPackage (
+      finalAttrs:
+      {
+        inherit (config) pname version;
+        inherit (config.build.npmPackageBuilder)
+          npmDepsHash
+          npmInstallFlags
+          ;
+        src = sharedBuildAttrs.pkgSource config;
+        patches = config.source.patches or [ ];
+        nativeBuildInputs = [ pkgs.nodejs ] ++ config.build.npmPackageBuilder.packages.build;
+        buildInputs = config.build.npmPackageBuilder.packages.run;
+        nativeCheckInputs = config.build.npmPackageBuilder.packages.check;
+        passthru = sharedBuildAttrs.pkgPassthru config finalAttrs.finalPackage;
+        meta = sharedBuildAttrs.pkgMeta config;
+      }
+      // config.build.extraAttrs
+      // lib.optionalAttrs config.build.debug sharedBuildAttrs.debugShellHookAttr
+    );
+  };
 }

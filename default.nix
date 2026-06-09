@@ -35,9 +35,11 @@ let
 
     # derivations
     forgeApps = lib.filterAttrs (
-      name: value: lib.hasSuffix "-app" name
+      name: value: lib.hasPrefix "apps-" name
     ) flake.outputs.packages.${system};
-    forgePkgs = flake.outputs.packages.${system};
+    forgePkgs = lib.filterAttrs (
+      name: value: lib.hasPrefix "pkgs-" name
+    ) flake.outputs.packages.${system};
     shells = flake.outputs.devShells.${system};
   });
 in

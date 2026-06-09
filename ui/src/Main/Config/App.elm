@@ -7,7 +7,7 @@ import Main.Helpers.Json.Decode as Decode
 
 type alias App =
     { app_name : AppName
-    , app_pname : AppName
+    , app_outputName : AppName
     , app_displayName : String
     , app_description : String
     , app_usage : String
@@ -24,7 +24,7 @@ decodeApp : Decoder App
 decodeApp =
     App
         |> Decode.flipMap (Decode.field "name" Decode.string)
-        |> Decode.andMap (Decode.field "pname" Decode.string)
+        |> Decode.andMap (Decode.field "outputName" Decode.string)
         |> Decode.andMap (Decode.field "displayName" Decode.string)
         |> Decode.andMap (Decode.field "description" Decode.string)
         |> Decode.andMap (Decode.field "usage" Decode.string)

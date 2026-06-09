@@ -135,7 +135,7 @@ programs = {
 Launch a program using the _program_ runtime:
 
 ```bash
-nix run .#<app-name>.program
+nix run .#apps-<app-name>.program
 ```
 
 #### "shell" runtime
@@ -156,7 +156,7 @@ programs = {
 Enter the _shell_ runtime environment and run a program:
 
 ```bash
-nix shell .#<app-name>
+nix shell .#apps-<app-name>
 
 program-cli
 ```
@@ -303,7 +303,7 @@ services = {
 Run a configured service in bubblewrap:
 
 ```bash
-nix run .#<app-name>.services.my-service
+nix run .#apps-<app-name>.services.my-service
 ```
 
 Nimi prints useful information about the command, arguments,
@@ -312,7 +312,7 @@ configuration files, and environment variables used to start the service.
 Example of Nimi output:
 
 ```bash
-nix run .#tau-app.services.tau-tower
+nix run .#apps-tau.services.tau-tower
 
 [2026-06-08T06:39:50Z INFO  nimi::cli] Launching process manager...
 [2026-06-08T06:39:50Z INFO  nimi::process_manager] Starting process manager...
@@ -336,13 +336,13 @@ user:user` — will fail.
 Inspect bubblewrap command:
 
 ```bash
-cat $(nix build .#<app-name>.services.<service> --no-link --print-out-paths)/bin/<service-name>-service-sandbox
+cat $(nix build .#apps-<app-name>.services.<service> --no-link --print-out-paths)/bin/<service-name>-service-sandbox
 ```
 
 When services work as expected, run the entire application in containers:
 
 ```bash
-nix run .#<app-name>.container
+nix run .#apps-<app-name>.container
 ```
 
 #### Debugging
@@ -350,7 +350,7 @@ nix run .#<app-name>.container
 Build container artifacts (required for next steps):
 
 ```bash
-nix build .#<app-name>.container --out-link build-container
+nix build .#apps-<app-name>.container --out-link build-container
 ```
 
 Inspect run scripts:
@@ -377,7 +377,7 @@ podman inspect localhost/<service-name>
 Inspect service in a running container:
 
 ```bash
-nix run .#<app-name>.container
+nix run .#apps-<app-name>.container
 podman-compose -f build-container/<service-name>/compose.yaml exec <service-name> sh
 
 # Run commands in container
@@ -429,7 +429,7 @@ services = {
 Run the application in a NixOS VM:
 
 ```bash
-nix run .#<app-name>.vm
+nix run .#apps-<app-name>.vm
 ```
 
 #### Debugging
@@ -437,7 +437,7 @@ nix run .#<app-name>.vm
 Build VM artifacts (required for next steps):
 
 ```bash
-nix build .#<app-name>.vm --out-link build-vm
+nix build .#apps-<app-name>.vm --out-link build-vm
 ```
 
 Inspect run scripts:
@@ -449,7 +449,7 @@ tree ./build-vm/
 Inspect service in a running VM:
 
 ```bash
-nix run .#<app-name>.vm
+nix run .#apps-<app-name>.vm
 
 # Run commands in VM
 journalctl --unit <service-name>.service
@@ -479,18 +479,18 @@ test.services = {
 Run all tests:
 
 ```bash
-nix build .#<app-name>.test --print-build-logs
+nix build .#apps-<app-name>.test --print-build-logs
 ```
 
 Run program test:
 
 ```bash
-nix build .#<app-name>.test-programs --print-build-logs
+nix build .#apps-<app-name>.test-programs --print-build-logs
 ```
 
 Run service test:
 
 ```bash
-nix build .#<app-name>.test-services-container --print-build-logs
-nix build .#<app-name>.test-services-nixos --print-build-logs
+nix build .#apps-<app-name>.test-services-container --print-build-logs
+nix build .#apps-<app-name>.test-services-nixos --print-build-logs
 ```

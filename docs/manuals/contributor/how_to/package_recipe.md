@@ -76,7 +76,7 @@ Start the package recipe with the following content:
 }:
 
 {
-  packages.my-package = {        # lowercase with hyphens
+  packages.package-name = {        # lowercase with hyphens
     version = "1.0.0";           # latest released version
     description = "Short description of the package.";
     homePage = "https://project-website.org";
@@ -149,7 +149,7 @@ build.standardBuilder = {
 Run the first build:
 
 ```bash
-nix build .#<package-name> --print-build-logs
+nix build .#pkgs-<package-name> --print-build-logs
 ```
 
 Nix will fail during the first build due to a missing source hash. Update
@@ -170,7 +170,7 @@ Ctrl-C to drop into a shell and start investigating.
 
 ```bash
 mkdir dev && cd dev
-nix develop .#<package-name>
+nix develop .#pkgs-<package-name>
 ```
 
 ## Tests
@@ -186,5 +186,5 @@ test.script = ''
 Run test:
 
 ```bash
-nix build .#<package-name>.test --print-build-logs
+nix build .#pkgs-<package-name>.test --print-build-logs
 ```
