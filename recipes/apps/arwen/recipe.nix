@@ -72,7 +72,7 @@
       packages = with pkgs; [
         arwen
         (python3.withPackages (ps: [
-          py-arwen
+          ps.py-arwen
         ]))
       ];
 
