@@ -336,18 +336,14 @@ class RecipeWriter:
 
         old_match = re.search(pattern, block_text)
         old_value = old_match.group(1) if old_match else "?"
-        label = f"{pname}.{field}"
         self.pending_changes.append(
             (
-                label,
+                field,
                 old_value,
                 replacement.split('"')[1] if '"' in replacement else replacement,
             )
         )
 
     def apply(self, recipe: Recipe) -> None:
-        if self.dry_run:
-            for field, old, new in self.pending_changes:
-                print(f"  {field}: {old!r} \u2192 {new!r}")
-            return
-        _ = recipe.abs_path.write_text("".join(recipe.raw_lines))
+        if not self.dry_run:
+            _ = recipe.abs_path.write_text("".join(recipe.raw_lines))

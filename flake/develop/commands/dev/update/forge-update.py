@@ -49,48 +49,43 @@ def parse_args(argv: list[str] | None = None) -> Args:
 def main() -> None:
     args = parse_args()
     parser = RecipeParser(args.recipes_root)
-    writer = RecipeWriter(dry_run=args.dry_run)
     detector = VersionDetector()
 
-    for name in args.recipe:
+    for i, name in enumerate(args.recipe):
+        if i > 0:
+            print()
+
         path = parser.find(name)
         recipe = parser.parse(path)
-        print(f"{name} ({path.parent.resolve()}/recipe.nix):")
-        for pkg in recipe.packages:
-            btype = pkg.builder_type.name
-            print(f"  packages.{pkg.pname}")
-            print(f"    version:     {pkg.version}")
-            print(f"    builder:     {btype}")
-            if pkg.source.type.name == "GIT":
-                g = pkg.source.git
-                if g:
-                    print(f"    git:         {g.host.value}:{g.owner}/{g.repo}@{g.rev}")
-                    if g.remote_url:
-                        print(f"    remote:      {g.remote_url}")
-            print(f"    source hash: {pkg.source.hash or '(none)'}")
-            h = pkg.builder_hashes
-            if h.cargo_hash:
-                print(f"    cargoHash:   {h.cargo_hash}")
-            if h.vendor_hash:
-                print(f"    vendorHash:  {h.vendor_hash}")
-            if h.npm_deps_hash:
-                print(f"    npmDepsHash: {h.npm_deps_hash}")
-            if h.pnpm_deps_hash:
-                print(f"    pnpmDepsHash:{h.pnpm_deps_hash}")
+        pkg = recipe.packages[0]
+        writer = RecipeWriter(dry_run=args.dry_run)
 
         if args.version:
             result = VersionResult(version=args.version, rev="")
-            print(f"  \u2192 set: {result.version}")
         else:
             result = detector.detect(recipe)
-            print(f"  \u2192 detected: {result.version} (rev: {result.rev})")
 
-        if recipe.packages:
-            pkg = recipe.packages[0]
-            writer.update_version(recipe, pkg.pname, result.version)
-            if result.rev:
-                writer.update_git_rev(recipe, pkg.pname, result.rev)
-            writer.apply(recipe)
+        g = pkg.source.git
+        current_rev = g.rev if g else ""
+        rev_changed = bool(result.rev) and result.rev != current_rev
+        version_changed = pkg.version != result.version
+
+        print(name)
+
+        if not version_changed and not rev_changed:
+            print(f"  already at {pkg.version}")
+            continue
+
+        writer.update_version(recipe, pkg.pname, result.version)
+        if result.rev:
+            writer.update_git_rev(recipe, pkg.pname, result.rev)
+
+        for field, old, new in writer.pending_changes:
+            print(f"  {field}")
+            print(f"    {old}  ->")
+            print(f"    {new}")
+
+        writer.apply(recipe)
 
 
 if __name__ == "__main__":
