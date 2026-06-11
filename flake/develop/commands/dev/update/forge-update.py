@@ -12,6 +12,9 @@ from forge_update.recipe import (  # pyright: ignore[reportImplicitRelativeImpor
     RecipeParser,
     RecipeWriter,
 )
+from forge_update.version import (  # pyright: ignore[reportImplicitRelativeImport]
+    VersionDetector,
+)
 
 
 class Args(argparse.Namespace):
@@ -46,6 +49,7 @@ def main() -> None:
     args = parse_args()
     parser = RecipeParser(args.recipes_root)
     writer = RecipeWriter(dry_run=args.dry_run)
+    detector = VersionDetector()
 
     for name in args.recipe:
         path = parser.find(name)
@@ -60,6 +64,8 @@ def main() -> None:
                 g = pkg.source.git
                 if g:
                     print(f"    git:         {g.host.value}:{g.owner}/{g.repo}@{g.rev}")
+                    if g.remote_url:
+                        print(f"    remote:      {g.remote_url}")
             print(f"    source hash: {pkg.source.hash or '(none)'}")
             h = pkg.builder_hashes
             if h.cargo_hash:
@@ -71,9 +77,15 @@ def main() -> None:
             if h.pnpm_deps_hash:
                 print(f"    pnpmDepsHash:{h.pnpm_deps_hash}")
 
-        if args.version and recipe.packages:
+        if args.version:
+            new_version = args.version
+        else:
+            new_version = detector.detect(recipe)
+            print(f"  \u2192 latest: {new_version}")
+
+        if recipe.packages:
             pkg = recipe.packages[0]
-            writer.update_version(recipe, pkg.pname, args.version)
+            writer.update_version(recipe, pkg.pname, new_version)
             writer.apply(recipe)
 
 

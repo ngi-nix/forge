@@ -5,6 +5,7 @@
   gitMinimal,
   nix-prefetch-git,
   nix,
+  python3Packages,
 }:
 let
   # Inject the store path of this directory so the script can locate the
@@ -13,7 +14,9 @@ let
   # sub-directories alongside the resulting wrapper.
   srcDir = toString ./.;
   script = writers.writePython3Bin "forge-update" {
-    libraries = [ ];
+    libraries = with python3Packages; [
+      packaging
+    ];
     flakeIgnore = [
       # sys.path.insert before import triggers "import not at top"
       "E402"
