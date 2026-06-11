@@ -114,15 +114,23 @@ lib.mapAttrs (
 
       Dear <PROJECT_AUTHOR>,
 
-      The Nix@NGI team is an NLnet partner for packaging NGI0 funded projects. We are happy to let you know that we have packaged ${NAME} for the NGI Forge repository. Visit the application page at ${APP_URL} and launch ${NAME} in a shell environment, container, or NixOS VM.
+      We are the Nix@NGI team, an NLnet partner for packaging NGI0-funded projects.
 
-      Your input as the project author is very valuable for us. If you can, please leave your feedback using this short survey: ${SURVEY_URL}.
+      We are pleased to inform you that ${NAME} has been successfully packaged for NixOS and is now available in our NGI Forge repository:
+      ${APP_URL}
+
+      From there, it can be launch in a shell environment, container, or NixOS VM with a single command.
+
+      As the project authors, your feedback is invaluable to us. If you have a few minutes, we would greatly appreciate your thoughts through this short survey:
+      ${SURVEY_URL}
+
+      Thank you for your work on ${NAME}. We hope this packaging effort makes it more accessible to the broader NixOS community.
 
       For more information about Nix, see: ${NIX_URL}.
 
-      The Nix@NGI team: ${TEAM_URL}.
-
-      Kind regards'';
+      Kind regards,
+      The Nix@NGI Team
+      ${TEAM_URL}'';
   in
 
   pkgs.writeShellApplication {
