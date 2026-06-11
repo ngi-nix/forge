@@ -6,7 +6,7 @@
 
 {
   packages.offen = {
-    version = "0.0.0-unstable-2026-03-04";
+    version = "1.4.2-unstable-2026-06-11";
     description = "Fair and privacy-focused web analytics.";
     homePage = "https://www.offen.dev";
     mainProgram = "offen";
