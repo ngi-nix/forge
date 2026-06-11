@@ -12,6 +12,9 @@ from colorama import init as colorama_init
 # path of this directory, making the sibling forge_update/ package
 # importable when this script runs inside its Nix wrapper.
 sys.path.insert(0, "@forgeUpdateDir@")
+from forge_update.hasher import (  # pyright: ignore[reportImplicitRelativeImport]
+    HashPrefetcher,
+)
 from forge_update.recipe import (  # pyright: ignore[reportImplicitRelativeImport]
     RecipeParser,
     RecipeWriter,
@@ -34,6 +37,8 @@ class Args(argparse.Namespace):
     recipe: list[str] = []
     version: str | None = None
     dry_run: bool = False
+    skip_prefetch: bool = False
+    prefetch_timeout: int = 180
     recipes_root: Path = Path("recipes/packages")
 
 
@@ -45,6 +50,13 @@ def build_parser() -> argparse.ArgumentParser:
     _ = parser.add_argument("recipe", nargs="+")
     _ = parser.add_argument("--version")
     _ = parser.add_argument("--dry-run", action="store_true")
+    _ = parser.add_argument("--skip-prefetch", action="store_true")
+    _ = parser.add_argument(
+        "--prefetch-timeout",
+        type=int,
+        default=180,
+        help="Timeout in seconds for each hash prefetch (default: 180)",
+    )
     _ = parser.add_argument(
         "--recipes-root",
         type=Path,
@@ -62,6 +74,7 @@ def main() -> None:
     args = parse_args()
     parser = RecipeParser(args.recipes_root)
     detector = VersionDetector()
+    prefetcher = HashPrefetcher(timeout=args.prefetch_timeout)
 
     for i, name in enumerate(args.recipe):
         if i > 0:
@@ -91,6 +104,10 @@ def main() -> None:
         writer.update_version(recipe, pkg.pname, result.version)
         if result.rev:
             writer.update_git_rev(recipe, pkg.pname, result.rev)
+
+        if g is not None and not args.dry_run and not args.skip_prefetch:
+            new_hash = prefetcher.prefetch_git(g.remote_url, result.rev, g.submodules)
+            writer.update_source_hash(recipe, pkg.pname, new_hash)
 
         for field, old, new in writer.pending_changes:
             print(f"  {style(field, Style.BRIGHT)}")
