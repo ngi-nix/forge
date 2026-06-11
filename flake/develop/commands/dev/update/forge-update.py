@@ -12,6 +12,9 @@ from colorama import init as colorama_init
 # path of this directory, making the sibling forge_update/ package
 # importable when this script runs inside its Nix wrapper.
 sys.path.insert(0, "@forgeUpdateDir@")
+from forge_update.builder import (  # pyright: ignore[reportImplicitRelativeImport]
+    BuilderHashUpdater,
+)
 from forge_update.hasher import (  # pyright: ignore[reportImplicitRelativeImport]
     HashPrefetcher,
 )
@@ -75,6 +78,7 @@ def main() -> None:
     parser = RecipeParser(args.recipes_root)
     detector = VersionDetector()
     prefetcher = HashPrefetcher(timeout=args.prefetch_timeout)
+    builder_hash = BuilderHashUpdater()
 
     for i, name in enumerate(args.recipe):
         if i > 0:
@@ -108,6 +112,7 @@ def main() -> None:
         if g is not None and not args.dry_run and not args.skip_prefetch:
             new_hash = prefetcher.prefetch_git(g.remote_url, result.rev, g.submodules)
             writer.update_source_hash(recipe, pkg.pname, new_hash)
+            builder_hash.update(recipe, writer, pkg)
 
         for field, old, new in writer.pending_changes:
             print(f"  {style(field, Style.BRIGHT)}")

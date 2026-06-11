@@ -1,0 +1,74 @@
+import re
+import subprocess
+
+from . import regexes as _
+from .errors import BuildError
+from .types import BuilderType
+
+
+_HASH_MISMATCH_RE = re.compile(_.NIX_BUILD_GOT_HASH)
+
+
+class BuilderHashUpdater:
+    build_timeout: int = 300
+
+    def update(self, recipe, writer, pkg) -> None:
+        bt = pkg.builder_type
+        if bt is None or bt == BuilderType.STANDARD:
+            return
+
+        if bt == BuilderType.RUST:
+            self._update_single(
+                recipe, pkg.pname, writer, "cargoHash", writer.update_cargo_hash
+            )
+        elif bt == BuilderType.GO:
+            bh = pkg.builder_hashes
+            if bh is not None and bh.vendor_hash is not None:
+                self._update_single(
+                    recipe, pkg.pname, writer, "vendorHash", writer.update_vendor_hash
+                )
+        elif bt == BuilderType.NPM:
+            self._update_single(
+                recipe, pkg.pname, writer, "npmDepsHash", writer.update_npm_deps_hash
+            )
+        elif bt == BuilderType.PNPM:
+            self._update_single(
+                recipe, pkg.pname, writer, "pnpmDepsHash", writer.update_pnpm_deps_hash
+            )
+
+    def _update_single(
+        self, recipe, pname: str, writer, field_name: str, updater
+    ) -> None:
+        before = len(writer.pending_changes)
+
+        recipe.abs_path.write_text("".join(recipe.raw_lines))
+
+        updater(recipe, pname, "")
+        recipe.abs_path.write_text("".join(recipe.raw_lines))
+
+        try:
+            result = subprocess.run(
+                ["nix", "build", f".#{pname}"],
+                capture_output=True,
+                text=True,
+                timeout=self.build_timeout,
+            )
+        except subprocess.TimeoutExpired:
+            raise BuildError(pname, -1, f"nix build timed out ({self.build_timeout}s)")
+
+        stderr = result.stderr or ""
+        match = _HASH_MISMATCH_RE.search(stderr)
+        if not match:
+            raise BuildError(pname, result.returncode, stderr)
+
+        new_hash = match.group(1)
+        updater(recipe, pname, new_hash)
+
+        if len(writer.pending_changes) >= before + 2:
+            old_val = writer.pending_changes[before][1]
+            writer.pending_changes[before] = (
+                field_name,
+                old_val,
+                new_hash,
+            )
+            del writer.pending_changes[before + 1]

@@ -278,6 +278,24 @@ class RecipeWriter:
             "vendorHash",
         )
 
+    def update_npm_deps_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
+        self._replace(
+            recipe,
+            pname,
+            regexes.FIELD_NPM_DEPS_HASH,
+            f'npmDepsHash = "{new_hash}"',
+            "npmDepsHash",
+        )
+
+    def update_pnpm_deps_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
+        self._replace(
+            recipe,
+            pname,
+            regexes.FIELD_PNPM_DEPS_HASH,
+            f'pnpmDepsHash = "{new_hash}"',
+            "pnpmDepsHash",
+        )
+
     def update_git_rev(self, recipe: Recipe, pname: str, new_rev: str) -> None:
         text = "".join(recipe.raw_lines)
         _, _, block_text = self._find_package_block(text, pname, recipe.abs_path)
