@@ -26,12 +26,7 @@
     };
 
     programs = {
-      # TODO: remove when https://github.com/NixOS/nixpkgs/pull/526323
-      mainPackage = pkgs.kdePackages.kdenlive.overrideAttrs (oldAttrs: {
-        buildInputs = (oldAttrs.buildInputs or [ ]) ++ [
-          pkgs.kdePackages.qtimageformats # UI uses webp images
-        ];
-      });
+      mainPackage = pkgs.kdePackages.kdenlive;
       runtimes.program.enable = true;
     };
   };
