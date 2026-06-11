@@ -26,3 +26,12 @@ ui/src/options.js
 *.qcow2
 *.tar
 .envrc
+
+###------------------###
+###  GitHub: Python  ###
+###------------------###
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
