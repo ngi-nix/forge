@@ -9,7 +9,7 @@ lib.mapAttrs (
 
   let
     info = {
-      APP_URL = "https://ngi-nix.github.io/forge/app/${app.name}";
+      APP_URL = "https://ngi.nixos.org/app/${app.name}";
       JITSI_URL = "https://jitsi.lassul.us/ngi-nix-office-hours";
       CALENDAR_URL = "https://calendar.google.com/calendar/u/0/embed?src=b9o52fobqjak8oq8lfkhg3t0qg@group.calendar.google.com";
       MATRIX_URL = "https://matrix.to/#/#ngipkgs:matrix.org";
