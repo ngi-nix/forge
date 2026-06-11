@@ -1,0 +1,292 @@
+import re
+from pathlib import Path
+
+from .errors import RecipeNotFoundError, RecipeParseError
+from .types import (
+    BuilderHashes,
+    BuilderType,
+    ForgeHost,
+    GitSource,
+    PackageEntry,
+    PathSource,
+    Recipe,
+    Source,
+    SourceType,
+    UrlSource,
+)
+
+
+class RecipeParser:
+    recipes_root: Path
+
+    def __init__(self, recipes_root: Path) -> None:
+        self.recipes_root = recipes_root
+
+    def find(self, name: str) -> Path:
+        path = self.recipes_root / name / "recipe.nix"
+        if not path.exists():
+            raise RecipeNotFoundError(name, self.recipes_root)
+        return path
+
+    def parse(self, path: Path) -> Recipe:
+        lines = path.read_text().splitlines(keepends=True)
+        text = "".join(lines)
+
+        blocks = self._extract_package_blocks(text)
+        if not blocks:
+            raise RecipeParseError(path, "no package declarations found")
+
+        packages: list[PackageEntry] = []
+        for pname, block_text in blocks:
+            version = self._extract_version(block_text, path)
+            source = self._parse_source(block_text, path)
+            builder_type, builder_hashes = self._parse_builder(block_text)
+            packages.append(PackageEntry(
+                pname=pname,
+                version=version,
+                source=source,
+                builder_type=builder_type,
+                builder_hashes=builder_hashes,
+            ))
+
+        return Recipe(
+            rel_path=path.parent,
+            abs_path=path,
+            raw_lines=lines,
+            packages=packages,
+        )
+
+    def _extract_package_blocks(self, text: str) -> list[tuple[str, str]]:
+        blocks: list[tuple[str, str]] = []
+        for match in re.finditer(r'packages\.([\w-]+)\s*=\s*\{', text):
+            pname = match.group(1)
+            start = match.start()
+            depth = 1
+            pos = match.end()
+            while pos < len(text) and depth > 0:
+                if text[pos] == "{":
+                    depth += 1
+                elif text[pos] == "}":
+                    depth -= 1
+                pos += 1
+            blocks.append((pname, text[start:pos]))
+        return blocks
+
+    def _extract_version(self, text: str, path: Path) -> str:
+        match = re.search(r'version\s*=\s*"([^"]*)"', text)
+        if not match:
+            raise RecipeParseError(path, "version field not found")
+        return match.group(1)
+
+    def _parse_source(self, text: str, path: Path) -> Source:
+        source_hash = self._extract_source_hash(text)
+
+        git_match = re.search(r'(?<!\w)git\s*=\s*"([^"]*)"', text)
+        if git_match:
+            return Source(
+                type=SourceType.GIT,
+                git=self._parse_git(git_match.group(1), text, path),
+                hash=source_hash,
+            )
+
+        url_match = re.search(r'(?<!\w)url\s*=\s*"([^"]*)"', text)
+        if url_match:
+            return Source(
+                type=SourceType.URL,
+                url=UrlSource(url=url_match.group(1)),
+                hash=source_hash,
+            )
+
+        path_match = re.search(r"(?<!\w)path\s*=\s*(\./[\w./-]+)", text)
+        if path_match:
+            return Source(
+                type=SourceType.PATH,
+                path=PathSource(path=Path(path_match.group(1))),
+            )
+
+        raise RecipeParseError(path, "no source (git/url/path) found")
+
+    def _extract_source_hash(self, text: str) -> str:
+        match = re.search(r'(?<!cargo)(?<!vendor)(?<!\w)hash\s*=\s*"([^"]*)"', text)
+        return match.group(1) if match else ""
+
+    def _parse_git(self, spec: str, text: str, path: Path) -> GitSource:
+        parts = spec.split(":")
+        forge_str = parts[0]
+        rest = ":".join(parts[1:])
+
+        try:
+            host = ForgeHost(forge_str)
+        except ValueError:
+            raise RecipeParseError(path, f"unknown forge host in git spec: {forge_str}")
+
+        if host == ForgeHost.GENERIC_GIT:
+            return self._parse_generic_git(rest, text)
+
+        path_parts = rest.split("/")
+        path_len = len(path_parts)
+
+        if path_len == 3:
+            owner, repo, rev = path_parts
+        elif path_len == 4:
+            _, owner, repo, rev = path_parts
+        else:
+            raise RecipeParseError(path, f"cannot parse git spec: {spec}")
+
+        submodules = bool(re.search(r"submodules\s*=\s*true", text))
+
+        return GitSource(
+            host=host, owner=owner, repo=repo, rev=rev, submodules=submodules
+        )
+
+    def _parse_generic_git(self, rest: str, text: str) -> GitSource:
+        rev_match = re.search(r"rev=([^&]+)", rest)
+        rev = rev_match.group(1) if rev_match else "HEAD"
+
+        submodules = bool(re.search(r"submodules\s*=\s*true", text))
+
+        return GitSource(
+            host=ForgeHost.GENERIC_GIT,
+            owner="",
+            repo="",
+            rev=rev,
+            submodules=submodules,
+        )
+
+    def _parse_builder(self, text: str) -> tuple[BuilderType, BuilderHashes]:
+        builder_map: dict[str, BuilderType] = {
+            "standard": BuilderType.STANDARD,
+            "rustPackage": BuilderType.RUST,
+            "goPackage": BuilderType.GO,
+            "npm": BuilderType.NPM,
+            "pnpm": BuilderType.PNPM,
+            "pythonApp": BuilderType.PYTHON_APP,
+            "pythonPackage": BuilderType.PYTHON_PACKAGE,
+        }
+
+        builder_match = re.search(
+            r"(\w+)Builder\s*=\s*\{[^}]*\benable\b\s*=\s*true", text, re.DOTALL
+        )
+        if not builder_match:
+            return BuilderType.STANDARD, BuilderHashes()
+
+        builder_key = builder_match.group(1)
+        builder_type = builder_map.get(builder_key, BuilderType.STANDARD)
+
+        hashes = BuilderHashes()
+        cargo = re.search(r'cargoHash\s*=\s*"([^"]*)"', text)
+        if cargo:
+            hashes.cargo_hash = cargo.group(1)
+
+        vendor = re.search(r'vendorHash\s*=\s*"([^"]*)"', text)
+        if vendor:
+            hashes.vendor_hash = vendor.group(1)
+
+        npm = re.search(r'npmDepsHash\s*=\s*"([^"]*)"', text)
+        if npm:
+            hashes.npm_deps_hash = npm.group(1)
+
+        pnpm = re.search(r'pnpmDepsHash\s*=\s*"([^"]*)"', text)
+        if pnpm:
+            hashes.pnpm_deps_hash = pnpm.group(1)
+
+        return builder_type, hashes
+
+
+class RecipeWriter:
+    dry_run: bool
+    pending_changes: list[tuple[str, str, str]]
+
+    def __init__(self, dry_run: bool = False) -> None:
+        self.dry_run = dry_run
+        self.pending_changes = []
+
+    def update_version(self, recipe: Recipe, pname: str, new_version: str) -> None:
+        self._replace(
+            recipe, pname, r'version\s*=\s*"([^"]*)"',
+            f'version = "{new_version}"', "version",
+        )
+
+    def update_source_git(self, recipe: Recipe, pname: str, new_git: str) -> None:
+        self._replace(
+            recipe, pname, r'git\s*=\s*"([^"]*)"',
+            f'git = "{new_git}"', "source.git",
+        )
+
+    def update_source_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
+        self._replace(
+            recipe, pname,
+            r'(?<!cargo)(?<!vendor)(?<!\w)hash\s*=\s*"([^"]*)"',
+            f'hash = "{new_hash}"',
+            "source.hash",
+        )
+
+    def update_cargo_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
+        self._replace(
+            recipe, pname,
+            r'cargoHash\s*=\s*"([^"]*)"',
+            f'cargoHash = "{new_hash}"',
+            "cargoHash",
+        )
+
+    def update_vendor_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
+        self._replace(
+            recipe, pname,
+            r'vendorHash\s*=\s*"([^"]*)"',
+            f'vendorHash = "{new_hash}"',
+            "vendorHash",
+        )
+
+    def _find_package_block(
+        self, text: str, pname: str, abs_path: Path
+    ) -> tuple[int, int, str]:
+        for match in re.finditer(
+            rf'packages\.{re.escape(pname)}\s*=\s*\{{', text
+        ):
+            start = match.start()
+            depth = 1
+            pos = match.end()
+            while pos < len(text) and depth > 0:
+                if text[pos] == "{":
+                    depth += 1
+                elif text[pos] == "}":
+                    depth -= 1
+                pos += 1
+            return start, pos, text[start:pos]
+        raise RecipeParseError(abs_path, f"package '{pname}' not found for replacement")
+
+    def _replace(
+        self, recipe: Recipe, pname: str, pattern: str, replacement: str, field: str
+    ) -> None:
+        text = "".join(recipe.raw_lines)
+
+        block_start, block_end, block_text = self._find_package_block(
+            text, pname, recipe.abs_path
+        )
+
+        new_block, count = re.subn(pattern, replacement, block_text, count=1)
+        if count == 0:
+            raise RecipeParseError(
+                recipe.abs_path, f"cannot find {field} for {pname}"
+            )
+
+        new_text = text[:block_start] + new_block + text[block_end:]
+        recipe.raw_lines = new_text.splitlines(keepends=True)
+
+        old_match = re.search(pattern, block_text)
+        old_value = old_match.group(1) if old_match else "?"
+        label = f"{pname}.{field}"
+        self.pending_changes.append(
+            (
+                label,
+                old_value,
+                replacement.split('"')[1] if '"' in replacement else replacement,
+            )
+        )
+
+    def apply(self, recipe: Recipe) -> None:
+        if self.dry_run:
+            for field, old, new in self.pending_changes:
+                print(f"  {field}: {old!r} \u2192 {new!r}")
+            return
+        _ = recipe.abs_path.write_text("".join(recipe.raw_lines))

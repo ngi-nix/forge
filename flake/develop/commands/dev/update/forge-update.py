@@ -3,6 +3,11 @@
 import argparse
 from pathlib import Path
 
+from .forge_update.recipe import (
+    RecipeParser,
+    RecipeWriter,
+)
+
 
 class Args(argparse.Namespace):
     recipe: list[str] = []
@@ -34,13 +39,37 @@ def parse_args(argv: list[str] | None = None) -> Args:
 
 def main() -> None:
     args = parse_args()
+    parser = RecipeParser(args.recipes_root)
+    writer = RecipeWriter(dry_run=args.dry_run)
 
-    print(f"Recipes to update: {args.recipe}")
-    print(f"  recipes-root: {args.recipes_root}")
-    if args.version:
-        print(f"  explicit version: {args.version}")
-    if args.dry_run:
-        print("  dry-run: enabled")
+    for name in args.recipe:
+        path = parser.find(name)
+        recipe = parser.parse(path)
+        print(f"{name} ({path.parent.resolve()}/recipe.nix):")
+        for pkg in recipe.packages:
+            btype = pkg.builder_type.name
+            print(f"  packages.{pkg.pname}")
+            print(f"    version:     {pkg.version}")
+            print(f"    builder:     {btype}")
+            if pkg.source.type.name == "GIT":
+                g = pkg.source.git
+                if g:
+                    print(f"    git:         {g.host.value}:{g.owner}/{g.repo}@{g.rev}")
+            print(f"    source hash: {pkg.source.hash or '(none)'}")
+            h = pkg.builder_hashes
+            if h.cargo_hash:
+                print(f"    cargoHash:   {h.cargo_hash}")
+            if h.vendor_hash:
+                print(f"    vendorHash:  {h.vendor_hash}")
+            if h.npm_deps_hash:
+                print(f"    npmDepsHash: {h.npm_deps_hash}")
+            if h.pnpm_deps_hash:
+                print(f"    pnpmDepsHash:{h.pnpm_deps_hash}")
+
+        if args.version and recipe.packages:
+            pkg = recipe.packages[0]
+            writer.update_version(recipe, pkg.pname, args.version)
+            writer.apply(recipe)
 
 
 if __name__ == "__main__":

@@ -65,12 +65,17 @@ class BuilderHashes:
 
 
 @dataclass
-class Recipe:
-    rel_path: Path
-    abs_path: Path
+class PackageEntry:
     pname: str
     version: str
     source: Source
     builder_type: BuilderType
     builder_hashes: BuilderHashes = field(default_factory=BuilderHashes)
+
+
+@dataclass
+class Recipe:
+    rel_path: Path
+    abs_path: Path
     raw_lines: list[str] = field(default_factory=list)
+    packages: list[PackageEntry] = field(default_factory=list)
