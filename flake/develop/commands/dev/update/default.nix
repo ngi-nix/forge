@@ -7,13 +7,14 @@
   nix,
 }:
 let
+  srcDir = toString ./.;
   script = writers.writePython3Bin "forge-update" {
     libraries = [ ];
     flakeIgnore = [
       "E402"
       "E501"
     ];
-  } (lib.readFile ./forge-update.py);
+  } (lib.replaceStrings [ "@forgeUpdateDir@" ] [ srcDir ] (lib.readFile ./forge-update.py));
 in
 writeShellApplication {
   name = "forge-update";

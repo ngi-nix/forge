@@ -1,9 +1,11 @@
 """forge-update: Update forge package recipes to latest upstream versions."""
 
 import argparse
+import sys
 from pathlib import Path
 
-from .forge_update.recipe import (
+sys.path.insert(0, "@forgeUpdateDir@")
+from forge_update.recipe import (  # pyright: ignore[reportImplicitRelativeImport]
     RecipeParser,
     RecipeWriter,
 )
