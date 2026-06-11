@@ -278,6 +278,25 @@ class RecipeWriter:
             "vendorHash",
         )
 
+    def update_git_rev(self, recipe: Recipe, pname: str, new_rev: str) -> None:
+        text = "".join(recipe.raw_lines)
+        _, _, block_text = self._find_package_block(text, pname, recipe.abs_path)
+
+        match = re.search(regexes.FIELD_GIT, block_text)
+        if not match:
+            raise RecipeParseError(recipe.abs_path, f"cannot find git spec for {pname}")
+        old_git = match.group(1)
+
+        if old_git.startswith("git:"):
+            # Generic git: replace tag= or rev= query-param value
+            # e.g. git:https://example.com/repo?tag=0.3.0 → ?tag=<new>
+            new_git = re.sub(r"(tag|rev)=([^&\"]*)", rf"\1={new_rev}", old_git, count=1)
+        else:
+            # Forge-host: replace last /-separated component
+            new_git = old_git.rsplit("/", 1)[0] + "/" + new_rev
+
+        self._replace(recipe, pname, regexes.FIELD_GIT, f'git = "{new_git}"', "git")
+
     def _find_package_block(
         self, text: str, pname: str, abs_path: Path
     ) -> tuple[int, int, str]:

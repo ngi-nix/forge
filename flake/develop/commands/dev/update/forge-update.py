@@ -14,6 +14,7 @@ from forge_update.recipe import (  # pyright: ignore[reportImplicitRelativeImpor
 )
 from forge_update.version import (  # pyright: ignore[reportImplicitRelativeImport]
     VersionDetector,
+    VersionResult,
 )
 
 
@@ -78,14 +79,17 @@ def main() -> None:
                 print(f"    pnpmDepsHash:{h.pnpm_deps_hash}")
 
         if args.version:
-            new_version = args.version
+            result = VersionResult(version=args.version, rev="")
+            print(f"  \u2192 set: {result.version}")
         else:
-            new_version = detector.detect(recipe)
-            print(f"  \u2192 latest: {new_version}")
+            result = detector.detect(recipe)
+            print(f"  \u2192 detected: {result.version} (rev: {result.rev})")
 
         if recipe.packages:
             pkg = recipe.packages[0]
-            writer.update_version(recipe, pkg.pname, new_version)
+            writer.update_version(recipe, pkg.pname, result.version)
+            if result.rev:
+                writer.update_git_rev(recipe, pkg.pname, result.rev)
             writer.apply(recipe)
 
 
