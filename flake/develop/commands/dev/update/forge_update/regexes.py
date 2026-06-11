@@ -14,6 +14,6 @@ PACKAGE_BLOCK = r"packages\.([\w-]+)\s*=\s*\{"
 ENABLED_BUILDER = r"(\w+)Builder\s*=\s*\{[^}]*\benable\b\s*=\s*true"
 
 SUBMODULES = r"submodules\s*=\s*true"
-GIT_REV = r"rev=([^&]+)"
+GIT_REV = r"(?:rev|tag)=([^&]+)"
 
 NIX_BUILD_GOT_HASH = r"got:\s+(sha256-\S+)"
