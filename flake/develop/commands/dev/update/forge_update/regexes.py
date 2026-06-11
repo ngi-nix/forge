@@ -1,0 +1,17 @@
+"""Named regex patterns for recipe field extraction and replacement."""
+
+FIELD_VERSION = r'version\s*=\s*"([^"]*)"'
+FIELD_GIT = r'\bgit\s*=\s*"([^"]*)"'
+FIELD_URL = r'\burl\s*=\s*"([^"]*)"'
+FIELD_PATH = r"\bpath\s*=\s*(\./[\w./-]+)"
+FIELD_HASH = r'\bhash\s*=\s*"([^"]*)"'
+FIELD_CARGO_HASH = r'cargoHash\s*=\s*"([^"]*)"'
+FIELD_VENDOR_HASH = r'vendorHash\s*=\s*"([^"]*)"'
+FIELD_NPM_DEPS_HASH = r'npmDepsHash\s*=\s*"([^"]*)"'
+FIELD_PNPM_DEPS_HASH = r'pnpmDepsHash\s*=\s*"([^"]*)"'
+
+PACKAGE_BLOCK = r"packages\.([\w-]+)\s*=\s*\{"
+ENABLED_BUILDER = r"(\w+)Builder\s*=\s*\{[^}]*\benable\b\s*=\s*true"
+
+SUBMODULES = r"submodules\s*=\s*true"
+GIT_REV = r"rev=([^&]+)"

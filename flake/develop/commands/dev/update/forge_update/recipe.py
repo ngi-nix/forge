@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 
+from . import regexes
 from .errors import RecipeNotFoundError, RecipeParseError
 from .types import (
     BuilderHashes,
@@ -65,7 +66,7 @@ class RecipeParser:
         character-by-character counting depth instead.
         """
         blocks: list[tuple[str, str]] = []
-        for match in re.finditer(r"packages\.([\w-]+)\s*=\s*\{", text):
+        for match in re.finditer(regexes.PACKAGE_BLOCK, text):
             pname = match.group(1)
             start = match.start()
             depth = 1
@@ -80,7 +81,7 @@ class RecipeParser:
         return blocks
 
     def _extract_version(self, text: str, path: Path) -> str:
-        match = re.search(r'version\s*=\s*"([^"]*)"', text)
+        match = re.search(regexes.FIELD_VERSION, text)
         if not match:
             raise RecipeParseError(path, "version field not found")
         return match.group(1)
@@ -94,7 +95,7 @@ class RecipeParser:
         """
         source_hash = self._extract_source_hash(text)
 
-        git_match = re.search(r'\bgit\s*=\s*"([^"]*)"', text)
+        git_match = re.search(regexes.FIELD_GIT, text)
         if git_match:
             return Source(
                 type=SourceType.GIT,
@@ -102,7 +103,7 @@ class RecipeParser:
                 hash=source_hash,
             )
 
-        url_match = re.search(r'\burl\s*=\s*"([^"]*)"', text)
+        url_match = re.search(regexes.FIELD_URL, text)
         if url_match:
             return Source(
                 type=SourceType.URL,
@@ -110,7 +111,7 @@ class RecipeParser:
                 hash=source_hash,
             )
 
-        path_match = re.search(r'\bpath\s*=\s*(\./[\w./-]+)', text)
+        path_match = re.search(regexes.FIELD_PATH, text)
         if path_match:
             return Source(
                 type=SourceType.PATH,
@@ -120,7 +121,7 @@ class RecipeParser:
         raise RecipeParseError(path, "no source (git/url/path) found")
 
     def _extract_source_hash(self, text: str) -> str:
-        match = re.search(r'\bhash\s*=\s*"([^"]*)"', text)
+        match = re.search(regexes.FIELD_HASH, text)
         return match.group(1) if match else ""
 
     def _parse_git(self, spec: str, text: str, path: Path) -> GitSource:
@@ -146,17 +147,17 @@ class RecipeParser:
         else:
             raise RecipeParseError(path, f"cannot parse git spec: {spec}")
 
-        submodules = bool(re.search(r"submodules\s*=\s*true", text))
+        submodules = bool(re.search(regexes.SUBMODULES, text))
 
         return GitSource(
             host=host, owner=owner, repo=repo, rev=rev, submodules=submodules
         )
 
     def _parse_generic_git(self, rest: str, text: str) -> GitSource:
-        rev_match = re.search(r"rev=([^&]+)", rest)
+        rev_match = re.search(regexes.GIT_REV, rest)
         rev = rev_match.group(1) if rev_match else "HEAD"
 
-        submodules = bool(re.search(r"submodules\s*=\s*true", text))
+        submodules = bool(re.search(regexes.SUBMODULES, text))
 
         return GitSource(
             host=ForgeHost.GENERIC_GIT,
@@ -179,9 +180,7 @@ class RecipeParser:
 
         # re.DOTALL lets `.' span newlines. We need this because
         # the builder name and `enable = true' are on separate lines.
-        builder_match = re.search(
-            r"(\w+)Builder\s*=\s*\{[^}]*\benable\b\s*=\s*true", text, re.DOTALL
-        )
+        builder_match = re.search(regexes.ENABLED_BUILDER, text, re.DOTALL)
         if not builder_match:
             return BuilderType.STANDARD, BuilderHashes()
 
@@ -189,19 +188,19 @@ class RecipeParser:
         builder_type = builder_map.get(builder_key, BuilderType.STANDARD)
 
         hashes = BuilderHashes()
-        cargo = re.search(r'cargoHash\s*=\s*"([^"]*)"', text)
+        cargo = re.search(regexes.FIELD_CARGO_HASH, text)
         if cargo:
             hashes.cargo_hash = cargo.group(1)
 
-        vendor = re.search(r'vendorHash\s*=\s*"([^"]*)"', text)
+        vendor = re.search(regexes.FIELD_VENDOR_HASH, text)
         if vendor:
             hashes.vendor_hash = vendor.group(1)
 
-        npm = re.search(r'npmDepsHash\s*=\s*"([^"]*)"', text)
+        npm = re.search(regexes.FIELD_NPM_DEPS_HASH, text)
         if npm:
             hashes.npm_deps_hash = npm.group(1)
 
-        pnpm = re.search(r'pnpmDepsHash\s*=\s*"([^"]*)"', text)
+        pnpm = re.search(regexes.FIELD_PNPM_DEPS_HASH, text)
         if pnpm:
             hashes.pnpm_deps_hash = pnpm.group(1)
 
@@ -220,7 +219,7 @@ class RecipeWriter:
         self._replace(
             recipe,
             pname,
-            r'version\s*=\s*"([^"]*)"',
+            regexes.FIELD_VERSION,
             f'version = "{new_version}"',
             "version",
         )
@@ -229,7 +228,7 @@ class RecipeWriter:
         self._replace(
             recipe,
             pname,
-            r'git\s*=\s*"([^"]*)"',
+            regexes.FIELD_GIT,
             f'git = "{new_git}"',
             "source.git",
         )
@@ -238,7 +237,7 @@ class RecipeWriter:
         self._replace(
             recipe,
             pname,
-            r'\bhash\s*=\s*"([^"]*)"',
+            regexes.FIELD_HASH,
             f'hash = "{new_hash}"',
             "source.hash",
         )
@@ -247,7 +246,7 @@ class RecipeWriter:
         self._replace(
             recipe,
             pname,
-            r'cargoHash\s*=\s*"([^"]*)"',
+            regexes.FIELD_CARGO_HASH,
             f'cargoHash = "{new_hash}"',
             "cargoHash",
         )
@@ -256,7 +255,7 @@ class RecipeWriter:
         self._replace(
             recipe,
             pname,
-            r'vendorHash\s*=\s*"([^"]*)"',
+            regexes.FIELD_VENDOR_HASH,
             f'vendorHash = "{new_hash}"',
             "vendorHash",
         )
