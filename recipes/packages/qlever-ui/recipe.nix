@@ -6,15 +6,15 @@
 
 {
   packages.qlever-ui = {
-    version = "0-unstable-2026-04-16";
+    version = "0-unstable-2026-06-11";
     description = "User interface for QLever.";
     homePage = "https://github.com/qlever-dev/qlever-ui";
     mainProgram = "qlever-ui";
     license = lib.licenses.asl20;
 
     source = {
-      git = "github:qlever-dev/qlever-ui/b12823ffd25f0c9ebdc530ebd16868e7389ef0fa";
-      hash = "sha256-aN4vj5zYy/rkfhEylHd5wYGxwEFaZCSnpZIIYhSQMeo=";
+      git = "github:qlever-dev/qlever-ui/ae139a1cd5ebd704e0eb273c8ca57b8a689184e7";
+      hash = "sha256-DIlmSaRdOJXDj3HvAxnSzmEr6595x9Avcg0jWH9fUuU=";
     };
 
     build.pythonAppBuilder = {
