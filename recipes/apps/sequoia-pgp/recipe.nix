@@ -4,11 +4,11 @@
 }:
 
 {
-  apps.sequoia-pqc = {
-    displayName = "Sequoia PQC";
+  apps.sequoia-pgp = {
+    displayName = "Sequoia PGP";
     description = "Command-line OpenPGP tool with post-quantum cryptography support.";
     usage = ''
-      Sequoia PQC (`sq`) is a command-line OpenPGP tool with post-quantum
+      Sequoia PGP (`sq`) is a command-line OpenPGP tool with post-quantum
       cryptography support, implementing draft-ietf-openpgp-pqc.
 
       #### Generate a key
@@ -49,7 +49,7 @@
 
     programs = {
       packages = [
-        pkgs.sequoia-pqc
+        pkgs.sequoia-pgp
       ];
 
       runtimes.shell = {
