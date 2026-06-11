@@ -89,24 +89,6 @@ lib.mapAttrs (
 
       <OTHER_COMMENTS> <THANKS_PEOPLE_INVOLVED>'';
 
-    nlnet = with info; ''
-      Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
-
-      Body:
-
-      Dear NLnet Foundation staff,
-
-      We have completed the packaging tasks for the following project:
-      - Project: ${NAME}
-      - Project number: <ADD_PROJECT_NUMBER>
-      - Fund: ${GRANT_STR}
-
-      The package is now available in the NGI Forge repository: ${APP_URL}.
-
-      The Nix@NGI team: ${TEAM_URL}.
-
-      Kind regards'';
-
     project-author = with info; ''
       Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
 
@@ -142,14 +124,7 @@ lib.mapAttrs (
       \`\`\`text
       ${discourse}
       \`\`\`
-      ---
 
-      # Email to NLnet
-
-      \`\`\`text
-      ${nlnet}
-      \`\`\`
-      ---
 
       # Email to project author
 
