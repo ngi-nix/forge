@@ -1,8 +1,12 @@
 """forge-update: Update forge package recipes to latest upstream versions."""
 
 import argparse
+import os
 import sys
 from pathlib import Path
+
+from colorama import Fore, Style
+from colorama import init as colorama_init
 
 # At build time default.nix replaces @forgeUpdateDir@ with the Nix-store
 # path of this directory, making the sibling forge_update/ package
@@ -16,6 +20,14 @@ from forge_update.version import (  # pyright: ignore[reportImplicitRelativeImpo
     VersionDetector,
     VersionResult,
 )
+
+colorama_init()
+
+
+def style(text: str, *parts: str) -> str:
+    if not sys.stdout.isatty() or os.environ.get("NO_COLOR"):
+        return text
+    return "".join(parts) + text + Style.RESET_ALL
 
 
 class Args(argparse.Namespace):
@@ -70,10 +82,10 @@ def main() -> None:
         rev_changed = bool(result.rev) and result.rev != current_rev
         version_changed = pkg.version != result.version
 
-        print(name)
+        print(style(name, Fore.YELLOW + Style.BRIGHT))
 
         if not version_changed and not rev_changed:
-            print(f"  already at {pkg.version}")
+            print(f"  {style('already at ' + pkg.version, Fore.YELLOW)}")
             continue
 
         writer.update_version(recipe, pkg.pname, result.version)
@@ -81,9 +93,9 @@ def main() -> None:
             writer.update_git_rev(recipe, pkg.pname, result.rev)
 
         for field, old, new in writer.pending_changes:
-            print(f"  {field}")
-            print(f"    {old}  ->")
-            print(f"    {new}")
+            print(f"  {style(field, Style.BRIGHT)}")
+            print(f"    {style(f'-{old}', Fore.RED)}")
+            print(f"    {style(f'+{new}', Fore.GREEN)}")
 
         writer.apply(recipe)
 

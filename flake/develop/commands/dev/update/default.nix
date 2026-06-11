@@ -15,6 +15,7 @@ let
   srcDir = toString ./.;
   script = writers.writePython3Bin "forge-update" {
     libraries = with python3Packages; [
+      colorama
     ];
     flakeIgnore = [
       # sys.path.insert before import triggers "import not at top"
