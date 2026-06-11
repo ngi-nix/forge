@@ -31,35 +31,13 @@ class HashPrefetcher:
             raise PrefetchError("nix-prefetch-git output missing 'hash' field")
         return hash_val
 
-    def prefetch_url(self, url: str) -> str:
-        stdout, stderr, returncode = self._run(["nix-prefetch-url", url])
-        if returncode != 0:
-            raise PrefetchError(
-                f"nix-prefetch-url failed (exit {returncode}): {stderr}"
-            )
-
-        base32_hash = stdout.strip()
-        if not base32_hash:
-            raise PrefetchError("nix-prefetch-url produced empty output")
-
-        sri_stdout, sri_stderr, sri_returncode = self._run(
-            ["nix", "hash", "to-sri", "--type", "sha256"],
-            input=base32_hash,
-        )
-        if sri_returncode != 0:
-            raise PrefetchError(
-                f"nix hash to-sri failed (exit {sri_returncode}): {sri_stderr}"
-            )
-        return sri_stdout.strip()
-
-    def _run(self, cmd: list[str], input: str | None = None) -> tuple[str, str, int]:
+    def _run(self, cmd: list[str]) -> tuple[str, str, int]:
         try:
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
                 timeout=self.prefetch_timeout,
-                input=input,
             )
             return result.stdout, result.stderr, result.returncode
         except subprocess.TimeoutExpired:

@@ -251,15 +251,6 @@ class RecipeWriter:
             "version",
         )
 
-    def update_source_git(self, recipe: Recipe, pname: str, new_git: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_GIT,
-            f'git = "{new_git}"',
-            "source.git",
-        )
-
     def update_source_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
         self._replace(
             recipe,

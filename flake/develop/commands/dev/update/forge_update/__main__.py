@@ -4,33 +4,19 @@ import argparse
 import os
 import subprocess
 import sys
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
 from colorama import Fore, Style
 from colorama import init as colorama_init
 
-# At build time default.nix replaces @forgeUpdateDir@ with the Nix-store
-# path of this directory, making the sibling forge_update/ package
-# importable when this script runs inside its Nix wrapper.
-sys.path.insert(0, "@forgeUpdateDir@")
-from forge_update.builder import (  # pyright: ignore[reportImplicitRelativeImport]
-    BuilderHashUpdater,
-)
-from forge_update.errors import (  # pyright: ignore[reportImplicitRelativeImport]
-    ForgeUpdateError,
-)
-from forge_update.hasher import (  # pyright: ignore[reportImplicitRelativeImport]
-    HashPrefetcher,
-)
-from forge_update.recipe import (  # pyright: ignore[reportImplicitRelativeImport]
-    RecipeParser,
-    RecipeWriter,
-)
-from forge_update.version import (  # pyright: ignore[reportImplicitRelativeImport]
-    VersionDetector,
-    VersionResult,
-)
+from .builder import BuilderHashUpdater
+from .errors import ForgeUpdateError
+from .hasher import HashPrefetcher
+from .recipe import RecipeParser, RecipeWriter
+from .types import PackageEntry, Recipe
+from .version import VersionDetector, VersionResult
 
 colorama_init()
 
@@ -41,7 +27,7 @@ def style(text: str, *parts: str) -> str:
     return "".join(parts) + text + Style.RESET_ALL
 
 
-def _print_changes(writer, before: int) -> None:
+def _print_changes(writer: RecipeWriter, before: int) -> None:
     for field, old, new in writer.pending_changes[before:]:
         print(f"  {style(field, Style.BRIGHT)}")
         print(f"    {style(f'-{old}', Fore.RED)}")
@@ -49,7 +35,7 @@ def _print_changes(writer, before: int) -> None:
 
 
 @contextmanager
-def _progress(label: str):
+def _progress(label: str) -> Iterator[None]:
     print(f"  {style(label, Style.BRIGHT)} (in progress)", end="\r", flush=True)
     try:
         yield
@@ -57,7 +43,7 @@ def _progress(label: str):
         _ = sys.stdout.write("\r\033[K")
 
 
-def _commit_recipe(recipe, pkg, result) -> None:
+def _commit_recipe(recipe: Recipe, pkg: PackageEntry, result: VersionResult) -> None:
     msg = f"feat({pkg.pname}): {pkg.version} -> {result.version}"
     _ = subprocess.run(
         ["git", "add", str(recipe.abs_path)], check=True, capture_output=True

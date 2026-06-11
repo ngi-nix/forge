@@ -14,12 +14,7 @@ class VersionResult:
 
 
 class VersionDetector:
-    def detect(
-        self, recipe: Recipe, explicit_version: str | None = None
-    ) -> VersionResult:
-        if explicit_version is not None:
-            return VersionResult(version=explicit_version, rev="")
-
+    def detect(self, recipe: Recipe) -> VersionResult:
         source = recipe.packages[0].source
 
         match source.type:

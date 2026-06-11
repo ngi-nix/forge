@@ -1,9 +1,12 @@
 import re
 import subprocess
 
+from typing import Callable
+
 from . import regexes
 from .errors import BuildError
-from .types import BuilderType
+from .recipe import Recipe, RecipeWriter
+from .types import BuilderType, PackageEntry
 
 HASH_MISMATCH_RE = re.compile(regexes.NIX_BUILD_GOT_HASH)
 
@@ -14,7 +17,7 @@ class BuilderHashUpdater:
     def __init__(self, dry_run: bool = False) -> None:
         self.dry_run = dry_run
 
-    def field_name(self, pkg) -> str | None:
+    def field_name(self, pkg: PackageEntry) -> str | None:
         match pkg.builder_type:
             case BuilderType.GO:
                 bh = pkg.builder_hashes
@@ -30,7 +33,7 @@ class BuilderHashUpdater:
             case _:
                 return None
 
-    def update(self, recipe, writer, pkg) -> None:
+    def update(self, recipe: Recipe, writer: RecipeWriter, pkg: PackageEntry) -> None:
         match pkg.builder_type:
             case BuilderType.RUST:
                 self._update_single(
@@ -66,7 +69,12 @@ class BuilderHashUpdater:
                 return
 
     def _update_single(
-        self, recipe, pname: str, writer, field_name: str, updater
+        self,
+        recipe: Recipe,
+        pname: str,
+        writer: RecipeWriter,
+        field_name: str,
+        updater: Callable[..., None],
     ) -> None:
         if self.dry_run:
             return

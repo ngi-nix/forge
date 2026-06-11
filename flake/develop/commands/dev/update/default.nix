@@ -1,29 +1,16 @@
 {
   lib,
-  writers,
   writeShellApplication,
   gitMinimal,
   nix-prefetch-git,
   nix,
-  python3Packages,
+  python3,
 }:
 let
-  # Inject the store path of this directory so the script can locate the
-  # sibling forge_update/ package at runtime.  We read + replace instead of
-  # passing a path to writePython3Bin because the latter does not bundle
-  # sub-directories alongside the resulting wrapper.
   srcDir = toString ./.;
-  script = writers.writePython3Bin "forge-update" {
-    libraries = with python3Packages; [
-      colorama
-    ];
-    flakeIgnore = [
-      # sys.path.insert before import triggers "import not at top"
-      "E402"
-      # long replaceStrings line / error-message strings
-      "E501"
-    ];
-  } (lib.replaceStrings [ "@forgeUpdateDir@" ] [ srcDir ] (lib.readFile ./forge-update.py));
+  pythonEnv = python3.withPackages (ps: [
+    ps.colorama
+  ]);
 in
 writeShellApplication {
   name = "forge-update";
@@ -31,9 +18,11 @@ writeShellApplication {
     gitMinimal
     nix-prefetch-git
     nix
+    pythonEnv
   ];
   text = ''
-    ${lib.getExe script} "$@"
+    export PYTHONPATH="${srcDir}:''${PYTHONPATH-}"
+    exec python3 -m forge_update "$@"
   '';
   meta.description = "Update forge package recipes to latest upstream versions";
 }

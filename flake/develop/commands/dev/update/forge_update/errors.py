@@ -37,16 +37,6 @@ class BuildError(ForgeUpdateError):
         self.stderr = stderr
 
 
-class HashExtractionError(ForgeUpdateError):
-    def __init__(self, pname: str, detail: str) -> None:
-        super().__init__(f"Cannot extract hash for '{pname}': {detail}")
-
-
-class NoUpdateNeeded(ForgeUpdateError):
-    def __init__(self, pname: str, version: str) -> None:
-        super().__init__(f"'{pname}' already at latest ({version})")
-
-
 class UnsupportedRecipeError(ForgeUpdateError):
     def __init__(self, pname: str, reason: str) -> None:
         super().__init__(f"'{pname}' cannot be auto-updated: {reason}")
