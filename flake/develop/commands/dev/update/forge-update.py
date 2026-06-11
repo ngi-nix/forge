@@ -36,6 +36,13 @@ def style(text: str, *parts: str) -> str:
     return "".join(parts) + text + Style.RESET_ALL
 
 
+def _print_changes(writer, before: int) -> None:
+    for field, old, new in writer.pending_changes[before:]:
+        print(f"  {style(field, Style.BRIGHT)}")
+        print(f"    {style(f'-{old}', Fore.RED)}")
+        print(f"    {style(f'+{new}', Fore.GREEN)}")
+
+
 class Args(argparse.Namespace):
     recipe: list[str] = []
     version: str | None = None
@@ -106,18 +113,22 @@ def main() -> None:
             continue
 
         writer.update_version(recipe, pkg.pname, result.version)
+        _print_changes(writer, 0)
+
         if result.rev:
+            before = len(writer.pending_changes)
             writer.update_git_rev(recipe, pkg.pname, result.rev)
+            _print_changes(writer, before)
 
         if g is not None and not args.dry_run and not args.skip_prefetch:
+            before = len(writer.pending_changes)
             new_hash = prefetcher.prefetch_git(g.remote_url, result.rev, g.submodules)
             writer.update_source_hash(recipe, pkg.pname, new_hash)
-            builder_hash.update(recipe, writer, pkg)
+            _print_changes(writer, before)
 
-        for field, old, new in writer.pending_changes:
-            print(f"  {style(field, Style.BRIGHT)}")
-            print(f"    {style(f'-{old}', Fore.RED)}")
-            print(f"    {style(f'+{new}', Fore.GREEN)}")
+            before = len(writer.pending_changes)
+            builder_hash.update(recipe, writer, pkg)
+            _print_changes(writer, before)
 
         writer.apply(recipe)
 
