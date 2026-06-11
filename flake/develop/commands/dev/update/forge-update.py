@@ -133,7 +133,7 @@ def main() -> None:
     parser = RecipeParser(args.recipes_root)
     detector = VersionDetector()
     prefetcher = HashPrefetcher(timeout=args.prefetch_timeout)
-    builder_hash = BuilderHashUpdater()
+    builder_hash = BuilderHashUpdater(dry_run=args.dry_run)
 
     for i, name in enumerate(names):
         if i > 0:

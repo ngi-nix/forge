@@ -11,6 +11,9 @@ HASH_MISMATCH_RE = re.compile(regexes.NIX_BUILD_GOT_HASH)
 class BuilderHashUpdater:
     build_timeout: int = 300
 
+    def __init__(self, dry_run: bool = False) -> None:
+        self.dry_run = dry_run
+
     def field_name(self, pkg) -> str | None:
         match pkg.builder_type:
             case BuilderType.GO:
@@ -65,6 +68,9 @@ class BuilderHashUpdater:
     def _update_single(
         self, recipe, pname: str, writer, field_name: str, updater
     ) -> None:
+        if self.dry_run:
+            return
+
         before = len(writer.pending_changes)
 
         recipe.abs_path.write_text("".join(recipe.raw_lines))
