@@ -168,7 +168,14 @@ def main() -> None:
                 writer.update_git_rev(recipe, pkg.pname, result.rev)
                 _print_changes(writer, before)
 
-            if g is not None and not args.dry_run and not args.skip_prefetch:
+            should_prefetch = (
+                g is not None
+                and result.rev
+                and not args.dry_run
+                and not args.skip_prefetch
+            )
+            if should_prefetch:
+                assert g is not None
                 before = len(writer.pending_changes)
                 with _progress("source.hash"):
                     new_hash = prefetcher.prefetch_git(
