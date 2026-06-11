@@ -34,6 +34,7 @@ class GitSource:
     owner: str
     repo: str
     rev: str
+    remote_url: str = ""
     submodules: bool = False
 
 

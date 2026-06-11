@@ -149,13 +149,30 @@ class RecipeParser:
 
         submodules = bool(re.search(regexes.SUBMODULES, text))
 
+        remote_url = self._forge_remote_url(host, owner, repo)
+
         return GitSource(
-            host=host, owner=owner, repo=repo, rev=rev, submodules=submodules
+            host=host,
+            owner=owner,
+            repo=repo,
+            rev=rev,
+            remote_url=remote_url,
+            submodules=submodules,
         )
+
+    @staticmethod
+    def _forge_remote_url(host: ForgeHost, owner: str, repo: str) -> str:
+        match host:
+            case ForgeHost.CODEBERG | ForgeHost.FORGEJO:
+                return f"https://{host.value}.org/{owner}/{repo}"
+            case _:
+                return f"https://{host.value}.com/{owner}/{repo}"
 
     def _parse_generic_git(self, rest: str, text: str) -> GitSource:
         rev_match = re.search(regexes.GIT_REV, rest)
         rev = rev_match.group(1) if rev_match else "HEAD"
+
+        remote_url = rest.split("?")[0] if "?" in rest else rest
 
         submodules = bool(re.search(regexes.SUBMODULES, text))
 
@@ -164,6 +181,7 @@ class RecipeParser:
             owner="",
             repo="",
             rev=rev,
+            remote_url=remote_url,
             submodules=submodules,
         )
 
