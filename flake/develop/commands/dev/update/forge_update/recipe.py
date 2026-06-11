@@ -86,9 +86,15 @@ class RecipeParser:
         return match.group(1)
 
     def _parse_source(self, text: str, path: Path) -> Source:
+        """Parse source fields from a scoped package block.
+
+        Within a `packages.<name> = { ... }` block each source field
+        (git/url/path) appears at most once, so plain word-boundary
+        matching is sufficient.
+        """
         source_hash = self._extract_source_hash(text)
 
-        git_match = re.search(r'(?<!\w)git\s*=\s*"([^"]*)"', text)
+        git_match = re.search(r'\bgit\s*=\s*"([^"]*)"', text)
         if git_match:
             return Source(
                 type=SourceType.GIT,
@@ -96,7 +102,7 @@ class RecipeParser:
                 hash=source_hash,
             )
 
-        url_match = re.search(r'(?<!\w)url\s*=\s*"([^"]*)"', text)
+        url_match = re.search(r'\burl\s*=\s*"([^"]*)"', text)
         if url_match:
             return Source(
                 type=SourceType.URL,
@@ -104,7 +110,7 @@ class RecipeParser:
                 hash=source_hash,
             )
 
-        path_match = re.search(r"(?<!\w)path\s*=\s*(\./[\w./-]+)", text)
+        path_match = re.search(r'\bpath\s*=\s*(\./[\w./-]+)', text)
         if path_match:
             return Source(
                 type=SourceType.PATH,
