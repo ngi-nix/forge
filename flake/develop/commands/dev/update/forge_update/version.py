@@ -84,10 +84,7 @@ class VersionDetector:
         raw_tags = self._fetch_tags(remote, git_source)
         version_tags = self._filter_version_tags(raw_tags)
         if not version_tags:
-            raise VersionDetectionError(
-                Source(type=SourceType.GIT, git=git_source),
-                f"no tags found at {remote} (needed for hash-based derivation)",
-            )
+            return "0"
         return self._sort_tags(version_tags)[0]
 
     @staticmethod
