@@ -41,13 +41,15 @@ class RecipeParser:
             version = self._extract_version(block_text, path)
             source = self._parse_source(block_text, path)
             builder_type, builder_hashes = self._parse_builder(block_text)
-            packages.append(PackageEntry(
-                pname=pname,
-                version=version,
-                source=source,
-                builder_type=builder_type,
-                builder_hashes=builder_hashes,
-            ))
+            packages.append(
+                PackageEntry(
+                    pname=pname,
+                    version=version,
+                    source=source,
+                    builder_type=builder_type,
+                    builder_hashes=builder_hashes,
+                )
+            )
 
         return Recipe(
             rel_path=path.parent,
@@ -58,7 +60,7 @@ class RecipeParser:
 
     def _extract_package_blocks(self, text: str) -> list[tuple[str, str]]:
         blocks: list[tuple[str, str]] = []
-        for match in re.finditer(r'packages\.([\w-]+)\s*=\s*\{', text):
+        for match in re.finditer(r"packages\.([\w-]+)\s*=\s*\{", text):
             pname = match.group(1)
             start = match.start()
             depth = 1
@@ -203,19 +205,26 @@ class RecipeWriter:
 
     def update_version(self, recipe: Recipe, pname: str, new_version: str) -> None:
         self._replace(
-            recipe, pname, r'version\s*=\s*"([^"]*)"',
-            f'version = "{new_version}"', "version",
+            recipe,
+            pname,
+            r'version\s*=\s*"([^"]*)"',
+            f'version = "{new_version}"',
+            "version",
         )
 
     def update_source_git(self, recipe: Recipe, pname: str, new_git: str) -> None:
         self._replace(
-            recipe, pname, r'git\s*=\s*"([^"]*)"',
-            f'git = "{new_git}"', "source.git",
+            recipe,
+            pname,
+            r'git\s*=\s*"([^"]*)"',
+            f'git = "{new_git}"',
+            "source.git",
         )
 
     def update_source_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
         self._replace(
-            recipe, pname,
+            recipe,
+            pname,
             r'(?<!cargo)(?<!vendor)(?<!\w)hash\s*=\s*"([^"]*)"',
             f'hash = "{new_hash}"',
             "source.hash",
@@ -223,7 +232,8 @@ class RecipeWriter:
 
     def update_cargo_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
         self._replace(
-            recipe, pname,
+            recipe,
+            pname,
             r'cargoHash\s*=\s*"([^"]*)"',
             f'cargoHash = "{new_hash}"',
             "cargoHash",
@@ -231,7 +241,8 @@ class RecipeWriter:
 
     def update_vendor_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
         self._replace(
-            recipe, pname,
+            recipe,
+            pname,
             r'vendorHash\s*=\s*"([^"]*)"',
             f'vendorHash = "{new_hash}"',
             "vendorHash",
@@ -266,9 +277,7 @@ class RecipeWriter:
 
         new_block, count = re.subn(pattern, replacement, block_text, count=1)
         if count == 0:
-            raise RecipeParseError(
-                recipe.abs_path, f"cannot find {field} for {pname}"
-            )
+            raise RecipeParseError(recipe.abs_path, f"cannot find {field} for {pname}")
 
         new_text = text[:block_start] + new_block + text[block_end:]
         recipe.raw_lines = new_text.splitlines(keepends=True)
