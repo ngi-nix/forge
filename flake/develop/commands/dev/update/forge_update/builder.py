@@ -1,16 +1,30 @@
 import re
 import subprocess
 
-from . import regexes as _
+from . import regexes
 from .errors import BuildError
 from .types import BuilderType
 
-
-_HASH_MISMATCH_RE = re.compile(_.NIX_BUILD_GOT_HASH)
+HASH_MISMATCH_RE = re.compile(regexes.NIX_BUILD_GOT_HASH)
 
 
 class BuilderHashUpdater:
     build_timeout: int = 300
+
+    def field_name(self, pkg) -> str | None:
+        bt = pkg.builder_type
+        if bt is None or bt == BuilderType.STANDARD:
+            return None
+        if bt == BuilderType.GO:
+            bh = pkg.builder_hashes
+            if bh is not None and bh.vendor_hash is not None:
+                return "vendorHash"
+            return None
+        return {
+            BuilderType.RUST: "cargoHash",
+            BuilderType.NPM: "npmDepsHash",
+            BuilderType.PNPM: "pnpmDepsHash",
+        }[bt]
 
     def update(self, recipe, writer, pkg) -> None:
         bt = pkg.builder_type
@@ -57,7 +71,7 @@ class BuilderHashUpdater:
             raise BuildError(pname, -1, f"nix build timed out ({self.build_timeout}s)")
 
         stderr = result.stderr or ""
-        match = _HASH_MISMATCH_RE.search(stderr)
+        match = HASH_MISMATCH_RE.search(stderr)
         if not match:
             raise BuildError(pname, result.returncode, stderr)
 

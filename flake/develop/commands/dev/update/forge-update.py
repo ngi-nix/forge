@@ -3,6 +3,7 @@
 import argparse
 import os
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 from colorama import Fore, Style
@@ -41,6 +42,15 @@ def _print_changes(writer, before: int) -> None:
         print(f"  {style(field, Style.BRIGHT)}")
         print(f"    {style(f'-{old}', Fore.RED)}")
         print(f"    {style(f'+{new}', Fore.GREEN)}")
+
+
+@contextmanager
+def _progress(label: str):
+    print(f"  {style(label, Style.BRIGHT)} (in progress)", end="\r", flush=True)
+    try:
+        yield
+    finally:
+        _ = sys.stdout.write("\r\033[K")
 
 
 class Args(argparse.Namespace):
@@ -122,13 +132,19 @@ def main() -> None:
 
         if g is not None and not args.dry_run and not args.skip_prefetch:
             before = len(writer.pending_changes)
-            new_hash = prefetcher.prefetch_git(g.remote_url, result.rev, g.submodules)
+            with _progress("source.hash"):
+                new_hash = prefetcher.prefetch_git(
+                    g.remote_url, result.rev, g.submodules
+                )
             writer.update_source_hash(recipe, pkg.pname, new_hash)
             _print_changes(writer, before)
 
-            before = len(writer.pending_changes)
-            builder_hash.update(recipe, writer, pkg)
-            _print_changes(writer, before)
+            field = builder_hash.field_name(pkg)
+            if field:
+                before = len(writer.pending_changes)
+                with _progress(field):
+                    builder_hash.update(recipe, writer, pkg)
+                _print_changes(writer, before)
 
         writer.apply(recipe)
 
