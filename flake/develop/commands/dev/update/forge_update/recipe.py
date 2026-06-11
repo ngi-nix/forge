@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 from . import regexes
-from .errors import RecipeNotFoundError, RecipeParseError
+from .errors import RecipeNotFoundError, RecipeParseError, UnsupportedRecipeError
 from .types import (
     BuilderHashes,
     BuilderType,
@@ -39,8 +39,15 @@ class RecipeParser:
 
         packages: list[PackageEntry] = []
         for pname, block_text in blocks:
-            version = self._extract_version(block_text, path)
-            source = self._parse_source(block_text, path)
+            try:
+                version = self._extract_version(block_text, path)
+                source = self._parse_source(block_text, path)
+            except RecipeParseError:
+                if re.search(r"\binherit\b", block_text):
+                    raise UnsupportedRecipeError(
+                        pname, "package is inherited from another recipe"
+                    ) from None
+                raise
             builder_type, builder_hashes = self._parse_builder(block_text)
             packages.append(
                 PackageEntry(
