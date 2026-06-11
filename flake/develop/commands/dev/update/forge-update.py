@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
@@ -53,10 +54,20 @@ def _progress(label: str):
         _ = sys.stdout.write("\r\033[K")
 
 
+def _commit_recipe(recipe, pkg, result) -> None:
+    msg = f"feat({pkg.pname}): {pkg.version} -> {result.version}"
+    _ = subprocess.run(
+        ["git", "add", str(recipe.abs_path)], check=True, capture_output=True
+    )
+    _ = subprocess.run(["git", "commit", "-m", msg], check=True, capture_output=True)
+    print(f"  {style('committed', Style.DIM)}")
+
+
 class Args(argparse.Namespace):
     recipe: list[str] = []
     version: str | None = None
     dry_run: bool = False
+    commit: bool = False
     skip_prefetch: bool = False
     prefetch_timeout: int = 180
     recipes_root: Path = Path("recipes/packages")
@@ -70,6 +81,12 @@ def build_parser() -> argparse.ArgumentParser:
     _ = parser.add_argument("recipe", nargs="+")
     _ = parser.add_argument("--version")
     _ = parser.add_argument("--dry-run", action="store_true")
+    _ = parser.add_argument(
+        "--commit",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Commit recipe changes to git",
+    )
     _ = parser.add_argument("--skip-prefetch", action="store_true")
     _ = parser.add_argument(
         "--prefetch-timeout",
@@ -147,6 +164,9 @@ def main() -> None:
                 _print_changes(writer, before)
 
         writer.apply(recipe)
+
+        if args.commit and not args.dry_run:
+            _commit_recipe(recipe, pkg, result)
 
 
 if __name__ == "__main__":
