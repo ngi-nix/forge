@@ -5,7 +5,7 @@
 }:
 
 {
-  packages.sequoia-pqc = {
+  packages.sequoia-pgp = {
     version = "1.4.0-pqc.1";
     description = "Command-line OpenPGP tool with post-quantum cryptography support.";
     homePage = "https://sequoia-pgp.org";
@@ -37,7 +37,7 @@
     };
 
     test.script = ''
-      sq version 2>&1 | grep 'sq ${packages.sequoia-pqc.version}'
+      sq version 2>&1 | grep 'sq ${packages.sequoia-pgp.version}'
     '';
   };
 }
