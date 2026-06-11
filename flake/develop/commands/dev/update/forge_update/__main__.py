@@ -44,7 +44,7 @@ def _progress(label: str) -> Iterator[None]:
 
 
 def _commit_recipe(recipe: Recipe, pkg: PackageEntry, result: VersionResult) -> None:
-    msg = f"feat({pkg.pname}): {pkg.version} -> {result.version}"
+    msg = f"recipes({pkg.pname}): {pkg.version} -> {result.version}"
     _ = subprocess.run(
         ["git", "add", str(recipe.abs_path)], check=True, capture_output=True
     )
