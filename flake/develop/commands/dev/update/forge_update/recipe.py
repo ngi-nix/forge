@@ -109,7 +109,7 @@ class RecipeParser:
         raise RecipeParseError(path, "no source (git/url/path) found")
 
     def _extract_source_hash(self, text: str) -> str:
-        match = re.search(r'(?<!cargo)(?<!vendor)(?<!\w)hash\s*=\s*"([^"]*)"', text)
+        match = re.search(r'\bhash\s*=\s*"([^"]*)"', text)
         return match.group(1) if match else ""
 
     def _parse_git(self, spec: str, text: str, path: Path) -> GitSource:
@@ -225,7 +225,7 @@ class RecipeWriter:
         self._replace(
             recipe,
             pname,
-            r'(?<!cargo)(?<!vendor)(?<!\w)hash\s*=\s*"([^"]*)"',
+            r'\bhash\s*=\s*"([^"]*)"',
             f'hash = "{new_hash}"',
             "source.hash",
         )
