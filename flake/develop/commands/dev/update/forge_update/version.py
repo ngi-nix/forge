@@ -3,8 +3,6 @@ import re
 import subprocess
 from dataclasses import dataclass
 
-from packaging.version import InvalidVersion, Version
-
 from .errors import VersionDetectionError
 from .types import GitSource, Recipe, Source, SourceType
 
@@ -55,7 +53,7 @@ class VersionDetector:
             )
 
         raw_tags = self._fetch_tags(remote, git_source)
-        version_tags = [t for t in raw_tags if re.search(r"\d", t)]
+        version_tags = self._filter_version_tags(raw_tags)
 
         if not version_tags:
             raise VersionDetectionError(
@@ -83,13 +81,17 @@ class VersionDetector:
 
     def _get_latest_tag(self, remote: str, git_source: GitSource) -> str:
         raw_tags = self._fetch_tags(remote, git_source)
-        version_tags = [t for t in raw_tags if re.search(r"\d", t)]
+        version_tags = self._filter_version_tags(raw_tags)
         if not version_tags:
             raise VersionDetectionError(
                 Source(type=SourceType.GIT, git=git_source),
                 f"no tags found at {remote} (needed for hash-based derivation)",
             )
         return self._sort_tags(version_tags)[0]
+
+    @staticmethod
+    def _filter_version_tags(tags: set[str]) -> list[str]:
+        return [t for t in tags if len(re.findall(r"\d+", t)) >= 2]
 
     def _fetch_tags(self, remote: str, git_source: GitSource) -> set[str]:
         try:
@@ -159,11 +161,8 @@ class VersionDetector:
 
     @staticmethod
     def _sort_tags(tags: list[str]) -> list[str]:
-        def key(tag: str) -> tuple[int, Version | str]:
-            stripped = tag.removeprefix("v")
-            try:
-                return (1, Version(stripped))
-            except InvalidVersion:
-                return (0, tag)
+        def key(tag: str) -> tuple[int, ...]:
+            nums = re.findall(r"\d+", tag.removeprefix("v"))
+            return tuple(int(n) for n in nums)
 
         return sorted(tags, key=key, reverse=True)
