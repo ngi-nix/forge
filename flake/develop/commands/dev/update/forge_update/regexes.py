@@ -11,7 +11,7 @@ FIELD_NPM_DEPS_HASH = r'npmDepsHash\s*=\s*"([^"]*)"'
 FIELD_PNPM_DEPS_HASH = r'pnpmDepsHash\s*=\s*"([^"]*)"'
 
 PACKAGE_BLOCK = r"packages\.([\w-]+)\s*=\s*\{"
-ENABLED_BUILDER = r"(\w+)Builder\s*=\s*\{[^}]*\benable\b\s*=\s*true"
+BUILDER_DECL = r"(\w+)Builder\s*=\s*\{"
 
 SUBMODULES = r"submodules\s*=\s*true"
 GIT_REV = r"(?:rev|tag)=([^&]+)"

@@ -17,6 +17,19 @@ from .types import (
 )
 
 
+def _extract_braced_block(text: str, brace_start: int) -> tuple[int, str]:
+    """Return (end_pos, block_text) for the balanced brace pair at brace_start."""
+    depth = 1
+    pos = brace_start + 1
+    while pos < len(text) and depth > 0:
+        if text[pos] == "{":
+            depth += 1
+        elif text[pos] == "}":
+            depth -= 1
+        pos += 1
+    return pos, text[brace_start:pos]
+
+
 class RecipeParser:
     recipes_root: Path
 
@@ -76,15 +89,8 @@ class RecipeParser:
         for match in re.finditer(regexes.PACKAGE_BLOCK, text):
             pname = match.group(1)
             start = match.start()
-            depth = 1
-            pos = match.end()
-            while pos < len(text) and depth > 0:
-                if text[pos] == "{":
-                    depth += 1
-                elif text[pos] == "}":
-                    depth -= 1
-                pos += 1
-            blocks.append((pname, text[start:pos]))
+            end_pos, _ = _extract_braced_block(text, match.end() - 1)
+            blocks.append((pname, text[start:end_pos]))
         return blocks
 
     def _extract_version(self, text: str, path: Path) -> str:
@@ -203,33 +209,29 @@ class RecipeParser:
             "pythonPackage": BuilderType.PYTHON_PACKAGE,
         }
 
-        # re.DOTALL lets `.' span newlines. We need this because
-        # the builder name and `enable = true' are on separate lines.
-        builder_match = re.search(regexes.ENABLED_BUILDER, text, re.DOTALL)
-        if not builder_match:
-            return BuilderType.STANDARD, BuilderHashes()
+        for match in re.finditer(regexes.BUILDER_DECL, text):
+            _, block_text = _extract_braced_block(text, match.end() - 1)
+            if re.search(r"\benable\b\s*=\s*true", block_text):
+                builder_key = match.group(1)
+                builder_type = builder_map.get(builder_key, BuilderType.STANDARD)
 
-        builder_key = builder_match.group(1)
-        builder_type = builder_map.get(builder_key, BuilderType.STANDARD)
+                hashes = BuilderHashes()
+                cargo = re.search(regexes.FIELD_CARGO_HASH, text)
+                if cargo:
+                    hashes.cargo_hash = cargo.group(1)
+                vendor = re.search(regexes.FIELD_VENDOR_HASH, text)
+                if vendor:
+                    hashes.vendor_hash = vendor.group(1)
+                npm = re.search(regexes.FIELD_NPM_DEPS_HASH, text)
+                if npm:
+                    hashes.npm_deps_hash = npm.group(1)
+                pnpm = re.search(regexes.FIELD_PNPM_DEPS_HASH, text)
+                if pnpm:
+                    hashes.pnpm_deps_hash = pnpm.group(1)
 
-        hashes = BuilderHashes()
-        cargo = re.search(regexes.FIELD_CARGO_HASH, text)
-        if cargo:
-            hashes.cargo_hash = cargo.group(1)
+                return builder_type, hashes
 
-        vendor = re.search(regexes.FIELD_VENDOR_HASH, text)
-        if vendor:
-            hashes.vendor_hash = vendor.group(1)
-
-        npm = re.search(regexes.FIELD_NPM_DEPS_HASH, text)
-        if npm:
-            hashes.npm_deps_hash = npm.group(1)
-
-        pnpm = re.search(regexes.FIELD_PNPM_DEPS_HASH, text)
-        if pnpm:
-            hashes.pnpm_deps_hash = pnpm.group(1)
-
-        return builder_type, hashes
+        return BuilderType.STANDARD, BuilderHashes()
 
 
 class RecipeWriter:
@@ -332,15 +334,8 @@ class RecipeWriter:
         """
         for match in re.finditer(rf"packages\.{re.escape(pname)}\s*=\s*\{{", text):
             start = match.start()
-            depth = 1
-            pos = match.end()
-            while pos < len(text) and depth > 0:
-                if text[pos] == "{":
-                    depth += 1
-                elif text[pos] == "}":
-                    depth -= 1
-                pos += 1
-            return start, pos, text[start:pos]
+            end_pos, block_text = _extract_braced_block(text, match.end() - 1)
+            return start, end_pos, text[start:end_pos]
         raise RecipeParseError(abs_path, f"package '{pname}' not found for replacement")
 
     def _replace(
