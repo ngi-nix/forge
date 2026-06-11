@@ -59,6 +59,11 @@ class RecipeParser:
         )
 
     def _extract_package_blocks(self, text: str) -> list[tuple[str, str]]:
+        """Find each packages.<name> = { ... } block via brace-counting.
+
+        Pure regex cannot match balanced braces, so we scan
+        character-by-character counting depth instead.
+        """
         blocks: list[tuple[str, str]] = []
         for match in re.finditer(r"packages\.([\w-]+)\s*=\s*\{", text):
             pname = match.group(1)
@@ -166,6 +171,8 @@ class RecipeParser:
             "pythonPackage": BuilderType.PYTHON_PACKAGE,
         }
 
+        # re.DOTALL lets `.' span newlines. We need this because
+        # the builder name and `enable = true' are on separate lines.
         builder_match = re.search(
             r"(\w+)Builder\s*=\s*\{[^}]*\benable\b\s*=\s*true", text, re.DOTALL
         )
@@ -251,9 +258,12 @@ class RecipeWriter:
     def _find_package_block(
         self, text: str, pname: str, abs_path: Path
     ) -> tuple[int, int, str]:
-        for match in re.finditer(
-            rf'packages\.{re.escape(pname)}\s*=\s*\{{', text
-        ):
+        """Return (start, end, block-text) for a `packages.<pname>` block.
+
+        Uses the same brace-counting approach as `_extract_package_blocks`
+        so that nested { } inside builder configs don't confuse the scan.
+        """
+        for match in re.finditer(rf"packages\.{re.escape(pname)}\s*=\s*\{{", text):
             start = match.start()
             depth = 1
             pos = match.end()

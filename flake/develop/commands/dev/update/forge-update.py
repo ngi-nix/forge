@@ -4,6 +4,9 @@ import argparse
 import sys
 from pathlib import Path
 
+# At build time default.nix replaces @forgeUpdateDir@ with the Nix-store
+# path of this directory, making the sibling forge_update/ package
+# importable when this script runs inside its Nix wrapper.
 sys.path.insert(0, "@forgeUpdateDir@")
 from forge_update.recipe import (  # pyright: ignore[reportImplicitRelativeImport]
     RecipeParser,

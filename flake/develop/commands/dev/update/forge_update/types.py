@@ -66,6 +66,8 @@ class BuilderHashes:
 
 @dataclass
 class PackageEntry:
+    """A single package declared within a recipe.nix file."""
+
     pname: str
     version: str
     source: Source
@@ -75,6 +77,8 @@ class PackageEntry:
 
 @dataclass
 class Recipe:
+    """A recipe.nix file, which may declare one or more packages."""
+
     rel_path: Path
     abs_path: Path
     raw_lines: list[str] = field(default_factory=list)
