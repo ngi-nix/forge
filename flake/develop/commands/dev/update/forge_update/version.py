@@ -22,18 +22,19 @@ class VersionDetector:
 
         source = recipe.packages[0].source
 
-        if source.type == SourceType.GIT and source.git is not None:
-            return self._detect_from_git(source.git)
-        elif source.type == SourceType.URL:
-            raise VersionDetectionError(
-                source, "URL sources not supported for auto-detection"
-            )
-        elif source.type == SourceType.PATH:
-            raise VersionDetectionError(
-                source, "PATH sources not supported for auto-detection"
-            )
-
-        raise VersionDetectionError(source, "no git source found")
+        match source.type:
+            case SourceType.GIT if source.git is not None:
+                return self._detect_from_git(source.git)
+            case SourceType.URL:
+                raise VersionDetectionError(
+                    source, "URL sources not supported for auto-detection"
+                )
+            case SourceType.PATH:
+                raise VersionDetectionError(
+                    source, "PATH sources not supported for auto-detection"
+                )
+            case _:
+                raise VersionDetectionError(source, "no git source found")
 
     def _detect_from_git(self, git_source: GitSource) -> VersionResult:
         if self._is_commit_hash(git_source.rev):

@@ -12,43 +12,55 @@ class BuilderHashUpdater:
     build_timeout: int = 300
 
     def field_name(self, pkg) -> str | None:
-        bt = pkg.builder_type
-        if bt is None or bt == BuilderType.STANDARD:
-            return None
-        if bt == BuilderType.GO:
-            bh = pkg.builder_hashes
-            if bh is not None and bh.vendor_hash is not None:
-                return "vendorHash"
-            return None
-        return {
-            BuilderType.RUST: "cargoHash",
-            BuilderType.NPM: "npmDepsHash",
-            BuilderType.PNPM: "pnpmDepsHash",
-        }[bt]
+        match pkg.builder_type:
+            case BuilderType.GO:
+                bh = pkg.builder_hashes
+                if bh is not None and bh.vendor_hash is not None:
+                    return "vendorHash"
+                return None
+            case BuilderType.RUST:
+                return "cargoHash"
+            case BuilderType.NPM:
+                return "npmDepsHash"
+            case BuilderType.PNPM:
+                return "pnpmDepsHash"
+            case _:
+                return None
 
     def update(self, recipe, writer, pkg) -> None:
-        bt = pkg.builder_type
-        if bt is None or bt == BuilderType.STANDARD:
-            return
-
-        if bt == BuilderType.RUST:
-            self._update_single(
-                recipe, pkg.pname, writer, "cargoHash", writer.update_cargo_hash
-            )
-        elif bt == BuilderType.GO:
-            bh = pkg.builder_hashes
-            if bh is not None and bh.vendor_hash is not None:
+        match pkg.builder_type:
+            case BuilderType.RUST:
                 self._update_single(
-                    recipe, pkg.pname, writer, "vendorHash", writer.update_vendor_hash
+                    recipe, pkg.pname, writer, "cargoHash", writer.update_cargo_hash
                 )
-        elif bt == BuilderType.NPM:
-            self._update_single(
-                recipe, pkg.pname, writer, "npmDepsHash", writer.update_npm_deps_hash
-            )
-        elif bt == BuilderType.PNPM:
-            self._update_single(
-                recipe, pkg.pname, writer, "pnpmDepsHash", writer.update_pnpm_deps_hash
-            )
+            case BuilderType.GO:
+                bh = pkg.builder_hashes
+                if bh is not None and bh.vendor_hash is not None:
+                    self._update_single(
+                        recipe,
+                        pkg.pname,
+                        writer,
+                        "vendorHash",
+                        writer.update_vendor_hash,
+                    )
+            case BuilderType.NPM:
+                self._update_single(
+                    recipe,
+                    pkg.pname,
+                    writer,
+                    "npmDepsHash",
+                    writer.update_npm_deps_hash,
+                )
+            case BuilderType.PNPM:
+                self._update_single(
+                    recipe,
+                    pkg.pname,
+                    writer,
+                    "pnpmDepsHash",
+                    writer.update_pnpm_deps_hash,
+                )
+            case _:
+                return
 
     def _update_single(
         self, recipe, pname: str, writer, field_name: str, updater
