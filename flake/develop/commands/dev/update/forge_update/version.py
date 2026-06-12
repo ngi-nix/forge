@@ -3,6 +3,7 @@ import re
 import subprocess
 from dataclasses import dataclass
 
+from . import regexes
 from .errors import VersionDetectionError
 from .types import GitSource, Recipe, Source, SourceType
 
@@ -37,6 +38,11 @@ class VersionDetector:
         return self._detect_tag_based(git_source)
 
     @staticmethod
+    def _extract_numeric_version(tag: str) -> str:
+        match = re.search(regexes.NUMERIC_VERSION, tag)
+        return match.group(1) if match else tag
+
+    @staticmethod
     def _is_commit_hash(rev: str) -> bool:
         return bool(re.fullmatch(r"[0-9a-f]{40}", rev))
 
@@ -59,7 +65,7 @@ class VersionDetector:
 
         sorted_tags = self._sort_tags(version_tags)
         latest = sorted_tags[0]
-        return VersionResult(version=latest.removeprefix("v"), rev=latest)
+        return VersionResult(version=self._extract_numeric_version(latest), rev=latest)
 
     def _detect_hash_based(self, git_source: GitSource) -> VersionResult:
         remote = git_source.remote_url

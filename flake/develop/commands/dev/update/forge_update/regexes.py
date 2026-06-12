@@ -17,3 +17,5 @@ SUBMODULES = r"submodules\s*=\s*true"
 GIT_REV = r"(?:rev|tag)=([^&]+)"
 
 NIX_BUILD_GOT_HASH = r"got:\s+(sha256-\S+)"
+
+NUMERIC_VERSION = r"(\d+(?:\.\d+)*)"
