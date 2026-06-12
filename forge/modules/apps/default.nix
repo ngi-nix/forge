@@ -53,7 +53,11 @@
         let
           testProgramsDrv = pkgs.testers.runCommand {
             name = "${app.name}-test";
-            buildInputs = [ finalApp ] ++ app.test.programs.packages;
+            buildInputs = [
+              finalApp
+            ]
+            ++ lib.optional (app.programs.mainPackage != null) app.programs.mainPackage
+            ++ app.test.programs.packages;
             script = ''
               ${app.test.programs.script}
               touch $out
