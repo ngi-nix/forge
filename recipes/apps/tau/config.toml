@@ -1,6 +1,18 @@
-ip = "127.0.0.1"
-listen_port = 3001
-mount = "tau.ogg"
-mount_port = 3002
+# username and password are NOT secure, they only
+# link a tauradio and tautower service together
 username = "user"
 password = "password"
+
+# Sets the listening port, to which the source stream is transmitted
+listen_port = 3001
+
+# Sets the broadcast port, from which the stream will be accessable
+broadcast_port = 3002
+
+# Sets the server http endpoint - http://localhost:8001/tau.ogg
+broadcast_endpoint = "tau.ogg"
+
+# Optional: 
+# Sets which other sites are able to rebroadcast the stream
+# "*" allowes all, adding "http://localhost:4000" to list is redundant
+cors_allow_list = ["*", "http://localhost:4000"]
