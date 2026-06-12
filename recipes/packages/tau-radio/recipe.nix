@@ -6,15 +6,15 @@
 
 {
   packages.tau-radio = {
-    version = "0.2.101-unstable-2025-12-17";
+    version = "0.2.101-unstable-2026-06-11";
     description = "Web radio - Hijacks audio device using CLAP and Ogg/Opus.";
     homePage = "https://github.com/tau-org/tau-radio";
     mainProgram = "tau-radio";
     license = lib.licenses.eupl12;
 
     source = {
-      git = "github:tau-org/tau-radio/1847e4b4d91e941c19072752ed3afa95f2941a68";
-      hash = "sha256-DW37p4FCK78Yk4KUtOcSfgjZGXhRytQA3/fR+ZkijxQ=";
+      git = "github:tau-org/tau-radio/ea9bee2e3cbaa31699db5e7c6ea5d30baa9e23d4";
+      hash = "sha256-ddF0N9SJWw5PSbGL05ZUDjjzJRfmvj4gQ0tyw0YCr2k=";
     };
 
     build.rustPackageBuilder = {
@@ -37,7 +37,7 @@
             jack2
           ];
       };
-      cargoHash = "sha256-zqucj1iNsUdA06D+tDyYkevF/gio31JmcP00bk5PC18=";
+      cargoHash = "sha256-X1uHKYgt9ddvr/cBDW9HaHawG5uv2sU416jyL/XTPF4=";
     };
 
     build.extraAttrs = {
