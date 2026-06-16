@@ -91,6 +91,33 @@ in
 
     _forge-docs = pkgs.callPackage ../flake/packages/forge-docs.nix { };
 
+    _forge-report =
+      let
+        reports = import ../maintainers/mk-report.nix { inherit forgeApps pkgs lib; };
+      in
+      pkgs.writeShellApplication {
+        name = "report-packaging";
+        passthru = reports;
+        text = ''
+          cat <<EOF
+          To generate a packaging report, use:
+
+          \`\`\`
+          nix run .#_forge-report.all      # all grants
+          nix run .#_forge-report.<GRANT>  # single grant
+          \`\`\`
+
+          Available grants:
+          ${lib.concatMapStringsSep "\n" (g: "- " + g) [
+            "Commons"
+            "Core"
+            "Entrust"
+            "Review"
+          ]}
+          EOF
+        '';
+      };
+
     _forge-announcement = pkgs.writeShellApplication {
       name = "announce-projects";
       passthru = import ../maintainers/mk-announcement.nix { inherit forgeApps pkgs lib; };
