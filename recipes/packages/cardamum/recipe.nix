@@ -4,7 +4,7 @@
 }:
 
 {
-  packages.cardamum = {
+  pkgs.cardamum = {
     version = "0.1.0";
     description = "CLI to manage contacts supporting CardDAV and Vdir.";
     homePage = "https://pimalaya.org";

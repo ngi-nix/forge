@@ -20,7 +20,7 @@ def generate_grants():
     return grants
 
 
-def generate_package_recipe(name, index):
+def generate_pkg_recipe(name, index):
     return f"""{{
   config,
   lib,
@@ -28,7 +28,7 @@ def generate_package_recipe(name, index):
   ...
 }}:
 {{
-packages."{name}" = {{
+pkgs."{name}" = {{
   version = "0.0.{index}";
   description = "{fake.sentence()}";
   homePage = "{fake.url()}";
@@ -110,12 +110,12 @@ apps."{name}" = {{
 def main():
     try:
         num_apps = int(sys.argv[1]) if len(sys.argv) > 1 else 20
-        num_packages = int(sys.argv[2]) if len(sys.argv) > 2 else 20
+        num_pkgs = int(sys.argv[2]) if len(sys.argv) > 2 else 20
         out_path = Path(
             sys.argv[3] if len(sys.argv) > 3 else "ui/build/forge-config.json"
         )
     except (ValueError, IndexError):
-        print("Usage: dev-ui-config <num_apps> <num_packages> <out_path>")
+        print("Usage: dev-ui-config <num_apps> <num_pkgs> <out_path>")
         sys.exit(1)
 
     git_root = Path(
@@ -129,7 +129,7 @@ def main():
     if not out_path.is_absolute():
         out_path = git_root / out_path
 
-    print(f"Generating {num_apps} apps and {num_packages} package recipes...")
+    print(f"Generating {num_apps} apps and {num_pkgs} pkgs recipes...")
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
@@ -139,7 +139,7 @@ def main():
         if mock_recipes_root.exists():
             shutil.rmtree(mock_recipes_root)
 
-        apps_dir, pkgs_dir = mock_recipes_root / "apps", mock_recipes_root / "packages"
+        apps_dir, pkgs_dir = mock_recipes_root / "apps", mock_recipes_root / "pkgs"
         _ = apps_dir.mkdir(parents=True), pkgs_dir.mkdir(parents=True)
 
         # Generate an unchanging test app
@@ -155,16 +155,16 @@ def main():
                 f.write(generate_app_recipe(app_name, i))
 
         # Generate a unchanging test package
-        test_pkg_name = "mock-test-package"
+        test_pkg_name = "mock-test-pkg"
         (pkgs_dir / test_pkg_name).mkdir(parents=True)
         with open(pkgs_dir / test_pkg_name / "recipe.nix", "w") as f:
-            f.write(generate_package_recipe(test_pkg_name, 0))
+            f.write(generate_pkg_recipe(test_pkg_name, 0))
 
-        for i in range(num_packages):
-            pkg_name = f"mock-package-{i}"
+        for i in range(num_pkgs):
+            pkg_name = f"mock-pkg-{i}"
             (pkgs_dir / pkg_name).mkdir(parents=True)
             with open(pkgs_dir / pkg_name / "recipe.nix", "w") as f:
-                f.write(generate_package_recipe(pkg_name, i))
+                f.write(generate_pkg_recipe(pkg_name, i))
 
         run_command(["git", "init"], cwd=str(temp_path), check=True)
         run_command(

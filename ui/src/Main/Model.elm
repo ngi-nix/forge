@@ -3,7 +3,7 @@ module Main.Model exposing (..)
 import Dict
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Config.Package exposing (..)
+import Main.Config.Pkg exposing (..)
 import Main.Helpers.Nix exposing (..)
 import Main.Model.Error exposing (..)
 import Main.Model.Page exposing (..)

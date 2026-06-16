@@ -20,7 +20,7 @@
           disabledTests
           ;
         # Warning(consistency): such renames are not done elsewhere,
-        # eg. in `packages.${package}.build.npmPackageBuilder.npmDepsHash`
+        # eg. in `pkgs.${package}.build.npmPackageBuilder.npmDepsHash`
         pythonImportsCheck = builder.importsCheck;
         pythonRelaxDeps = builder.relaxDeps;
       };

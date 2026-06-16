@@ -4,7 +4,7 @@
 }:
 
 {
-  packages.calendula = {
+  pkgs.calendula = {
     version = "0.1.0";
     description = "CLI to manage calendars supporting CalDAV and ICS.";
     homePage = "https://pimalaya.org";

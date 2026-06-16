@@ -4,7 +4,7 @@ import AppUrl exposing (AppUrl, QueryParameters)
 import Dict
 import List.Extra as List
 import Main.Config.App exposing (..)
-import Main.Config.Package exposing (..)
+import Main.Config.Pkg exposing (..)
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
 import Main.Model.Error exposing (..)
@@ -22,7 +22,7 @@ Warning(security): it must not contain secret or sensitive data.
 type Route
     = Route_App RouteApp
     | Route_Apps RouteApps
-    | Route_Packages RoutePackages
+    | Route_Pkgs RoutePkgs
     | Route_RecipeOptions RouteRecipeOptions
 
 
@@ -82,29 +82,29 @@ defaultRouteApps =
     }
 
 
-type alias RoutePackages =
-    { routePackages_search : String
-    , routePackages_focus : Maybe RoutePackagesFocus
-    , routePackages_pagination : RoutePagination
+type alias RoutePkgs =
+    { routePkgs_search : String
+    , routePkgs_focus : Maybe RoutePkgsFocus
+    , routePkgs_pagination : RoutePagination
     }
 
 
-defaultRoutePackages : RoutePackages
-defaultRoutePackages =
-    { routePackages_search = ""
-    , routePackages_focus = Nothing
-    , routePackages_pagination = defaultRoutePagination
+defaultRoutePkgs : RoutePkgs
+defaultRoutePkgs =
+    { routePkgs_search = ""
+    , routePkgs_focus = Nothing
+    , routePkgs_pagination = defaultRoutePagination
     }
 
 
-type RoutePackagesFocus
-    = RoutePackagesFocus_Package PackageName
+type RoutePkgsFocus
+    = RoutePkgsFocus_Pkg PkgName
 
 
-showRoutePackagesFocus : RoutePackagesFocus -> String
-showRoutePackagesFocus x =
+showRoutePkgsFocus : RoutePkgsFocus -> String
+showRoutePkgsFocus x =
     case x of
-        RoutePackagesFocus_Package s ->
+        RoutePkgsFocus_Pkg s ->
             s
 
 
@@ -134,7 +134,7 @@ defaultRouteRecipeOptions =
     , routeRecipeOptions_unfolds =
         Set.fromList
             [ [ "apps" ]
-            , [ "packages" ]
+            , [ "pkgs" ]
             ]
     , routeRecipeOptions_scope = []
     , routeRecipeOptions_focus = Nothing
@@ -313,26 +313,26 @@ appUrlToRoute url =
                             , routeApps_pagination = url |> appUrlToRoutePagination
                             }
 
-        [ "packages" ] ->
+        [ "pkgs" ] ->
             Ok <|
-                Route_Packages <|
+                Route_Pkgs <|
                     case url.queryParameters |> Dict.get "q" |> Maybe.andThen List.uncons of
                         Nothing ->
-                            { defaultRoutePackages
-                                | routePackages_search = ""
-                                , routePackages_pagination = url |> appUrlToRoutePagination
-                                , routePackages_focus =
+                            { defaultRoutePkgs
+                                | routePkgs_search = ""
+                                , routePkgs_pagination = url |> appUrlToRoutePagination
+                                , routePkgs_focus =
                                     url.fragment
                                         |> Maybe.map
                                             (\fragment ->
                                                 case fragment of
-                                                    packageName ->
-                                                        RoutePackagesFocus_Package packageName
+                                                    pkgName ->
+                                                        RoutePkgsFocus_Pkg pkgName
                                             )
                             }
 
                         Just ( q, _ ) ->
-                            { defaultRoutePackages | routePackages_search = q }
+                            { defaultRoutePkgs | routePkgs_search = q }
 
         [ "recipe", "options" ] ->
             Ok <|
@@ -430,11 +430,11 @@ routeToAppUrl route =
                     , fragment = Nothing
                     }
 
-        Route_Packages routePackages ->
-            { path = deployPath ++ [ "packages" ]
+        Route_Pkgs routePkgs ->
+            { path = deployPath ++ [ "pkgs" ]
             , queryParameters =
                 [ ( "q"
-                  , case routePackages.routePackages_search of
+                  , case routePkgs.routePkgs_search of
                         "" ->
                             []
 
@@ -443,13 +443,13 @@ routeToAppUrl route =
                   )
                 ]
                     |> Dict.fromList
-                    |> Dict.union (routePaginationToQueryParameters routePackages.routePackages_pagination)
+                    |> Dict.union (routePaginationToQueryParameters routePkgs.routePkgs_pagination)
             , fragment =
-                routePackages.routePackages_focus
+                routePkgs.routePkgs_focus
                     |> Maybe.map
                         (\focus ->
                             case focus of
-                                RoutePackagesFocus_Package s ->
+                                RoutePkgsFocus_Pkg s ->
                                     s
                         )
             }

@@ -91,7 +91,7 @@ symlinkJoin {
       ln -s $out/index.html "app/$app-app/index.html"
     done
 
-    for page in apps packages recipe recipe/options; do
+    for page in apps pkgs recipe recipe/options; do
       mkdir -p "$page"
       ln -s $out/index.html "$page/index.html"
     done
