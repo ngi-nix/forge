@@ -33,18 +33,21 @@
         lib = lib // {
           maintainers =
             (import "${forge-inputs.nixpkgs}/maintainers/maintainer-list.nix")
-            // lib.optionalAttrs (config.forge.maintainerList != null) (import config.forge.maintainerList);
+            // lib.foldl' (acc: path: acc // import path) { } config.forge.maintainerLists;
         };
       };
       modules = [
         {
           options = {
 
-            maintainerList = lib.mkOption {
-              type = lib.types.nullOr lib.types.path;
-              default = null;
-              description = "Path to a maintainer list file in the format of Nixpkgs maintainer-list.nix.";
-              example = "./maintainers/maintainer-list.nix";
+            maintainerLists = lib.mkOption {
+              type = lib.types.listOf lib.types.path;
+              default = [ ];
+              description = "Paths to maintainer list files in the format of Nixpkgs maintainer-list.nix.";
+              example = lib.literalExpression ''
+                [ inputs.ngi-forge.maintainerList
+                ./maintainers/maintainer-list.nix ]
+              '';
             };
 
             repositoryUrl = lib.mkOption {

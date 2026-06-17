@@ -73,13 +73,14 @@
         # > warning: unknown flake output 'flakeConfig'
         # Issue: https://github.com/NixOS/nix/issues/6381
         flake.flakeConfig = flakeArgs.config;
+        flake.maintainerList = ./maintainers/maintainer-list.nix;
 
         perSystem =
           { system, ... }:
           {
             forge = {
               repositoryUrl = self.sourceInfo.url or "github:ngi-nix/forge";
-              maintainerList = ./maintainers/maintainer-list.nix;
+              maintainerLists = [ self.maintainerList ];
               recipeDirs = {
                 packages = "recipes/packages";
                 apps = "recipes/apps";
