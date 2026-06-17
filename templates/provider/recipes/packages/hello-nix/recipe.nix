@@ -9,6 +9,7 @@
     homePage = "https://github.com/ngi-nix/ngi-forge";
     mainProgram = "hello";
     license = [ lib.licenses.agpl3Only ];
+    maintainers = with lib.maintainers; [ provider-team ];
 
     source = {
       path = ./../../../src;
