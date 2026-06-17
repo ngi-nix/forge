@@ -1,9 +1,10 @@
 {
+  lib,
   ...
 }:
 
 {
   apps.example = {
-    description = "Example application demonstrating multiple Forge runtimes (extended).";
+    description = lib.mkForce "Example application demonstrating multiple Forge runtimes (extended).";
   };
 }
