@@ -65,6 +65,11 @@ jobs:
         env:
           INPUTS_TEMPLATE: ${{ inputs.template }}
 
+      - name: Check flake
+        working-directory: /tmp/template-test
+        run: |
+          nix flake check
+
       - name: Show flake info
         working-directory: /tmp/template-test
         run: |
