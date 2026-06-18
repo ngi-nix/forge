@@ -2,11 +2,10 @@
   config,
   lib,
   pkgs,
-  packageBuilderModule,
   ...
 }:
 let
-  builder = config.build.beamMixReleaseBuilder;
+  builder = config.build.builders.beam;
   beamPackages = pkgs.beam.packages."erlang_${builder.erlangVersion}".overrideScope (
     finalBeam: previousBeam: {
       elixir = finalBeam."elixir_${builder.elixirVersion}";
@@ -15,7 +14,7 @@ let
 in
 {
   imports = [
-    (packageBuilderModule {
+    (lib.modules.importApply ./builder.nix {
       name = "beam";
       imports = beam/options.nix;
       mkDerivation = beamPackages.mixRelease;
