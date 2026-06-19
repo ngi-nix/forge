@@ -1,6 +1,7 @@
 {
   forge-inputs,
   app,
+  pkgs,
 
   lib,
   ...
@@ -44,9 +45,14 @@
           PassEnvironment = lib.attrNames service.environment;
           User = lib.mkDefault serviceName;
           Group = lib.mkDefault serviceName;
-          StateDirectory = serviceName;
+          StateDirectory = lib.removePrefix "/var/lib/" service.stateDir;
           WorkingDirectory = service.stateDir;
         }
+        (lib.optionalAttrs (service.result.preStart != "") {
+          ExecStartPre = [
+            "${pkgs.writeShellScript "${serviceName}-prestart" service.result.preStart}"
+          ];
+        })
         (lib.optionalAttrs (service.user == "prefer-dynamic") {
           DynamicUser = true;
         })
