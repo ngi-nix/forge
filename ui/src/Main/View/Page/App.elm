@@ -96,7 +96,7 @@ viewPageAppFeedback model =
         div [ class "alert alert-info alert-dismissible mt-3", attribute "data-testid" "feedback-message" ]
             [ text "Tried this app? We'd love to "
             , a
-                [ href "https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e95?pvs=105"
+                [ href "https://cryptpad.ngi.nixos.org/form/#/2/form/view/3X1lzb3+XxsLUq-TygwGn-R3aHcvwuNo3L7Ya8Z1VWo/"
                 , target "_blank"
                 , rel "noopener"
                 ]

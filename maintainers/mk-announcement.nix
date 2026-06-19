@@ -15,7 +15,7 @@ lib.mapAttrs (
       MATRIX_URL = "https://matrix.to/#/#ngipkgs:matrix.org";
       TEAM_URL = "https://nixos.org/community/teams/ngi";
       NIX_URL = "https://nix.dev";
-      SURVEY_URL = "https://nixos-foundation.notion.site/35759d49e1be81edb478e3aade9f8e95?pvs=105";
+      SURVEY_URL = "https://cryptpad.ngi.nixos.org/form/#/2/form/view/3X1lzb3+XxsLUq-TygwGn-R3aHcvwuNo3L7Ya8Z1VWo/";
       NAME = app.displayName;
 
       SUMMARY = lib.pipe app.description [
