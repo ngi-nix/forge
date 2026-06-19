@@ -268,7 +268,10 @@
                   image = "localhost/${name}:latest";
                   ports = service.ports;
                   depends_on = lib.genAttrs service.after (_name: { });
-                  tmpfs = [ "/tmp:rw,size=64m" ];
+                  tmpfs = [
+                    "/tmp:rw,size=64m"
+                    "/run:rw,size=64m"
+                  ];
                   volumes = [ "${name}-data:${service.stateDir}" ];
                 }) app.services.components;
                 volumes = lib.mapAttrs' (name: _: lib.nameValuePair "${name}-data" { }) app.services.components;
