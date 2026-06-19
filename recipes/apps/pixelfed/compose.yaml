@@ -1,0 +1,38 @@
+services:
+  pixelfed:
+    image: localhost/pixelfed:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: pixelfed-extracomponents
+      REDIS_HOST: pixelfed-extracomponents
+    volumes:
+      - pixelfed-data:/var/lib/pixelfed
+      - pixelfed-run:/run/pixelfed
+    tmpfs:
+      - /tmp:rw,size=64m
+    depends_on:
+      - pixelfed-extracomponents
+  pixelfed-worker:
+    image: localhost/pixelfed:latest
+    restart: always
+    environment:
+      DB_HOST: pixelfed-extracomponents
+      REDIS_HOST: pixelfed-extracomponents
+    volumes:
+      - pixelfed-data:/var/lib/pixelfed
+      - pixelfed-run:/run/pixelfed
+    tmpfs:
+      - /tmp:rw,size=64m
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "export PATH=$PATH:@coreutils@/bin &&
+       while [ ! -d /var/lib/pixelfed/storage/app/public ]; do sleep 1; done &&
+       exec @pixelfedManage@/bin/pixelfed-manage horizon"
+    depends_on:
+      - pixelfed
+      - pixelfed-extracomponents
+volumes:
+  pixelfed-data:
+  pixelfed-run:
