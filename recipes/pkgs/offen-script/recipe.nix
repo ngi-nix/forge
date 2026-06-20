@@ -16,12 +16,12 @@
     build.pnpmPackageBuilder = {
       enable = true;
       pnpmDepsHash = "sha256-Vmv4aESpAvE9Dg28WpSPhtEEBr8q/BfqrJl5EXC0nl4=";
-      sourceRoot = "source/script";
       buildScript = "build";
       installDir = "dist";
     };
 
     phases = {
+      unpack.sourceRoot = "source/script";
       build.script.pre = ''
         cp -r ../locales locales
       '';
