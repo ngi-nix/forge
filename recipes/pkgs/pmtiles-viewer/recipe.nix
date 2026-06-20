@@ -21,14 +21,13 @@
       npmDepsHash = "sha256-RgzbzEzZtHrLwC+BSYwnh54ylgqfqfqO44BkCYpVnxs=";
     };
 
-    build.extraAttrs = {
-      sourceRoot = "source/app";
+    phases = {
+      unpack.sourceRoot = "source/app";
+      install.script.main = ''
+        mkdir -p $out/share/pmtiles-app
+        cp -r dist/* $out/share/pmtiles-app/
+      '';
     };
-
-    phases.install.script.main = ''
-      mkdir -p $out/share/pmtiles-app
-      cp -r dist/* $out/share/pmtiles-app/
-    '';
 
     test.script = ''
       file "${pkgs.pmtiles-viewer}/share/pmtiles-app/index.html" \
