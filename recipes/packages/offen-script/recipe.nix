@@ -16,9 +16,9 @@
     build.pnpmPackageBuilder = {
       enable = true;
       pnpmDepsHash = "sha256-Vmv4aESpAvE9Dg28WpSPhtEEBr8q/BfqrJl5EXC0nl4=";
-      sourceRoot = "source/script";
       buildScript = "build";
       installDir = "dist";
+      sourceRoot = "source/script";
     };
 
     phases = {

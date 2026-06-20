@@ -208,6 +208,7 @@
                     dontUnpack = !config.phases.unpack.enable;
                     preUnpack = config.phases.unpack.preScript;
                     postUnpack = config.phases.unpack.postScript;
+                    sourceRoot = config.phases.unpack.sourceRoot;
 
                     dontPatch = !config.phases.patch.enable;
                     prePatch = config.phases.patch.preScript;
