@@ -21,8 +21,8 @@
       installDir = "dist";
     };
 
-    build.extraAttrs = {
-      preBuild = ''
+    phases = {
+      build.preScript = ''
         cp -r ../locales locales
       '';
     };

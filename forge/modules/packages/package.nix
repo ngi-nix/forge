@@ -13,6 +13,7 @@
     ../builders/python-package-builder
     ../builders/rust-package-builder
     ../recipe-metadata.nix
+    (lib.mkAliasOptionModule [ "source" "patches" ] [ "phases" "patch" "patches" ])
   ];
   config._recipeType = "packages";
   options = {
@@ -146,16 +147,6 @@
           Only applicable when using `source.git`.
         '';
         example = true;
-      };
-      patches = lib.mkOption {
-        type = lib.types.listOf lib.types.path;
-        default = [ ];
-        description = ''
-          List of patch files to be applied to the source code.
-
-          Patches are applied in the order specified using the patch command.
-        '';
-        example = lib.literalExpression "[ ./fix-build.patch ./add-feature.patch ]";
       };
     };
 
@@ -331,6 +322,177 @@
           echo "Welcome to my-package development environment!"
           echo "Run 'make' to build the project"
         '';
+      };
+    };
+
+    phases = lib.mkOption {
+      description = ''
+        Package builds are split into phases to make it easier to override specific parts of the build
+        (e.g., unpacking the sources or installing the binaries).
+
+        See <https://nixos.org/manual/nixpkgs/stable/#sec-stdenv-phases>.
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = {
+          unpack = {
+            enable = lib.mkEnableOption "the unpack phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `unpackPhase`.
+
+                Mapped to `preUnpack`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `unpackPhase`.
+
+                Mapped to `postUnpack`.
+              '';
+            };
+          };
+          patch = {
+            enable = lib.mkEnableOption "the patch phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `patchPhase`.
+
+                Mapped to `prePatch`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `patchPhase`.
+
+                Mapped to `postPatch`.
+              '';
+            };
+          };
+          configure = {
+            enable = lib.mkEnableOption "the configure phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `configurePhase`.
+
+                Mapped to `preConfigure`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `configurePhase`.
+
+                Mapped to `postConfigure`.
+              '';
+            };
+            flags = lib.mkOption {
+              type = with lib.types; listOf str;
+              default = [ ];
+              description = ''
+                A list of strings passed as additional arguments to the configure script.
+
+                Mapped to `configureFlags`.
+              '';
+            };
+          };
+          build = {
+            enable = lib.mkEnableOption "the build phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `buildPhase`.
+
+                Mapped to `preBuild`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `buildPhase`.
+
+                Mapped to `postBuild`.
+              '';
+            };
+          };
+          install = {
+            enable = lib.mkEnableOption "the install phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `installPhase`.
+
+                Mapped to `preInstall`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `installPhase`.
+
+                Mapped to `postInstall`.
+              '';
+            };
+          };
+          check = {
+            enable = lib.mkEnableOption "the install phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `checkPhase`.
+
+                Mapped to `preCheck`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `checkPhase`.
+
+                Mapped to `postCheck`.
+              '';
+            };
+            nativeCheckInputs = lib.mkOption {
+              type = with lib.types; listOf package;
+              default = [ ];
+              description = ''
+                List of test dependencies needed to run the test suite.
+
+                Mapped to `nativeCheckInputs`.
+              '';
+              example = lib.literalExpression "[ pkgs.cunit ]";
+            };
+          };
+        };
       };
     };
 

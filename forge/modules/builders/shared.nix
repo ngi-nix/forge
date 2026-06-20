@@ -15,6 +15,12 @@
       }:
       { config, ... }:
       {
+        imports = [
+          (lib.mkAliasOptionModule
+            [ "build" builderName "packages" "check" ]
+            [ "phases" "check" "nativeCheckInputs" ]
+          )
+        ];
         options.build.${builderName} = {
           packages = {
             build = lib.mkOption {
@@ -38,16 +44,6 @@
                 Mapped to `buildInputs`.
               '';
               example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
-            };
-            check = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = ''
-                List of test dependencies needed to run the test suite.
-
-                Mapped to `nativeCheckInputs`.
-              '';
-              example = lib.literalExpression "[ pkgs.cunit ]";
             };
           };
           env = lib.mkOption {
@@ -206,7 +202,6 @@
                     inherit (config.source) patches;
                     nativeBuildInputs = builder.packages.build;
                     buildInputs = builder.packages.run;
-                    nativeCheckInputs = builder.packages.check;
 
                     __structuredAttrs = true;
                     inherit (config.build) env;
@@ -234,6 +229,7 @@
                     doCheck = config.phases.check.enable;
                     preCheck = config.phases.check.preScript;
                     postCheck = config.phases.check.postScript;
+                    nativeCheckInputs = config.phases.check.nativeCheckInputs;
 
                     passthru = {
                       test = pkgs.testers.runCommand {

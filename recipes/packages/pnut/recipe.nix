@@ -21,8 +21,10 @@
 
     build.extraAttrs = {
       installPhase = ''
+        runHook preInstall
         mkdir -p $out/bin
         make install PREFIX=$out
+        runHook postInstall
       '';
     };
 

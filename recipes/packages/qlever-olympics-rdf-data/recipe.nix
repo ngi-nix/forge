@@ -22,14 +22,18 @@
         unzip
       ];
     };
-
     build.extraAttrs = {
-      dontBuild = true;
-      dontUnpack = true;
       installPhase = ''
+        runHook preInstall
         unzip $src
         install -D olympics.nt -t $out
+        runHook postInstall
       '';
+    };
+
+    phases = {
+      unpack.enable = false;
+      build.enable = false;
     };
   };
 }

@@ -37,10 +37,10 @@
       PUPPETEER_SKIP_DOWNLOAD = true;
     };
 
-    build.extraAttrs = {
+    phases = {
       # Wrap the binary to set Chromium path
       # Launch browser with no sandboxing
-      postInstall = ''
+      install.postScript = ''
         mkdir -p $out/lib/node_modules/pagedjs-cli/docker-userdata
 
         wrapProgram $out/bin/pagedjs-cli \
