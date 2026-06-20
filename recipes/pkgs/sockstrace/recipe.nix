@@ -30,8 +30,8 @@
       vendorHash = "sha256-EFHYvWYXvpB6QMk345wUgcx54W1yWzXuphq+8oDiVzE=";
     };
 
-    build.extraAttrs = {
-      postInstall = ''
+    phases = {
+      install.script.post = ''
         mv $out/bin/main.go $out/bin/sockstrace
       '';
     };

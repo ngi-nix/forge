@@ -14,15 +14,15 @@
       }:
       {
         config,
+        options,
         pkgs,
         lib,
+        forge-lib,
         ...
       }@args:
-
       let
         builder = config.build.${name};
       in
-
       {
         options.build = lib.mkOption {
           type = lib.types.submoduleWith {
@@ -38,7 +38,7 @@
                       imports
                       ./env.nix
                       ./structuredAttrs.nix
-                      {
+                      ({ options, ... }: {
                         options.packages = {
                           build = lib.mkOption {
                             type = lib.types.listOf lib.types.package;
@@ -73,7 +73,7 @@
                             example = lib.literalExpression "[ pkgs.cunit ]";
                           };
                         };
-                      }
+                      })
                     ];
                   };
                 };
@@ -91,6 +91,7 @@
               mkSharedAttrs =
                 finalAttrs:
                 config.build.structuredAttrs
+                // (config.result.derivationAttrs)
                 // {
                   inherit (config)
                     pname
@@ -108,7 +109,6 @@
 
                   nativeBuildInputs = builder.packages.build;
                   buildInputs = builder.packages.run;
-                  nativeCheckInputs = builder.packages.check;
 
                   passthru = {
                     test = pkgs.testers.runCommand {

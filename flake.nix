@@ -80,6 +80,7 @@
             # > warning: unknown flake output 'flakeConfig'
             # Issue: https://github.com/NixOS/nix/issues/6381
             flake.flakeConfig = flakeArgs.config;
+            flake.flakeOptions = flakeArgs.options;
             flake.maintainerList = ./maintainers/maintainer-list.nix;
 
             perSystem =

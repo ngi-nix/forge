@@ -35,11 +35,7 @@
             runHook postBuild
           '';
 
-          installPhase = lib.concatStringsSep "\n" [
-            "runHook preInstall"
-            (lib.optionalString (builder.installDir != null) "cp -r ${builder.installDir} $out")
-            "runHook postInstall"
-          ];
+          installPhase = lib.optionalString (builder.installDir != null) "cp -r ${builder.installDir} $out";
         }
         // lib.optionalAttrs (builder.sourceRoot != null) {
           inherit (builder) sourceRoot;
