@@ -23,14 +23,12 @@
 
     build.extraAttrs = {
       sourceRoot = "source/app";
-
-      installPhase = ''
-        runHook preInstall
-        mkdir -p $out/share/pmtiles-app
-        cp -r dist/* $out/share/pmtiles-app/
-        runHook postInstall
-      '';
     };
+
+    phases.install.script.main = ''
+      mkdir -p $out/share/pmtiles-app
+      cp -r dist/* $out/share/pmtiles-app/
+    '';
 
     test.script = ''
       file "${pkgs.pmtiles-viewer}/share/pmtiles-app/index.html" \

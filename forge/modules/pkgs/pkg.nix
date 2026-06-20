@@ -14,6 +14,7 @@
     ../builders/python-package-builder
     ../builders/rust-package-builder
     ../recipe-metadata.nix
+    pkg/phases.nix
   ];
   config._recipeType = "pkgs";
   options = {
@@ -181,28 +182,13 @@
                 description = ''
                   Extra attributes merged into the derivation produced by the selected builder.
 
-                  Use this to pass builder-specific phase hooks (`preConfigure`,
-                  `postInstall`, …), environment variables, or any other
-                  `stdenv.mkDerivation` attribute not exposed as a dedicated option.
-                  Attributes set here take precedence over the builder defaults.
+                  Use this to pass any `stdenv.mkDerivation` attribute
+                  not exposed as a dedicated option.
+                  Beware that attributes set here do not take precedence over builder's options,
+                  so use the builder's options when they exist.
 
                   Expert option. For more information see the
                   [Nixpkgs manual](https://nixos.org/manual/nixpkgs/unstable/).
-                '';
-                example = lib.literalExpression ''
-                  {
-                    # Set HOME for tools that require a writable home directory
-                    preConfigure = "export HOME=$(mktemp -d)";
-
-                    # Remove unwanted files from the output
-                    postInstall = "rm $out/share/doc/my-package/INSTALL";
-
-                    # Pass extra flags to configure
-                    configureFlags = [ "--disable-static" "--enable-shared" ];
-
-                    # Set an environment variable for the build
-                    MY_VARIABLE = "value";
-                  }
                 '';
               };
               debug = lib.mkOption {
@@ -294,6 +280,12 @@
     };
 
     result = {
+      derivationAttrs = lib.mkOption {
+        type = with lib.types; anything;
+        internal = true;
+        default = { };
+        description = "Some attributes for the resulting derivation of the package.";
+      };
       derivation = lib.mkOption {
         type = lib.types.package;
         internal = true;

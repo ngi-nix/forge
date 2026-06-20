@@ -1,10 +1,9 @@
 {
   lib,
-  config,
   ...
 }:
 {
-  flake.lib = {
+  flake.lib = rec {
     # Helper to support namespacing with dot (`.`) in `flake.packages`
     # (eg. `nix build .#pkgs.${packageName}`).
     # This relies on the Nix completion not quoting attrset keys containing
@@ -55,9 +54,9 @@
       else if lib.isFunction x then
         null
       else if lib.isList x then
-        map config.flake.lib.scrubNixContext x
+        map scrubNixContext x
       else if lib.isAttrs x then
-        lib.mapAttrs (n: v: if n == "__toString" then v else config.flake.lib.scrubNixContext v) x
+        lib.mapAttrs (n: v: if n == "__toString" then v else scrubNixContext v) x
       else
         x;
   };
