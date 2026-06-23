@@ -26,12 +26,14 @@
     '';
 
     links = {
+      website = "https://pnut.sh";
       source = "https://github.com/udem-dlteam/pnut";
     };
 
     ngi.grants = {
       Commons = [
         "Pnut"
+        "Pnut-architectures"
       ];
     };
 
