@@ -36,6 +36,7 @@ let
     # derivations
     apps = flake.outputs.packages.${system}.apps or { };
     pkgs = flake.outputs.packages.${system}.pkgs or { };
+    _forge = flake.outputs.packages.${system}._forge or { };
 
     # In repl use these to access individual attributes
     appsRepl = flake.outputs.legacyPackages.${system}.appsRepl or { };
