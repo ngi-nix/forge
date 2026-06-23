@@ -38,10 +38,6 @@ let
     pkgs = flake.outputs.packages.${system}.pkgs or { };
     _forge = flake.outputs.packages.${system}._forge or { };
 
-    # In repl use these to access individual attributes
-    appsRepl = flake.outputs.legacyPackages.${system}.appsRepl or { };
-    pkgsRepl = flake.outputs.legacyPackages.${system}.pkgsRepl or { };
-
     shells = flake.outputs.devShells.${system};
   });
 in

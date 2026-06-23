@@ -39,7 +39,10 @@
           # This is because simply querying `pkgs` will not display the list,
           # `pkgs` being a derivation and not an attrset of derivations
           # also in the Traditional setup to keep consistency between Flake and Traditional.
-          "${namespace}Repl" = derivations;
+          "${namespace}Debug" = lib.warn ''
+            NOTE: `${namespace}Debug` exists only for debugging purposes in the nix repl. Do not rely on it for production usage.
+            It is the same as `${namespace}` and it can be inspected in the repl with tab completions `${namespace}.<tab>` to see all the available attributes.
+          '' derivations;
         };
       };
   };
