@@ -6,6 +6,7 @@
     ./builders/standard-builder
     ./builders/go-builder
     ./builders/npm-package-builder
+    ./builders/ocaml-builder
     ./builders/pnpm-package-builder
     ./builders/python-app-builder
     ./builders/python-package-builder

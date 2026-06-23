@@ -10,6 +10,7 @@
     ../builders/standard-builder/options.nix
     ../builders/go-builder/options.nix
     ../builders/npm-package-builder/options.nix
+    ../builders/ocaml-builder/options.nix
     ../builders/pnpm-package-builder/options.nix
     ../builders/python-app-builder/options.nix
     ../builders/python-package-builder/options.nix
