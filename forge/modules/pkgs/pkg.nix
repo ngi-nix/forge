@@ -166,6 +166,7 @@
       type = lib.types.submoduleWith {
         inherit specialArgs;
         modules = [
+          pkg/env.nix
           {
             options = {
               # Builder-specific options are defined in separate modular
