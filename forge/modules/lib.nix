@@ -10,24 +10,27 @@
       { namespace, derivations }:
       { linkFarm, stdenv }:
       {
-        packages.${namespace} =
-          let
-            bundle = linkFarm namespace (
-              lib.mapAttrsToList (name: path: {
-                inherit name path;
-              }) derivations
-            );
-          in
-          derivations
-          // {
-            name = namespace;
-            type = "derivation";
-            inherit (stdenv.hostPlatform) system;
-            inherit (bundle) drvPath outPath outputName;
-            # In case flake schemas ever gets merged this will be useful
-            # if using `lix` you can see this description in the output of `nix flake show`
-            meta.description = "Build all ${namespace} at once";
-          };
+        packages = {
+          ${namespace} =
+            let
+              bundle = linkFarm namespace (
+                lib.mapAttrsToList (name: path: {
+                  inherit name path;
+                }) derivations
+              );
+            in
+            derivations
+            // {
+              name = namespace;
+              type = "derivation";
+              inherit (stdenv.hostPlatform) system;
+              inherit (bundle) drvPath outPath outputName;
+              # In case flake schemas ever gets merged this will be useful
+              # if using `lix` you can see this description in the output of `nix flake show`
+              meta.description = "Build all ${namespace} at once";
+            };
+        }
+        // lib.mapAttrs' (name: lib.nameValuePair "${namespace}.${name}") derivations;
 
         legacyPackages = {
           # Tip(debugging): use this when not using the Flake setup (`nix repl -f.`)
@@ -38,7 +41,6 @@
           # also in the Traditional setup to keep consistency between Flake and Traditional.
           "${namespace}Repl" = derivations;
         };
-      }
-      // lib.mapAttrs' (name: lib.nameValuePair "${namespace}.${name}") derivations;
+      };
   };
 }
