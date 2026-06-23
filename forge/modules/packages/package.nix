@@ -161,6 +161,59 @@
 
     # Build configuration
     build = {
+      env = lib.mkOption {
+        description = ''
+          Exported environment variables independent from any builder.
+
+          Mapped to `env`.
+        '';
+        default = { };
+        apply = lib.filterAttrs (k: v: v != null);
+        type = lib.types.submodule {
+          freeformType =
+            with lib.types;
+            attrsOf (
+              nullOr (oneOf [
+                package
+                str
+                bool
+                int
+              ])
+            );
+          options = {
+          };
+        };
+      };
+      attrs = lib.mkOption {
+        description = ''
+          Attributes local to the buildscript and command all builders.
+
+          Mapped to themselves as attributes given to `stdenv.mkDerivation`.
+        '';
+        default = { };
+        apply = lib.filterAttrs (k: v: v != null);
+        type = lib.types.submodule {
+          freeformType =
+            with lib.types;
+            attrsOf (
+              nullOr (oneOf [
+                package
+                str
+                bool
+                int
+              ])
+            );
+          options = {
+            NIX_CFLAGS_COMPILE = lib.mkOption {
+              type = with lib.types; nullOr (listOf str);
+              default = null;
+              description = "Flags to pass to the C compiler.";
+              apply = xs: if xs == null then null else lib.concatStringsSep " " xs;
+            };
+          };
+        };
+      };
+
       # Builder-specific options are defined in separate modular
       # files in forge/modules/builders/ directory.
       # Each builder module defines its own options and configuration logic.

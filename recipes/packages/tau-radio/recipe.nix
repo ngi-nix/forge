@@ -40,9 +40,9 @@
       cargoHash = "sha256-X1uHKYgt9ddvr/cBDW9HaHawG5uv2sU416jyL/XTPF4=";
     };
 
-    build.extraAttrs = {
+    build.attrs = {
       # fatal error: 'opus.h' file not found
-      env.NIX_CFLAGS_COMPILE = "-I${pkgs.libopus.dev}/include/opus";
+      NIX_CFLAGS_COMPILE = [ "-I${pkgs.libopus.dev}/include/opus" ];
     };
 
     test.script = ''

@@ -32,10 +32,12 @@
       npmInstallFlags = [ "--ignore-scripts" ];
     };
 
-    build.extraAttrs = {
+    build.env = {
       # Skip Puppeteer's Chrome download during dependency installation
-      env.PUPPETEER_SKIP_DOWNLOAD = true;
+      PUPPETEER_SKIP_DOWNLOAD = true;
+    };
 
+    build.extraAttrs = {
       # Wrap the binary to set Chromium path
       # Launch browser with no sandboxing
       postInstall = ''
