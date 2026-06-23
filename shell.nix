@@ -1,1 +1,1 @@
-with (import ./. { }); flake.outputs.devShells.${system}.default
+(import ./. { }).shells.default
