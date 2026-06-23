@@ -9,7 +9,7 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:phanirithvij/nixpkgs/pixelfed-improved";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 
@@ -36,6 +36,12 @@
     nimi = {
       url = "github:ngi-nix/nimi/ngi-patches";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    arion = {
+      url = "github:hercules-ci/arion";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
   };
 

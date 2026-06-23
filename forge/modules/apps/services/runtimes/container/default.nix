@@ -88,6 +88,39 @@
           self;
     };
 
+    extraComponents = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submoduleWith {
+          inherit specialArgs;
+          modules = [
+            {
+              options = {
+                nixosConfig = lib.mkOption {
+                  type = with lib.types; deferredModule;
+                  default = { };
+                  description = "Container runtime-specific NixOS system configuration overrides.";
+                };
+              };
+            }
+          ];
+        }
+      );
+      default = { };
+      description = ''
+        Container runtime-specific overrides for extra components.
+        Use this to configure settings that are only applicable when running the component in a systemd-powered container (e.g., enabling TCP/IP for local container networking).
+      '';
+      apply =
+        self:
+        let
+          knownComponents = lib.attrNames app.services.extraComponents;
+          unknownComponents = lib.subtractLists knownComponents (lib.attrNames self);
+        in
+        lib.throwIf (unknownComponents != [ ])
+          "services.runtimes.container.extraComponents: unknown extraComponent(s): ${lib.concatStringsSep ", " unknownComponents}. Must be one of: ${lib.concatStringsSep ", " knownComponents}"
+          self;
+    };
+
     result = {
       modules = lib.mkOption {
         internal = true;
@@ -100,6 +133,13 @@
         readOnly = true;
         type = with lib.types; lazyAttrsOf (either attrs anything);
         description = "Nimi module evaluation.";
+      };
+
+      arionEval = lib.mkOption {
+        internal = true;
+        readOnly = true;
+        type = with lib.types; lazyAttrsOf (either attrs anything);
+        description = "Arion module evaluation.";
       };
 
       recipes = lib.mkOption {
@@ -185,6 +225,37 @@
       }
     ) app.services.components;
 
+    result.arionEval = forge-inputs.arion.lib.eval {
+      inherit pkgs;
+      modules = [
+        {
+          project.name = app.name;
+          services = lib.mapAttrs (name: value: {
+            nixos.useSystemd = true;
+            nixos.configuration = {
+              imports = [
+                {
+                  system.disableInstallerTools = true;
+                  system.switch.enable = false;
+                  nix.enable = false;
+                  systemd.oomd.enable = false;
+                  boot.tmp.useTmpfs = true;
+                  networking.useDHCP = false;
+                  services.nscd.enable = false;
+                  system.nssModules = lib.mkForce [ ];
+                  system.stateVersion = "26.05";
+                }
+                value.nixosConfig
+                (config.extraComponents.${name}.nixosConfig or { })
+              ];
+            };
+            service.ports = value.ports;
+            service.useHostStore = false;
+          }) app.services.extraComponents;
+        }
+      ];
+    };
+
     result.build =
       let
         effectiveComposeFile =
@@ -197,7 +268,10 @@
                   image = "localhost/${name}:latest";
                   ports = service.ports;
                   depends_on = lib.genAttrs service.after (_name: { });
-                  tmpfs = [ "/tmp:rw,size=64m" ];
+                  tmpfs = [
+                    "/tmp:rw,size=64m"
+                    "/run:rw,size=64m"
+                  ];
                   volumes = [ "${name}-data:${service.stateDir}" ];
                 }) app.services.components;
                 volumes = lib.mapAttrs' (name: _: lib.nameValuePair "${name}-data" { }) app.services.components;
@@ -215,6 +289,16 @@
           install -D ${effectiveComposeFile} $out/${app.name}/compose.yaml
         '';
 
+        hasExtraComponents = app.services.extraComponents != { };
+        arionComposeFile = config.result.arionEval.config.out.dockerComposeYaml;
+        arionImages =
+          if hasExtraComponents then
+            lib.concatMapStringsSep "\n" (name: ''
+              ${config.result.arionEval.config.services.${name}.build.image} | podman load
+            '') (lib.attrNames app.services.extraComponents)
+          else
+            "";
+
         cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${builtins.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl}/tmp";
 
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
@@ -228,17 +312,24 @@
             ${lib.getExe build-oci-images}
 
             for image in *.tar; do
+              [ -e "$image" ] || continue
               podman load < "$image"
               rm "$image"
             done
+            ${arionImages}
           popd
 
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
+            ${lib.optionalString hasExtraComponents "-f ${arionComposeFile}"} \
             up --force-recreate "$@"
         '';
 
         run-container = pkgs.writeShellScriptBin "run-container" ''
+          set -euo pipefail
+          ${arionImages}
+
+          # start the containers
           ${lib.getExe run-podman} "$@"
         '';
       in
