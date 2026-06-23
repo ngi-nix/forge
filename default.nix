@@ -6,7 +6,7 @@
   flake ? flake-inputs.import-flake { src = ./.; },
   inputs ? flake.inputs,
   system ? builtins.currentSystem,
-  pkgs ? import inputs.nixpkgs {
+  nixpkgs ? import inputs.nixpkgs {
     config = { };
     overlays = [ ];
     inherit system;
@@ -14,16 +14,17 @@
   lib ? import "${inputs.nixpkgs}/lib",
 }:
 let
-  default = lib.makeScope pkgs.newScope (def: {
+  default = lib.makeScope nixpkgs.newScope (def: {
     inherit
       lib
       flake
+      nixpkgs
       system
       inputs
       default # recurse scope
       ;
 
-    nimi-def = import inputs.nimi-def { inherit pkgs; };
+    nimi-def = import inputs.nimi { pkgs = nixpkgs; };
     nimi = def.nimi-def.nimi;
     nimiLib = def.nimi.passthru;
 
