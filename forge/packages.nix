@@ -133,5 +133,5 @@ let
   }) { };
 in
 {
-  inherit (packagesWithNamespace) packages legacyPackages;
+  inherit (packagesWithNamespace) packages;
 }

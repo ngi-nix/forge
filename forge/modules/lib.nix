@@ -9,26 +9,21 @@
     flakePackagesWithNamespace =
       { namespace, derivations }:
       { linkFarm, stdenv }:
+      let
+        bundle = linkFarm namespace (
+          lib.mapAttrsToList (name: path: {
+            inherit name path;
+          }) derivations
+        );
+      in
       {
         packages = {
-          ${namespace} =
-            let
-              bundle = linkFarm namespace (
-                lib.mapAttrsToList (name: path: {
-                  inherit name path;
-                }) derivations
-              );
-            in
-            derivations
-            // {
-              name = namespace;
-              type = "derivation";
-              inherit (stdenv.hostPlatform) system;
-              inherit (bundle) drvPath outPath outputName;
-              # In case flake schemas ever gets merged this will be useful
-              # if using `lix` you can see this description in the output of `nix flake show`
-              meta.description = "Build all ${namespace} at once";
-            };
+          ${namespace} = derivations // {
+            all = bundle;
+            name = namespace;
+            type = "derivation";
+            inherit (stdenv.hostPlatform) system;
+          };
         }
         // lib.mapAttrs' (name: lib.nameValuePair "${namespace}.${name}") derivations;
 
