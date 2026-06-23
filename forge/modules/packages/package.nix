@@ -380,6 +380,24 @@
                 Mapped to `postPatch`.
               '';
             };
+            patches = lib.mkOption {
+              type = with lib.types; listOf path;
+              default = [ ];
+              description = ''
+                List of patches to apply on the source code.
+
+                Mapped to `patches`.
+              '';
+            };
+            patchFlags = lib.mkOption {
+              type = with lib.types; listOf str;
+              default = [ "-p1" ];
+              description = ''
+                Flags to be passed to patch
+
+                Mapped to `patchFlags`.
+              '';
+            };
           };
           configure = {
             enable = lib.mkEnableOption "the configure phase" // {

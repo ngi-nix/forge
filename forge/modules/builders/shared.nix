@@ -199,7 +199,6 @@
                       in
                       fetchers.${sourceType config} config;
 
-                    inherit (config.source) patches;
                     nativeBuildInputs = builder.packages.build;
                     buildInputs = builder.packages.run;
 
@@ -217,6 +216,8 @@
                     dontConfigure = !config.phases.configure.enable;
                     preConfigure = config.phases.configure.preScript;
                     postConfigure = config.phases.configure.postScript;
+                    patches = config.phases.patch.patches;
+                    patchFlags = config.phases.patch.patchFlags;
 
                     dontBuild = !config.phases.build.enable;
                     preBuild = config.phases.build.preScript;
