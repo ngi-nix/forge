@@ -5,6 +5,9 @@
   ...
 }@phasesArgs:
 {
+  imports = [
+    (lib.mkAliasOptionModule [ "source" "patches" ] [ "phases" "patch" "patches" ])
+  ];
   options.phases = lib.mkOption {
     description = ''
       Package builds are split into phases to make it easier to override specific parts of the build
