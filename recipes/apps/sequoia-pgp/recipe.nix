@@ -42,7 +42,14 @@
     };
 
     ngi.grants = {
+      Review = [
+        "Sequoia-Keystore"
+        "Sequoia-TPM"
+        "Sequoia-commandline"
+        "SequoiaChameleon"
+      ];
       Commons = [
+        "MachineReadable-sq"
         "Sequoia-PQC"
       ];
     };
