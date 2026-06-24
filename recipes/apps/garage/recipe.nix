@@ -65,6 +65,7 @@
       ];
       Commons = [
         "Garage-AdminUI"
+        "Garage-Performance"
       ];
     };
 
