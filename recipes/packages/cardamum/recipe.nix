@@ -24,7 +24,10 @@
     # Upstream lib.rs has shell/VCard examples in doc comments not marked
     # `ignore`, causing doctest compilation failures. Unit tests pass fine.
     build.extraAttrs = {
-      cargoTestFlags = [ "--lib" "--bins" ];
+      cargoTestFlags = [
+        "--lib"
+        "--bins"
+      ];
     };
 
     test.script = ''
