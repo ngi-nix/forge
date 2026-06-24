@@ -24,7 +24,10 @@
     # Same pimalaya codebase pattern as cardamum — doc comments contain shell
     # and iCalendar examples not marked `ignore`, causing doctest failures.
     build.extraAttrs = {
-      cargoTestFlags = [ "--lib" "--bins" ];
+      cargoTestFlags = [
+        "--lib"
+        "--bins"
+      ];
     };
 
     test.script = ''
