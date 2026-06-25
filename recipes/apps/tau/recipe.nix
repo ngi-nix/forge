@@ -51,12 +51,12 @@
 
     services = {
       components.tau-tower = {
-        command = pkgs.tau-tower;
-        configData."tau/tower.toml" = {
+        process.command = pkgs.tau-tower;
+        process.configData."tau/tower.toml" = {
           source = ./config.toml;
           path = "tau/tower.toml";
         };
-        ports = [
+        process.ports = [
           "3001:3001"
           "3002:3002"
         ];

@@ -57,26 +57,26 @@
 
     services = {
       components.pmtiles-viewer = {
-        environment = {
+        process.environment = {
           PMTILES_APP_ROOT = "${pkgs.pmtiles-viewer}/share/pmtiles-app";
         };
-        configData."Caddyfile" = {
+        process.configData."Caddyfile" = {
           source = ./Caddyfile;
           path = "Caddyfile";
         };
-        preStart = ''
+        process.preStart = ''
           echo "Installing configuration files ..."
           cp -v ''$XDG_CONFIG_HOME/Caddyfile /var/lib/pmtiles-viewer/Caddyfile
         '';
-        command = pkgs.caddy;
-        argv = [
+        process.command = pkgs.caddy;
+        process.argv = [
           "run"
           "--adapter"
           "caddyfile"
           "--config"
           "Caddyfile"
         ];
-        ports = [ "8080:8080" ];
+        process.ports = [ "8080:8080" ];
       };
 
       runtimes = {

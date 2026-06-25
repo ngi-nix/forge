@@ -83,16 +83,16 @@
 
     services = {
       components.garage = {
-        preStart = ''
+        process.preStart = ''
           mkdir -p /var/lib/garage/meta /var/lib/garage/data
         '';
-        command = pkgs.garage_2;
-        argv = [
+        process.command = pkgs.garage_2;
+        process.argv = [
           "-c"
           "${./garage.toml}"
           "server"
         ];
-        ports = [
+        process.ports = [
           "3900:3900"
           "3901:3901"
           "3902:3902"

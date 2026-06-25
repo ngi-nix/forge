@@ -35,22 +35,22 @@
 
     services = {
       components.qlever-ui = {
-        command = pkgs.qlever-ui;
-        argv = [
+        process.command = pkgs.qlever-ui;
+        process.argv = [
           "--bind=0.0.0.0:8080"
         ];
-        environment = {
+        process.environment = {
           DJANGO_SETTINGS_MODULE = "qlever.settings";
           QLEVERUI_DATABASE_URL = "sqlite:////var/lib/qlever-ui/db/qleverui.sqlite3";
         };
-        preStart = ''
+        process.preStart = ''
           qlever-ui-manage makemigrations --merge && qlever-ui-manage migrate
         '';
-        packages = with pkgs; [
+        process.packages = with pkgs; [
           qlever-ui
           subversion
         ];
-        ports = [
+        process.ports = [
           "8080:8080"
         ];
         after = [
@@ -59,11 +59,11 @@
       };
 
       components.qlever-server = {
-        configData."service-data" = {
+        process.configData."service-data" = {
           source = "${pkgs.qlever-olympics-rdf-data}/olympics.nt";
           path = "olympics.nt";
         };
-        preStart = ''
+        process.preStart = ''
           WORKDIR=/var/lib/qlever-server
 
           echo "Installing configuration files ..."
@@ -73,20 +73,20 @@
           install -D ''$XDG_CONFIG_HOME/olympics.nt "$WORKDIR"/olympics.nt
           qlever index --overwrite-existing
         '';
-        command = pkgs.qlever-control;
-        argv = [
+        process.command = pkgs.qlever-control;
+        process.argv = [
           "--qleverfile"
           "/var/lib/qlever-server/Qleverfile"
           "start"
           "--run-in-foreground"
         ];
-        packages = with pkgs; [
+        process.packages = with pkgs; [
           curl
           qlever
           qlever-control
           unzip
         ];
-        ports = [
+        process.ports = [
           "7019:7019"
         ];
       };

@@ -28,12 +28,12 @@
     services = {
       components = {
         goupile = {
-          command = pkgs.goupile;
-          argv = [
+          process.command = pkgs.goupile;
+          process.argv = [
             "-C"
             "${./goupile.ini}"
           ];
-          ports = [ "8181:8181" ];
+          process.ports = [ "8181:8181" ];
         };
       };
 

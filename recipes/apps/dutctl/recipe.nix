@@ -67,21 +67,21 @@
 
     services = {
       components.dutagent = {
-        command = "${pkgs.dutctl}/bin/dutagent";
-        argv = [
+        process.command = "${pkgs.dutctl}/bin/dutagent";
+        process.argv = [
           "-a" # address
           "0.0.0.0:1024"
           "-c" # path to config
           "/var/lib/dutagent/config.yaml"
         ];
-        ports = [
+        process.ports = [
           "1024:1024"
         ];
-        configData."dutagent/config.yaml" = {
+        process.configData."dutagent/config.yaml" = {
           source = ./dutagent-cfg-example.yaml;
           path = "dutagent/config.yaml";
         };
-        preStart = ''
+        process.preStart = ''
           echo "Installing configuration files ..."
           cp -v ''$XDG_CONFIG_HOME/dutagent/config.yaml /var/lib/dutagent/config.yaml
         '';

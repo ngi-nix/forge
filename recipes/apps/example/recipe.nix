@@ -49,9 +49,9 @@
 
     services = {
       components.hello-web = {
-        command = pkgs.hello-web;
-        argv = [ "serve" ];
-        ports = [ "5000:5000" ];
+        process.command = pkgs.hello-web;
+        process.argv = [ "serve" ];
+        process.ports = [ "5000:5000" ];
       };
 
       runtimes = {

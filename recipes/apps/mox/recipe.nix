@@ -61,27 +61,27 @@
 
     services = {
       components.mox = {
-        configData."mox.conf" = {
+        process.configData."mox.conf" = {
           source = ./mox.conf;
           path = "mox.conf";
         };
-        configData."domains.conf" = {
+        process.configData."domains.conf" = {
           source = ./domains.conf;
           path = "domains.conf";
         };
-        preStart = ''
+        process.preStart = ''
           echo "Installing configuration files ..."
           cp -v ''$XDG_CONFIG_HOME/mox.conf /var/lib/mox/config/mox.conf
           cp -v ''$XDG_CONFIG_HOME/domains.conf /var/lib/mox/config/domains.conf
         '';
-        user = "root";
-        command = pkgs.mox;
-        argv = [
+        process.user = "root";
+        process.command = pkgs.mox;
+        process.argv = [
           "-config"
           "/var/lib/mox/config/mox.conf"
           "serve"
         ];
-        ports = [
+        process.ports = [
           "8080:8080"
           "8081:8081"
           "8082:8082"

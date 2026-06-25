@@ -43,14 +43,14 @@
 
     services = {
       components.offen = {
-        command = pkgs.offen;
-        argv = [ "serve" ];
-        environment = {
+        process.command = pkgs.offen;
+        process.argv = [ "serve" ];
+        process.environment = {
           OFFEN_SERVER_PORT = "3000";
           OFFEN_DATABASE_DIALECT = "sqlite3";
           OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
         };
-        ports = [ "3000:3000" ];
+        process.ports = [ "3000:3000" ];
       };
 
       runtimes = {

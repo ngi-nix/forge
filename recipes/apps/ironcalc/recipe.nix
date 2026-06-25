@@ -38,12 +38,12 @@
 
     services = {
       components.ironcalc = {
-        command = lib.getExe pkgs.ironcalc;
-        environment = {
+        process.command = lib.getExe pkgs.ironcalc;
+        process.environment = {
           ROCKET_ADDRESS = "0.0.0.0";
           IRONCALC_DB_PATH = "/var/lib/ironcalc/ironcalc.sqlite";
         };
-        ports = [ "8000:8000" ];
+        process.ports = [ "8000:8000" ];
       };
 
       runtimes.container = {

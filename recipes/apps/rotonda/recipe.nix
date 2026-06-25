@@ -55,12 +55,12 @@
 
     services = {
       components.rotonda = {
-        command = pkgs.rotonda;
-        argv = [
+        process.command = pkgs.rotonda;
+        process.argv = [
           "-c"
           "${./rotonda.conf}"
         ];
-        ports = [
+        process.ports = [
           "8080:8080"
           "11019:11019"
         ];
