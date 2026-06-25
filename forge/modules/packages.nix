@@ -9,7 +9,7 @@
 {
   imports = [
     ./assertions-warnings.nix
-    builders/shared.nix
+    ./builders/shared
   ];
 
   options.forge = lib.mkOption {
