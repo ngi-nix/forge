@@ -65,6 +65,7 @@ class Args(argparse.Namespace):
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
+        prog="forge-update",
         description="Update forge package recipes to latest upstream versions",
     )
 
