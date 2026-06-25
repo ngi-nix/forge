@@ -7,12 +7,14 @@
   imports = [
     ../builders/standard-builder
     ../builders/go-builder
+    ../builders/beam-builder
     ../builders/npm-package-builder
     ../builders/pnpm-package-builder
     ../builders/python-app-builder
     ../builders/python-package-builder
     ../builders/rust-package-builder
     ../recipe-metadata.nix
+    (lib.mkAliasOptionModule [ "source" "patches" ] [ "phases" "patch" "patches" ])
   ];
   config._recipeType = "packages";
   options = {
@@ -147,20 +149,63 @@
         '';
         example = true;
       };
-      patches = lib.mkOption {
-        type = lib.types.listOf lib.types.path;
-        default = [ ];
-        description = ''
-          List of patch files to be applied to the source code.
-
-          Patches are applied in the order specified using the patch command.
-        '';
-        example = lib.literalExpression "[ ./fix-build.patch ./add-feature.patch ]";
-      };
     };
 
     # Build configuration
     build = {
+      env = lib.mkOption {
+        description = ''
+          Exported environment variables independent from any builder.
+
+          Mapped to `env`.
+        '';
+        default = { };
+        apply = lib.filterAttrs (k: v: v != null);
+        type = lib.types.submodule {
+          freeformType =
+            with lib.types;
+            attrsOf (
+              nullOr (oneOf [
+                package
+                str
+                bool
+                int
+              ])
+            );
+          options = {
+          };
+        };
+      };
+      attrs = lib.mkOption {
+        description = ''
+          Attributes local to the buildscript and command all builders.
+
+          Mapped to themselves as attributes given to `stdenv.mkDerivation`.
+        '';
+        default = { };
+        apply = lib.filterAttrs (k: v: v != null);
+        type = lib.types.submodule {
+          freeformType =
+            with lib.types;
+            attrsOf (
+              nullOr (oneOf [
+                package
+                str
+                bool
+                int
+              ])
+            );
+          options = {
+            NIX_CFLAGS_COMPILE = lib.mkOption {
+              type = with lib.types; nullOr (listOf str);
+              default = null;
+              description = "Flags to pass to the C compiler.";
+              apply = xs: if xs == null then null else lib.concatStringsSep " " xs;
+            };
+          };
+        };
+      };
+
       # Builder-specific options are defined in separate modular
       # files in forge/modules/builders/ directory.
       # Each builder module defines its own options and configuration logic.
@@ -278,6 +323,208 @@
           echo "Welcome to my-package development environment!"
           echo "Run 'make' to build the project"
         '';
+      };
+    };
+
+    phases = lib.mkOption {
+      description = ''
+        Package builds are split into phases to make it easier to override specific parts of the build
+        (e.g., unpacking the sources or installing the binaries).
+
+        See <https://nixos.org/manual/nixpkgs/stable/#sec-stdenv-phases>.
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = {
+          unpack = {
+            enable = lib.mkEnableOption "the unpack phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `unpackPhase`.
+
+                Mapped to `preUnpack`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `unpackPhase`.
+
+                Mapped to `postUnpack`.
+              '';
+            };
+            sourceRoot = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                If not empty, path to a subdirectory within the source to use as root of the package's source.
+
+                Use this for monorepos where the source you're interested in is not at the repository root.
+                Format: `"source/<subdir>"`.
+
+                Mapped to `sourceRoot`.
+              '';
+              example = "source/frontend";
+            };
+          };
+          patch = {
+            enable = lib.mkEnableOption "the patch phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `patchPhase`.
+
+                Mapped to `prePatch`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `patchPhase`.
+
+                Mapped to `postPatch`.
+              '';
+            };
+            patches = lib.mkOption {
+              type = with lib.types; listOf path;
+              default = [ ];
+              description = ''
+                List of patches to apply on the source code.
+
+                Mapped to `patches`.
+              '';
+            };
+            patchFlags = lib.mkOption {
+              type = with lib.types; listOf str;
+              default = [ "-p1" ];
+              description = ''
+                Flags to be passed to patch
+
+                Mapped to `patchFlags`.
+              '';
+            };
+          };
+          configure = {
+            enable = lib.mkEnableOption "the configure phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `configurePhase`.
+
+                Mapped to `preConfigure`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `configurePhase`.
+
+                Mapped to `postConfigure`.
+              '';
+            };
+            flags = lib.mkOption {
+              type = with lib.types; listOf str;
+              default = [ ];
+              description = ''
+                A list of strings passed as additional arguments to the configure script.
+
+                Mapped to `configureFlags`.
+              '';
+            };
+          };
+          build = {
+            enable = lib.mkEnableOption "the build phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `buildPhase`.
+
+                Mapped to `preBuild`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `buildPhase`.
+
+                Mapped to `postBuild`.
+              '';
+            };
+          };
+          install = {
+            enable = lib.mkEnableOption "the install phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `installPhase`.
+
+                Mapped to `preInstall`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `installPhase`.
+
+                Mapped to `postInstall`.
+              '';
+            };
+          };
+          check = {
+            enable = lib.mkEnableOption "the install phase" // {
+              default = true;
+            };
+            preScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the beginning of the `checkPhase`.
+
+                Mapped to `preCheck`.
+              '';
+            };
+            postScript = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = ''
+                Bash script to execute at the end of the `checkPhase`.
+
+                Mapped to `postCheck`.
+              '';
+            };
+            nativeCheckInputs = lib.mkOption {
+              type = with lib.types; listOf package;
+              default = [ ];
+              description = ''
+                List of test dependencies needed to run the test suite.
+
+                Mapped to `nativeCheckInputs`.
+              '';
+              example = lib.literalExpression "[ pkgs.cunit ]";
+            };
+          };
+        };
       };
     };
 

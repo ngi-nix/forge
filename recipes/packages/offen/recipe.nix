@@ -27,10 +27,10 @@
       modRoot = "server";
     };
 
-    build.extraAttrs = {
+    phases = {
       # Copy JS frontend assets into public/static before building.
       # Note: preBuild runs after configurePhase which cds into modRoot (server/).
-      preBuild = ''
+      build.preScript = ''
         cp -rT --no-preserve=mode ${pkgs.offen-script} public/static
         cp -rT --no-preserve=mode ${pkgs.offen-vault} public/static
         cp -rT --no-preserve=mode ${pkgs.offen-auditorium} public/static

@@ -15,6 +15,12 @@
       }:
       { config, ... }:
       {
+        imports = [
+          (lib.mkAliasOptionModule
+            [ "build" builderName "packages" "check" ]
+            [ "phases" "check" "nativeCheckInputs" ]
+          )
+        ];
         options.build.${builderName} = {
           packages = {
             build = lib.mkOption {
@@ -39,15 +45,43 @@
               '';
               example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
             };
-            check = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = ''
-                List of test dependencies needed to run the test suite.
-
-                Mapped to `nativeCheckInputs`.
-              '';
-              example = lib.literalExpression "[ pkgs.cunit ]";
+          };
+          env = lib.mkOption {
+            description = ''
+              Exported environment variables specific to the builder.
+            '';
+            default = { };
+            apply = lib.filterAttrs (k: v: v != null);
+            type = lib.types.submodule {
+              freeformType =
+                with lib.types;
+                attrsOf (
+                  nullOr (oneOf [
+                    package
+                    str
+                    bool
+                    int
+                  ])
+                );
+            };
+          };
+          attrs = lib.mkOption {
+            description = ''
+              Attributes local to the buildscript and specific to the ${builderName} builder.
+            '';
+            default = { };
+            apply = lib.filterAttrs (k: v: v != null);
+            type = lib.types.submodule {
+              freeformType =
+                with lib.types;
+                attrsOf (
+                  nullOr (oneOf [
+                    package
+                    str
+                    bool
+                    int
+                  ])
+                );
             };
           };
         };
@@ -56,11 +90,14 @@
             builder = config.build.${builderName};
           in
           lib.mkIf builder.enable {
+            build.env = builder.env;
+            build.attrs = builder.attrs;
             result.derivation =
               let
                 initAttrs =
                   finalAttrs:
-                  {
+                  config.build.attrs
+                  // {
                     inherit (config) pname version;
                     src =
                       let
@@ -162,10 +199,39 @@
                       in
                       fetchers.${sourceType config} config;
 
-                    inherit (config.source) patches;
                     nativeBuildInputs = builder.packages.build;
                     buildInputs = builder.packages.run;
-                    nativeCheckInputs = builder.packages.check;
+
+                    __structuredAttrs = true;
+                    inherit (config.build) env;
+
+                    dontUnpack = !config.phases.unpack.enable;
+                    preUnpack = config.phases.unpack.preScript;
+                    postUnpack = config.phases.unpack.postScript;
+                    sourceRoot = config.phases.unpack.sourceRoot;
+
+                    dontPatch = !config.phases.patch.enable;
+                    prePatch = config.phases.patch.preScript;
+                    postPatch = config.phases.patch.postScript;
+
+                    dontConfigure = !config.phases.configure.enable;
+                    preConfigure = config.phases.configure.preScript;
+                    postConfigure = config.phases.configure.postScript;
+                    patches = config.phases.patch.patches;
+                    patchFlags = config.phases.patch.patchFlags;
+
+                    dontBuild = !config.phases.build.enable;
+                    preBuild = config.phases.build.preScript;
+                    postBuild = config.phases.build.postScript;
+
+                    dontInstall = !config.phases.install.enable;
+                    preInstall = config.phases.install.preScript;
+                    postInstall = config.phases.install.postScript;
+
+                    doCheck = config.phases.check.enable;
+                    preCheck = config.phases.check.preScript;
+                    postCheck = config.phases.check.postScript;
+                    nativeCheckInputs = config.phases.check.nativeCheckInputs;
 
                     passthru = {
                       test = pkgs.testers.runCommand {
