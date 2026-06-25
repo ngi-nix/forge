@@ -63,7 +63,7 @@
         config = lib.mkIf builder.enable {
           result.derivation =
             let
-              initAttrs =
+              mkSharedAttrs =
                 finalAttrs:
                 {
                   inherit (config)
@@ -127,24 +127,25 @@
                   # has been introduced (eg. to typecheck/merge them).
                   config.build.extraAttrs;
 
-              mkAttrs =
+              mkDrvAttrs =
                 finalAttrs:
                 let
-                  init = initAttrs finalAttrs;
+                  sharedAttrs = mkSharedAttrs finalAttrs;
+                  builderAttrs = attrs builder finalAttrs sharedAttrs;
                 in
-                init // attrs builder finalAttrs init;
+                sharedAttrs // builderAttrs;
             in
             if mkDerivationProvidesFinalAttrs then
-              mkDerivation (mkAttrs)
+              mkDerivation mkDrvAttrs
             else
               let
                 # Approximation for builder not yet providing `finalAttrs`
                 # (eg. with `lib.extendMkDerivation`)
-                finalAttrs = initAttrs finalAttrs // {
+                finalAttrs = mkSharedAttrs finalAttrs // {
                   finalPackage = config.result.derivation;
                 };
               in
-              mkDerivation (mkAttrs finalAttrs);
+              mkDerivation (mkDrvAttrs finalAttrs);
         };
       };
   };
