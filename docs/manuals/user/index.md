@@ -2,7 +2,7 @@
 
 ```{toctree}
 :hidden: true
+:glob:
 
-quick_start
-prerequisites
+*
 ```
