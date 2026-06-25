@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   packageBuilderModule,
   ...
@@ -7,16 +6,16 @@
 {
   imports = [
     ./options.nix
-    (packageBuilderModule (rec {
+    (packageBuilderModule {
       builderName = "rustPackageBuilder";
       mkDerivation = pkgs.rustPlatform.buildRustPackage;
       attrs = builder: finalAttrs: previousAttrs: {
-        inherit (config.build.${builderName})
+        inherit (builder)
           cargoHash
           cargoBuildFlags
           ;
       };
-    }))
+    })
   ];
 
 }

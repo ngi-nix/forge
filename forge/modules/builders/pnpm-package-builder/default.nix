@@ -13,7 +13,7 @@
       attrs =
         builder: finalAttrs: previousAttrs:
         {
-          pnpmDeps = pkgs.fetchPnpmDeps ({
+          pnpmDeps = pkgs.fetchPnpmDeps {
             inherit (finalAttrs)
               pname
               src
@@ -22,7 +22,7 @@
               ;
             inherit (builder) pnpm fetcherVersion;
             hash = builder.pnpmDepsHash;
-          });
+          };
           nativeBuildInputs = previousAttrs.nativeBuildInputs or [ ] ++ [
             builder.pnpm
             pkgs.pnpmConfigHook
