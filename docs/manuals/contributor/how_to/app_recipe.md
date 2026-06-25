@@ -62,7 +62,9 @@ Start the recipe with the following content:
 
 ### Links
 
-Add a [`links`](https://ngi.nixos.org/recipe/options?p=apps&p=packages&s=apps.%3Cname%3E.links) block that contains URLs to the project source, website, and documentation.
+Add a
+[`links`](https://ngi.nixos.org/recipe/options?p=apps&p=packages&s=apps.%3Cname%3E.links)
+block that contains URLs to the project source, website, and documentation.
 
 ```nix
 links = {
@@ -164,21 +166,21 @@ program-cli
 ## Services
 
 Add a `services` block if the application provides services. It can contain
-one or more services called _service components_.
+one or more _service components_.
 
 Start with runtime-independent service configuration. The only required option
-is `command`, which specifies the executable to start the service. Additional
-arguments are passed using the `argv` option. Services typically also need
-a configuration file, which can be supplied via the `configData` option.
-
-<!-- TODO: document `extraComponents` after [#425](https://github.com/ngi-nix/forge/issues/425) is merged. -->
+is `process.command`, which specifies the executable to start the service.
+Additional arguments are passed using the `process.argv` option. Services
+typically also need a configuration file, which can be supplied via the
+`process.configData` option. Configuration files are made available at runtime
+under `$XDG_CONFIG_HOME`, which can be referenced directly in `process.argv`.
 
 ```nix
 services = {
   components.my-service = {
-    command = pkgs.package;
-    argv = [ "--config" "service.toml" ];
-    configData."service.toml" = {
+    process.command = pkgs.package;
+    process.argv = [ "--config" "$XDG_CONFIG_HOME/service.toml" ];
+    process.configData."service.toml" = {
       source = ./service.toml;
       path = "service.toml";
     };
@@ -187,44 +189,44 @@ services = {
 ```
 
 Additionally, environment variables can be used to configure the service using
-the `environment` option.
+the `process.environment` option.
 
 ```nix
 services = {
   components.my-service = {
     ...
-    environment = {
+    process.environment = {
       LOG_LEVEL = "info";
-    }
+    };
     ...
   };
 };
 ```
 
 Service user and state directory (persistent data directory) are automatically
-created and managed by Forge but can be customized using `user` and `stateDir`
-options if required.
+created and managed by Forge but can be customized using `process.user` and
+`process.stateDir` options if required.
 
 ```nix
 services = {
   components.my-service = {
     ...
-    user = "root";
-    stateDir = "/var/lib/foo";
+    process.user = "root";
+    process.stateDir = "/var/lib/foo";
     ...
   };
 };
 ```
 
-All service ports exposed to the user must be configured using the `ports` option. This list is
-used to configure port mapping for the _container_ runtime and to configure port forwarding when
-a _nixos_ system is launched in a VM.
+All service ports exposed to the user must be set using the `process.ports` option.
+This list is used to configure port mapping for the _container_ runtime and to
+configure port forwarding when a _nixos_ system is launched in a VM.
 
 ```nix
 services = {
   components.my-service = {
     ...
-    ports = [
+    process.ports = [
       "8080:8080"
       "8081:8081"
       "8082:8082"
@@ -234,15 +236,15 @@ services = {
 };
 ```
 
-A pre-start script can be configured using the `preStart` option. The pre-start
-script runs before service startup, including restarts. This is useful for
-tasks like database migrations.
+A pre-start script can be configured using the `process.preStart` option. The
+pre-start script runs before service startup, including restarts. This is useful
+for tasks like database migrations.
 
 ```nix
 services = {
   components.my-service = {
     ...
-    preStart = ''
+    process.preStart = ''
       program makemigrations && program migrate
     '';
     ...
@@ -250,8 +252,8 @@ services = {
 };
 ```
 
-Multiple services (service components) can be ordered using the `after` option to control
-startup order.
+Multiple services (service components) can be ordered using the `after` option
+to control startup order.
 
 ```nix
 services = {
@@ -263,6 +265,31 @@ services = {
     ...
     after = [ "my-service-A" ];
     ...
+  };
+};
+```
+
+### Additional resources
+
+Additional resources required by a service - such as a database or reverse proxy
+can be configured using the `resources` option.
+
+Resources can be shared between multiple components.
+
+```nix
+services = {
+  components.my-service = {
+    ...
+    process.command = pkgs.my-service;
+    ...
+
+    resources.database.nixosConfig = {
+      services.postgresql.enable = true;
+    };
+
+    resources.reverse-proxy.nixosConfig = {
+      services.nginx.enable = true;
+    };
   };
 };
 ```
@@ -280,10 +307,16 @@ at startup — for example, to create directory structures or copy configuration
 #### "container" runtime
 
 The _container_ runtime runs each service component in a separate container
-using a Podman compose file automatically generated from the recipe
-configuration. Nimi script is configured as a container entrypoint.
+using a Podman Compose file automatically generated from the recipe
+configuration. Nimi is used as the container entrypoint.
 
-Enable the runtime and configure a setup script:
+Each _component_ runs in separate single-process container, while _resources_
+run in a full NixOS systemd container.
+
+Both _components_ and _resources_ can be extended with container
+runtime-specific configuration.
+
+Enable the runtime, configure a setup script and resource configuration:
 
 ```nix
 services = {
@@ -291,11 +324,16 @@ services = {
     ...
   };
 
-  runtimes.container.my-service = {
+  runtimes.container = {
     enable = true;
-    setup = ''
+
+    components.my-service.setup = ''
       mkdir /var/lib/my-service/data
     '';
+
+    resources.database.nixosConfig = {
+      services.postgresql.enableTCPIP = true;
+    };
   };
 };
 ```
@@ -389,7 +427,12 @@ podman-compose -f build-container/<service-name>/compose.yaml exec <service-name
 The _nixos_ runtime runs all services inside a NixOS machine. Each service
 component maps to a systemd unit which is launching a Nimi script.
 
-Enable the runtime and configure a setup script:
+All _components_ and _resources_ are running in a single NixOS system.
+
+Components, resources, and the NixOS system itself can be extended with
+runtime-specific configuration using the `nixosConfig` option.
+
+Enable the runtime, configure a setup script, and add resource configuration:
 
 ```nix
 services = {
@@ -397,34 +440,21 @@ services = {
     ...
   };
 
-  runtimes.nixos.my-service = {
+  runtimes.nixos = {
     enable = true;
+
     setup = ''
       mkdir /var/lib/my-service/data
     '';
+
+    nixosConfig = {
+      services.postgresql.authentication = ''
+        local all all trust
+      '';
+    };
   };
 };
 ```
-
-Add additional NixOS services when required:
-
-```nix
-services = {
-  components.my-service = {
-    ...
-  };
-
-  runtimes.nixos.my-service = {
-    enable = true;
-    ...
-    nixosConfig = ''
-      services.postgresql.enable = true;
-    '';
-  };
-};
-```
-
-<!-- TODO: document `extraComponents` after [#425](https://github.com/ngi-nix/forge/issues/425) is merged. -->
 
 Run the application in a NixOS VM:
 
