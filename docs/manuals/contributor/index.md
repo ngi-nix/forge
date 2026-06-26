@@ -2,8 +2,9 @@
 
 ```{toctree}
 :hidden: true
+:glob:
 
-how_to/package_recipe.md
-how_to/app_recipe.md
-how_to/dev_environment.md
+how_to/package*
+how_to/app*
+how_to/*
 ```

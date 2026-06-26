@@ -2,6 +2,7 @@
 
 ```{toctree}
 :hidden: true
+:glob:
 
-version-0_1.md
+*
 ```
