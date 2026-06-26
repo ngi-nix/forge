@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.build.pythonAppBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       Python application builder for executable Python programs.
 

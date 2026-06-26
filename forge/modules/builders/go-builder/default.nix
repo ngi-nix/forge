@@ -5,9 +5,9 @@
 }:
 {
   imports = [
-    ./options.nix
     (packageBuilderModule {
-      builderName = "goPackageBuilder";
+      name = "goPackageBuilder";
+      imports = ./options.nix;
       mkDerivation = pkgs.buildGoModule;
       attrs = builder: finalAttrs: previousAttrs: {
         inherit (builder)

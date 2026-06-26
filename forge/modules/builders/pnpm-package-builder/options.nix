@@ -4,7 +4,7 @@
   ...
 }:
 {
-  options.build.pnpmPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       PNPM package builder for JavaScript and TypeScript packages.
 

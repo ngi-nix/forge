@@ -6,9 +6,9 @@
 }:
 {
   imports = [
-    ./options.nix
     (packageBuilderModule {
-      builderName = "pnpmPackageBuilder";
+      name = "pnpmPackageBuilder";
+      imports = ./options.nix;
       mkDerivation = pkgs.stdenvNoCC.mkDerivation;
       attrs =
         builder: finalAttrs: previousAttrs:

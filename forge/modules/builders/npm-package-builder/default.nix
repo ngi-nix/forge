@@ -5,9 +5,9 @@
 }:
 {
   imports = [
-    ./options.nix
     (packageBuilderModule {
-      builderName = "npmPackageBuilder";
+      name = "npmPackageBuilder";
+      imports = ./options.nix;
       mkDerivation = pkgs.buildNpmPackage;
       attrs = builder: finalAttrs: previousAttrs: {
         nativeBuildInputs = previousAttrs.nativeBuildInputs or [ ] ++ [

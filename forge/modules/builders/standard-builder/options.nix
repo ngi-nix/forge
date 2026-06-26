@@ -4,7 +4,7 @@
   ...
 }:
 {
-  options.build.standardBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       Standard builder for autotools, CMake, or Makefile-based projects.
 

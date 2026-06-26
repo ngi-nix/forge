@@ -5,9 +5,9 @@
 }:
 {
   imports = [
-    ./options.nix
     (packageBuilderModule {
-      builderName = "standardBuilder";
+      name = "standardBuilder";
+      imports = ./options.nix;
       mkDerivation = config.build.standardBuilder.stdenv.mkDerivation;
       attrs =
         builder: finalAttrs: previousAttrs:

@@ -8,7 +8,8 @@
       {
         mkDerivation,
         mkDerivationProvidesFinalAttrs ? true,
-        builderName,
+        name,
+        imports ? { },
         attrs,
       }:
       {
@@ -19,44 +20,61 @@
       }@args:
 
       let
-        builder = config.build.${builderName};
+        builder = config.build.${name};
       in
 
       {
-        options.build.${builderName} = {
-          packages = {
-            build = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = ''
-                List of build-time dependencies needed during compilation (native
-                architecture).
+        options.build = lib.mkOption {
+          type = lib.types.submoduleWith {
+            modules = [
+              ({ specialArgs, config, ... }: {
+                options.${name} = lib.mkOption {
+                  default = { };
+                  type = lib.types.submoduleWith {
+                    inherit specialArgs;
+                    modules = [
+                      imports
+                      {
+                        options.packages = {
+                          build = lib.mkOption {
+                            type = lib.types.listOf lib.types.package;
+                            default = [ ];
+                            description = ''
+                              List of build-time dependencies needed during compilation (native
+                              architecture).
 
-                Mapped to `nativeBuildInputs`.
-              '';
-              example = lib.literalExpression "[ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
-            };
-            run = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = ''
-                List of runtime dependencies needed by the package (target
-                architecture).
+                              Mapped to `nativeBuildInputs`.
+                            '';
+                            example = lib.literalExpression "[ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
+                          };
+                          run = lib.mkOption {
+                            type = lib.types.listOf lib.types.package;
+                            default = [ ];
+                            description = ''
+                              List of runtime dependencies needed by the package (target
+                              architecture).
 
-                Mapped to `buildInputs`.
-              '';
-              example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
-            };
-            check = lib.mkOption {
-              type = lib.types.listOf lib.types.package;
-              default = [ ];
-              description = ''
-                List of test dependencies needed to run the test suite.
+                              Mapped to `buildInputs`.
+                            '';
+                            example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
+                          };
+                          check = lib.mkOption {
+                            type = lib.types.listOf lib.types.package;
+                            default = [ ];
+                            description = ''
+                              List of test dependencies needed to run the test suite.
 
-                Mapped to `nativeCheckInputs`.
-              '';
-              example = lib.literalExpression "[ pkgs.cunit ]";
-            };
+                              Mapped to `nativeCheckInputs`.
+                            '';
+                            example = lib.literalExpression "[ pkgs.cunit ]";
+                          };
+                        };
+                      }
+                    ];
+                  };
+                };
+              })
+            ];
           };
         };
 
