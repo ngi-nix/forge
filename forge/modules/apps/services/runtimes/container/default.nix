@@ -320,14 +320,36 @@ in
           }
         );
 
+        cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl}";
+
+        imageHash = drv: lib.unsafeDiscardStringContext (lib.substring 0 32 (baseNameOf drv.outPath));
+
+        imageTar = name: drv: "$CACHE_DIR/${name}-${imageHash drv}.tar";
+
         build-oci-images = pkgs.writeShellScriptBin "build-oci-images" (
-          lib.concatMapAttrsStringSep "\n" (name: value: ''
-            ${value.copyTo}/bin/copy-to oci-archive:${name}.tar:${name}:latest
-            echo "Created container image in $(pwd)/${name}.tar"
+          ''
+            CACHE_DIR="${cacheDir}"
+            mkdir -p "$CACHE_DIR"
+          ''
+          + lib.concatMapAttrsStringSep "\n" (name: recipe: ''
+            IMAGE_TAR="${imageTar name recipe}"
+            if [ ! -f "$IMAGE_TAR" ]; then
+              printf "Creating container image %s ... " "$IMAGE_TAR"
+              ${recipe.copyTo}/bin/copy-to oci-archive:$IMAGE_TAR:${name}:latest >/dev/null
+              echo "done."
+            else
+              echo "Image already exists in cache: $IMAGE_TAR"
+            fi
           '') config.result.recipes
           + lib.concatMapAttrsStringSep "\n" (name: imageStream: ''
-            ${imageStream} 2>/dev/null > "${name}.tar"
-            echo "Created container image in $(pwd)/${name}.tar"
+            IMAGE_TAR="${imageTar name imageStream}"
+            if [ ! -f "$IMAGE_TAR" ]; then
+              printf "Creating container image %s ... " "$IMAGE_TAR"
+              ${imageStream} 2>/dev/null > "$IMAGE_TAR"
+              echo "done."
+            else
+              echo "Image already exists in cache: $IMAGE_TAR"
+            fi
           '') config.result.nixosImages
         );
 
@@ -335,23 +357,22 @@ in
           install -D ${composeFile} $out/${app.name}/compose.yaml
         '';
 
-        cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${builtins.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl}/tmp";
-
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
           CACHE_DIR="${cacheDir}"
-          mkdir -p "$CACHE_DIR"
-          TMPDIR=$(mktemp -d -p "$CACHE_DIR")
 
-          trap 'rm -rf "$TMPDIR"' EXIT
+          ${lib.getExe build-oci-images}
 
-          pushd $TMPDIR
-            ${lib.getExe build-oci-images}
-
-            for image in *.tar; do
-              podman load < "$image"
-              rm "$image"
-            done
-          popd
+          IMAGES=(
+            ${lib.concatMapAttrsStringSep "\n    " (
+              name: recipe: "\"${imageTar name recipe}\""
+            ) config.result.recipes}
+            ${lib.concatMapAttrsStringSep "\n    " (
+              name: imageStream: "\"${imageTar name imageStream}\""
+            ) config.result.nixosImages}
+          )
+          for image in "''${IMAGES[@]}"; do
+            podman load < "$image"
+          done
 
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
