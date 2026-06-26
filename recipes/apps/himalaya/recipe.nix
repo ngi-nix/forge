@@ -54,6 +54,7 @@
         "Pimalaya"
         "Pimalaya-PIM"
       ];
+      Review = [ "Himalaya" ];
     };
 
     icon = ./icon.svg;
