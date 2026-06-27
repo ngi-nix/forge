@@ -137,6 +137,48 @@ viewPageAppUsage _ pageApp =
         text ""
 
 
+viewPortList : List String -> Html Update
+viewPortList ports =
+    if List.isEmpty ports then
+        text ""
+
+    else
+        ul
+            [ class "ms-3 mb-1"
+            , style "list-style-type" "none"
+            , style "padding" "0px"
+            ]
+            (List.map
+                (\p -> li [] [ small [ class "text-body-secondary" ] [ text (String.replace ":" " → " p) ] ])
+                ports
+            )
+
+
+viewResource : ( String, AppResource ) -> Html Update
+viewResource ( rname, resource ) =
+    div []
+        [ small [ class "text-body-secondary" ] [ text rname ]
+        , viewPortList resource.appResource_ports
+        ]
+
+
+viewComponent : ( String, AppComponent ) -> Html Update
+viewComponent ( cname, component ) =
+    li []
+        [ small [] [ text cname ]
+        , viewPortList component.appComponent_ports
+        , if Dict.isEmpty component.appComponent_resources then
+            text ""
+
+          else
+            div [ class "ms-2" ]
+                (component.appComponent_resources
+                    |> Dict.toList
+                    |> List.map viewResource
+                )
+        ]
+
+
 viewPageAppConfiguration : Model -> PageApp -> Html Update
 viewPageAppConfiguration _ pageApp =
     let
@@ -162,20 +204,19 @@ viewPageAppConfiguration _ pageApp =
                 ]
                 []
             ]
-        , if List.isEmpty (getAppServicesPorts pageApp.pageApp_app.app_services) then
+        , if Dict.isEmpty pageApp.pageApp_app.app_services.appServices_components then
             text ""
 
           else
             div []
-                [ div [ class "ms-2 mb-1" ]
-                    [ small [ class "text-body-secondary" ] [ text "Forwarded Ports" ] ]
-                , ul
-                    [ class "mb-3 ms-4"
-                    , style "list-style-type" "none"
-                    , style "padding" "0px"
+                [ ul
+                    [ class "ms-2 mb-3"
+                    , style "list-style-type" "disc"
+                    , style "padding-left" "1.2em"
                     ]
-                    (getAppServicesPorts pageApp.pageApp_app.app_services
-                        |> List.map (\p -> li [] [ text (String.replace ":" " → " p) ])
+                    (pageApp.pageApp_app.app_services.appServices_components
+                        |> Dict.toList
+                        |> List.map viewComponent
                     )
                 ]
         , div [ class "ms-2 mb-1" ]

@@ -88,15 +88,28 @@ decodeAppProgramsRuntimesShell =
         (Decode.field "enable" Decode.bool)
 
 
+type alias AppResource =
+    { appResource_ports : List String
+    }
+
+
+decodeAppResource : Decoder AppResource
+decodeAppResource =
+    Decode.map AppResource
+        (Decode.field "ports" (Decode.list Decode.string))
+
+
 type alias AppComponent =
     { appComponent_ports : List String
+    , appComponent_resources : Dict String AppResource
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent
-        (Decode.field "ports" (Decode.list Decode.string))
+    Decode.map2 AppComponent
+        (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
+        (Decode.field "resources" (Decode.dict decodeAppResource))
 
 
 type alias AppServices =
@@ -284,7 +297,14 @@ getAppServicesPorts : AppServices -> List String
 getAppServicesPorts services =
     services.appServices_components
         |> Dict.toList
-        |> List.concatMap (Tuple.second >> .appComponent_ports)
+        |> List.concatMap
+            (\( _, component ) ->
+                component.appComponent_ports
+                    ++ (component.appComponent_resources
+                            |> Dict.toList
+                            |> List.concatMap (Tuple.second >> .appResource_ports)
+                       )
+            )
 
 
 type alias Maintainer =
