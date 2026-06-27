@@ -137,6 +137,16 @@ viewPageAppUsage _ pageApp =
         text ""
 
 
+viewBulletList : List (Html Update) -> Html Update
+viewBulletList items =
+    ul
+        [ class "ms-2 mb-3"
+        , style "list-style-type" "disc"
+        , style "padding-left" "1.2em"
+        ]
+        items
+
+
 viewPortList : List String -> Html Update
 viewPortList ports =
     if List.isEmpty ports then
@@ -184,6 +194,12 @@ viewPageAppConfiguration _ pageApp =
     let
         routeApp =
             pageApp.pageApp_route
+
+        packageNames =
+            getAppProgramPackageNames pageApp.pageApp_app.app_programs
+
+        components =
+            pageApp.pageApp_app.app_services.appServices_components
     in
     div
         [ class "box-container target-highlight mb-3"
@@ -204,20 +220,25 @@ viewPageAppConfiguration _ pageApp =
                 ]
                 []
             ]
-        , if Dict.isEmpty pageApp.pageApp_app.app_services.appServices_components then
+        , if List.isEmpty packageNames then
             text ""
 
           else
             div []
-                [ ul
-                    [ class "ms-2 mb-3"
-                    , style "list-style-type" "disc"
-                    , style "padding-left" "1.2em"
-                    ]
-                    (pageApp.pageApp_app.app_services.appServices_components
-                        |> Dict.toList
-                        |> List.map viewComponent
-                    )
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Programs" ] ]
+                , viewBulletList
+                    (List.map (\n -> li [] [ small [] [ text n ] ]) packageNames)
+                ]
+        , if Dict.isEmpty components then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Services" ] ]
+                , viewBulletList
+                    (components |> Dict.toList |> List.map viewComponent)
                 ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]
