@@ -10,6 +10,7 @@
     "nix"
     "python"
     "sql"
+    "yaml"
   ],
   # https://highlightjs.org/examples
   # https://highlightjs.org/demo
