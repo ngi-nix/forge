@@ -268,33 +268,38 @@
       let
         resourceNames = lib.attrNames app.services.resources;
 
+        serviceComponents = lib.mapAttrs (name: service: {
+          image = "localhost/${name}:latest";
+          ports = service.process.ports;
+          depends_on = lib.genAttrs (service.after ++ resourceNames) (_name: {
+            condition = "service_started";
+          });
+          tmpfs = [
+            "/tmp:rw,size=64m"
+            "/run:rw,size=64m"
+          ];
+          volumes = [ "${name}-data:${service.process.stateDir}" ];
+        }) app.services.components;
+
+        resourcesComponents = lib.mapAttrs (name: resource: {
+          image = "localhost/${name}:latest";
+          ports = resource.ports;
+          tmpfs = [
+            "/run"
+            "/run/wrappers"
+          ];
+          volumes = [ "${name}-data:/var/lib" ];
+          cap_add = [ "SYS_ADMIN" ];
+          stop_signal = "SIGRTMIN+3";
+          stop_grace_period = "30s";
+        }) config.resources;
+
         composeFile = pkgs.writeText "${app.name}-compose.yaml" (
           lib.generators.toYAML { } {
-            services =
-              lib.mapAttrs (name: service: {
-                image = "localhost/${name}:latest";
-                ports = service.process.ports;
-                depends_on = lib.genAttrs (service.after ++ resourceNames) (_name: {
-                  condition = "service_started";
-                });
-                tmpfs = [
-                  "/tmp:rw,size=64m"
-                  "/run:rw,size=64m"
-                ];
-                volumes = [ "${name}-data:${service.process.stateDir}" ];
-              }) app.services.components
-              // lib.mapAttrs (name: resource: {
-                image = "localhost/${name}:latest";
-                ports = resource.ports;
-                tmpfs = [
-                  "/run"
-                  "/run/wrappers"
-                ];
-                volumes = [ "${name}-data:/var/lib" ];
-                cap_add = [ "SYS_ADMIN" ];
-                stop_signal = "SIGRTMIN+3";
-                stop_grace_period = "30s";
-              }) app.services.resources;
+            services = lib.foldl lib.recursiveUpdate { } [
+              resourcesComponents
+              serviceComponents
+            ];
             volumes =
               lib.mapAttrs' (name: _: lib.nameValuePair "${name}-data" { }) app.services.components
               // lib.mapAttrs' (name: _: lib.nameValuePair "${name}-data" { }) app.services.resources;
