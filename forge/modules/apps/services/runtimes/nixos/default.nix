@@ -130,9 +130,7 @@
         environment.systemPackages = config.packages;
       };
       nixosComponents = {
-        imports = lib.concatMap (c: map (r: r.nixosConfig) (lib.attrValues c.resources)) (
-          lib.attrValues app.services.components
-        );
+        imports = lib.mapAttrsToList (name: value: value.nixosConfig) app.services.resources;
 
         networking.extraHosts =
           let
