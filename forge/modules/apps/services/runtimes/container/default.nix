@@ -360,7 +360,7 @@
 
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
-            up --force-recreate "$@"
+            up --force-recreate --remove-orphans "$@"
         '';
 
         run-container = pkgs.writeShellScriptBin "run-container" ''
