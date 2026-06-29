@@ -243,12 +243,28 @@
 
     result.build =
       let
-        resourceNames = lib.attrNames app.services.resources;
+        # Collect frontend resources and the components that declare them as such.
+        # Result: { <resource-name> = [ <component-name> ... ]; }
+        # Frontend resources start after these components so that upstream
+        # hostnames are registered in the container network DNS before the
+        # resource process (e.g. nginx) performs its startup checks.
+        frontendResourceDeps = lib.foldlAttrs (
+          acc: cname: comp:
+          lib.foldlAttrs (
+            acc2: rname: r:
+            if r.role == "frontend" then acc2 // { ${rname} = (acc2.${rname} or [ ]) ++ [ cname ]; } else acc2
+          ) acc comp.resources
+        ) { } app.services.components;
+
+        # Backend resources start before components — components depend on them.
+        backendResourceNames = lib.filter (rname: !(lib.hasAttr rname frontendResourceDeps)) (
+          lib.attrNames app.services.resources
+        );
 
         serviceComponents = lib.mapAttrs (name: service: {
           image = "localhost/${name}:latest";
           ports = service.process.ports;
-          depends_on = lib.genAttrs (service.after ++ resourceNames) (_name: {
+          depends_on = lib.genAttrs (service.after ++ backendResourceNames) (_name: {
             condition = "service_started";
           });
           tmpfs = [
@@ -261,6 +277,11 @@
         resourcesComponents = lib.mapAttrs (name: resource: {
           image = "localhost/${name}:latest";
           ports = resource.ports;
+          depends_on = lib.optionalAttrs (lib.hasAttr name frontendResourceDeps) (
+            lib.genAttrs frontendResourceDeps.${name} (_: {
+              condition = "service_started";
+            })
+          );
           tmpfs = [
             "/run"
             "/run/wrappers"
