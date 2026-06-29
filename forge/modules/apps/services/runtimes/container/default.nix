@@ -272,6 +272,7 @@
             "/run:rw,size=64m"
           ];
           volumes = [ "${name}-data:${service.process.stateDir}" ];
+          labels = [ "ngi-forge.type=component" ];
         }) app.services.components;
 
         resourcesComponents = lib.mapAttrs (name: resource: {
@@ -290,6 +291,7 @@
           cap_add = [ "SYS_ADMIN" ];
           stop_signal = "SIGRTMIN+3";
           stop_grace_period = "30s";
+          labels = [ "ngi-forge.type=resource" ];
         }) app.services.resources;
 
         composeFile = pkgs.writeText "${app.name}-compose.yaml" (
