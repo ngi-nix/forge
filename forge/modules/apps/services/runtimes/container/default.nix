@@ -326,6 +326,10 @@
         '';
 
         run-container = pkgs.writeShellScriptBin "run-container" ''
+          set -euo pipefail
+          ${arionImages}
+
+          # start the containers
           ${lib.getExe run-podman} "$@"
         '';
       in
