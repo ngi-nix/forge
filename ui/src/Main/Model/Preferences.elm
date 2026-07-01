@@ -7,6 +7,7 @@ import Json.Encode as Encode exposing (Value)
 type alias Preferences =
     { preferences_install : PreferencesInstall
     , preferences_theme : PreferencesTheme
+    , preferences_feedbackDismissed : Bool
     }
 
 
@@ -14,12 +15,13 @@ defaultPreferences : Preferences
 defaultPreferences =
     { preferences_install = PreferencesInstall_NixFlakes
     , preferences_theme = PreferencesTheme_Light
+    , preferences_feedbackDismissed = False
     }
 
 
 decodePreferences : Decoder Preferences
 decodePreferences =
-    Decode.map2
+    Decode.map3
         Preferences
         (Decode.field "install"
             (Decode.oneOf
@@ -35,6 +37,13 @@ decodePreferences =
                 ]
             )
         )
+        (Decode.field "feedbackDismissed"
+            (Decode.oneOf
+                [ Decode.bool
+                , Decode.succeed defaultPreferences.preferences_feedbackDismissed
+                ]
+            )
+        )
 
 
 encodePreferences : Preferences -> Value
@@ -42,6 +51,7 @@ encodePreferences preferences =
     Encode.object
         [ ( "install", preferences.preferences_install |> encodePreferencesInstall )
         , ( "theme", preferences.preferences_theme |> encodePreferencesTheme )
+        , ( "feedbackDismissed", Encode.bool preferences.preferences_feedbackDismissed )
         ]
 
 
