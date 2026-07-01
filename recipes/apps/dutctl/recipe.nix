@@ -72,7 +72,7 @@
           "-a" # address
           "0.0.0.0:1024"
           "-c" # path to config
-          "/var/lib/dutagent/config.yaml"
+          "$XDG_CONFIG_HOME/dutagent/config.yaml"
         ];
         process.ports = [
           "1024:1024"
@@ -81,10 +81,6 @@
           source = ./dutagent-cfg-example.yaml;
           path = "dutagent/config.yaml";
         };
-        process.preStart = ''
-          echo "Installing configuration files ..."
-          cp -v ''$XDG_CONFIG_HOME/dutagent/config.yaml /var/lib/dutagent/config.yaml
-        '';
       };
 
       runtimes = {
@@ -92,7 +88,6 @@
           enable = true;
           components.dutagent.packages = with pkgs; [
             bash # for entering the container
-            coreutils # mkdir, echo, ...
             dutctl
           ];
         };

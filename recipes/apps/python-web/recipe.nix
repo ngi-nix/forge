@@ -114,13 +114,11 @@
           path = "postgrest.conf";
         };
         process.preStart = ''
-          install -m 644 ''$XDG_CONFIG_HOME/postgrest.conf /var/lib/api/postgrest.conf
-          cat /var/lib/api/postgrest.conf
           until ${pkgs.postgresql}/bin/pg_isready -h database -U postgres; do
             sleep 1
           done
         '';
-        process.argv = [ "/var/lib/api/postgrest.conf" ];
+        process.argv = [ "$XDG_CONFIG_HOME/postgrest.conf" ];
         process.packages = with pkgs; [ coreutils ];
 
         # DB resource (shared with main app component)

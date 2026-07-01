@@ -170,10 +170,13 @@ one or more _service components_.
 
 Start with runtime-independent service configuration. The only required option
 is `process.command`, which specifies the executable to start the service.
-Additional arguments are passed using the `process.argv` option. Services
-typically also need a configuration file, which can be supplied via the
-`process.configData` option. Configuration files are made available at runtime
-under `$XDG_CONFIG_HOME`, which can be referenced directly in `process.argv`.
+
+Additional arguments are passed using the `process.argv` option.
+
+Services typically also need a configuration file, which can be supplied
+via the `process.configData` option. Configuration files are installed
+to `$XDG_CONFIG_HOME` directory, which can be referenced directly in
+`process.argv`.
 
 ```nix
 services = {
