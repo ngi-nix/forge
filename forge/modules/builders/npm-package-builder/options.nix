@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.build.npmPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       NPM package builder for JavaScript and TypeScript packages.
 

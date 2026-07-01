@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.build.pythonPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       Python package builder for reusable Python libraries.
 
