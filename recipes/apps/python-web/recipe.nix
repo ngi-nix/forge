@@ -141,7 +141,7 @@
           ports = [ "8000:8000" ];
           role = "frontend";
         };
-        after = [ "python-web" ];
+        dependsOn = [ "python-web" ];
       };
 
       runtimes = {

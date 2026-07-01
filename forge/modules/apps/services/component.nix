@@ -147,7 +147,7 @@
       '';
     };
 
-    after = lib.mkOption {
+    dependsOn = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
       description = ''
