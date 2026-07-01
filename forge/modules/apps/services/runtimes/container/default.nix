@@ -264,7 +264,7 @@
         serviceComponents = lib.mapAttrs (name: service: {
           image = "localhost/${name}:latest";
           ports = service.process.ports;
-          depends_on = lib.genAttrs (service.after ++ backendResourceNames) (_name: {
+          depends_on = lib.genAttrs (service.dependsOn ++ backendResourceNames) (_name: {
             condition = "service_started";
           });
           tmpfs = [

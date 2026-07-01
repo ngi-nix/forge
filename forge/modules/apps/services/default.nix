@@ -28,15 +28,15 @@
           _: service:
           let
             knownComponents = lib.attrNames config.components;
-            invalidAfterDeps = lib.filter (dep: !lib.elem dep knownComponents) service.after;
+            invalidDependsOn = lib.filter (dep: !lib.elem dep knownComponents) service.dependsOn;
             optionPath = lib.showOption (options.components.loc ++ [ service.name ]);
 
             prettyPrint = lib.generators.toPretty { };
 
-            checks.after = {
-              cond = invalidAfterDeps != [ ];
+            checks.dependsOn = {
+              cond = invalidDependsOn != [ ];
               msg = ''
-                `${optionPath}.after` references invalid services: ${prettyPrint invalidAfterDeps}
+                `${optionPath}.dependsOn` references invalid services: ${prettyPrint invalidDependsOn}
                 Must be one of: ${prettyPrint knownComponents}
               '';
             };

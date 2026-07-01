@@ -34,8 +34,8 @@
   systemd.services = lib.mapAttrs (
     serviceName: service:
     let
-      serviceAfterUnits = map (a: a + ".service") (
-        lib.filter (a: app.services.components ? ${a}) service.after
+      requiredServiceUnits = map (a: a + ".service") (
+        lib.filter (a: app.services.components ? ${a}) service.dependsOn
       );
     in
     {
@@ -56,8 +56,8 @@
           User = "root";
         })
       ];
-      after = serviceAfterUnits;
-      requires = serviceAfterUnits;
+      after = requiredServiceUnits;
+      requires = requiredServiceUnits;
     }
   ) app.services.components;
 }

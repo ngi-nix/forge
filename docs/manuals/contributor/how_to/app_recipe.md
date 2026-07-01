@@ -252,8 +252,8 @@ services = {
 };
 ```
 
-Multiple services (service components) can be ordered using the `after` option
-to control startup order.
+Dependencies between multiple services (service components) can be configured
+using the `dependsOn` option.
 
 ```nix
 services = {
@@ -263,7 +263,7 @@ services = {
   };
   components.my-service-B = {
     ...
-    after = [ "my-service-A" ];
+    dependsOn = [ "my-service-A" ];
     ...
   };
 };
