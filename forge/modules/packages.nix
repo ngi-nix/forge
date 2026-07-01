@@ -64,7 +64,7 @@
       }) { };
     in
     {
-      inherit (packagesWithNamespace) packages legacyPackages;
+      inherit (packagesWithNamespace) packages;
       # Collect warnings from packages
       warnings = lib.flatten (
         map (pkg: [

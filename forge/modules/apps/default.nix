@@ -120,7 +120,6 @@
       }) { };
     in
     {
-      inherit (packagesWithNamespace) legacyPackages;
       packages =
         packagesWithNamespace.packages
         // lib.concatMapAttrs (

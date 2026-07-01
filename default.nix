@@ -14,6 +14,16 @@
   lib ? import "${inputs.nixpkgs}/lib",
 }:
 let
+  drvToAttrs =
+    drv:
+    builtins.removeAttrs drv [
+      "drvPath"
+      "outPath"
+      "outputName"
+      "name"
+      "type"
+      "system"
+    ];
   default = lib.makeScope nixpkgs.newScope (def: {
     inherit
       lib
@@ -33,14 +43,9 @@ let
 
     inherit (default.debug) forge;
 
-    # derivations
-    apps = flake.outputs.packages.${system}.apps or { };
-    pkgs = flake.outputs.packages.${system}.pkgs or { };
-    _forge = flake.outputs.packages.${system}._forge or { };
-
-    # In repl use these to access individual attributes
-    appsRepl = flake.outputs.legacyPackages.${system}.appsRepl or { };
-    pkgsRepl = flake.outputs.legacyPackages.${system}.pkgsRepl or { };
+    apps = drvToAttrs flake.outputs.packages.${system}.apps;
+    pkgs = drvToAttrs flake.outputs.packages.${system}.pkgs;
+    _forge = drvToAttrs flake.outputs.packages.${system}._forge;
 
     shells = flake.outputs.devShells.${system};
   });
