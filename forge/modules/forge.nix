@@ -20,13 +20,13 @@
         pkgs = pkgs.extend (
           finalPkgs: previousPkgs:
           # Extend `pkgs` with the packages from the forge.
-          lib.mapAttrs (packageName: package: package.result.derivation) config.forge.packages
+          lib.mapAttrs (packageName: package: package.result.derivation) config.forge.pkgs
           // {
             # `pkgs.pkgsOriginal` provides packages from the original `pkgs` (usually from Nixpkgs)
             # Eg. `pkgs.pkgsOriginal.offen` (Nixpkgs) and `pkgs.offen` (ngi-forge).
             # Note that as a consequence, all dependencies of those packages
             # remain those coming from the original `pkgs`,
-            # even when they happen to also packaged in the forge.
+            # even when they happen to also be packaged in the forge.
             pkgsOriginal = previousPkgs;
           }
         );
@@ -58,17 +58,17 @@
             };
 
             recipeDirs = {
-              packages = lib.mkOption {
+              pkgs = lib.mkOption {
                 type = lib.types.nullOr lib.types.str;
-                default = "recipes/packages";
+                default = "recipes/pkgs";
                 description = ''
                   Directory containing package recipe files.
                   Each recipe should be a recipe.nix file in a subdirectory
-                  (e.g., recipes/packages/hello/recipe.nix).
+                  (e.g., recipes/pkgs/hello/recipe.nix).
 
                   Set to null to disable automatic package recipe loading.
                 '';
-                example = "recipes/packages";
+                example = "recipes/pkgs";
               };
 
               apps = lib.mkOption {

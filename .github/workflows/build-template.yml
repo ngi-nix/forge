@@ -6,7 +6,7 @@ on:
       template:
         required: true
         type: string
-      package:
+      pkg:
         required: false
         type: string
         default: ""
@@ -77,11 +77,11 @@ jobs:
           nix flake show
 
       - name: Build package
-        if: inputs.package != ''
+        if: inputs.pkg != ''
         working-directory: /tmp/template-test
-        run: nix build .#pkgs."${INPUTS_PACKAGE}" --accept-flake-config
+        run: nix build .#pkgs."${INPUTS_PKG}" --accept-flake-config
         env:
-          INPUTS_PACKAGE: ${{ inputs.package }}
+          INPUTS_PKG: ${{ inputs.pkg }}
 
       - name: Build app (shell)
         if: inputs.app != '' && inputs.test_shell

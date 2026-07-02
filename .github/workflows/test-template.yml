@@ -24,7 +24,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'provider'
     with:
       template: provider
-      package: hello-nix
+      pkg: hello-nix
       app: hello-nix
       test_shell: true
       test_forge_ui: true
@@ -35,7 +35,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'consumer'
     with:
       template: consumer
-      package: hello-web
+      pkg: hello-web
       app: example
       test_shell: true
       test_container: true
