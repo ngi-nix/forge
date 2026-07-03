@@ -31,6 +31,38 @@
               "build"
               name
               "packages"
+              "build"
+            ];
+            to = [
+              "phases"
+              "build"
+              "packages"
+              "build"
+              "host"
+            ];
+          })
+          (forge-lib.mkAliasOptionModule {
+            condition = builder.enable;
+            from = [
+              "build"
+              name
+              "packages"
+              "run"
+            ];
+            to = [
+              "phases"
+              "build"
+              "packages"
+              "host"
+              "target"
+            ];
+          })
+          (forge-lib.mkAliasOptionModule {
+            condition = builder.enable;
+            from = [
+              "build"
+              name
+              "packages"
               "check"
             ];
             to = [
@@ -56,32 +88,6 @@
                       imports
                       ./env.nix
                       ./structuredAttrs.nix
-                      ({ options, ... }: {
-                        options.packages = {
-                          build = lib.mkOption {
-                            type = lib.types.listOf lib.types.package;
-                            default = [ ];
-                            description = ''
-                              List of build-time dependencies needed during compilation (native
-                              architecture).
-
-                              Mapped to `nativeBuildInputs`.
-                            '';
-                            example = lib.literalExpression "[ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
-                          };
-                          run = lib.mkOption {
-                            type = lib.types.listOf lib.types.package;
-                            default = [ ];
-                            description = ''
-                              List of runtime dependencies needed by the package (target
-                              architecture).
-
-                              Mapped to `buildInputs`.
-                            '';
-                            example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
-                          };
-                        };
-                      })
                     ];
                   };
                 };
