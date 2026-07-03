@@ -12,10 +12,10 @@
     _recipeType = lib.mkOption {
       type = lib.types.enum [
         "apps"
-        "packages"
+        "pkgs"
       ];
       internal = true;
-      description = "Internal type to distinguish between apps and packages for metadata resolution.";
+      description = "Internal type to distinguish between apps and pkgs for metadata resolution.";
     };
 
     recipePath = lib.mkOption {

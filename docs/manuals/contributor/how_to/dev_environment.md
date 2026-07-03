@@ -3,7 +3,7 @@
 ::: {important}
 For the list of all available configuration options for development environment configuration,
 see the
-[packages develop options reference](https://ngi.nixos.org/recipe/options?s=packages.%3Cname%3E.develop).
+[packages develop options reference](https://ngi.nixos.org/recipe/options?s=pkgs.%3Cname%3E.develop).
 :::
 
 NGI Forge provides a built-in development environment containing all
@@ -57,11 +57,11 @@ Hello, world!
 Additional environment packages and a entry script can be configured.
 
 For example, add the following configuration to
-`recipes/packages/hello-web/recipe.nix` to add the Go language linter and
+`recipes/pkgs/hello-web/recipe.nix` to add the Go language linter and
 customize a default welcome message:
 
 ```nix
-packages.hello-web = {
+pkgs.hello-web = {
   ...
   develop = {
     packages = with pkgs; [ golangci-lint ];

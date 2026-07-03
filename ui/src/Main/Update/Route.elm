@@ -14,7 +14,7 @@ import Main.Update.Config exposing (..)
 import Main.Update.Focus exposing (..)
 import Main.Update.Route.App exposing (..)
 import Main.Update.Route.Apps exposing (..)
-import Main.Update.Route.Packages exposing (..)
+import Main.Update.Route.Pkgs exposing (..)
 import Main.Update.Route.Recipe exposing (..)
 import Main.Update.Search exposing (..)
 import Main.Update.Types exposing (..)
@@ -31,8 +31,8 @@ updateRoute route model =
                 Route_Apps routeApps ->
                     updateRouteApps routeApps model
 
-                Route_Packages routePackages ->
-                    updateRoutePackages routePackages model
+                Route_Pkgs routePkgs ->
+                    updateRoutePkgs routePkgs model
 
                 Route_RecipeOptions routeRecipe ->
                     updateRouteRecipeOptions routeRecipe model
@@ -60,8 +60,8 @@ pageTitle page =
         Page_Apps _ ->
             "Apps — " ++ suffix
 
-        Page_Packages _ ->
-            "Packages — " ++ suffix
+        Page_Pkgs _ ->
+            "Pkgs — " ++ suffix
 
         Page_RecipeOptions _ ->
             "Recipe Options — " ++ suffix

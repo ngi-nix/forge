@@ -23,7 +23,7 @@ let
           imports = [
             # Definitions of options under `forge`.
             modules/apps
-            modules/packages.nix
+            modules/pkgs.nix
             modules/forge.nix
             # Packages building the forge.
             ./packages.nix

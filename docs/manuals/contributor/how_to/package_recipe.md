@@ -3,7 +3,7 @@
 ::: {important}
 For the list of all available configuration options for package recipes visit
 the
-[package options reference](https://ngi-nix.github.io/forge/recipe/options?s=packages).
+[package options reference](https://ngi-nix.github.io/forge/recipe/options?s=pkgs).
 :::
 
 Before writing a recipe, please spend some time to understand the software
@@ -50,14 +50,14 @@ Look for these files in the repository root:
 Create the package recipe directory and recipe file:
 
 ```bash
-mkdir recipes/packages/<package-name>
-touch recipes/packages/<package-name>/recipe.nix
+mkdir recipes/pkgs/<package-name>
+touch recipes/pkgs/<package-name>/recipe.nix
 ```
 
 Add the recipe file to Git:
 
 ```bash
-git add recipes/packages/<package-name>/recipe.nix
+git add recipes/pkgs/<package-name>/recipe.nix
 ```
 
 ::: {important}
@@ -76,7 +76,7 @@ Start the package recipe with the following content:
 }:
 
 {
-  packages.package-name = {        # lowercase with hyphens
+  pkgs.package-name = {        # lowercase with hyphens
     version = "1.0.0";           # latest released version
     description = "Short description of the package.";
     homePage = "https://project-website.org";

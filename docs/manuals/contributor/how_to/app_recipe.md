@@ -63,7 +63,7 @@ Start the recipe with the following content:
 ### Links
 
 Add a
-[`links`](https://ngi.nixos.org/recipe/options?p=apps&p=packages&s=apps.%3Cname%3E.links)
+[`links`](https://ngi.nixos.org/recipe/options?p=apps&p=pkgs&s=apps.%3Cname%3E.links)
 block that contains URLs to the project source, website, and documentation.
 
 ```nix

@@ -42,8 +42,8 @@ viewError err =
         Error_Http e ->
             viewErrorHttp e
 
-        Error_Package e ->
-            viewErrorPackage e
+        Error_Pkg e ->
+            viewErrorPkg e
 
         Error_Route e ->
             viewErrorRoute e
@@ -112,11 +112,11 @@ viewErrorApp err =
                 ]
 
 
-viewErrorPackage : ErrorPackage -> Html Update
-viewErrorPackage err =
+viewErrorPkg : ErrorPkg -> Html Update
+viewErrorPkg err =
     span [] <|
         case err of
-            ErrorPackage_NotFound packageName ->
+            ErrorPkg_NotFound pkgName ->
                 [ text "no such package: "
-                , text packageName
+                , text pkgName
                 ]
