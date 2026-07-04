@@ -24,6 +24,24 @@
         builder = config.build.${name};
       in
       {
+        imports = [
+          (forge-lib.mkAliasOptionModule {
+            condition = builder.enable;
+            from = [
+              "build"
+              name
+              "packages"
+              "check"
+            ];
+            to = [
+              "phases"
+              "check"
+              "packages"
+              "build"
+              "host"
+            ];
+          })
+        ];
         options.build = lib.mkOption {
           type = lib.types.submoduleWith {
             modules = [
@@ -61,16 +79,6 @@
                               Mapped to `buildInputs`.
                             '';
                             example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
-                          };
-                          check = lib.mkOption {
-                            type = lib.types.listOf lib.types.package;
-                            default = [ ];
-                            description = ''
-                              List of test dependencies needed to run the test suite.
-
-                              Mapped to `nativeCheckInputs`.
-                            '';
-                            example = lib.literalExpression "[ pkgs.cunit ]";
                           };
                         };
                       })
