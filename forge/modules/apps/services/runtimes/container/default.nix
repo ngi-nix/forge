@@ -63,7 +63,30 @@
     };
 
     resources = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule ../../resource.nix);
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options.nixosConfig = lib.mkOption {
+            type = lib.types.deferredModule;
+            default = { };
+            description = ''
+              Container runtime specific configuration.
+
+              See the list of available
+              [NixOS options](https://search.nixos.org/options) .
+            '';
+            example = lib.literalExpression ''
+              {
+                services.postgresql.enableTCPIP = true;
+                services.postgresql.authentication = '''
+                  local all all trust
+                  host all all 0.0.0.0/0 trust
+                  host all all ::0/0 trust
+                ''';
+              }
+            '';
+          };
+        }
+      );
       default = { };
       description = "Per-resource container runtime NixOS configuration.";
       apply =
