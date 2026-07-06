@@ -75,6 +75,7 @@
 
     resources = lib.mkOption {
       internal = true;
+      visible = false;
       type = lib.types.attrsOf (lib.types.submodule ./resource.nix);
       default = { };
       description = "Resource configuration";
