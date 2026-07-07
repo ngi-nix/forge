@@ -64,17 +64,13 @@
           source = ./Caddyfile;
           path = "Caddyfile";
         };
-        process.preStart = ''
-          echo "Installing configuration files ..."
-          cp -v ''$XDG_CONFIG_HOME/Caddyfile /var/lib/pmtiles-viewer/Caddyfile
-        '';
         process.command = pkgs.caddy;
         process.argv = [
           "run"
           "--adapter"
           "caddyfile"
           "--config"
-          "Caddyfile"
+          "$XDG_CONFIG_HOME/Caddyfile"
         ];
         process.ports = [ "8080:8080" ];
       };
@@ -82,9 +78,6 @@
       runtimes = {
         container = {
           enable = true;
-          components.pmtiles-viewer.packages = with pkgs; [
-            coreutils # mkdir, echo
-          ];
         };
 
         nixos.enable = true;

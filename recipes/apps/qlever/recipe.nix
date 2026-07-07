@@ -59,6 +59,10 @@
       };
 
       components.qlever-server = {
+        process.configData."qleverfile" = {
+          source = ./Qleverfile;
+          path = "Qleverfile";
+        };
         process.configData."service-data" = {
           source = "${pkgs.qlever-olympics-rdf-data}/olympics.nt";
           path = "olympics.nt";
@@ -66,17 +70,14 @@
         process.preStart = ''
           WORKDIR=/var/lib/qlever-server
 
-          echo "Installing configuration files ..."
-          install -D ${./Qleverfile} "$WORKDIR"/Qleverfile
-
           echo "Fetching and indexing data ..."
           install -D ''$XDG_CONFIG_HOME/olympics.nt "$WORKDIR"/olympics.nt
-          qlever index --overwrite-existing
+          qlever --qleverfile ''$XDG_CONFIG_HOME/Qleverfile index --overwrite-existing
         '';
         process.command = pkgs.qlever-control;
         process.argv = [
           "--qleverfile"
-          "/var/lib/qlever-server/Qleverfile"
+          "$XDG_CONFIG_HOME/Qleverfile"
           "start"
           "--run-in-foreground"
         ];
