@@ -4,8 +4,10 @@
 }:
 {
   flake.lib = {
-    # Helper to support namespacing with dot (`.`) in `flake.packages` (eg. `nix build .#pkgs.${packageName}`}
-    # This relies on the Nix completion not quoting attrset keys containing a dot.
+    # Helper to support namespacing with dot (`.`) in `flake.packages`
+    # (eg.`nix build .#pkgs.${packageName}`).
+    # This relies on the Nix completion not quoting attrset keys containing
+    # a dot.
     flakePackagesWithNamespace =
       { namespace, derivations }:
       { linkFarm, stdenv }:
@@ -37,5 +39,9 @@
           "${namespace}Repl" = derivations;
         };
       };
+
+    # Get the Nix store hash of a derivation's output path
+    # (eg. `/nix/store/<hash>-name` -> `<hash>`).
+    nixStoreHash = drv: lib.unsafeDiscardStringContext (lib.substring 0 32 (baseNameOf drv.outPath));
   };
 }

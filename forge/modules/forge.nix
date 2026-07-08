@@ -4,6 +4,7 @@
   pkgs,
   self-inputs,
   forge-inputs,
+  forge-lib,
   system,
   ...
 }:
@@ -17,6 +18,7 @@
         forgeConfig = config;
         inputs = self-inputs;
         inherit forge-inputs;
+        inherit forge-lib;
         pkgs = pkgs.extend (
           finalPkgs: previousPkgs:
           # Extend `pkgs` with the packages from the forge.

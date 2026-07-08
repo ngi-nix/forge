@@ -1,5 +1,6 @@
 {
   forge-inputs,
+  forge-lib,
   config,
   lib,
   system,
@@ -119,7 +120,7 @@
       nixosImages = lib.mkOption {
         internal = true;
         readOnly = true;
-        type = with lib.types; lazyAttrsOf package;
+        type = with lib.types; lazyAttrsOf (attrsOf anything);
         description = "OCI images built from NixOS configurations for resource components.";
       };
 
@@ -128,6 +129,12 @@
         type = with lib.types; lazyAttrsOf (nullOr package);
         default = null;
         description = "Script that builds container image recipe.";
+      };
+
+      images = lib.mkOption {
+        internal = true;
+        type = with lib.types; lazyAttrsOf (attrsOf anything);
+        description = "Unified image set combining component and resource OCI images.";
       };
 
       build = lib.mkOption {
@@ -248,21 +255,38 @@
           mkdir -p $out/usr/sbin
           ln -s ${toplevel}/init $out/usr/sbin/init
         '';
+        tag = forge-lib.nixStoreHash initScript;
       in
-      pkgs.dockerTools.streamLayeredImage {
-        inherit name;
-        tag = "latest";
-        contents = [ initScript ];
-        config = {
-          Cmd = [ "/usr/sbin/init" ];
-          Env = [
-            "container=docker"
-            "PATH=/usr/bin:/run/current-system/sw/bin/"
-          ];
-          StopSignal = "SIGRTMIN+3";
+      {
+        inherit tag;
+        stream = pkgs.dockerTools.streamLayeredImage {
+          inherit name tag;
+          contents = [ initScript ];
+          config = {
+            Cmd = [ "/usr/sbin/init" ];
+            Env = [
+              "container=docker"
+              "PATH=/usr/bin:/run/current-system/sw/bin/"
+            ];
+            StopSignal = "SIGRTMIN+3";
+          };
         };
       }
     ) app.services.resources;
+
+    result.images =
+      # component images
+      lib.mapAttrs (name: recipe: {
+        tag = forge-lib.nixStoreHash recipe;
+        copyToArchive =
+          tar:
+          "${recipe.copyTo}/bin/copy-to oci-archive:${tar}:${name}:${forge-lib.nixStoreHash recipe} >/dev/null";
+      }) config.result.recipes
+      # resource images
+      // lib.mapAttrs (name: nixosImage: {
+        tag = nixosImage.tag;
+        copyToArchive = tar: "${nixosImage.stream} 2>/dev/null > ${tar}";
+      }) config.result.nixosImages;
 
     result.build =
       let
@@ -285,7 +309,7 @@
         );
 
         serviceComponents = lib.mapAttrs (name: service: {
-          image = "localhost/${name}:latest";
+          image = "localhost/${name}:${config.result.images.${name}.tag}";
           ports = service.process.ports;
           depends_on = lib.genAttrs (service.dependsOn ++ backendResourceNames) (_name: {
             condition = "service_started";
@@ -299,7 +323,7 @@
         }) app.services.components;
 
         resourcesComponents = lib.mapAttrs (name: resource: {
-          image = "localhost/${name}:latest";
+          image = "localhost/${name}:${config.result.images.${name}.tag}";
           ports = resource.ports;
           depends_on = lib.optionalAttrs (lib.hasAttr name frontendResourceDeps) (
             lib.genAttrs frontendResourceDeps.${name} (_: {
@@ -331,35 +355,23 @@
 
         cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl}";
 
-        imageHash = drv: lib.unsafeDiscardStringContext (lib.substring 0 32 (baseNameOf drv.outPath));
-
-        imageTar = name: drv: "$CACHE_DIR/${name}-${imageHash drv}.tar";
+        imageTar = name: tag: "$CACHE_DIR/${name}-${tag}.tar";
 
         build-oci-images = pkgs.writeShellScriptBin "build-oci-images" (
           ''
             CACHE_DIR="${cacheDir}"
             mkdir -p "$CACHE_DIR"
           ''
-          + lib.concatMapAttrsStringSep "\n" (name: recipe: ''
-            IMAGE_TAR="${imageTar name recipe}"
+          + lib.concatMapAttrsStringSep "\n" (name: image: ''
+            IMAGE_TAR="${imageTar name image.tag}"
             if [ ! -f "$IMAGE_TAR" ]; then
               printf "Creating container image %s ... " "$IMAGE_TAR"
-              ${recipe.copyTo}/bin/copy-to oci-archive:$IMAGE_TAR:${name}:latest >/dev/null
+              ${image.copyToArchive "$IMAGE_TAR"}
               echo "done."
             else
               echo "Image already exists in cache: $IMAGE_TAR"
             fi
-          '') config.result.recipes
-          + lib.concatMapAttrsStringSep "\n" (name: imageStream: ''
-            IMAGE_TAR="${imageTar name imageStream}"
-            if [ ! -f "$IMAGE_TAR" ]; then
-              printf "Creating container image %s ... " "$IMAGE_TAR"
-              ${imageStream} 2>/dev/null > "$IMAGE_TAR"
-              echo "done."
-            else
-              echo "Image already exists in cache: $IMAGE_TAR"
-            fi
-          '') config.result.nixosImages
+          '') config.result.images
         );
 
         compose-file = pkgs.runCommand "compose-file" { } ''
@@ -368,20 +380,12 @@
 
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
           CACHE_DIR="${cacheDir}"
-
           ${lib.getExe build-oci-images}
 
-          IMAGES=(
-            ${lib.concatMapAttrsStringSep "\n    " (
-              name: recipe: "\"${imageTar name recipe}\""
-            ) config.result.recipes}
-            ${lib.concatMapAttrsStringSep "\n    " (
-              name: imageStream: "\"${imageTar name imageStream}\""
-            ) config.result.nixosImages}
-          )
-          for image in "''${IMAGES[@]}"; do
-            podman load --quiet < "$image"
-          done
+          ${lib.concatMapAttrsStringSep "\n" (name: image: ''
+            podman load --quiet < "${imageTar name image.tag}"
+            podman tag ${name}:${image.tag} ${name}:latest
+          '') config.result.images}
 
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
