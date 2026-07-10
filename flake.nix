@@ -83,10 +83,6 @@
                 forge = {
                   repositoryUrl = self.sourceInfo.url or "github:ngi-nix/forge";
                   maintainerLists = [ self.maintainerList ];
-                  recipeDirs = {
-                    pkgs = "recipes/pkgs";
-                    apps = "recipes/apps";
-                  };
                 };
               };
           });

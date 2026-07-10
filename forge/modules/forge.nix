@@ -41,7 +41,6 @@
       modules = [
         {
           options = {
-
             maintainerLists = lib.mkOption {
               type = lib.types.listOf lib.types.path;
               default = [ ];
@@ -58,35 +57,6 @@
               example = "github:ngi-nix/forge";
               description = "URL of the flake repository.";
             };
-
-            recipeDirs = {
-              pkgs = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                default = "recipes/pkgs";
-                description = ''
-                  Directory containing package recipe files.
-                  Each recipe should be a recipe.nix file in a subdirectory
-                  (e.g., recipes/pkgs/hello/recipe.nix).
-
-                  Set to null to disable automatic package recipe loading.
-                '';
-                example = "recipes/pkgs";
-              };
-
-              apps = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                default = "recipes/apps";
-                description = ''
-                  Directory containing app recipe files.
-                  Each recipe should be a recipe.nix file in a subdirectory
-                  (e.g., recipes/apps/my-app/recipe.nix).
-
-                  Set to null to disable automatic app recipe loading.
-                '';
-                example = "recipes/apps";
-              };
-            };
-
           };
         }
       ];

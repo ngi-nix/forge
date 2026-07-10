@@ -22,7 +22,7 @@
       type = lib.types.str;
       default =
         let
-          locs = builtins.map (
+          locs = map (
             def: builtins.unsafeGetAttrPos name def.value
           ) specialArgs.forgeOptions.${config._recipeType}.definitionsWithLocations;
           validLocs = builtins.filter (loc: loc != null) locs;

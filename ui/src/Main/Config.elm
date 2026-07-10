@@ -29,7 +29,6 @@ type alias UrlHttp =
 
 type alias Config =
     { config_repository : NixUrl
-    , config_recipe : ConfigRecipe
     , config_apps : Dict AppName App
     , config_pkgs : Dict PkgName Pkg
     }
@@ -38,7 +37,6 @@ type alias Config =
 initConfig : Config
 initConfig =
     { config_repository = "github:ngi-nix/forge"
-    , config_recipe = initRecipe
     , config_apps = Dict.empty
     , config_pkgs = Dict.empty
     }
@@ -46,46 +44,7 @@ initConfig =
 
 decodeConfig : Decoder Config
 decodeConfig =
-    Decode.map4 Config
+    Decode.map3 Config
         (Decode.field "repositoryUrl" Decode.string)
-        (Decode.field "recipeDirs" decodeConfigRecipe)
         (Decode.field "apps" (Decode.dict Config.decodeApp))
         (Decode.field "pkgs" (Decode.dict Config.decodePkg))
-
-
-type alias ConfigRecipe =
-    { configRecipe_apps : Directory
-    , configRecipe_pkgs : Directory
-    }
-
-
-initRecipe : ConfigRecipe
-initRecipe =
-    { configRecipe_apps = ""
-    , configRecipe_pkgs = ""
-    }
-
-
-decodeConfigRecipe : Decoder ConfigRecipe
-decodeConfigRecipe =
-    Decode.map2 ConfigRecipe
-        (Decode.field "apps" decodeDirectory)
-        (Decode.field "pkgs" decodeDirectory)
-
-
-type alias Path =
-    String
-
-
-decodePath : Decoder Path
-decodePath =
-    Decode.string
-
-
-type alias Directory =
-    Path
-
-
-decodeDirectory : Decoder Directory
-decodeDirectory =
-    decodePath
