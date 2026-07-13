@@ -14,8 +14,8 @@
     license = lib.licenses.lgpl21;
 
     source = {
-      git = "github:libts/tslib/${config.pkgs.tslib.version}";
-      hash = "sha256-WrzOTZlceYnFXi5AI5vb+ZDSRoqUDk/yyCdBUWKn0sM=";
+      git = "github:libts/tslib/1.24-rc1";
+      hash = "sha256-mTei2djePes+H9MfKRoL7AujCYh6D0UHWLtDuemwI/0=";
     };
 
     build.standardBuilder = {
