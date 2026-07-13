@@ -80,7 +80,7 @@ class RecipeParser:
         )
 
     def _extract_package_blocks(self, text: str) -> list[tuple[str, str]]:
-        """Find each packages.<name> = { ... } block via brace-counting.
+        """Find each pkgs.<name> = { ... } block via brace-counting.
 
         Pure regex cannot match balanced braces, so we scan
         character-by-character counting depth instead.
@@ -102,7 +102,7 @@ class RecipeParser:
     def _parse_source(self, text: str, path: Path) -> Source:
         """Parse source fields from a scoped package block.
 
-        Within a `packages.<name> = { ... }` block each source field
+        Within a `pkgs.<name> = { ... }` block each source field
         (git/url/path) appears at most once, so plain word-boundary
         matching is sufficient.
         """
@@ -323,7 +323,7 @@ class RecipeWriter:
         Uses the same brace-counting approach as `_extract_package_blocks`
         so that nested { } inside builder configs don't confuse the scan.
         """
-        for match in re.finditer(rf"packages\.{re.escape(pname)}\s*=\s*\{{", text):
+        for match in re.finditer(rf"pkgs\.{re.escape(pname)}\s*=\s*\{{", text):
             start = match.start()
             end_pos, block_text = _extract_braced_block(text, match.end() - 1)
             return start, end_pos, text[start:end_pos]
