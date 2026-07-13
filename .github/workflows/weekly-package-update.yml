@@ -38,22 +38,16 @@ jobs:
       - name: Update packages
         id: update
         run: |
-          if [[ "$PACKAGES" = "" ]]; then
-            UPDATE_ARGS="--all"
-          else
-            UPDATE_ARGS="$PACKAGES"
-          fi
-
           git checkout "$TARGET_BRANCH"
-          nix develop --command forge-update "$UPDATE_ARGS" --commit 2>&1 | tee /tmp/update-all.log
+          nix develop --command forge-update "$PACKAGES" --commit 2>&1 | tee /tmp/update-all.log
 
           # Save commit-list of updated packages
           git log --reverse origin/"$TARGET_BRANCH"..HEAD --format="%H %s" \
             | grep "recipes(" \
             > /tmp/commits.txt || true
         env:
-          PACKAGES: ${{ inputs.packages }}
-          TARGET_BRANCH: ${{ inputs.target_branch }}
+          PACKAGES: ${{ inputs.packages || '--all' }}
+          TARGET_BRANCH: ${{ inputs.target_branch || 'master' }}
 
       - name: Create list of valid packages
         run: |
@@ -135,4 +129,4 @@ jobs:
           #   * Read access to metadata
           #   * Read and Write access to code and pull requests
           GH_TOKEN: ${{ secrets.FLAKE_UPDATE }}
-          TARGET_BRANCH: ${{ inputs.target_branch }}
+          TARGET_BRANCH: ${{ inputs.target_branch || 'master' }}
