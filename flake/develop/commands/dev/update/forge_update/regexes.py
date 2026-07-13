@@ -11,6 +11,7 @@ FIELD_NPM_DEPS_HASH = r'npmDepsHash\s*=\s*"([^"]*)"'
 FIELD_PNPM_DEPS_HASH = r'pnpmDepsHash\s*=\s*"([^"]*)"'
 
 PACKAGE_BLOCK = r"pkgs\.([\w-]+)\s*=\s*\{"
+PACKAGE_SELF_REFERENCE = r"\$\{config\.pkgs\..*\.version\}"
 BUILDER_DECL = r"(\w+)Builder\s*=\s*\{"
 
 SUBMODULES = r"submodules\s*=\s*true"

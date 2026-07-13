@@ -35,7 +35,16 @@ class VersionDetector:
                 raise VersionDetectionError(source, "no git source found")
 
     def _detect_from_git(self, git_source: GitSource) -> VersionResult:
-        if self._is_commit_hash(git_source.rev):
+        rev = git_source.rev
+
+        # Version can be self-referencing: ${config.pkgs.xxx.version}
+        # In which case, we're updating a tag rather than an unstable commit,
+        # and we should only change the version.
+        if re.search(regexes.PACKAGE_SELF_REFERENCE, rev):
+            result = self._detect_tag_based(git_source)
+            return VersionResult(version=result.version, rev="")
+
+        if self._is_commit_hash(rev):
             return self._detect_hash_based(git_source)
         return self._detect_tag_based(git_source)
 
