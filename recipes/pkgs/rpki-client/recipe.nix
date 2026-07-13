@@ -12,7 +12,7 @@
     license = "isc";
 
     source = {
-      git = "github:rpki-client/rpki-client-portable/15554f28842d7d9e6cc31eab5f95e36053b42f35";
+      git = "github:rpki-client/rpki-client-portable/9.8";
       hash = "sha256-PejvnEGr+K+g+vLgO+JroZXRAa1LUJUzCwDVm8AyScY=";
     };
 
