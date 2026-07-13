@@ -9,7 +9,9 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # FIXME: test https://github.com/NixOS/nixpkgs/pull/540857
+    nixpkgs.url = "github:imincik/nixpkgs/forge-pr-711+nixpkgs-pr-540857";
+
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
 
