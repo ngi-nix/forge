@@ -59,7 +59,14 @@
     };
 
     programs = {
-      packages = [ pkgs.ip2unix ];
+      packages = [
+        (
+          # https://github.com/NixOS/nixpkgs/pull/541395
+          pkgs.ip2unix.override {
+            python3Packages = pkgs.python313Packages;
+          }
+        )
+      ];
       runtimes.shell.enable = true;
     };
 
