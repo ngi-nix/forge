@@ -6,7 +6,7 @@
 
 {
   pkgs.pmtiles-viewer = {
-    version = "0-unstable-2026-05-26";
+    version = "0-unstable-2026-07-13";
     description = "Web viewer for PMTiles archives.";
     homePage = "https://protomaps.com/docs/pmtiles/";
     license = lib.licenses.bsd3;
