@@ -1,11 +1,13 @@
-import datetime
+import json
 import re
 import subprocess
+import tempfile
+import urllib.request
 from dataclasses import dataclass
 
 from . import regexes
 from .errors import VersionDetectionError
-from .types import GitSource, Recipe, Source, SourceType
+from .types import ForgeHost, GitSource, Recipe, Source, SourceType
 
 
 @dataclass
@@ -77,7 +79,7 @@ class VersionDetector:
 
         latest_tag = self._get_latest_tag(remote, git_source)
         latest_hash = self._get_head_commit(remote, git_source)
-        date = datetime.date.today().isoformat()
+        date = self._get_commit_date(git_source, latest_hash)
         version = f"{latest_tag.removeprefix('v')}-unstable-{date}"
         return VersionResult(version=version, rev=latest_hash)
 
@@ -144,6 +146,45 @@ class VersionDetector:
             Source(type=SourceType.GIT, git=git_source),
             f"no HEAD ref found at {remote}",
         )
+
+    def _get_commit_date(self, git_source: GitSource, commit_hash: str) -> str:
+        if git_source.host == ForgeHost.GITHUB:
+            url = f"https://api.github.com/repos/{git_source.owner}/{git_source.repo}/commits/{commit_hash}"
+            with urllib.request.urlopen(url) as resp:
+                data = json.loads(resp.read().decode())
+            return data["commit"]["committer"]["date"][:10]  # YYYY-MM-DD
+
+        # fallback to cloning if host API is unavailable
+        return self._get_commit_date_via_clone(git_source.remote_url, commit_hash)
+
+    @staticmethod
+    def _get_commit_date_via_clone(remote: str, commit_hash: str) -> str:
+        with tempfile.TemporaryDirectory() as tmp:
+            subprocess.run(
+                ["git", "init", "-q"],
+                cwd=tmp,
+                check=True,
+            )
+            subprocess.run(
+                ["git", "fetch", "-q", "--depth", "1", remote, commit_hash],
+                cwd=tmp,
+                check=True,
+            )
+            result = subprocess.run(
+                [
+                    "git",
+                    "log",
+                    "-1",
+                    "--format=%cd",
+                    "--date=format:%Y-%m-%d",
+                    "FETCH_HEAD",
+                ],
+                cwd=tmp,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return result.stdout.strip()
 
     @staticmethod
     def _parse_tags(raw: str) -> set[str]:
