@@ -1,5 +1,5 @@
 {
-  description = "NGI Forge";
+  description = "NGI Forge provider";
 
   nixConfig = {
     extra-substituters = [ "https://ngi-forge.cachix.org" ];
@@ -22,9 +22,16 @@
         { system, ... }:
         {
           forge = {
-            # NOTE: update the repository url to your forge. e.g. "github:username/forge-repo"
+            # Configuration
+
+            # Set Forge repository URL
+            # e.g. "github:username/my-forge"
             repositoryUrl = "github:ngi-nix/forge";
+
+            # Set maintainers
             maintainerLists = [ ./maintainers/maintainer-list.nix ];
+
+            # Import recipe files
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
           };
         };

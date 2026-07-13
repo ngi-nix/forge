@@ -12,7 +12,7 @@
     maintainers = with lib.maintainers; [ provider-team ];
 
     source = {
-      path = ./../../../src;
+      path = ./src;
     };
 
     build.standardBuilder = {

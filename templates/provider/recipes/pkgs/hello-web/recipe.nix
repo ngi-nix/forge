@@ -16,7 +16,8 @@
 
     build.goPackageBuilder = {
       enable = true;
-      vendorHash = null;
+      vendorHash = "sha256-VTXiI77KaRZWQtbTXbWT2IHPDT9TIxklKP64Z0ip+Dc=";
+      packages.run = [ pkgs.postgresql.lib ];
     };
 
     test.script = ''

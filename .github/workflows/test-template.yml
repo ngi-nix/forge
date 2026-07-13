@@ -18,8 +18,8 @@ on:
 permissions: {}
 
 jobs:
-  test-provider:
-    name: Test provider template
+  test-provider-hello-nix:
+    name: Test provider template (hello-nix app)
     uses: ./.github/workflows/build-template.yml
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'provider'
     with:
@@ -29,15 +29,38 @@ jobs:
       test_shell: true
       test_forge_ui: true
 
+  test-provider-hello-web:
+    name: Test provider template (hello-web app)
+    uses: ./.github/workflows/build-template.yml
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'provider'
+    with:
+      template: provider
+      pkg: hello-web
+      app: hello-web
+      test_container: true
+      test_vm: true
+      test_forge_ui: true
+
+  test-provider-multi-component:
+    name: Test provider template (multi-component app)
+    uses: ./.github/workflows/build-template.yml
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'provider'
+    with:
+      template: provider
+      pkg: hello-web
+      app: multi-component
+      test_shell: true
+      test_container: true
+      test_vm: true
+      test_forge_ui: true
+
   test-consumer:
     name: Test consumer template
     uses: ./.github/workflows/build-template.yml
     if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'consumer'
     with:
       template: consumer
-      pkg: hello-web
-      app: example
+      pkg: himalaya
+      app: himalaya
       test_shell: true
-      test_container: true
-      test_vm: true
       test_forge_ui: false

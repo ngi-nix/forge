@@ -93,6 +93,7 @@ jobs:
         with:
           name: ngi-forge
 
+      # Main Forge UI
       - name: Encode version information
         run: |
           commit="${{ github.event.pull_request.head.sha || github.sha }}"
@@ -107,13 +108,42 @@ jobs:
       - name: Build UI
         run: nix build .#_forge.ui --accept-flake-config
 
-      - name: Resolve Nix Symlink
+      - name: Resolve Nix symlink
         run: |
           mkdir -p deploy_dist/forge
           cp -rL result/. deploy_dist/forge/
           cp deploy_dist/forge/404.html deploy_dist/404.html
 
-      - name: Upload preview ui
+      # Provider template UI
+      - name: Restore repository baseUrl
+        run: git checkout -- ui/src/Main/Model/Route.elm ui/src/index.html
+
+      - name: Initialize provider template
+        working-directory: /tmp
+        run: |
+          mkdir -p template-provider
+          cd template-provider
+          git init -q
+          nix flake init -t "${{ github.workspace }}#provider"
+          sed -i 's|ngi-forge.url = .*;|ngi-forge.url = "path:${{ github.workspace }}";|g' flake.nix
+          git add ./*
+
+      - name: Configure the provider baseUrl
+        run: |
+          sed -i "s|:baseUrl|/templates/provider/|g" ui/src/Main/Model/Route.elm
+          sed -i "s|<base href=\"/\"|<base href=\"/templates/provider/\"|g" ui/src/index.html
+
+      - name: Build provider template UI
+        working-directory: /tmp/template-provider
+        run: nix build .#_forge.ui --accept-flake-config
+
+      - name: Resolve provider template Nix symlink
+        run: |
+          mkdir -p deploy_dist/templates/provider
+          cp -rL /tmp/template-provider/result/. deploy_dist/templates/provider/
+
+      # Deployment
+      - name: Upload preview UI
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ui-build-preview

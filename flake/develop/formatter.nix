@@ -12,6 +12,7 @@ lib.makeExtensible (self: {
 
     programs.actionlint.enable = true;
     programs.black.enable = true;
+    programs.gofmt.enable = true;
     programs.elm-format.enable = true;
     programs.nixfmt.enable = true;
     programs.shellcheck.enable = true;

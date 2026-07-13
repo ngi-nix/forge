@@ -91,6 +91,7 @@ jobs:
 
           {
             echo "PREVIEW_URL=$PREVIEW_URL/forge"
+            echo "EXAMPLES_URL=$PREVIEW_URL/templates/provider"
             echo "DEPLOY_URL=$DEPLOY_URL"
             echo "DEPLOY_ID=$DEPLOY_ID"
           } >>"$GITHUB_ENV"
@@ -103,6 +104,7 @@ jobs:
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
             const previewUrl = process.env.PREVIEW_URL;
+            const examplesUrl = process.env.EXAMPLES_URL;
             const deployUrl = process.env.DEPLOY_URL;
 
             const rev = process.env.PR_REV || 'unknown';
@@ -113,6 +115,7 @@ jobs:
 
             const prDeployLine = `- Visit: ${previewUrl} (This url will not change for new commits in this pr)`;
             const currentDeployLine = `- Unique snapshot URL: ${deployUrl} _(for commit [${shortRev}](${commitUrl}))_`;
+            const examplesDeployLine = `- Example apps: ${examplesUrl} (from _provider_ Flake template)`;
 
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -138,6 +141,7 @@ jobs:
               '',
               prDeployLine,
               currentDeployLine,
+              examplesDeployLine,
               ''
             ];
 

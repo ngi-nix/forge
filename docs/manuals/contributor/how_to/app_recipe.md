@@ -527,3 +527,13 @@ Run service test:
 nix build .#apps.<app-name>.test-services-container --print-build-logs
 nix build .#apps.<app-name>.test-services-nixos --print-build-logs
 ```
+
+## Examples
+
+Browse the
+[example application recipes](https://github.com/ngi-nix/forge/tree/master/templates/provider/recipes/apps),
+or create your own Forge project to try them out:
+
+```bash
+nix flake init --template github:ngi-nix/forge#provider
+```

@@ -188,3 +188,13 @@ Run test:
 ```bash
 nix build .#pkgs.<package-name>.test --print-build-logs
 ```
+
+## Examples
+
+Browse the
+[example package recipes](https://github.com/ngi-nix/forge/tree/master/templates/provider/recipes/pkgs),
+or create your own Forge project to try them out:
+
+```bash
+nix flake init --template github:ngi-nix/forge#provider
+```
