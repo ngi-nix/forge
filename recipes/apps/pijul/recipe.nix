@@ -61,7 +61,7 @@
     programs = {
       packages = [
         pkgs.pijul
-        pkgs.expect
+        pkgs.openssh
       ];
 
       runtimes.shell = {
@@ -83,24 +83,11 @@
 
       pijul add src --recursive
 
-      cat << 'EOF' > pijul_expect.exp
-      spawn pijul rec -m "initial commit"
-      expect "Unique identity name"
-      send "\r"
-      expect "Display name"
-      send "Test User\r"
-      expect "Email"
-      send "test@example.com\r"
-      expect "change the encryption"
-      send "n\r"
-      expect "key to expire"
-      send "n\r"
-      expect "link this identity to a remote"
-      send "n\r"
-      expect eof
-      EOF
-
-      expect pijul_expect.exp
+      ssh-keygen -t ed25519 -f id_ed25519 -N ""
+      eval $(ssh-agent -s)
+      ssh-add id_ed25519
+      pijul identity new tester --no-link --display-name "Test User" --email "test@example.com"
+      pijul rec -m "initial commit"
 
       pijul log | grep -q initial
     '';
