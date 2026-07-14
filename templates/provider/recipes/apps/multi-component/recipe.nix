@@ -242,8 +242,8 @@ in
     test.services = {
       script = ''
         curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-        $curl localhost:8000/ | grep -E "(Hello|Hola|Bonjour|Hallo|mundo|Welt|monde)"
-        $curl localhost:8000/api/greetings | grep -E "(Hello|Hola|Bonjour)"
+        $curl localhost:8000/health | grep "OK"
+        $curl "localhost:8000/api/greetings?id=eq.1" | grep "Hello, world!"
       '';
     };
   };
