@@ -83,6 +83,17 @@ in
         # pytest is incorrectly listed in install_requires upstream
         substituteInPlace setup.cfg \
           --replace-fail $'\tpytest\n' ""
+
+        # Python 3.14 switched the default multiprocessing start method on
+        # Linux from "fork" to "forkserver". Under "forkserver", arguments
+        # passed to Process() must be picklable, but bang's scan pipeline
+        # (built from nested closures like pipe_or/pipe_seq in scan_job.py)
+        # is not. Force "fork" explicitly to keep the existing behavior.
+        # https://github.com/armijnhemel/binaryanalysis-ng/issues/388
+        substituteInPlace src/bang/cli.py \
+          --replace-fail \
+          "multiprocessing.Process(target = process_jobs, args = (scan_pipeline, scan_environment,))" \
+          "multiprocessing.get_context('fork').Process(target = process_jobs, args = (scan_pipeline, scan_environment,))"
       '';
 
       preBuild = ''
