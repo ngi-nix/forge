@@ -194,7 +194,8 @@
       in
       {
         inherit tag;
-        copyToArchive = tar: "${image.copyTo}/bin/copy-to oci-archive:${tar}:${name}:${tag} >/dev/null";
+        copyToArchive =
+          tar: "${image.copyTo}/bin/copy-to oci-archive:${tar}:${app.name}-${name}:${tag} >/dev/null";
       }
     ) app.services.components;
 
@@ -264,7 +265,8 @@
         '';
         tag = forge-lib.nixStoreHash initScript;
         stream = pkgs.dockerTools.streamLayeredImage {
-          inherit name tag;
+          name = "${app.name}-${name}";
+          inherit tag;
           contents = [ initScript ];
           config = {
             Cmd = [ "/usr/sbin/init" ];
@@ -305,7 +307,7 @@
         );
 
         serviceComponents = lib.mapAttrs (name: service: {
-          image = "localhost/${name}:${config.result.images.${name}.tag}";
+          image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
           ports = service.process.ports;
           depends_on = lib.genAttrs (service.dependsOn ++ backendResourceNames) (_name: {
             condition = "service_started";
@@ -319,7 +321,7 @@
         }) app.services.components;
 
         resourcesComponents = lib.mapAttrs (name: resource: {
-          image = "localhost/${name}:${config.result.images.${name}.tag}";
+          image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
           ports = resource.ports;
           depends_on = lib.optionalAttrs (lib.hasAttr name frontendResourceDeps) (
             lib.genAttrs frontendResourceDeps.${name} (_: {
@@ -353,7 +355,7 @@
           lib.substring 0 8 (lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl)
         }";
 
-        imageTar = name: tag: "$CACHE_DIR/${name}-${tag}.tar";
+        imageTar = name: tag: "$CACHE_DIR/${app.name}-${name}-${tag}.tar";
 
         build-oci-images = pkgs.writeShellScriptBin "build-oci-images" (
           ''
@@ -382,7 +384,7 @@
 
           ${lib.concatMapAttrsStringSep "\n" (name: image: ''
             podman load --quiet < "${imageTar name image.tag}"
-            podman tag ${name}:${image.tag} ${name}:latest
+            podman tag ${app.name}-${name}:${image.tag} ${app.name}-${name}:latest
           '') config.result.images}
 
           ${lib.getExe pkgs.podman-compose} \
