@@ -349,7 +349,9 @@
           }
         );
 
-        cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl}";
+        cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${
+          lib.substring 0 8 (lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl)
+        }";
 
         imageTar = name: tag: "$CACHE_DIR/${name}-${tag}.tar";
 
