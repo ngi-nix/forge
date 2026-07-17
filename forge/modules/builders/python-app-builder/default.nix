@@ -5,9 +5,9 @@
 }:
 {
   imports = [
-    ./options.nix
     (packageBuilderModule {
-      builderName = "pythonAppBuilder";
+      name = "pythonAppBuilder";
+      imports = ./options.nix;
       mkDerivation = pkgs.python3Packages.buildPythonApplication;
       attrs = builder: finalAttrs: previousAttrs: {
         format = "pyproject";

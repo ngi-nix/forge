@@ -6,7 +6,7 @@
   ...
 }:
 {
-  options.build.rustPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       Rust package builder for applications and libraries.
 

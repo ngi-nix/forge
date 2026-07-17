@@ -3,7 +3,7 @@
   ...
 }:
 {
-  options.build.goPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
       Go module builder for applications and libraries.
 

@@ -5,9 +5,9 @@
 }:
 {
   imports = [
-    ./options.nix
     (packageBuilderModule {
-      builderName = "rustPackageBuilder";
+      name = "rustPackageBuilder";
+      imports = ./options.nix;
       mkDerivation = pkgs.rustPlatform.buildRustPackage;
       attrs = builder: finalAttrs: previousAttrs: {
         inherit (builder)

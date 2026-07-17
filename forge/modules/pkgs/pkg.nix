@@ -1,6 +1,7 @@
 {
   lib,
   name,
+  specialArgs,
   ...
 }:
 {
@@ -160,58 +161,68 @@
     };
 
     # Build configuration
-    build = {
-      # Builder-specific options are defined in separate modular
-      # files in forge/modules/builders/ directory.
-      # Each builder module defines its own options and configuration logic.
-
-      # Common builder options (available to all builders)
-      extraAttrs = lib.mkOption {
-        # `lazyAttrsOf` enables to use `pkgs` inside `extraAttrs`.
-        type = lib.types.lazyAttrsOf lib.types.anything;
-        default = { };
-        description = ''
-          Extra attributes merged into the derivation produced by the selected builder.
-
-          Use this to pass builder-specific phase hooks (`preConfigure`,
-          `postInstall`, …), environment variables, or any other
-          `stdenv.mkDerivation` attribute not exposed as a dedicated option.
-          Attributes set here take precedence over the builder defaults.
-
-          Expert option. For more information see the
-          [Nixpkgs manual](https://nixos.org/manual/nixpkgs/unstable/).
-        '';
-        example = lib.literalExpression ''
+    build = lib.mkOption {
+      description = "Package build options.";
+      type = lib.types.submoduleWith {
+        inherit specialArgs;
+        modules = [
           {
-            # Set HOME for tools that require a writable home directory
-            preConfigure = "export HOME=$(mktemp -d)";
+            options = {
+              # Builder-specific options are defined in separate modular
+              # files in forge/modules/builders/ directory.
+              # Each builder module defines its own options and configuration logic.
 
-            # Remove unwanted files from the output
-            postInstall = "rm $out/share/doc/my-package/INSTALL";
+              # Common builder options (available to all builders)
+              extraAttrs = lib.mkOption {
+                # `lazyAttrsOf` enables to use `pkgs` inside `extraAttrs`.
+                type = lib.types.lazyAttrsOf lib.types.anything;
+                default = { };
+                description = ''
+                  Extra attributes merged into the derivation produced by the selected builder.
 
-            # Pass extra flags to configure
-            configureFlags = [ "--disable-static" "--enable-shared" ];
+                  Use this to pass builder-specific phase hooks (`preConfigure`,
+                  `postInstall`, …), environment variables, or any other
+                  `stdenv.mkDerivation` attribute not exposed as a dedicated option.
+                  Attributes set here take precedence over the builder defaults.
 
-            # Set an environment variable for the build
-            MY_VARIABLE = "value";
+                  Expert option. For more information see the
+                  [Nixpkgs manual](https://nixos.org/manual/nixpkgs/unstable/).
+                '';
+                example = lib.literalExpression ''
+                  {
+                    # Set HOME for tools that require a writable home directory
+                    preConfigure = "export HOME=$(mktemp -d)";
+
+                    # Remove unwanted files from the output
+                    postInstall = "rm $out/share/doc/my-package/INSTALL";
+
+                    # Pass extra flags to configure
+                    configureFlags = [ "--disable-static" "--enable-shared" ];
+
+                    # Set an environment variable for the build
+                    MY_VARIABLE = "value";
+                  }
+                '';
+              };
+              debug = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = ''
+                  Enable interactive package build environment for debugging.
+
+                  Launch environment:
+
+                  ```
+                  mkdir dev && cd dev
+                  nix develop .#pkgs.''${package}
+                  ```
+
+                  and follow instructions.
+                '';
+              };
+            };
           }
-        '';
-      };
-      debug = lib.mkOption {
-        type = lib.types.bool;
-        default = false;
-        description = ''
-          Enable interactive package build environment for debugging.
-
-          Launch environment:
-
-          ```
-          mkdir dev && cd dev
-          nix develop .#pkgs.''${package}
-          ```
-
-          and follow instructions.
-        '';
+        ];
       };
     };
 
