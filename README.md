@@ -1,3 +1,5 @@
+[![Nixpkgs build status](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml/badge.svg)](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml)
+
 # NGI Forge
 
 This software is in active development. Expect backwards incompatible changes.

@@ -1,4 +1,4 @@
-name: Hydra build status
+name: Nixpkgs build status
 
 on:
   schedule:
@@ -9,7 +9,7 @@ env:
   NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
 
 jobs:
-  check-hydra-build:
+  check-build-status:
     strategy:
       fail-fast: false
       matrix:
