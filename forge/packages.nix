@@ -49,7 +49,7 @@ let
   _forge = {
     config = pkgs.writeTextFile {
       name = "forge-config.json";
-      text = builtins.toJSON (forge-lib.scrubNixContext config.forge);
+      text = lib.toJSON (forge-lib.scrubNixContext config.forge);
     };
 
     options = pkgs.runCommand "options.json" { } ''
