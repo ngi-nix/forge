@@ -49,20 +49,7 @@ let
   _forge = {
     config = pkgs.writeTextFile {
       name = "forge-config.json";
-      text =
-        let
-          scrubConfig =
-            x:
-            if lib.isString x || lib.isDerivation x then
-              lib.unsafeDiscardStringContext x
-            else if lib.isList x then
-              map scrubConfig x
-            else if lib.isAttrs x then
-              lib.mapAttrs (n: v: scrubConfig v) x
-            else
-              x;
-        in
-        builtins.toJSON (scrubConfig config.forge);
+      text = lib.toJSON (forge-lib.scrubNixContext config.forge);
     };
 
     options = pkgs.runCommand "options.json" { } ''
