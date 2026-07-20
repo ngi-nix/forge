@@ -1,12 +1,13 @@
 module Main.View.Page.App.Run exposing (..)
 
-import Html exposing (Html, a, br, button, details, div, h5, hr, li, p, small, span, summary, text, ul)
+import Html exposing (Html, a, br, button, details, div, h5, h6, hr, li, p, small, span, summary, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, style, tabindex, target)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
+import Main.Helpers.Markdown as Markdown
 import Main.Helpers.Nix exposing (..)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
@@ -110,7 +111,8 @@ viewPageAppRunInstructions model pageApp =
                 []
 
             Just appRuntime ->
-                [ viewPageAppRunNixInstall model pageApp
+                [ viewPageAppRunSecurityWarnings model pageApp
+                , viewPageAppRunNixInstall model pageApp
                 , hr [] []
                 , ul
                     [ class "nav nav-underline mb-1"
@@ -148,6 +150,73 @@ viewPageAppRunInstructions model pageApp =
                         else
                             text ""
                 ]
+
+
+viewPageAppRunSecurityWarnings : Model -> PageApp -> Html Update
+viewPageAppRunSecurityWarnings model pageApp =
+    if List.isEmpty pageApp.pageApp_app.app_insecurePackagesInfo then
+        text ""
+
+    else
+        div [ class "accordion mb-3" ]
+            [ details
+                ([ class "accordion-item border border-warning" ]
+                    ++ (if pageApp.pageApp_route.routeApp_runSecurityShown then
+                            [ attribute "open" "" ]
+
+                        else
+                            []
+                       )
+                )
+                [ summary
+                    [ class "accordion-button accordion-header fw-bold text-warning"
+                    , style "box-shadow" "none"
+                    , style "background-color" "var(--bs-warning-bg-subtle)"
+                    , style "color" "var(--bs-warning-text-emphasis)"
+                    ]
+                    [ text "Security Warnings" ]
+                , div [ class "accordion-body" ]
+                    (p [] [ text "This app requires the following insecure dependencies to build:" ]
+                        :: List.map viewInsecurePackageWarning pageApp.pageApp_app.app_insecurePackagesInfo
+                        ++ [ hr [] []
+                           , p [ class "mb-1" ]
+                                [ text "To allow this app to build, add the following to your Forge configuration:"
+                                ]
+                           , nixCodeBlock <|
+                                String.join "\n"
+                                    ([ "{"
+                                     , "  forge.allowInsecurePackages = ["
+                                     ]
+                                        ++ List.map (\p -> "    \"" ++ p.name ++ "\"") pageApp.pageApp_app.app_insecurePackagesInfo
+                                        ++ [ "  ];"
+                                           , "}"
+                                           ]
+                                    )
+                           ]
+                    )
+                ]
+            ]
+
+
+viewInsecurePackageWarning : InsecurePackageInfo -> Html Update
+viewInsecurePackageWarning pkg =
+    div [ class "accordion mb-2" ]
+        [ details [ class "accordion-item border" ]
+            [ summary
+                [ class "accordion-button accordion-header fw-semibold bg-transparent py-2 px-3"
+                , style "box-shadow" "none"
+                ]
+                [ text pkg.name ]
+            , div [ class "accordion-body p-2" ]
+                (List.map
+                    (\vuln ->
+                        div [ class "p-2 mb-2 rounded bg-body-tertiary" ]
+                            [ div [ class "text-body-secondary mb-0 text-break", style "font-size" "0.95em" ] [ Markdown.render vuln ] ]
+                    )
+                    pkg.knownVulnerabilities
+                )
+            ]
+        ]
 
 
 viewPageAppRunNixInstall : Model -> PageApp -> Html Update

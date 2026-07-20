@@ -119,6 +119,20 @@ viewPageAppDescription model pageApp =
             , attribute "data-testid" "app-description"
             ]
             [ text pageApp.pageApp_app.app_description ]
+        , if not (List.isEmpty pageApp.pageApp_app.app_insecurePackagesInfo) then
+            let
+                routeApp =
+                    pageApp.pageApp_route
+            in
+            a
+                [ class "badge text-bg-warning text-decoration-none mt-2 mb-2"
+                , style "cursor" "pointer"
+                , onClick (Update_RouteWithoutHistory (Route_App { routeApp | routeApp_runShown = True, routeApp_runSecurityShown = True }))
+                ]
+                [ text "Requires Insecure Dependencies" ]
+
+          else
+            text ""
         , viewPageAppUsage model pageApp
         ]
 
