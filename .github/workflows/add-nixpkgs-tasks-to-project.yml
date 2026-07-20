@@ -1,0 +1,30 @@
+name: Add NGI tasks from nixpkgs
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  import_items:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch and add items to Project
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_OWNER: "ngi-nix"
+          PROJECT_NUMBER: 8
+        run: |
+          # TODO: pagination https://github.com/cli/cli/discussions/7010
+          existing_urls=$(gh project item-list "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --limit 1000 --format json --jq '.items[].content.url // empty')
+
+          all_issues=$(gh search issues --repo NixOS/nixpkgs --label "6.topic: NLNet / NGI" --state open --limit 1000 --json url --jq '.[].url')
+          all_prs=$(gh search prs --repo NixOS/nixpkgs --label "6.topic: NLNet / NGI" --state open --limit 1000 --json url --jq '.[].url')
+
+          all_items=$(printf "%s\n%s\n" "$all_issues" "$all_prs" | awk 'NF')
+
+          while IFS= read -r url; do
+            if [ -n "$url" ] && ! grep -Fqx "$url" <<< "$existing_urls"; then
+              gh project item-add "$PROJECT_NUMBER" --owner "$PROJECT_OWNER" --url "$url"
+            fi
+          done <<< "$all_items"
