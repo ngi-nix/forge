@@ -160,7 +160,9 @@ viewPageAppRunSecurityWarnings model pageApp =
     else
         div [ class "accordion mb-3" ]
             [ details
-                ([ class "accordion-item border border-warning" ]
+                ([ class "accordion-item border border-warning"
+                 , style "overflow" "hidden"
+                 ]
                     ++ (if pageApp.pageApp_route.routeApp_runSecurityShown then
                             [ attribute "open" "" ]
 
@@ -201,7 +203,7 @@ viewPageAppRunSecurityWarnings model pageApp =
 viewInsecurePackageWarning : InsecurePackageInfo -> Html Update
 viewInsecurePackageWarning pkg =
     div [ class "accordion mb-2" ]
-        [ details [ class "accordion-item border" ]
+        [ details [ class "accordion-item border", style "overflow" "hidden" ]
             [ summary
                 [ class "accordion-button accordion-header fw-semibold bg-transparent py-2 px-3"
                 , style "box-shadow" "none"
@@ -222,8 +224,11 @@ viewInsecurePackageWarning pkg =
 viewPageAppRunNixInstall : Model -> PageApp -> Html Update
 viewPageAppRunNixInstall model pageApp =
     div [ class "accordion" ]
-        [ details [ class "accordion-item" ]
-            [ summary [ class "accordion-button accordion-header fw-bold" ]
+        [ details [ class "accordion-item", style "overflow" "hidden" ]
+            [ summary
+                [ class "accordion-button accordion-header fw-bold"
+                , style "box-shadow" "none"
+                ]
                 [ text "Install Nix" ]
             , div [ class "accordion-body" ]
                 ([ ul
