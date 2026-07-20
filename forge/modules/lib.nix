@@ -50,7 +50,9 @@
     # when serializing it (eg. with `builtins.toJSON`).
     scrubNixContext =
       x:
-      if lib.isString x || lib.isDerivation x then
+      if lib.isDerivation x then
+        x.name
+      else if lib.isString x then
         lib.unsafeDiscardStringContext x
       else if lib.isFunction x then
         null

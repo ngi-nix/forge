@@ -99,6 +99,11 @@ viewPageAppsApp _ _ app =
 
                       else
                         []
+                    , if not (List.isEmpty app.app_insecurePackagesInfo) then
+                        [ span [ class "badge text-bg-warning me-1", style "font-size" "0.85em" ] [ text "insecure" ] ]
+
+                      else
+                        []
                     ]
                 )
             ]
