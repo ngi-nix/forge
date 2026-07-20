@@ -27,5 +27,7 @@
       mainPackage = pkgs.kdePackages.neochat;
       runtimes.program.enable = true;
     };
+
+    insecureDependencies = [ pkgs.olm ];
   };
 }
