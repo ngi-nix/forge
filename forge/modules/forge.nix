@@ -4,7 +4,6 @@
   pkgs,
   self-inputs,
   forge-inputs,
-  forge-lib,
   system,
   ...
 }:
@@ -18,7 +17,11 @@
         forgeConfig = config;
         inputs = self-inputs;
         inherit forge-inputs;
-        inherit forge-lib;
+        # Avoid an infinite recursion when generating `options`
+        # (eg. with `forge-lib.mkAliasOptionModule`)
+        # from a `forge-lib` that would be taken from `config._module.args.forge-lib`
+        # through the module's arguments.
+        forge-lib = (import ./lib.nix { inherit lib; }).flake.lib;
         pkgs = pkgs.extend (
           finalPkgs: previousPkgs:
           # Extend `pkgs` with the packages from the forge.

@@ -32,13 +32,15 @@
       npmInstallFlags = [ "--ignore-scripts" ];
     };
 
-    build.extraAttrs = {
+    build.env = {
       # Skip Puppeteer's Chrome download during dependency installation
-      env.PUPPETEER_SKIP_DOWNLOAD = true;
+      PUPPETEER_SKIP_DOWNLOAD = true;
+    };
 
+    phases = {
       # Wrap the binary to set Chromium path
       # Launch browser with no sandboxing
-      postInstall = ''
+      install.script.post = ''
         mkdir -p $out/lib/node_modules/pagedjs-cli/docker-userdata
 
         wrapProgram $out/bin/pagedjs-cli \

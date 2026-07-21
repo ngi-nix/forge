@@ -40,6 +40,44 @@
           "${namespace}Repl" = derivations;
         };
       };
+    # Like `lib.getAttrFromPath`, but support `lib.types.submodule`.
+    getOptionFromPath =
+      opts: path:
+      let
+        opt = opts.${lib.head path};
+      in
+      if lib.length path == 1 then
+        opt
+      else
+        # Recurse into next path element,
+        # skipping `.valueMeta.configuration.options` when `opts` is a `lib.types.submodule`.
+        getOptionFromPath (
+          if (opt._type or "") == "option" then opt.valueMeta.configuration.options or opt else opt
+        ) (lib.tail path);
+    # Like `lib.mkAliasOptionModule`, but support `lib.types.submodule`.
+    mkAliasOptionModule =
+      {
+        condition,
+        from,
+        to,
+      }:
+      { config, options, ... }:
+      lib.modules.doRename
+        {
+          inherit from to;
+          visible = true;
+          warn = false;
+          use = lib.id;
+          # Note that `condition` wraps in `lib.mkIf` the generated `config`
+          # but is not available to set in `lib.modules.mkAliasOptionModule`
+          # hence use `lib.modules.doRename` directly to set it.
+          inherit condition;
+        }
+        {
+          inherit config;
+          # `lib.modules.doRename` does not expect the sub-`options` introduced by `lib.types.submodule`, hence remove them.
+          options = lib.setAttrByPath from (getOptionFromPath options from);
+        };
 
     # Get the Nix store hash of a derivation's output path
     # (eg. `/nix/store/<hash>-name` -> `<hash>`).
