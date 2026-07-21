@@ -36,10 +36,14 @@
     };
 
     ngi.grants = {
+      Commons = [
+        "sudo-rs-FreeBSD-compat"
+      ];
       Core = [
         "sudo-rs"
       ];
     };
+
     icon = ./icon.svg;
 
     programs = {
