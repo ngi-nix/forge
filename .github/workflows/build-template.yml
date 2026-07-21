@@ -59,14 +59,18 @@ jobs:
 
       - name: Check flake
         working-directory: /tmp/template-test
+        env:
+          NIXPKGS_ALLOW_INSECURE: "1"
         run: |
-          nix flake check
+          nix flake check --impure
 
       - name: Show flake info
         working-directory: /tmp/template-test
+        env:
+          NIXPKGS_ALLOW_INSECURE: "1"
         run: |
           nix flake metadata
-          nix flake show
+          nix flake show --impure
 
       - name: Build package
         if: inputs.pkg != ''
