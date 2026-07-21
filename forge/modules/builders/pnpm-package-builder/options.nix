@@ -80,19 +80,5 @@
       '';
       example = "dist";
     };
-
-    sourceRoot = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = ''
-        Path to the subdirectory within the source containing `pnpm-lock.yaml`.
-
-        Use this for monorepos where the pnpm workspace is not at the repository root.
-        Format: `"source/<subdir>"`.
-
-        Mapped to `sourceRoot`.
-      '';
-      example = "source/frontend";
-    };
   };
 }

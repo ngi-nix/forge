@@ -16,13 +16,13 @@
     build.pnpmPackageBuilder = {
       enable = true;
       pnpmDepsHash = "sha256-xpdFlgHBUcHgL16hruFg6Spv1IlBEc7PB/UqpKnv5Oo=";
-      sourceRoot = "source/auditorium";
       buildScript = "build";
       installDir = "dist";
     };
 
-    build.extraAttrs = {
-      preBuild = ''
+    phases = {
+      unpack.sourceRoot = "source/auditorium";
+      build.script.pre = ''
         cp -r ../locales locales
       '';
     };
