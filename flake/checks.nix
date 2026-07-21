@@ -1,5 +1,7 @@
 {
   lib,
+  self,
+  inputs,
   ...
 }:
 
@@ -8,6 +10,8 @@
     {
       config,
       pkgs,
+      self',
+      system,
       ...
     }:
 
@@ -27,7 +31,15 @@
           lib.mapAttrs' (
             name: package:
             if lib.hasAttr attr package && lib.isDerivation package.${attr} then
-              lib.nameValuePair "${name}-${attr}" package.${attr}
+              let
+                evalResult = builtins.tryEval (
+                  package.${attr} ? drvPath && builtins.seq package.${attr}.drvPath true
+                );
+              in
+              if evalResult.success && evalResult.value then
+                lib.nameValuePair "${name}-${attr}" package.${attr}
+              else
+                lib.nameValuePair name null
             else
               lib.nameValuePair name null
           ) nonBrokenPackages
