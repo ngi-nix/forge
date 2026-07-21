@@ -36,7 +36,13 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Run checks
-        run: nix flake check --keep-going --accept-flake-config --max-jobs 1 --option sandbox relaxed
+        env:
+          NIXPKGS_ALLOW_INSECURE: "1"
+        run: nix flake check --impure --keep-going --accept-flake-config --max-jobs 1 --option sandbox relaxed
+
+      - name: Run downstream security tests
+        run: |
+          ./tests/test-downstream.sh
 
   lint:
     name: Run format checks
