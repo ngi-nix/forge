@@ -67,7 +67,7 @@
       warnings = lib.flatten (
         map (pkg: [
           {
-            condition = pkg.source.hash == "" && pkg.source.path == null;
+            condition = pkg.source.hash == "" && pkg.source.path == null && !pkg.build.identityBuilder.enable;
             message = ''
               Package '${pkg.pname}': source.hash is empty.
               Correct hash will be printed in the error message when package is built.
@@ -97,7 +97,13 @@
           in
           [
             {
-              condition = !(pkg.source.git == null && pkg.source.url == null && pkg.source.path == null);
+              condition =
+                !(
+                  pkg.source.git == null
+                  && pkg.source.url == null
+                  && pkg.source.path == null
+                  && !pkg.build.identityBuilder.enable
+                );
               message = ''
                 Package '${pkg.pname}': one of sources options must be defined.
                 Available options: source.git, source.url, or source.path.
