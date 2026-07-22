@@ -46,10 +46,17 @@ let
     )}
   '';
 
+  pkgFromNixpkgs = pkg: !pkg ? _origin;
+
+  forgeConfig = config.forge // {
+    # TODO: show nixpkgs packages in the UI
+    pkgs = lib.filterAttrs (_: pkg: !(pkgFromNixpkgs pkg)) config.forge.pkgs;
+  };
+
   _forge = {
     config = pkgs.writeTextFile {
       name = "forge-config.json";
-      text = lib.toJSON (forge-lib.scrubNixContext config.forge);
+      text = lib.toJSON (forge-lib.scrubNixContext forgeConfig);
     };
 
     options = pkgs.runCommand "options.json" { } ''

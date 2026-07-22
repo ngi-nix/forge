@@ -26,17 +26,21 @@
                 Each package uses one of the available builders.
                 Only one builder can be enabled per package by setting build.<builder>.enable = true.
               '';
-              type = lib.types.attrsOf (
-                lib.types.submoduleWith {
-                  specialArgs = specialArgs // {
-                    forgeOptions = forgeArgs.options;
-                    inherit packageBuilderModule;
+              type =
+                let
+                  pkgRecipe = lib.types.submoduleWith {
+                    specialArgs = specialArgs // {
+                      forgeOptions = forgeArgs.options;
+                      inherit packageBuilderModule;
+                    };
+                    modules = [
+                      pkgs/pkg.nix
+                    ];
                   };
-                  modules = [
-                    pkgs/pkg.nix
-                  ];
-                }
-              );
+
+                  nixpkgsDrv = lib.types.package;
+                in
+                lib.types.attrsOf (lib.types.either nixpkgsDrv pkgRecipe);
             };
           }
         )
@@ -55,9 +59,16 @@
       failedAssertions = lib.filter (x: !x.condition) config.assertions;
       assertionMessages = lib.concatMapStringsSep "\n" (x: "- ${x.message}") failedAssertions;
 
+      pkgFromNixpkgs = pkg: !pkg ? _origin;
+
+      # don't check warnings if package are coming from Nixpkgs
+      forgePkgs = lib.filter (v: !(pkgFromNixpkgs v)) (lib.attrValues config.forge.pkgs);
+
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "pkgs";
-        derivations = lib.mapAttrs (packageName: package: package.result.derivation) config.forge.pkgs;
+        derivations = lib.mapAttrs (
+          packageName: package: if pkgFromNixpkgs package then package else package.result.derivation
+        ) config.forge.pkgs;
       }) { };
     in
     {
@@ -79,7 +90,7 @@
               Package '${pkg.pname}': license is empty.
             '';
           }
-        ]) (lib.attrValues config.forge.pkgs)
+        ]) forgePkgs
       );
 
       # Collect assertions from forge.pkgs
@@ -118,7 +129,7 @@
               '';
             }
           ]
-        ) (lib.attrValues config.forge.pkgs)
+        ) forgePkgs
       );
 
       # Evaluation check: show warnings first, then throw on failed assertions

@@ -19,19 +19,26 @@
         inputs = self-inputs;
         inherit forge-inputs;
         inherit forge-lib;
-        pkgs = pkgs.extend (
-          finalPkgs: previousPkgs:
-          # Extend `pkgs` with the packages from the forge.
-          lib.mapAttrs (packageName: package: package.result.derivation) config.forge.pkgs
-          // {
-            # `pkgs.pkgsOriginal` provides packages from the original `pkgs` (usually from Nixpkgs)
-            # Eg. `pkgs.pkgsOriginal.offen` (Nixpkgs) and `pkgs.offen` (ngi-forge).
-            # Note that as a consequence, all dependencies of those packages
-            # remain those coming from the original `pkgs`,
-            # even when they happen to also be packaged in the forge.
-            pkgsOriginal = previousPkgs;
-          }
-        );
+        nixpkgs = pkgs;
+        pkgs =
+          let
+            pkgFromNixpkgs = pkg: !pkg ? _origin;
+          in
+          pkgs.extend (
+            finalPkgs: previousPkgs:
+            # Extend `pkgs` with the packages from the forge.
+            lib.mapAttrs (
+              packageName: package: if pkgFromNixpkgs package then package else package.result.derivation
+            ) config.forge.pkgs
+            // {
+              # `pkgs.pkgsOriginal` provides packages from the original `pkgs` (usually from Nixpkgs)
+              # Eg. `pkgs.pkgsOriginal.offen` (Nixpkgs) and `pkgs.offen` (ngi-forge).
+              # Note that as a consequence, all dependencies of those packages
+              # remain those coming from the original `pkgs`,
+              # even when they happen to also be packaged in the forge.
+              pkgsOriginal = previousPkgs;
+            }
+          );
         lib = lib // {
           maintainers =
             (import "${forge-inputs.nixpkgs}/maintainers/maintainer-list.nix")
