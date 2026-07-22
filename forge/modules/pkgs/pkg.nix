@@ -2,6 +2,7 @@
   lib,
   name,
   specialArgs,
+  forgeConfig,
   ...
 }:
 {
@@ -298,6 +299,13 @@
         internal = true;
         description = "Resulting derivation of the package.";
       };
+    };
+
+    _origin = lib.mkOption {
+      type = lib.types.str;
+      internal = true;
+      default = forgeConfig.forge.repositoryUrl;
+      description = "Origin of forge packages.";
     };
   };
 }
