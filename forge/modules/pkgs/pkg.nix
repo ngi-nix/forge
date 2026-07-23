@@ -6,6 +6,7 @@
 }:
 {
   imports = [
+    ../builders/identity-builder
     ../builders/standard-builder
     ../builders/go-builder
     ../builders/npm-package-builder
