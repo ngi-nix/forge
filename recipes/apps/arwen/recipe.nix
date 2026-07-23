@@ -1,5 +1,6 @@
 {
   pkgs,
+  nixpkgs,
   ...
 }:
 
@@ -81,4 +82,6 @@
       };
     };
   };
+
+  pkgs.arwen = nixpkgs.arwen;
 }

@@ -13,6 +13,7 @@
         attrs,
       }:
       {
+        forgeConfig,
         config,
         pkgs,
         lib,
@@ -84,6 +85,8 @@
               mkSharedAttrs =
                 finalAttrs:
                 {
+                  _origin = forgeConfig.forge.repositoryUrl;
+
                   inherit (config)
                     pname
                     version
