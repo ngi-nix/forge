@@ -5,4 +5,5 @@
 
 quick_start
 prerequisites
+unfree_packages
 ```
