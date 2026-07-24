@@ -55,6 +55,10 @@
           envAttrsToList = attrs: lib.mapAttrsToList (n: v: "${n}=${v}") attrs;
         in
         envAttrsToList service.process.environment;
+      Labels = {
+        ngi-forge = "true";
+        "ngi-forge.type" = "component";
+      };
     };
   };
 

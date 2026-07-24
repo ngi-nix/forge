@@ -275,6 +275,10 @@
               "PATH=/usr/bin:/run/current-system/sw/bin/"
             ];
             StopSignal = "SIGRTMIN+3";
+            Labels = {
+              ngi-forge = "true";
+              "ngi-forge.type" = "resource";
+            };
           };
         };
       in
