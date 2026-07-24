@@ -36,9 +36,53 @@
 
   config =
     let
+      getAppInputs =
+        app:
+        let
+          # Returns a list of packages from each attribute path
+          collectPackages =
+            attrs: attrPath:
+            lib.pipe attrs [
+              (lib.mapAttrsToList (_: lib.attrByPath attrPath [ ]))
+              (lib.flatten)
+            ];
+
+          # NOTE: it might be worth it to collect these internally through the
+          # module system such that we can use them in other places (e.g. in the UI)
+          packages = {
+            programs = app.programs.packages;
+            components = collectPackages app.services.components [
+              "process"
+              "packages"
+            ];
+            containerComponents = collectPackages app.services.runtimes.container.components [
+              "packages"
+            ];
+            nixos = app.services.runtimes.nixos.packages;
+            test = app.test.programs.packages ++ app.test.services.packages;
+          };
+
+          inputsFrom = lib.flatten (lib.attrValues packages);
+        in
+        inputsFrom;
+
       shellBundle =
         app:
         let
+          inputsFrom = getAppInputs app;
+
+          # Adapted from Nixpkgs (pkgs/build-support/mkshell/default.nix)
+          #
+          # Used to collect all app packages' inputs, which may later be
+          # consumed by devShells.
+          mergeInputs =
+            name:
+            # 1. get all `{build,nativeBuild,...}Inputs` from the elements of `inputsFrom`
+            # 2. since that is a list of lists, `flatten` that into a regular list
+            # 3. filter out of the result everything that's in `inputsFrom` itself
+            # this leaves actual dependencies of the derivations in `inputsFrom`, but never the derivations themselves
+            (lib.subtractLists inputsFrom (lib.flatten (lib.catAttrs name inputsFrom)));
+
           appDrv = pkgs.symlinkJoin {
             name = "${app.name}";
             paths = app.programs.packages;
@@ -46,6 +90,10 @@
         in
         # Passthru
         appDrv.overrideAttrs (_: {
+          buildInputs = mergeInputs "buildInputs";
+          nativeBuildInputs = mergeInputs "nativeBuildInputs";
+          propagatedBuildInputs = mergeInputs "propagatedBuildInputs";
+          propagatedNativeBuildInputs = mergeInputs "propagatedNativeBuildInputs";
           passthru = mkPassthru app appDrv;
         });
 
@@ -74,9 +122,12 @@
             // lib.optionalAttrs (app.test.programs.script != "") {
               test-programs = testProgramsDrv;
             };
+
+          inputsFrom = getAppInputs app;
         in
         lib.fix (self: {
           config = app;
+          pkgs = inputsFrom;
         })
         // lib.optionalAttrs app.programs.runtimes.program.enable {
           program = app.programs.mainPackage;
