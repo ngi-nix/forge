@@ -9,7 +9,7 @@ let
   flakeModules = {
     base = flakeArgs: {
       imports = [
-        modules/lib.nix
+        ./modules/lib.nix
         {
           # Expose the `inputs` from `ngi-forge`
           # Note that this `inputs` is always `ngi-forge`'s,
@@ -22,9 +22,9 @@ let
         {
           imports = [
             # Definitions of options under `forge`.
-            modules/apps
-            modules/pkgs.nix
-            modules/forge.nix
+            ./modules/apps
+            ./modules/pkgs.nix
+            ./modules/forge.nix
             # Packages building the forge.
             ./packages.nix
           ];

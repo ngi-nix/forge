@@ -9,7 +9,7 @@
 {
   imports = [
     ./assertions-warnings.nix
-    builders/shared
+    ./builders/shared
   ];
 
   options.forge = lib.mkOption {
@@ -33,7 +33,7 @@
                     inherit packageBuilderModule;
                   };
                   modules = [
-                    pkgs/pkg.nix
+                    ./pkgs/pkg.nix
                   ];
                 }
               );
