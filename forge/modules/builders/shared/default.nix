@@ -118,6 +118,10 @@
                       packages = config.develop.packages;
                       shellHook = config.develop.shellHook;
                     };
+
+                    forge = {
+                      broken = config.broken;
+                    };
                   };
 
                   meta = {

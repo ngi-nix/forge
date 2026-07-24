@@ -84,6 +84,11 @@
       '';
       example = lib.literalExpression "with lib.maintainers; [ ngi-nix ]";
     };
+    broken = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether the package is broken.";
+    };
 
     # Source configuration
     source = {

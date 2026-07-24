@@ -46,10 +46,15 @@ let
     )}
   '';
 
+  forgeConfig = config.forge // {
+    pkgs = lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs;
+    apps = lib.filterAttrs (_: app: !app.broken) config.forge.apps;
+  };
+
   _forge = {
     config = pkgs.writeTextFile {
       name = "forge-config.json";
-      text = lib.toJSON (forge-lib.scrubNixContext config.forge);
+      text = lib.toJSON (forge-lib.scrubNixContext forgeConfig);
     };
 
     options = pkgs.runCommand "options.json" { } ''
