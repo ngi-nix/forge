@@ -141,5 +141,58 @@
         default = self: "nixos-vm-config";
       };
     };
+
+    broken = lib.mkOption {
+      type = lib.types.bool;
+      description = "Whether the app is broken.";
+    };
+
+    packages = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.listOf lib.types.package);
+      internal = true;
+      readOnly = true;
+      description = "Set of lists of all app packages.";
+      example = lib.literalExpression ''
+        {
+          programs = config.programs.packages;
+          nixos = config.services.runtimes.nixos.packages;
+        }
+      '';
+    };
+
+    packagesList = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      internal = true;
+      readOnly = true;
+      default = lib.flatten (lib.attrValues config.packages);
+      description = "List of all app packages.";
+    };
+  };
+  config = {
+    packages =
+      let
+        # Returns a list of packages from each attribute path
+        collectPackages =
+          attrs: attrPath:
+          lib.pipe attrs [
+            (lib.mapAttrsToList (_: lib.attrByPath attrPath [ ]))
+            (lib.flatten)
+          ];
+      in
+      {
+        programs = config.programs.packages;
+        components = collectPackages config.services.components [
+          "process"
+          "packages"
+        ];
+        containerComponents = collectPackages config.services.runtimes.container.components [
+          "packages"
+        ];
+        nixos = config.services.runtimes.nixos.packages;
+        test = config.test.programs.packages ++ config.test.services.packages;
+      };
+
+    # mark app as broken if any of its pkgs are
+    broken = lib.any (x: x.forge.broken or false) config.packagesList;
   };
 }
