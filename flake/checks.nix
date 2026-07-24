@@ -1,5 +1,7 @@
 {
   lib,
+  self,
+  inputs,
   ...
 }:
 
@@ -8,6 +10,8 @@
     {
       config,
       pkgs,
+      self',
+      system,
       ...
     }:
 
@@ -19,7 +23,15 @@
           lib.mapAttrs' (
             name: package:
             if lib.hasAttr attr package && lib.isDerivation package.${attr} then
-              lib.nameValuePair "${name}-${attr}" package.${attr}
+              let
+                evalResult = builtins.tryEval (
+                  package.${attr} ? drvPath && builtins.seq package.${attr}.drvPath true
+                );
+              in
+              if evalResult.success && evalResult.value then
+                lib.nameValuePair "${name}-${attr}" package.${attr}
+              else
+                lib.nameValuePair name null
             else
               lib.nameValuePair name null
           ) config.packages
@@ -28,7 +40,18 @@
 
     {
       checks =
-        config.packages
+        (lib.filterAttrs (_: v: v != null) (
+          lib.mapAttrs (
+            name: package:
+            if lib.isDerivation package then
+              let
+                evalResult = builtins.tryEval (package ? drvPath && builtins.seq package.drvPath true);
+              in
+              if evalResult.success && evalResult.value then package else null
+            else
+              null # Ignore non-derivations in config.packages for checks
+          ) config.packages
+        ))
 
         # All packages passthru attributes
         // (passthruAttr "env")

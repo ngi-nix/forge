@@ -118,6 +118,32 @@
       description = "Programs configuration.";
     };
 
+    insecureDependencies = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = "List of insecure dependencies required by this application.";
+    };
+
+    insecurePackagesInfo = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.submodule {
+          options = {
+            name = lib.mkOption { type = lib.types.str; };
+            knownVulnerabilities = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+            };
+          };
+        }
+      );
+      internal = true;
+      readOnly = true;
+      default = map (pkg: {
+        name = pkg.name;
+        knownVulnerabilities = pkg.meta.knownVulnerabilities or [ ];
+      }) config.insecureDependencies;
+    };
+
     # Test configuration
     test = lib.mkOption {
       type = lib.types.submoduleWith {

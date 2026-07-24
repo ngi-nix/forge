@@ -17,6 +17,7 @@ type alias App =
     , app_links : AppLinks
     , app_recipePath : String
     , app_maintainers : List Maintainer
+    , app_insecurePackagesInfo : List InsecurePackageInfo
     }
 
 
@@ -34,6 +35,20 @@ decodeApp =
         |> Decode.andMap (Decode.field "links" decodeAppLinks)
         |> Decode.andMap (Decode.field "recipePath" Decode.string)
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
+        |> Decode.andMap (Decode.field "insecurePackagesInfo" (Decode.list decodeInsecurePackageInfo))
+
+
+type alias InsecurePackageInfo =
+    { name : String
+    , knownVulnerabilities : List String
+    }
+
+
+decodeInsecurePackageInfo : Decoder InsecurePackageInfo
+decodeInsecurePackageInfo =
+    Decode.map2 InsecurePackageInfo
+        (Decode.field "name" Decode.string)
+        (Decode.field "knownVulnerabilities" (Decode.list Decode.string))
 
 
 type alias AppName =
@@ -307,7 +322,11 @@ storePathToName path =
         hashLength =
             33
     in
-    String.dropLeft hashLength basename
+    if String.length basename > hashLength && String.contains "-" (String.left hashLength basename) then
+        String.dropLeft hashLength basename
+
+    else
+        basename
 
 
 getAppProgramPackageNames : AppPrograms -> List String

@@ -57,6 +57,18 @@
               example = "github:ngi-nix/forge";
               description = "URL of the flake repository.";
             };
+
+            allowInsecurePackages = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = "List of permitted insecure packages. This is a convenience option for consumers; advanced users can also override pkgs directly.";
+            };
+
+            allowUnfreePackages = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [ ];
+              description = "List of permitted unfree packages. This is a convenience option for consumers; advanced users can also override pkgs directly.";
+            };
           };
         }
       ];
