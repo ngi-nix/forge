@@ -26,7 +26,12 @@
         "Follow-me-slideshow"
         "InfiniteCanvas"
       ];
-      Entrust = [ "LO-Accessible" ];
+      Entrust = [
+        "LO-Accessible"
+      ];
+      Review = [
+        "LO-Online"
+      ];
     };
 
     links = {
