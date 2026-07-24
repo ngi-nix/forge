@@ -106,5 +106,7 @@ in
       echo "Test data" > test-file.txt
       bang scan -v -u bang-results ./test-file.txt
     '';
+
+    broken = true;
   };
 }
