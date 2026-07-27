@@ -40,9 +40,14 @@
       cargoHash = "sha256-X1uHKYgt9ddvr/cBDW9HaHawG5uv2sU416jyL/XTPF4=";
     };
 
-    build.extraAttrs = {
+    phases.configure = {
       # fatal error: 'opus.h' file not found
-      env.NIX_CFLAGS_COMPILE = "-I${pkgs.libopus.dev}/include/opus";
+      # Because `pkg-config`'s configuration
+      # from `pkgs.libopus.dev` in `nativeBuildInputs` is not considered
+      # by the `bingen` wrapper.
+      script.pre = ''
+        BINDGEN_EXTRA_CLANG_ARGS+=" $(pkg-config opus --cflags)"
+      '';
     };
 
     test.script = ''
