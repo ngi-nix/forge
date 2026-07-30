@@ -72,13 +72,12 @@ We package and maintain some NGI software in
 [Nixpkgs](https://github.com/NixOS/nixpkgs) and re-use it in the Forge
 application recipes.
 
-- Get a list of packages maintained in Nixpkgs
+Get a list of packages maintained in Nixpkgs
 
 ```bash
 nix eval --json -f maintainers/list-nixpkgs.nix packages
 ```
-
-- [![Nixpkgs build status](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml/badge.svg)](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml)
+[![Nixpkgs build status](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml/badge.svg)](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml)
 
 ## Credits
 
