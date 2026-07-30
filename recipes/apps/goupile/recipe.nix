@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.goupile = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.goupile;
+    };
+  };
   apps.goupile = {
     displayName = "Goupile";
     description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";

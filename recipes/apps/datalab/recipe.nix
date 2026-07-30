@@ -5,6 +5,18 @@
 }:
 
 {
+  pkgs.datalab = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.datalab;
+    };
+  };
+  pkgs.python3-datalab-platform = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.python3.pkgs.datalab-platform;
+    };
+  };
   apps.datalab = {
     displayName = "DataLab";
     description = "Open-source Platform for Scientific and Technical Data Processing and Visualization.";
@@ -73,13 +85,9 @@
 
     programs = {
       mainPackage = pkgs.datalab;
-      packages = with pkgs; [
-        (python3.withPackages (
-          ps: with ps; [
-            datalab-platform
-          ]
-        ))
-        datalab # gui
+      packages = [
+        (pkgs.python3.withPackages (ps: [ pkgs.python3-datalab-platform ]))
+        pkgs.datalab # gui
       ];
 
       runtimes = {

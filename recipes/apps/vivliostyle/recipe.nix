@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.vivliostyle = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.vivliostyle;
+    };
+  };
   apps.vivliostyle = {
     displayName = "Vivliostyle";
     description = "CSS typesetting ecosystem for creating beautifully formatted documents using web technologies.";
@@ -57,7 +63,7 @@
 
     programs = {
       mainPackage = pkgs.vivliostyle;
-      packages = with pkgs; [ vivliostyle ];
+      packages = [ pkgs.vivliostyle ];
 
       runtimes = {
         shell.enable = true;

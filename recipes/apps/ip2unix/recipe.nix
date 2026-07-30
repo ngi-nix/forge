@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.ip2unix = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.ip2unix;
+    };
+  };
   apps.ip2unix = {
     displayName = "ip2unix";
     description = "Turn IP sockets into Unix domain sockets.";

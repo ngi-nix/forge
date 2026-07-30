@@ -5,6 +5,19 @@
 }:
 
 {
+  pkgs.qlever = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.qlever;
+    };
+  };
+
+  pkgs.qlever-control = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.qlever-control;
+    };
+  };
   apps.qlever = {
     displayName = "QLever";
     description = "Web-based user interface for QLever SPARQL engine.";
@@ -81,11 +94,11 @@
           "start"
           "--run-in-foreground"
         ];
-        process.packages = with pkgs; [
-          curl
-          qlever
-          qlever-control
-          unzip
+        process.packages = [
+          pkgs.curl
+          pkgs.qlever
+          pkgs.qlever-control
+          pkgs.unzip
         ];
         process.ports = [
           "7019:7019"

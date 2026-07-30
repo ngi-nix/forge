@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.slipshow = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.slipshow;
+    };
+  };
   apps.slipshow = {
     displayName = "Slipshow";
     description = "Innovative presentation tool that moves away from the traditional slide-based approach.";

@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.vg = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.vg;
+    };
+  };
   apps.vg = {
     displayName = "Variation Graphs";
     description = "Tools for working with genome variation graphs.";
@@ -49,8 +55,8 @@
     };
 
     programs = {
-      packages = with pkgs; [
-        vg
+      packages = [
+        pkgs.vg
       ];
 
       runtimes.shell = {

@@ -3,6 +3,12 @@
   ...
 }:
 {
+  pkgs.python3-pycm = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.python3.pkgs.pycm;
+    };
+  };
   apps.pycm = {
     displayName = "PyCM";
     description = "Machine learning post-processing and analysis library to evaluate algorithm performance.";
@@ -50,7 +56,7 @@
     programs = {
       packages = [
         (pkgs.python3.withPackages (pp: [
-          pp.pycm
+          pkgs.python3-pycm
           pp.matplotlib
           pp.seaborn
           pp.jupyterlab

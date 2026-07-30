@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.sudo-rs = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.sudo-rs;
+    };
+  };
   apps.sudo-rs = {
     displayName = "sudo-rs";
     description = "Memory-safe implementation of sudo and su.";

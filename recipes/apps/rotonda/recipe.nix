@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.rotonda = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.rotonda;
+    };
+  };
   apps.rotonda = {
     displayName = "Rotonda";
     description = "Composable and programmable BGP routing engine.";

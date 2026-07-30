@@ -5,6 +5,12 @@
 }:
 
 {
+  pkgs.ironcalc = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.ironcalc;
+    };
+  };
   apps.ironcalc = {
     displayName = "IronCalc";
     description = "Open source selfhosted spreadsheet engine.";

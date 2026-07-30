@@ -3,6 +3,12 @@
   ...
 }:
 {
+  pkgs.kicad = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kicad;
+    };
+  };
   apps.kicad = {
     displayName = "KiCAD";
     description = "KiCAD is a free software suite for electronic design automation (EDA).";

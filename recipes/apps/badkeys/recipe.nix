@@ -3,6 +3,12 @@
   ...
 }:
 {
+  pkgs.badkeys = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.badkeys;
+    };
+  };
   apps.badkeys = {
     displayName = "Badkeys";
     description = "Checking cryptographic public keys for known vulnerabilities.";

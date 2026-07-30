@@ -5,6 +5,12 @@
 }:
 
 {
+  pkgs.dolphin = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kdePackages.dolphin;
+    };
+  };
   apps.dolphin = {
     displayName = "Dolphin File Manager";
     description = "File Manager by KDE.";
@@ -29,7 +35,7 @@
     };
 
     programs = {
-      mainPackage = pkgs.kdePackages.dolphin;
+      mainPackage = pkgs.dolphin;
       runtimes.program.enable = true;
     };
   };

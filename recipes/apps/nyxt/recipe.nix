@@ -10,9 +10,15 @@ let
       rm tests/elf-sans-immobile.test.sh
     '';
   });
-  nyxt = pkgs.nyxt.override { sbcl = sbcl_2_4_6; };
+  nyxt = pkgs.pkgsOriginal.nyxt.override { sbcl = sbcl_2_4_6; };
 in
 {
+  pkgs.nyxt = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = nyxt;
+    };
+  };
   apps.nyxt = {
     displayName = "Nyxt";
     description = "Infinitely extensible web browser with Lisp-based customization.";

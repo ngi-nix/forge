@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.cryptolyzer = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.cryptolyzer;
+    };
+  };
   apps.cryptolyzer = {
     displayName = "CryptoLyzer";
     description = "Cybersecurity tool that can analyse cryptographic settings of clients and servers for different protocols.";

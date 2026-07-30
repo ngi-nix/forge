@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.fractal = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.fractal;
+    };
+  };
   apps.fractal = {
     displayName = "Fractal";
     description = "Native client for the Matrix protocol.";

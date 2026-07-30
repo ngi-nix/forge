@@ -9,6 +9,12 @@
       derivation = pkgs.pkgsOriginal.arwen;
     };
   };
+  pkgs.python3-py-arwen = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.python3.pkgs.py-arwen;
+    };
+  };
   apps.arwen = {
     displayName = "Arwen";
     description = "Cross-platform patching of shared libraries (ELF and Mach-O).";
@@ -74,10 +80,10 @@
     };
 
     programs = {
-      packages = with pkgs; [
-        arwen
-        (python3.withPackages (ps: [
-          ps.py-arwen
+      packages = [
+        pkgs.arwen
+        (pkgs.python3.withPackages (ps: [
+          pkgs.python3-py-arwen
         ]))
       ];
 

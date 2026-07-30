@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.icestudio = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.icestudio;
+    };
+  };
   apps.icestudio = {
     displayName = "Icestudio";
     description = "Visual developer tool for development of FPGAs.";

@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.oku = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.oku;
+    };
+  };
   apps.oku = {
     displayName = "Oku";
     description = "Browser and encrypted data vault based on IPFS.";

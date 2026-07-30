@@ -3,6 +3,12 @@
   ...
 }:
 {
+  pkgs.lychee = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.lychee;
+    };
+  };
   apps.lychee = {
     displayName = "Lychee";
     description = "Reliable and fast link checker to combat linkrot.";

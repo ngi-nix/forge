@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.inko = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.inko;
+    };
+  };
   apps.inko = {
     displayName = "Inko";
     description = "Programming language with deterministic automatic memory management.";

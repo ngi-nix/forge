@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.dutctl = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.dutctl;
+    };
+  };
   apps.dutctl = {
     displayName = "DUT Control";
     description = "Unified device management for open firmware development.";
@@ -56,8 +62,8 @@
     };
 
     programs = {
-      packages = with pkgs; [
-        dutctl
+      packages = [
+        pkgs.dutctl
       ];
 
       runtimes.shell = {
@@ -86,16 +92,16 @@
       runtimes = {
         container = {
           enable = true;
-          components.dutagent.packages = with pkgs; [
-            bash # for entering the container
-            dutctl
+          components.dutagent.packages = [
+            pkgs.bash # for entering the container
+            pkgs.dutctl
           ];
         };
 
         nixos = {
           enable = true;
-          packages = with pkgs; [
-            dutctl
+          packages = [
+            pkgs.dutctl
           ];
         };
       };

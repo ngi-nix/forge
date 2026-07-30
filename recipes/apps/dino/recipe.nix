@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.dino = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.dino;
+    };
+  };
   apps.dino = {
     displayName = "Dino";
     description = "Open source XMPP messaging application.";

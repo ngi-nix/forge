@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.pijul = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.pijul;
+    };
+  };
   apps.pijul = {
     displayName = "Pijul";
     description = "Modern patch-based distributed version control system.";

@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.owi = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.owi;
+    };
+  };
   apps.owi = {
     displayName = "owi";
     description = "Cross-language symbolic execution for C, C++, Rust, Zig, and Wasm.";

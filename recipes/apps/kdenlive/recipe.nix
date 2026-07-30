@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.kdenlive = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kdePackages.kdenlive;
+    };
+  };
   apps.kdenlive = {
     displayName = "Kdenlive";
     description = "Free and open source video editor, based on MLT Framework and KDE Frameworks.";
@@ -26,7 +32,7 @@
     };
 
     programs = {
-      mainPackage = pkgs.kdePackages.kdenlive;
+      mainPackage = pkgs.kdenlive;
       runtimes.program.enable = true;
     };
   };

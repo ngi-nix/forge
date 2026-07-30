@@ -3,6 +3,12 @@
   ...
 }:
 {
+  pkgs.diesel-cli = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.diesel-cli;
+    };
+  };
   apps.diesel = {
     displayName = "Diesel";
     description = "Safe, Extensible ORM and Query Builder for Rust.";

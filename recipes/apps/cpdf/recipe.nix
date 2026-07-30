@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.cpdf = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.ocamlPackages.cpdf;
+    };
+  };
   apps.cpdf = {
     displayName = "cpdf";
     description = "Command-line PDF manipulation tool.";
@@ -91,8 +97,8 @@
     };
 
     programs = {
-      mainPackage = pkgs.ocamlPackages.cpdf;
-      packages = with pkgs; [ ocamlPackages.cpdf ];
+      mainPackage = pkgs.cpdf;
+      packages = [ pkgs.cpdf ];
 
       runtimes = {
         shell.enable = true;
@@ -101,7 +107,7 @@
     };
 
     test.programs.script = ''
-      CPDF_PATH="${pkgs.ocamlPackages.cpdf}"
+      CPDF_PATH="${pkgs.cpdf}"
       INPUT_PDF="$CPDF_PATH/share/doc/cpdf/cpdfmanual.pdf"
 
       cpdf -version 2>&1 | grep -q "cpdf"

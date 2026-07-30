@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.pmtiles = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.pmtiles;
+    };
+  };
   apps.protomaps = {
     displayName = "Protomaps";
     description = "Toolchain for creating and serving PMTiles map archives.";

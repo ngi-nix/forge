@@ -3,6 +3,25 @@
   ...
 }:
 {
+  pkgs.kikit = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kikit;
+    };
+  };
+  pkgs.kicadAddons-kikit = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kicadAddons.kikit;
+    };
+  };
+  pkgs.kicadAddons-kikit-library = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kicadAddons.kikit-library;
+    };
+  };
+
   apps.kikit = {
     displayName = "KiKit";
     description = "Tooling for automation of production of PCB designed in KiCAD.";
@@ -27,8 +46,8 @@
     programs = {
       packages = with pkgs; [
         kikit
-        kicadAddons.kikit
-        kicadAddons.kikit-library
+        kicadAddons-kikit
+        kicadAddons-kikit-library
       ];
       runtimes.shell.enable = true;
     };

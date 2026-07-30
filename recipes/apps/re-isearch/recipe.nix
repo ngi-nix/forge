@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.re-isearch = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.re-isearch;
+    };
+  };
   apps.re-isearch = {
     displayName = "Re-Isearch";
     description = "Novel multimodal search and retrieval engine.";

@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.garage = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.garage_2;
+    };
+  };
   apps.garage = {
     displayName = "Garage";
     description = "Lightweight geo-distributed data store compatible with Amazon S3.";
@@ -73,7 +79,7 @@
 
     programs = {
       packages = [
-        pkgs.garage_2
+        pkgs.garage
       ];
 
       runtimes.shell = {
@@ -86,7 +92,7 @@
         process.preStart = ''
           mkdir -p /var/lib/garage/meta /var/lib/garage/data
         '';
-        process.command = pkgs.garage_2;
+        process.command = pkgs.garage;
         process.argv = [
           "-c"
           "${./garage.toml}"
@@ -105,14 +111,14 @@
           components.garage.packages = [
             pkgs.bash
             pkgs.coreutils
-            pkgs.garage_2
+            pkgs.garage
           ];
         };
 
         nixos = {
           enable = true;
           packages = [
-            pkgs.garage_2
+            pkgs.garage
           ];
         };
       };

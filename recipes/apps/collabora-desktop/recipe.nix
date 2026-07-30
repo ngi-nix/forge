@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.collabora-desktop = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.collabora-desktop;
+    };
+  };
   apps.collabora-desktop = {
     displayName = "Collabora Office";
     description = "Collaborative Office for desktop, based on LibreOffice technology.";

@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.gnucap = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.gnucap;
+    };
+  };
   apps.gnucap = {
     displayName = "Gnucap";
     description = "GNU Circuit Analysis Package.";

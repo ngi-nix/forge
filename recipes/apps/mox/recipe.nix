@@ -6,6 +6,12 @@
 }:
 
 {
+  pkgs.mox = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.mox;
+    };
+  };
   apps.mox = {
     displayName = "Mox";
     description = "Modern full-featured open source secure mail server for low-maintenance self-hosted email.";

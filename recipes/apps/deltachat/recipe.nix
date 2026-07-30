@@ -4,6 +4,26 @@
 }:
 
 {
+  pkgs.deltachat-desktop = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.deltachat-desktop;
+    };
+  };
+
+  pkgs.deltachat-repl = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.deltachat-repl;
+    };
+  };
+
+  pkgs.deltachat-tauri = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.deltachat-tauri;
+    };
+  };
   apps.deltachat = {
     displayName = "Delta Chat";
     description = "Decentralized secure messenger using chatmail relays for Desktop.";

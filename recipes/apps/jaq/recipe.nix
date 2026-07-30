@@ -2,8 +2,13 @@
   pkgs,
   ...
 }:
-
 {
+  pkgs.jaq = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.jaq;
+    };
+  };
   apps.jaq = {
     displayName = "jaq";
     description = "Data wrangling tool focusing on correctness, speed, and simplicity.";

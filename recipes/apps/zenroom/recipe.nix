@@ -3,8 +3,13 @@
   lib,
   ...
 }:
-
 {
+  pkgs.zenroom = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.zenroom;
+    };
+  };
   apps.zenroom = {
     displayName = "Zenroom";
     description = "No-code cryptographic virtual machine.";
@@ -44,7 +49,7 @@
 
     programs = {
       mainPackage = pkgs.zenroom;
-      packages = with pkgs; [ zenroom ];
+      packages = [ pkgs.zenroom ];
 
       runtimes = {
         shell.enable = true;

@@ -4,6 +4,20 @@
 }:
 
 {
+  pkgs.teamtype = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.teamtype;
+    };
+  };
+
+  pkgs.vimPlugins-teamtype = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.vimPlugins.teamtype;
+    };
+  };
+
   apps.teamtype = {
     displayName = "Teamtype";
     description = "Real-time co-editing of local text files.";
@@ -83,7 +97,7 @@
         (pkgs.neovim.override {
           configure = {
             packages.myPlugins = {
-              start = [ pkgs.vimPlugins.teamtype ];
+              start = [ pkgs.vimPlugins-teamtype ];
             };
           };
         })

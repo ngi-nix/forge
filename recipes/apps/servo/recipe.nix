@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.servo = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.servo;
+    };
+  };
   apps.servo = {
     displayName = "Servo";
     description = "Embeddable, independent, memory-safe, modular, parallel web rendering engine.";

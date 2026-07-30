@@ -5,6 +5,12 @@
 }:
 
 {
+  pkgs.oils-for-unix = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.oils-for-unix;
+    };
+  };
   apps.oils = {
     displayName = "Oils";
     description = "Bringing shell environments into the 21st century.";

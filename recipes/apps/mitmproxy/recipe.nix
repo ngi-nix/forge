@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.mitmproxy = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.mitmproxy;
+    };
+  };
   apps.mitmproxy = {
     displayName = "mitmproxy";
     description = "Interactive TLS-capable intercepting HTTP proxy.";

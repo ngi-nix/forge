@@ -5,6 +5,13 @@
   ...
 }:
 {
+  pkgs.python3-django-allauth = {
+    description = "Integrated set of Django applications addressing authentication and account management.";
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.python3.pkgs.django-allauth;
+    };
+  };
   apps.allauth = {
     displayName = "Django Allauth";
     description = "Django library for authentication, account management as well as 3rd party (social) account authentication.";
@@ -31,7 +38,9 @@
     programs = {
       packages = [
         (pkgs.python3.withPackages (
-          ps: [ ps.django-allauth ] ++ (lib.concatAttrValues ps.django-allauth.optional-dependencies)
+          ps:
+          [ pkgs.python3-django-allauth ]
+          ++ (lib.concatAttrValues pkgs.python3-django-allauth.optional-dependencies)
         ))
       ];
       runtimes.shell.enable = true;
@@ -41,7 +50,7 @@
       python -c '
       from allauth import VERSION
       semver = ".".join(map(str, VERSION[:3]))
-      assert semver == "${pkgs.python3.pkgs.django-allauth.version}"
+      assert semver == "${pkgs.python3-django-allauth.version}"
       '
     '';
   };

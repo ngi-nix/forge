@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.repath-studio = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.repath-studio;
+    };
+  };
   apps.repath-studio = {
     displayName = "Repath Studio";
     description = "SVG editor written in Clojurescript.";

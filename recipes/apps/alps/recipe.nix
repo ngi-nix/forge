@@ -4,6 +4,12 @@
 }:
 
 {
+  pkgs.alps = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.alps;
+    };
+  };
   apps.alps = {
     displayName = "Alps";
     description = "Simple, extensible webmail client.";

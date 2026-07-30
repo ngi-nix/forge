@@ -26,6 +26,19 @@ let
   '';
 in
 {
+  pkgs.kaitai-struct-compiler = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.kaitai-struct-compiler;
+    };
+  };
+
+  pkgs.python3-kaitaistruct = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.python3.pkgs.kaitaistruct;
+    };
+  };
   apps.kaitai-struct = {
     displayName = "Kaitai Struct";
     description = "A new way to develop parsers for binary structures.";
@@ -93,11 +106,9 @@ in
     programs = {
       packages = [
         pkgs.kaitai-struct-compiler
-        (pkgs.python3.withPackages (
-          ps: with ps; [
-            kaitaistruct
-          ]
-        ))
+        (pkgs.python3.withPackages (ps: [
+          pkgs.python3-kaitaistruct
+        ]))
         pkgs.wget
       ];
       runtimes.shell.enable = true;
