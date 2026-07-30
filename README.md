@@ -1,5 +1,3 @@
-[![Nixpkgs build status](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml/badge.svg)](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml)
-
 # NGI Forge
 
 This software is in active development. Expect backwards incompatible changes.
@@ -67,6 +65,20 @@ nix flake init --template github:ngi-nix/forge#provider
 - Add all new files to git
 
 - Start creating recipes in `recipes` directory
+
+## Nixpkgs repository
+
+We package and maintain some NGI software in
+[Nixpkgs](https://github.com/NixOS/nixpkgs) and re-use it in the Forge
+application recipes.
+
+- Get a list of packages maintained in Nixpkgs
+
+```bash
+nix eval --json -f maintainers/list-nixpkgs.nix packages
+```
+
+- [![Nixpkgs build status](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml/badge.svg)](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml)
 
 ## Credits
 
