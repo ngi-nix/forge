@@ -51,8 +51,8 @@
     };
 
     links = {
-      website = "https://py3dtiles.org";
-      docs = "https://py3dtiles.org/main";
+      website = "https://py3dtiles.org/";
+      docs = "https://py3dtiles.org/main/";
       source = "https://gitlab.com/py3dtiles/py3dtiles";
     };
 

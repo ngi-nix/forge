@@ -50,9 +50,9 @@
     icon = ./icon.svg;
 
     links = {
-      website = "https://vivliostyle.org";
+      website = "https://vivliostyle.org/";
       source = "https://github.com/vivliostyle/vivliostyle-cli";
-      docs = "https://vivliostyle.org/docs";
+      docs = "https://vivliostyle.org/docs/";
     };
 
     ngi.grants = {

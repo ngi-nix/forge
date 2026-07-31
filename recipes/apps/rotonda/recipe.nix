@@ -36,8 +36,8 @@
     '';
 
     links = {
-      website = "https://www.nlnetlabs.nl/projects/routing/rotonda";
-      docs = "https://rotonda.docs.nlnetlabs.nl";
+      website = "https://www.nlnetlabs.nl/projects/rotonda/about/";
+      docs = "https://rotonda.docs.nlnetlabs.nl/";
       source = "https://github.com/NLnetLabs/rotonda";
     };
 

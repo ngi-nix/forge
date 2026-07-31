@@ -29,9 +29,9 @@
     };
 
     links = {
-      website = "https://apps.kde.org/dolphin";
+      website = "https://apps.kde.org/dolphin/";
       source = "https://invent.kde.org/system/dolphin";
-      docs = "https://userbase.kde.org/Special:myLanguage/Dolphin";
+      docs = "https://userbase.kde.org/Special:MyLanguage/Dolphin";
     };
 
     programs = {

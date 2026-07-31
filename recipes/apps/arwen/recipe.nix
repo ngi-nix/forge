@@ -76,7 +76,7 @@
 
     links = {
       source = "https://github.com/nichmor/arwen";
-      website = "https://nichmor.github.io/arwen";
+      website = "https://nichmor.github.io/arwen/";
     };
 
     programs = {
