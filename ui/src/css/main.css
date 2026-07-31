@@ -106,7 +106,7 @@ body {
 .m-item-card {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   height: 100%;
   aspect-ratio: 1 / 1;
@@ -191,10 +191,10 @@ body {
 
 .m-item-card-description {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  max-height: 4.5em;
+  height: 6em;
   line-height: 1.5;
   font-size: 0.9rem;
   margin-bottom: 0;
