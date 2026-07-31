@@ -25,7 +25,7 @@
 
     ngi.grants = {
       Review = [
-        "BANG"
+        "BANG-Kaitai"
       ];
     };
 

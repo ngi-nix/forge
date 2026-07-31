@@ -38,7 +38,7 @@
     '';
 
     links = {
-      docs = "https://gedenkt.at/jaq/manual";
+      docs = "https://gedenkt.at/jaq/manual/";
       source = "https://github.com/01mf02/jaq";
     };
 

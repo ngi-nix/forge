@@ -32,7 +32,7 @@
 
     ngi.grants = {
       Commons = [
-        "Owi-2"
+        "OWI-2"
       ];
       Core = [
         "OWI"

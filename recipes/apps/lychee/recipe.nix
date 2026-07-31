@@ -35,7 +35,7 @@
     icon = ./icon.svg;
 
     links = {
-      docs = "https://lychee.cli.rs/guides/getting-started";
+      docs = "https://lychee.cli.rs/guides/getting-started/";
       website = "https://lychee.cli.rs";
       source = "https://github.com/lycheeverse/lychee";
     };
