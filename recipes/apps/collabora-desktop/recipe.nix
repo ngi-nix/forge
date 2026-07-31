@@ -22,7 +22,7 @@
 
       If syncing to nextcloud without real-time collaboration is enough you can set up the [Nextcloud desktop sync client](https://docs.nextcloud.com/server/latest/user_manual/en/desktop/installation.html), as [recommended by Collabora](https://forum.collaboraonline.com/t/cannot-open-files-in-the-desktop-version-from-mapped-drives/4644/2).
 
-      See also: [Frequently Asked Questions](https://collaboraonline.github.io/post/faq/) and the [Collabora Online forum](https://forum.collaboraonline.com/).
+      See also: [Frequently Asked Questions](https://www.collaboraoffice.org/post/faq/) and the [Collabora Online forum](https://forum.collaboraonline.com/).
     '';
 
     icon = ./icon.svg;

@@ -42,7 +42,7 @@
       > Peers can then add the printed `peer="<secret>"` line to their `.teamtype/config` and run `teamtype join`.
 
       > [!NOTE]
-      > Even if join codes generate successfully, peers may still fail to connect if your network blocks IPv6 (preventing [Iroh](https://iroh.computer/)'s P2P relay discovery). If a new join code generates immediately after a peer attempts to join, try disabling IPv6 on both machines:
+      > Even if join codes generate successfully, peers may still fail to connect if your network blocks IPv6 (preventing [Iroh](https://www.iroh.computer/)'s P2P relay discovery). If a new join code generates immediately after a peer attempts to join, try disabling IPv6 on both machines:
       > ```bash
       > sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
       > sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
