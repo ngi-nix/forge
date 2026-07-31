@@ -56,7 +56,7 @@ viewPageAppsApp _ _ app =
         , onClick (Update_Route onClickRoute)
         ]
         [ div
-            [ class "d-flex flex-column align-items-center justify-content-center w-100"
+            [ class "d-flex flex-column align-items-center w-100"
             ]
             [ img
                 [ src (getAppIconPath app.app_name)
@@ -72,7 +72,7 @@ viewPageAppsApp _ _ app =
                 [ text app.app_description ]
             ]
         , div
-            [ class "d-flex flex-wrap justify-content-center align-items-center gap-1 w-100 mt-1"
+            [ class "d-flex flex-wrap justify-content-center align-items-center gap-1 w-100 mt-auto"
             ]
             (List.concat
                 [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
