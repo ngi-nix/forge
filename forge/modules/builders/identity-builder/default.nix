@@ -26,7 +26,7 @@
           in
           lib.mkIf builder.enable {
             homePage = drv.meta.homepage;
-            description = lib.removeSuffix "." drv.meta.description + ".";
+            description = lib.mkDefault (lib.removeSuffix "." drv.meta.description + ".");
             inherit (drv) version;
             inherit (drv.meta)
               license
