@@ -26,10 +26,21 @@
         nodes.machine = lib.mkMerge [
           {
             virtualisation.podman.enable = true;
+            virtualisation.podman.defaultNetwork.settings.dns_enabled = true;
             virtualisation.containers.enable = true;
             virtualisation.diskSize = 4096;
             system.stateVersion = "25.11";
             environment.systemPackages = app.programs.packages ++ config.packages ++ [ pkgs.podman-compose ];
+
+            # Prevent dhcpcd from assigning IPs to podman interfaces, which breaks internal container resolution
+            networking.dhcpcd.denyInterfaces = [
+              "veth*"
+              "podman*"
+              "cni*"
+              "cali*"
+            ];
+            # Custom podman networks cannot reach the host's aardvark-dns server if the NixOS firewall blocks them
+            networking.firewall.enable = false;
           }
           config.nixosConfig
         ];
