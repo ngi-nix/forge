@@ -34,7 +34,18 @@ jobs:
           nix eval --json --file maintainers/list-nixpkgs.nix packages --arg showBroken false
           > packages.json
 
+      - name: Generate tests file
+        run: >
+          nix eval --json --file maintainers/list-nixpkgs.nix tests --arg showBroken false
+          > tests.json
+
       - name: Check build status
         run: >
           nix run github:imincik/nix-utils#hydra-build-status -- --failed-only --platforms ${{ matrix.platform }} --file packages.json
-          > "$GITHUB_STEP_SUMMARY"
+          >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check NixOS tests build status
+        if: always()
+        run: >
+          nix run github:imincik/nix-utils#hydra-build-status -- --failed-only --platforms ${{ matrix.platform }} --project nixos --jobset unstable --file tests.json
+          >> "$GITHUB_STEP_SUMMARY"

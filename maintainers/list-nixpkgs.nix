@@ -31,6 +31,17 @@ let
     in
     if result.success then result.value else false;
 
+  isTestMaintainedByTeam =
+    test:
+    let
+      hasTeamMembers =
+        myTeam.members != [ ]
+        && pkgs.lib.all (m: builtins.elem m (test.meta.maintainers or [ ])) myTeam.members;
+      hasTeam = builtins.elem myTeam (test.meta.teams or [ ]);
+      result = builtins.tryEval (hasTeamMembers || hasTeam);
+    in
+    if result.success then result.value else false;
+
   isDerivationRobust =
     pkg:
     let
@@ -74,6 +85,19 @@ let
     ) (attrNames pkgs);
 
 in
+let
+  foundPackages = recursePackageSet null pkgs;
+in
 {
-  packages = recursePackageSet null pkgs;
+  packages = foundPackages;
+  tests = concatMap (
+    name:
+    let
+      test = pkgs.nixosTests.${name} or null;
+    in
+    if test != null && (builtins.tryEval (isTestMaintainedByTeam test)).value then
+      [ "nixos.tests.${name}" ]
+    else
+      [ ]
+  ) (attrNames pkgs.nixosTests);
 }
