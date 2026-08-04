@@ -17,7 +17,7 @@
       print(cm)
       ```
 
-      For more examples and detailed API documentation, please refer to https://pycm.io/doc.
+      For more examples and detailed API documentation, please refer to https://www.pycm.io/doc/.
 
       This environment also includes `jupyterlab`, `matplotlib`, and `seaborn` so you can interactively explore PyCM visually and plot the confusion matrices out-of-the-box (`cm.plot()`).
 
@@ -37,8 +37,8 @@
     icon = ./icon.svg;
 
     links = {
-      website = "https://pycm.io";
-      docs = "https://pycm.io/doc";
+      website = "https://www.pycm.io/";
+      docs = "https://www.pycm.io/doc/";
       source = "https://github.com/sepandhaghighi/pycm";
     };
 

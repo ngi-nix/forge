@@ -20,7 +20,7 @@
     };
 
     links = {
-      docs = "https://world.pages.gitlab.gnome.org/fractal";
+      docs = "https://world.pages.gitlab.gnome.org/fractal/";
       source = "https://gitlab.gnome.org/World/fractal";
     };
 
