@@ -1,0 +1,104 @@
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+let
+  fetchers = {
+    path = pkg: pkg.source.path;
+
+    git =
+      let
+        forges = {
+          # forge = fetchFunction
+          codeberg = pkgs.fetchFromCodeberg;
+          forgejo = pkgs.fetchFromForgejo;
+          gitea = pkgs.fetchFromGitea;
+          github = pkgs.fetchFromGitHub;
+          gitlab = pkgs.fetchFromGitLab;
+        };
+
+        gitSchemas = lib.fix (self: {
+          "3" = [
+            "owner"
+            "repo"
+            "rev"
+          ];
+
+          "4" = [ "domain" ] ++ self."3";
+        });
+      in
+      pkg:
+      let
+        # Expected formats:
+        # - "forge:owner/repo/rev"
+        # - "forge:domain/owner/repo/rev"
+        parts = lib.splitString ":" pkg.source.git;
+        forge = lib.elemAt parts 0;
+        rest = lib.concatStringsSep ":" (lib.tail parts);
+      in
+      if forge == "git" then
+        let
+          # Split "https://host/path?key=value" into url and query
+          urlParts = lib.splitString "?" rest;
+          url = lib.elemAt urlParts 0;
+          queryAttrs =
+            let
+              # Parse key-value pairs into an attrset:
+              #   "key1=value1&key2=value2" -> { key1 = value; key2 = value2; }
+              parseQuery =
+                query:
+                lib.listToAttrs (
+                  map (
+                    param:
+                    let
+                      kv = lib.splitString "=" param;
+                    in
+                    lib.nameValuePair (lib.elemAt kv 0) (lib.elemAt kv 1)
+                  ) (lib.splitString "&" query)
+                );
+            in
+            if lib.length urlParts > 1 then parseQuery (lib.elemAt urlParts 1) else { };
+        in
+        pkgs.fetchgit (
+          lib.recursiveUpdate queryAttrs {
+            inherit url;
+            hash = pkg.source.hash;
+            fetchSubmodules = pkg.source.submodules;
+          }
+        )
+      else
+        let
+          pathParts = lib.splitString "/" rest;
+          schema = gitSchemas.${toString (lib.length pathParts)};
+
+          # assign each source attribute to its appropriate path part
+          sourceAttrs = lib.listToAttrs (lib.zipListsWith lib.nameValuePair schema pathParts);
+        in
+        forges.${forge} (
+          lib.recursiveUpdate sourceAttrs {
+            hash = pkg.source.hash;
+            fetchSubmodules = pkg.source.submodules;
+          }
+        );
+
+    url =
+      pkg:
+      pkgs.fetchurl {
+        url = pkg.source.url;
+        hash = pkg.source.hash;
+      };
+  };
+
+  # Determine which source type is used
+  sourceType =
+    pkg:
+    if pkg.source.path != null then
+      "path"
+    else if pkg.source.git != null then
+      "git"
+    else
+      "url";
+in
+fetchers.${sourceType config} config

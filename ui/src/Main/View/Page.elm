@@ -15,7 +15,7 @@ import Main.Update.Types exposing (..)
 import Main.View.Error exposing (..)
 import Main.View.Page.App exposing (..)
 import Main.View.Page.Apps exposing (..)
-import Main.View.Page.Packages exposing (..)
+import Main.View.Page.Pkgs exposing (..)
 import Main.View.Page.Recipe exposing (..)
 
 
@@ -28,8 +28,8 @@ viewPage model =
         Page_Apps pageApps ->
             viewPageApps model pageApps
 
-        Page_Packages pagePackages ->
-            viewPagePackages model pagePackages
+        Page_Pkgs pagePkgs ->
+            viewPagePkgs model pagePkgs
 
         Page_RecipeOptions pageRecipeOptions ->
             viewPageRecipeOptions model pageRecipeOptions

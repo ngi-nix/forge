@@ -1,47 +1,47 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
-  options.build.pnpmPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
-      PNPM package builder for JavaScript/TypeScript packages.
+      PNPM package builder for JavaScript and TypeScript packages.
 
-      Uses fetchPnpmDeps and stdenvNoCC.mkDerivation with pnpmConfigHook'';
+      Uses `fetchPnpmDeps` and `stdenvNoCC.mkDerivation` with `pnpmConfigHook`
+      from Nixpkgs, which builds Node.js packages using pnpm with a locked
+      dependency set from `pnpm-lock.yaml`.
+      Node.js and pnpm are automatically included as build-time dependencies.
 
-    packages = {
-      build = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Build-time dependencies (native architecture).
+      For more information, see the
+      [Nixpkgs Node.js documentation](https://nixos.org/manual/nixpkgs/unstable/#language-javascript)
+    '';
 
-          Tools needed during compilation that run on the build machine.
-        '';
-      };
-      run = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Runtime dependencies (target architecture).
+    pnpm = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.pnpm_10;
+      defaultText = lib.literalExpression "pkgs.pnpm_10";
+      description = ''
+        pnpm package used for fetching and building.
 
-          Libraries needed by the package at runtime.
-        '';
-      };
-      check = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = "Test dependencies.";
-      };
+        Pin pnpm to a specific package to avoid hash mismatch when the
+        pnpm version in nixpkgs changes.
+
+        Mapped to `pnpm`.
+      '';
+      example = lib.literalExpression "pkgs.pnpm_9";
     };
 
     fetcherVersion = lib.mkOption {
       type = lib.types.int;
       default = 3;
       description = ''
-        Version of the pnpm fetcher to use (passed to fetchPnpmDeps as fetcherVersion).
+        Version of the pnpm fetcher to use.
 
-        Version 3 supports pnpm lockfile v9 (pnpm >= 9). Use version 1 for older lockfiles.
+        Version 3 supports pnpm lockfile v9 (pnpm >= 9).
+        Use version 1 for older lockfiles.
+
+        Mapped to `fetcherVersion`.
       '';
       example = 1;
     };
@@ -50,9 +50,11 @@
       type = lib.types.str;
       default = "";
       description = ''
-        SHA256 hash of the fetched pnpm dependencies.
+        Hash of the fetched pnpm dependencies.
 
-        Leave empty initially - nix will provide the correct hash on first build.
+        Leave empty initially to let Nix print the correct hash on first build.
+
+        Mapped to `hash` in `fetchPnpmDeps`.
       '';
       example = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
@@ -60,14 +62,22 @@
     buildScript = lib.mkOption {
       type = lib.types.str;
       default = "build";
-      description = "The pnpm script to run for building (passed to pnpm run).";
-      example = "build";
+      description = ''
+        The pnpm script to run for building (`pnpm run <script>`).
+
+        Mapped to `buildScript`.
+      '';
+      example = "build:prod";
     };
 
     installDir = lib.mkOption {
-      type = lib.types.str;
-      default = "dist";
-      description = "Directory containing build output to install to \$out.";
+      type = with lib.types; nullOr str;
+      default = null;
+      description = ''
+        If not null, the directory containing the build output to install into `$out`.
+
+        Mapped to `installDir`.
+      '';
       example = "dist";
     };
 
@@ -75,9 +85,12 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
       description = ''
-        Path to the subdirectory within the source containing pnpm-lock.yaml.
-        Format: "source/<subdir>" (e.g. "source/frontend").
-        The builder will also set sourceRoot for the derivation to cd into this directory.
+        Path to the subdirectory within the source containing `pnpm-lock.yaml`.
+
+        Use this for monorepos where the pnpm workspace is not at the repository root.
+        Format: `"source/<subdir>"`.
+
+        Mapped to `sourceRoot`.
       '';
       example = "source/frontend";
     };

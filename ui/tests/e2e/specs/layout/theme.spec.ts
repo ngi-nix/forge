@@ -20,7 +20,7 @@ test("theme toggles between dark and light and updates icons", async ({ page, is
   const sunIcon = page.getByTestId("icon-sun").nth(index);
   const moonIcon = page.getByTestId("icon-moon").nth(index);
 
-  // only works becaue we set colorScheme in playwright.config.ts
+  // only works because we set colorScheme in playwright.config.ts
   await expect(html).toHaveAttribute("data-bs-theme", "dark");
   await expect(moonIcon).toBeVisible();
   await expect(sunIcon).toBeHidden();

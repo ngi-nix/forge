@@ -4,9 +4,14 @@
 }:
 {
   options = {
+    program = {
+      enable = lib.mkEnableOption ''
+        Program runtime
+      '';
+    };
     shell = {
       enable = lib.mkEnableOption ''
-        Programs shell environment
+        Shell runtime
       '';
     };
   };

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>NGI Forge - 404</title>
+		<script>
+			// Redirect NGIpkgs URLs
+			var match = window.location.pathname.match(/\/project\/(.*)/);
+			if (match) {
+				window.location.replace("https://ngi-nix.github.io/ngipkgs/project/" + match[1]);
+			}
+		</script>
+	</head>
+	<body>
+		<p>Page not found.</p>
+	</body>
+</html>

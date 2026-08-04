@@ -11,6 +11,8 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 jobs:
   test:
     name: Run tests
@@ -18,21 +20,23 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       # - name: Get more storage space
       #   uses: wimpysworld/nothing-but-nix@main
 
       - name: Install Nix
-        uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31.10.0
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
         with:
           name: ngi-forge
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Run checks
-        run: nix flake check --accept-flake-config --option sandbox relaxed
+        run: nix flake check --keep-going --accept-flake-config --max-jobs 1 --option sandbox relaxed
 
   lint:
     name: Run format checks
@@ -40,12 +44,14 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install Nix
-        uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31.10.0
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
         with:
           name: ngi-forge
 
@@ -61,29 +67,33 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           # Fetches the specific PR branch if manually dispatched, otherwise defaults to standard checkout
           ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', github.event.inputs.pr_number) || '' }}
+          persist-credentials: false
 
       - name: Save PR context
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "${{ github.event.inputs.pr_number }}" > pr-number.txt
+            echo "${GITHUB_EVENT_INPUTS_PR_NUMBER}" > pr-number.txt
             git rev-parse HEAD > pr-rev.txt
           else
             echo "${{ github.event.pull_request.number }}" > pr-number.txt
             echo "${{ github.event.pull_request.head.sha }}" > pr-rev.txt
           fi
+        env:
+          GITHUB_EVENT_INPUTS_PR_NUMBER: ${{ github.event.inputs.pr_number }}
 
       - name: Install Nix
-        uses: cachix/install-nix-action@19effe9fe722874e6d46dd7182e4b8b7a43c4a99 # v31.10.0
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
       # NOTE: no auth token, so read-only. because we will not be pushing anything here
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
         with:
           name: ngi-forge
 
+      # Main Forge UI
       - name: Encode version information
         run: |
           commit="${{ github.event.pull_request.head.sha || github.sha }}"
@@ -96,15 +106,45 @@ jobs:
           sed -i "s|<base href=\"/\"|<base href=\"/forge/\"|g" ui/src/index.html
 
       - name: Build UI
-        run: nix build .#_forge-ui --accept-flake-config
+        run: nix build .#_forge.ui --accept-flake-config
 
-      - name: Resolve Nix Symlink
+      - name: Resolve Nix symlink
         run: |
           mkdir -p deploy_dist/forge
           cp -rL result/. deploy_dist/forge/
+          cp deploy_dist/forge/404.html deploy_dist/404.html
 
-      - name: Upload preview ui
-        uses: actions/upload-artifact@v7
+      # Provider template UI
+      - name: Restore repository baseUrl
+        run: git checkout -- ui/src/Main/Model/Route.elm ui/src/index.html
+
+      - name: Initialize provider template
+        working-directory: /tmp
+        run: |
+          mkdir -p template-provider
+          cd template-provider
+          git init -q
+          nix flake init -t "${{ github.workspace }}#provider"
+          sed -i 's|ngi-forge.url = .*;|ngi-forge.url = "path:${{ github.workspace }}";|g' flake.nix
+          git add ./*
+
+      - name: Configure the provider baseUrl
+        run: |
+          sed -i "s|:baseUrl|/templates/provider/|g" ui/src/Main/Model/Route.elm
+          sed -i "s|<base href=\"/\"|<base href=\"/templates/provider/\"|g" ui/src/index.html
+
+      - name: Build provider template UI
+        working-directory: /tmp/template-provider
+        run: nix build .#_forge.ui --accept-flake-config
+
+      - name: Resolve provider template Nix symlink
+        run: |
+          mkdir -p deploy_dist/templates/provider
+          cp -rL /tmp/template-provider/result/. deploy_dist/templates/provider/
+
+      # Deployment
+      - name: Upload preview UI
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ui-build-preview
           path: |

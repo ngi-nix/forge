@@ -5,12 +5,10 @@ This software is in active development. Expect backwards incompatible changes.
 ## Features
 
 - Simple, type checked configuration recipes for **packages** and
-  **mutli-component applications** using
+  **multi-component applications** using
   [module system](https://nix.dev/tutorials/module-system/index.html)
 
 - [Web UI](https://ngi-nix.github.io/forge)
-
-- [LLMs support](./AGENTS.md)
 
 - Easy [self hosting](#self-hosting)
 
@@ -68,9 +66,19 @@ nix flake init --template github:ngi-nix/forge#provider
 
 - Start creating recipes in `recipes` directory
 
-## LLM agents
+## Nixpkgs repository
 
-LLM agents, read [these instructions](./AGENTS.md) first.
+We package and maintain some NGI software in
+[Nixpkgs](https://github.com/NixOS/nixpkgs) and re-use it in the Forge
+application recipes.
+
+Get a list of packages maintained in Nixpkgs
+
+```bash
+nix eval --json -f maintainers/list-nixpkgs.nix packages
+```
+
+[![Nixpkgs build status](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml/badge.svg)](https://github.com/ngi-nix/forge/actions/workflows/nixpkgs-build-status.yml)
 
 ## Credits
 

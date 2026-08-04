@@ -20,7 +20,9 @@ test.describe("App Details Page", () => {
     const links = resources.locator("a");
     await expect(await links.count()).toBeGreaterThan(0);
 
-    await expect(resources).toContainText(/Forge Recipe/i);
+    const recipeLink = resources.locator("a", { hasText: /Forge Recipe/i });
+    await expect(recipeLink).toBeVisible();
+    await expect(recipeLink).toHaveAttribute("href", new RegExp(`blob/.*/recipes/apps/${TEST_APP_NAME}/recipe.nix`));
   });
 
   test("shows NGI grants section if available", async ({ page }) => {

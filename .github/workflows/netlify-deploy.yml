@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Download PR artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ui-build-preview
           run-id: ${{ github.event.workflow_run.id }}
@@ -44,7 +44,7 @@ jobs:
 
       - name: Set Pending Status
         if: env.PR_REV != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -63,7 +63,7 @@ jobs:
         run: echo "month=$(date +'%Y-%m')" >> "$GITHUB_OUTPUT"
 
       - name: Cache npx
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         if: env.PR_NUMBER != ''
         with:
           path: ~/.npm/_npx
@@ -79,8 +79,8 @@ jobs:
         run: |
           npx netlify-cli deploy \
             --dir=deploy_dist \
-            --alias="pr-${{ env.PR_NUMBER }}" \
-            --message="PR Preview for PR #${{ env.PR_NUMBER }}" \
+            --alias="pr-${PR_NUMBER}" \
+            --message="PR Preview for PR #${PR_NUMBER}" \
             | tee deploy_output.txt
 
           PREVIEW_URL=$(grep 'Draft URL:' deploy_output.txt | awk '{print $3}' | tr -d '<>')
@@ -91,18 +91,20 @@ jobs:
 
           {
             echo "PREVIEW_URL=$PREVIEW_URL/forge"
+            echo "EXAMPLES_URL=$PREVIEW_URL/templates/provider"
             echo "DEPLOY_URL=$DEPLOY_URL"
             echo "DEPLOY_ID=$DEPLOY_ID"
           } >>"$GITHUB_ENV"
 
       - name: Post PR Comment
         if: env.PR_NUMBER != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER, 10);
             const previewUrl = process.env.PREVIEW_URL;
+            const examplesUrl = process.env.EXAMPLES_URL;
             const deployUrl = process.env.DEPLOY_URL;
 
             const rev = process.env.PR_REV || 'unknown';
@@ -113,6 +115,7 @@ jobs:
 
             const prDeployLine = `- Visit: ${previewUrl} (This url will not change for new commits in this pr)`;
             const currentDeployLine = `- Unique snapshot URL: ${deployUrl} _(for commit [${shortRev}](${commitUrl}))_`;
+            const examplesDeployLine = `- Example apps: ${examplesUrl} (from _provider_ Flake template)`;
 
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -138,6 +141,7 @@ jobs:
               '',
               prDeployLine,
               currentDeployLine,
+              examplesDeployLine,
               ''
             ];
 
@@ -180,7 +184,7 @@ jobs:
 
       - name: Set Success Status
         if: env.PR_REV != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -197,7 +201,7 @@ jobs:
       - name: Set Failure Status
         # Only runs if a previous step failed, ensuring the PR isn't stuck "pending"
         if: failure() && env.PR_REV != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -216,18 +220,23 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DEPLOY_ID=$(echo '{
-            "ref": "${{ env.PR_REV }}",
-            "environment": "Preview PR-${{ env.PR_NUMBER }}",
+          DEPLOY_JSON=$(cat <<EOF
+          {
+            "ref": "${PR_REV}",
+            "environment": "Preview PR-${PR_NUMBER}",
             "description": "Netlify PR Preview",
             "transient_environment": true,
             "auto_merge": false,
             "required_contexts": []
-          }' | gh api --method POST repos/${{ github.repository }}/deployments --input - --jq '.id')
+          }
+          EOF
+          )
+
+          DEPLOY_ID=$(echo "$DEPLOY_JSON" | gh api --method POST repos/${{ github.repository }}/deployments --input - --jq '.id')
 
           echo "Created Deployment ID: $DEPLOY_ID"
 
           gh api --method POST repos/${{ github.repository }}/deployments/"$DEPLOY_ID"/statuses \
             -f state="success" \
-            -f environment_url="${{ env.DEPLOY_URL }}" \
+            -f environment_url="${DEPLOY_URL}" \
             -f description="Preview is ready!"

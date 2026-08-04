@@ -36,6 +36,7 @@ type Update
     | Update_CycleTheme
     | Update_Focus String
     | Update_SetPreferences Preferences
+    | Update_DismissFeedback
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState
     | Update_Search Search

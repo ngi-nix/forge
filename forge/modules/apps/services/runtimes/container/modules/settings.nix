@@ -1,7 +1,12 @@
 {
   app,
 
-  config,
+  service,
+  serviceName,
+  runtimeConfig ? {
+    setup = "";
+    packages = [ ];
+  },
   pkgs,
   lib,
   ...
@@ -10,42 +15,54 @@
   binName = "${app.name}-service";
 
   container = {
-    copyToRoot = pkgs.buildEnv {
-      name = "runtime-bins";
-      paths = config.packages;
-      pathsToLink = [ "/bin" ];
-    };
+    copyToRoot =
+      let
+        uid = "1001";
+        gid = "1001";
+        etcFiles = pkgs.runCommand "etc-${serviceName}" { } ''
+          mkdir -p $out/etc
+          echo 'root:x:0:0:root:/root:/bin/sh' > $out/etc/passwd
+          echo '${serviceName}:x:${uid}:${gid}:${serviceName}:${service.process.stateDir}:/sbin/nologin' >> $out/etc/passwd
+          echo 'root:x:0:' > $out/etc/group
+          echo '${serviceName}:x:${gid}:' >> $out/etc/group
+          echo 'root:!:0::::::' > $out/etc/shadow
+          echo '${serviceName}:!:1::::::' >> $out/etc/shadow
+          echo 'hosts: files dns' > $out/etc/nsswitch.conf
+        '';
+      in
+      pkgs.buildEnv {
+        name = "runtime-bins";
+        paths = [
+          etcFiles
+        ]
+        ++ service.process.packages
+        ++ runtimeConfig.packages
+        ++ service.healthcheck.packages;
+        pathsToLink = [
+          "/bin"
+          "/etc"
+        ];
+      };
 
-    imageConfig = config.extraConfig // {
+    imageConfig = {
+      WorkingDir = service.process.stateDir;
+      User = if service.process.user == "root" then "root" else serviceName;
+      Volumes = {
+        "${service.process.stateDir}" = { };
+      };
       Env =
         let
-          # { K = "V"; } -> [ "K=V" ]
           envAttrsToList = attrs: lib.mapAttrsToList (n: v: "${n}=${v}") attrs;
-
-          appEnv = lib.concatMapAttrs (_: value: value.environment) app.services.components;
-
-          # extraConfig.Env follows OCI spec: list of "K=V" strings
-          containerEnv = lib.listToAttrs (
-            map (
-              envPair:
-              let
-                parts = lib.splitString "=" envPair;
-              in
-              {
-                name = lib.head parts;
-                value = lib.concatStringsSep "=" (lib.tail parts);
-              }
-            ) (config.extraConfig.Env or [ ])
-          );
-
-          # NOTE: we merge Attrs to remove duplicate keys
-          envList = appEnv // containerEnv;
         in
-        envAttrsToList envList;
+        envAttrsToList service.process.environment;
+      Labels = {
+        ngi-forge = "true";
+        "ngi-forge.type" = "component";
+      };
     };
   };
 
-  startup.runOnStartup = lib.mkIf (config.setup != "") (
-    pkgs.writeShellScript "container-setup" config.setup
+  startup.runOnStartup = lib.mkIf (runtimeConfig.setup != "") (
+    pkgs.writeShellScript "container-setup" runtimeConfig.setup
   );
 }

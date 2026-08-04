@@ -1,5 +1,5 @@
 {
-  description = "NGI Forge";
+  description = "NGI Forge provider";
 
   nixConfig = {
     extra-substituters = [ "https://ngi-forge.cachix.org" ];
@@ -10,32 +10,29 @@
 
   inputs = {
     ngi-forge.url = "github:ngi-nix/forge";
-    elm2nix.follows = "ngi-forge/elm2nix";
-    flake-parts.follows = "ngi-forge/flake-parts";
-    nimi.follows = "ngi-forge/nimi";
-    nixpkgs.follows = "ngi-forge/nixpkgs";
-    nix-utils.follows = "ngi-forge/nix-utils";
   };
 
   outputs =
-    inputs@{ flake-parts, ngi-forge, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
+    { self, ... }@inputs:
+    inputs.ngi-forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      imports = [ ngi-forge.flakeModules.provider ];
-
-      flake.flakeModules = ngi-forge.flakeModules;
+      imports = [ inputs.ngi-forge.flakeModules.base ];
 
       perSystem =
         { system, ... }:
         {
-          _module.args.nimi = inputs.nimi.packages.${system}.nimi;
-
           forge = {
-            repositoryUrl = "github:me/my-forge";
-            recipeDirs = {
-              packages = "recipes/packages";
-              apps = "recipes/apps";
-            };
+            # Configuration
+
+            # Set Forge repository URL
+            # e.g. "github:username/my-forge"
+            repositoryUrl = "github:ngi-nix/forge";
+
+            # Set maintainers
+            maintainerLists = [ ./maintainers/maintainer-list.nix ];
+
+            # Import recipe files
+            imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
           };
         };
     };

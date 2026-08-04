@@ -67,7 +67,7 @@ viewNodes page inh tree =
             tree |> Tree.children |> List.partition (Tree.children >> List.isEmpty)
 
         childrenHtml =
-            [ nodeChildrenLeaves, nodeChildrenBranches ]
+            [ nodeChildrenBranches, nodeChildrenLeaves ]
                 |> List.concatMap (List.map (viewNodes page childrenInh))
 
         shown =

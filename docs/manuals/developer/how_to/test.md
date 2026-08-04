@@ -2,6 +2,12 @@
 
 ## How to test the UI
 
+There are two commands available to run the elm UI in the project devshell.
+
+- `forge-ui` serves the production UI locally.
+- `dev-ui` serves a UI with generated apps meant to be used for testing purposes
+  and for faster iteration on UI changes.
+
 ### Basic test
 
 Run basic tests using [Playwright](https://playwright.dev/):
@@ -12,9 +18,8 @@ dev-ui
 test-ui --project=chromium
 ```
 
-::: {note}
-`test-ui` is a shell wrapper around `playwright test -c ui/tests/e2e` without
-any extra arguments forwarded to that command.
+::: {note} `test-ui` is a shell wrapper around `playwright test -c ui/tests/e2e`
+without any extra arguments forwarded to that command.
 
 :::
 

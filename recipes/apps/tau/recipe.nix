@@ -1,0 +1,86 @@
+{
+  pkgs,
+  ...
+}:
+
+{
+  apps.tau = {
+    displayName = "Tau";
+    description = "Web radio streaming system.";
+
+    usage = ''
+      This app provides both the _tau-tower_ server and the _tau-radio_ client.
+
+      #### Tau Tower
+      Service for broadcasting audio to clients.
+
+      Ports
+      - Listen: 3001
+      - Broadcast: 3002
+
+
+      #### Tau Radio
+      Client CLI for capturing audio from your device and streaming it to _tau-tower_.
+
+      Usage:
+
+      ```
+      tau-radio --username <user> --password <pass> --ip <server-ip> --port <server-port>
+      ```
+
+    '';
+
+    links = {
+      source = "https://github.com/tau-org";
+    };
+
+    ngi.grants = {
+      Core = [
+        "Tau"
+      ];
+    };
+
+    programs = {
+      packages = [
+        pkgs.tau-radio
+      ];
+      runtimes.shell.enable = true;
+    };
+
+    services = {
+      components.tau-tower = {
+        process.command = pkgs.tau-tower;
+        process.configData."tau/tower.toml" = {
+          source = ./config.toml;
+          path = "tau/tower.toml";
+        };
+        process.ports = [
+          "3001:3001"
+          "3002:3002"
+        ];
+      };
+
+      runtimes = {
+        container = {
+          enable = true;
+          components.tau-tower.packages = [
+            pkgs.tau-tower
+          ];
+        };
+
+        nixos = {
+          enable = true;
+          packages = [
+            pkgs.tau-tower
+          ];
+        };
+      };
+    };
+
+    test.services.script = ''
+      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+
+      $curl localhost:3002 | grep "Audio Stream"
+    '';
+  };
+}

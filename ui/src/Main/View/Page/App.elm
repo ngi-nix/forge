@@ -24,7 +24,8 @@ viewPageApp model pageApp =
         [ div [ class "row" ]
             [ div
                 [ class "col-12 col-lg-9" ]
-                [ viewPageAppHeader model pageApp
+                [ viewPageAppFeedback model
+                , viewPageAppHeader model pageApp
                 , viewPageAppDescription model pageApp
                 , viewPageAppRun model pageApp
                 ]
@@ -33,6 +34,7 @@ viewPageApp model pageApp =
                 [ viewPageAppResources model pageApp
                 , viewPageAppNgiGrants model pageApp
                 , viewPageAppConfiguration model pageApp
+                , viewPageAppMaintainers model pageApp
                 ]
             ]
         ]
@@ -85,6 +87,30 @@ viewPageAppHeader _ pageApp =
         ]
 
 
+viewPageAppFeedback : Model -> Html Update
+viewPageAppFeedback model =
+    if not model.model_askFeedback then
+        text ""
+
+    else
+        div [ class "alert alert-info alert-dismissible mt-3", attribute "data-testid" "feedback-message" ]
+            [ text "Tried this app? We'd love to "
+            , a
+                [ href "https://cryptpad.ngi.nixos.org/form/#/2/form/view/3X1lzb3+XxsLUq-TygwGn-R3aHcvwuNo3L7Ya8Z1VWo/"
+                , target "_blank"
+                , rel "noopener"
+                ]
+                [ text "know how it went" ]
+            , text "."
+            , button
+                [ class "btn-close"
+                , attribute "aria-label" "Close"
+                , onClick Update_DismissFeedback
+                ]
+                []
+            ]
+
+
 viewPageAppDescription : Model -> PageApp -> Html Update
 viewPageAppDescription model pageApp =
     div []
@@ -111,11 +137,69 @@ viewPageAppUsage _ pageApp =
         text ""
 
 
+viewBulletList : List (Html Update) -> Html Update
+viewBulletList items =
+    ul
+        [ class "ms-2 mb-3"
+        , style "list-style-type" "disc"
+        , style "padding-left" "1.2em"
+        ]
+        items
+
+
+viewPortList : List String -> Html Update
+viewPortList ports =
+    if List.isEmpty ports then
+        text ""
+
+    else
+        ul
+            [ class "ms-3 mb-1"
+            , style "list-style-type" "none"
+            , style "padding" "0px"
+            ]
+            (List.map
+                (\p -> li [] [ small [ class "text-body-secondary" ] [ text (String.replace ":" " → " p) ] ])
+                ports
+            )
+
+
+viewResource : ( String, AppResource ) -> Html Update
+viewResource ( rname, resource ) =
+    div []
+        [ small [ class "text-body-secondary" ] [ text rname ]
+        , viewPortList resource.appResource_ports
+        ]
+
+
+viewComponent : ( String, AppComponent ) -> Html Update
+viewComponent ( cname, component ) =
+    li []
+        [ small [] [ text cname ]
+        , viewPortList component.appComponent_ports
+        , if Dict.isEmpty component.appComponent_resources then
+            text ""
+
+          else
+            div [ class "ms-2" ]
+                (component.appComponent_resources
+                    |> Dict.toList
+                    |> List.map viewResource
+                )
+        ]
+
+
 viewPageAppConfiguration : Model -> PageApp -> Html Update
 viewPageAppConfiguration _ pageApp =
     let
         routeApp =
             pageApp.pageApp_route
+
+        packageNames =
+            getAppProgramPackageNames pageApp.pageApp_app.app_programs
+
+        components =
+            pageApp.pageApp_app.app_services.appServices_components
     in
     div
         [ class "box-container target-highlight mb-3"
@@ -136,21 +220,25 @@ viewPageAppConfiguration _ pageApp =
                 ]
                 []
             ]
-        , if List.isEmpty pageApp.pageApp_app.app_services.appServices_ports then
+        , if List.isEmpty packageNames then
             text ""
 
           else
             div []
                 [ div [ class "ms-2 mb-1" ]
-                    [ small [ class "text-body-secondary" ] [ text "Forwarded Ports" ] ]
-                , ul
-                    [ class "mb-3 ms-4"
-                    , style "list-style-type" "none"
-                    , style "padding" "0px"
-                    ]
-                    (pageApp.pageApp_app.app_services.appServices_ports
-                        |> List.map (\p -> li [] [ text (String.replace ":" " → " p) ])
-                    )
+                    [ small [ class "text-body-secondary" ] [ text "Programs" ] ]
+                , viewBulletList
+                    (List.map (\n -> li [] [ small [] [ text n ] ]) packageNames)
+                ]
+        , if Dict.isEmpty components then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Services" ] ]
+                , viewBulletList
+                    (components |> Dict.toList |> List.map viewComponent)
                 ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]
@@ -190,7 +278,7 @@ viewPageAppResources model pageApp =
                 ]
                 []
             ]
-        , ul [ class "", style "padding-left" "10px" ]
+        , ul [ style "padding-left" "10px" ]
             (List.concat
                 [ viewPageAppResourcesItem "Homepage" pageApp.pageApp_app.app_links.appLinks_website
                 , viewPageAppResourcesItem "Documentation" pageApp.pageApp_app.app_links.appLinks_docs
@@ -198,6 +286,62 @@ viewPageAppResources model pageApp =
                 , viewPageAppResourcesItem "Forge Recipe" (Just (showAppRecipeLink model pageApp.pageApp_app))
                 ]
             )
+        ]
+
+
+viewPageAppMaintainers : Model -> PageApp -> Html msg
+viewPageAppMaintainers _ pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+    in
+    if List.isEmpty pageApp.pageApp_app.app_maintainers then
+        text ""
+
+    else
+        div
+            [ class "box-container target-highlight mb-3"
+            , id (showRouteAppFocus RouteAppFocus_Maintainers)
+            , tabindex -1
+            ]
+            [ h6
+                [ class "mt-3 mb-3 ms-2"
+                ]
+                [ text "Maintainers"
+                , a
+                    [ class "anchor-link"
+                    , href
+                        ({ routeApp | routeApp_focus = Just RouteAppFocus_Maintainers }
+                            |> Route_App
+                            |> routeToString
+                        )
+                    ]
+                    []
+                ]
+            , ul [ style "padding-left" "10px" ]
+                (List.map viewMaintainerItem pageApp.pageApp_app.app_maintainers)
+            ]
+
+
+maintainerGithubUrl : String -> String
+maintainerGithubUrl handle =
+    "https://github.com/" ++ handle
+
+
+viewMaintainerItem : Maintainer -> Html msg
+viewMaintainerItem m =
+    li [ class "list-group-item bg-transparent px-0 mb-1" ]
+        [ case m.maintainer_github of
+            Just handle ->
+                a
+                    [ href (maintainerGithubUrl handle)
+                    , target "_blank"
+                    , rel "noopener"
+                    ]
+                    [ text m.maintainer_name ]
+
+            Nothing ->
+                text m.maintainer_name
         ]
 
 

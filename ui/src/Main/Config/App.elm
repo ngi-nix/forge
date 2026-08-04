@@ -7,6 +7,7 @@ import Main.Helpers.Json.Decode as Decode
 
 type alias App =
     { app_name : AppName
+    , app_outputName : AppName
     , app_displayName : String
     , app_description : String
     , app_usage : String
@@ -15,6 +16,7 @@ type alias App =
     , app_ngi : Ngi
     , app_links : AppLinks
     , app_recipePath : String
+    , app_maintainers : List Maintainer
     }
 
 
@@ -22,6 +24,7 @@ decodeApp : Decoder App
 decodeApp =
     App
         |> Decode.flipMap (Decode.field "name" Decode.string)
+        |> Decode.andMap (Decode.field "outputName" Decode.string)
         |> Decode.andMap (Decode.field "displayName" Decode.string)
         |> Decode.andMap (Decode.field "description" Decode.string)
         |> Decode.andMap (Decode.field "usage" Decode.string)
@@ -30,10 +33,16 @@ decodeApp =
         |> Decode.andMap (Decode.field "ngi" decodeNgi)
         |> Decode.andMap (Decode.field "links" decodeAppLinks)
         |> Decode.andMap (Decode.field "recipePath" Decode.string)
+        |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
 
 
 type alias AppName =
     String
+
+
+type alias AppProgramsRuntimesProgram =
+    { enable : Bool
+    }
 
 
 type alias AppProgramsRuntimesShell =
@@ -42,25 +51,39 @@ type alias AppProgramsRuntimesShell =
 
 
 type alias AppProgramsRuntimes =
-    { appProgramsRuntimes_shell : AppProgramsRuntimesShell
+    { appProgramsRuntimes_program : AppProgramsRuntimesProgram
+    , appProgramsRuntimes_shell : AppProgramsRuntimesShell
     }
 
 
 type alias AppPrograms =
     { appPrograms_runtimes : AppProgramsRuntimes
+    , appPrograms_runProgram : String
+    , appPrograms_packages : List String
+    , appPrograms_mainPackage : Maybe String
     }
 
 
 decodeAppPrograms : Decoder AppPrograms
 decodeAppPrograms =
-    Decode.map AppPrograms
+    Decode.map4 AppPrograms
         (Decode.field "runtimes" decodeAppProgramsRuntimes)
+        (Decode.field "runProgram" Decode.string)
+        (Decode.field "packages" (Decode.list Decode.string))
+        (Decode.field "mainPackage" (Decode.nullable Decode.string))
 
 
 decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes
 decodeAppProgramsRuntimes =
-    Decode.map AppProgramsRuntimes
+    Decode.map2 AppProgramsRuntimes
+        (Decode.field "program" decodeAppProgramsRuntimesProgram)
         (Decode.field "shell" decodeAppProgramsRuntimesShell)
+
+
+decodeAppProgramsRuntimesProgram : Decoder AppProgramsRuntimesProgram
+decodeAppProgramsRuntimesProgram =
+    Decode.map AppProgramsRuntimesProgram
+        (Decode.field "enable" Decode.bool)
 
 
 decodeAppProgramsRuntimesShell : Decoder AppProgramsRuntimesShell
@@ -69,8 +92,32 @@ decodeAppProgramsRuntimesShell =
         (Decode.field "enable" Decode.bool)
 
 
+type alias AppResource =
+    { appResource_ports : List String
+    }
+
+
+decodeAppResource : Decoder AppResource
+decodeAppResource =
+    Decode.map AppResource
+        (Decode.field "ports" (Decode.list Decode.string))
+
+
+type alias AppComponent =
+    { appComponent_ports : List String
+    , appComponent_resources : Dict String AppResource
+    }
+
+
+decodeAppComponent : Decoder AppComponent
+decodeAppComponent =
+    Decode.map2 AppComponent
+        (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
+        (Decode.field "resources" (Decode.dict decodeAppResource))
+
+
 type alias AppServices =
-    { appServices_ports : List String
+    { appServices_components : Dict String AppComponent
     , appServices_runtimes : AppServicesRuntimes
     }
 
@@ -78,7 +125,7 @@ type alias AppServices =
 decodeAppServices : Decoder AppServices
 decodeAppServices =
     Decode.map2 AppServices
-        (Decode.field "ports" (Decode.list Decode.string))
+        (Decode.field "components" (Decode.dict decodeAppComponent))
         (Decode.field "runtimes" decodeAppServicesRuntimes)
 
 
@@ -162,7 +209,8 @@ type alias NgiSubgrantName =
 
 
 type AppRuntime
-    = AppRuntime_Shell
+    = AppRuntime_Program
+    | AppRuntime_Shell
     | AppRuntime_Container
     | AppRuntime_NixOS
 
@@ -170,6 +218,9 @@ type AppRuntime
 hasAppRuntime : AppRuntime -> App -> Bool
 hasAppRuntime appRuntime app =
     case appRuntime of
+        AppRuntime_Program ->
+            app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable
+
         AppRuntime_Shell ->
             app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable
 
@@ -182,7 +233,8 @@ hasAppRuntime appRuntime app =
 
 listAppRuntime : List AppRuntime
 listAppRuntime =
-    [ AppRuntime_Shell
+    [ AppRuntime_Program
+    , AppRuntime_Shell
     , AppRuntime_Container
     , AppRuntime_NixOS
     ]
@@ -190,7 +242,12 @@ listAppRuntime =
 
 listAppRuntimeAvailable : App -> List AppRuntime
 listAppRuntimeAvailable app =
-    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
+    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+        [ AppRuntime_Program ]
+
+      else
+        []
+    , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
         [ AppRuntime_Shell ]
 
       else
@@ -212,6 +269,9 @@ listAppRuntimeAvailable app =
 showAppRuntime : AppRuntime -> String
 showAppRuntime r =
     case r of
+        AppRuntime_Program ->
+            "Program"
+
         AppRuntime_Shell ->
             "Shell"
 
@@ -232,6 +292,73 @@ type alias AppLinks =
 decodeAppLinks : Decoder AppLinks
 decodeAppLinks =
     Decode.map3 AppLinks
-        (Decode.maybe (Decode.at [ "docs", "url" ] Decode.string))
-        (Decode.maybe (Decode.at [ "source", "url" ] Decode.string))
-        (Decode.maybe (Decode.at [ "website", "url" ] Decode.string))
+        (Decode.maybe (Decode.field "docs" Decode.string))
+        (Decode.maybe (Decode.field "source" Decode.string))
+        (Decode.maybe (Decode.field "website" Decode.string))
+
+
+storePathToName : String -> String
+storePathToName path =
+    let
+        basename =
+            path |> String.split "/" |> List.reverse |> List.head |> Maybe.withDefault path
+
+        -- Nix store basenames are "<32-char-hash>-<name>", drop hash and separator
+        hashLength =
+            33
+    in
+    String.dropLeft hashLength basename
+
+
+getAppProgramPackageNames : AppPrograms -> List String
+getAppProgramPackageNames programs =
+    let
+        main =
+            programs.appPrograms_mainPackage |> Maybe.map List.singleton |> Maybe.withDefault []
+    in
+    (main ++ programs.appPrograms_packages)
+        |> List.map storePathToName
+        |> List.sort
+        |> deduplicate
+
+
+deduplicate : List String -> List String
+deduplicate =
+    List.foldr
+        (\x acc ->
+            if List.member x acc then
+                acc
+
+            else
+                x :: acc
+        )
+        []
+
+
+getAppServicesPorts : AppServices -> List String
+getAppServicesPorts services =
+    services.appServices_components
+        |> Dict.toList
+        |> List.concatMap
+            (\( _, component ) ->
+                component.appComponent_ports
+                    ++ (component.appComponent_resources
+                            |> Dict.toList
+                            |> List.concatMap (Tuple.second >> .appResource_ports)
+                       )
+            )
+
+
+type alias Maintainer =
+    { maintainer_name : String
+    , maintainer_github : Maybe String
+    , maintainer_email : Maybe String
+    }
+
+
+decodeMaintainer : Decoder Maintainer
+decodeMaintainer =
+    Decode.map3 Maintainer
+        (Decode.field "name" Decode.string)
+        (Decode.maybe (Decode.field "github" Decode.string))
+        (Decode.maybe (Decode.field "email" Decode.string))

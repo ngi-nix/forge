@@ -1,49 +1,50 @@
-{ inputs, ... }:
+{ forge-inputs, ... }:
 {
   perSystem =
     {
-      self',
       pkgs,
       lib,
+      system,
       ...
     }:
 
     let
-      formatter = pkgs.callPackage ./formatter.nix { inherit inputs; };
-      devShell = pkgs.callPackage ./devshell.nix { inherit inputs formatter; };
+      formatter = pkgs.callPackage ./formatter.nix { inputs = forge-inputs; };
+      devShell = pkgs.callPackage ./devshell.nix {
+        inputs = forge-inputs;
+        inherit formatter;
+      };
 
-      sphinxEnv = pkgs.python3.withPackages (
-        ps: with ps; [
-          linkify-it-py
-          sphinx
-          myst-parser
-          sphinx-book-theme
-          sphinx-copybutton
-          sphinx-design
-          sphinx-sitemap
-          sphinx-notfound-page
-        ]
-      );
+      sphinxEnv = pkgs.python3.withPackages (pyPkgs: [
+        pyPkgs.linkify-it-py
+        pyPkgs.sphinx
+        pyPkgs.myst-parser
+        pyPkgs.sphinx-book-theme
+        pyPkgs.sphinx-copybutton
+        pyPkgs.sphinx-design
+        pyPkgs.sphinx-sitemap
+        pyPkgs.sphinx-notfound-page
+      ]);
 
-      devPkgs = with pkgs; [
-        dive
-        elmPackages.elm
-        elmPackages.elm-language-server
-        elmPackages.elm-review
-        elmPackages.elm-test
-        elmPackages.elm-test-rs
-        esbuild
-        gnumake
-        json-diff
-        nixfmt
-        nodejs
-        playwright-test
-        podman-compose
-        self'.packages.elm-watch
-        self'.packages.elm2nix
+      devPkgs = [
+        pkgs.dive
+        pkgs.elmPackages.elm
+        pkgs.elmPackages.elm-language-server
+        pkgs.elmPackages.elm-review
+        pkgs.elmPackages.elm-test
+        pkgs.elmPackages.elm-test-rs
+        pkgs.esbuild
+        pkgs.gnumake
+        pkgs.json-diff
+        pkgs.nixfmt
+        pkgs.nodejs
+        pkgs.playwright-test
+        pkgs.podman-compose
+        pkgs.systemd-manager-tui
+        pkgs.watchman
+        forge-inputs.self.legacyPackages.${system}.elm-watch
+        forge-inputs.self.legacyPackages.${system}.elm2nix
         sphinxEnv
-        systemd-manager-tui
-        watchman
       ];
     in
 

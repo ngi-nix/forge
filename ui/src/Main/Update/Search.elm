@@ -33,18 +33,18 @@ routeSearch model search =
                     , routeApps_pagination = { routePagination | routePagination_current = Nothing }
                 }
 
-        Page_Packages pagePackages ->
+        Page_Pkgs pagePkgs ->
             let
-                routePackages =
-                    pagePackages.pagePackages_route
+                routePkgs =
+                    pagePkgs.pagePkgs_route
 
                 routePagination =
-                    routePackages.routePackages_pagination
+                    routePkgs.routePkgs_pagination
             in
-            Route_Packages
-                { routePackages
-                    | routePackages_search = search
-                    , routePackages_pagination = { routePagination | routePagination_current = Nothing }
+            Route_Pkgs
+                { routePkgs
+                    | routePkgs_search = search
+                    , routePkgs_pagination = { routePagination | routePagination_current = Nothing }
                 }
 
         Page_RecipeOptions pageRecipeOptions ->

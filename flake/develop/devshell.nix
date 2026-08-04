@@ -17,7 +17,7 @@ let
 
       {33}❄️ Welcome to NGI Forge{reset}
 
-      {85}📖 Website: https://ngi-nix.github.io/forge 💬 Chat: #ngipkgs:nixos.org (Matrix){reset}
+      {85}📖 Website: https://ngi-nix.github.io/forge 💬 Chat: #ngipkgs:matrix.org (Matrix){reset}
       $(type -p menu &>/dev/null && menu)
 
       {123}Tip:{reset} DEVSHELL_NO_MOTD=1 will disable this welcome message
@@ -79,7 +79,7 @@ let
     # also can use devshell.startup.* or devshell.interactive.* with lib.noDepEntry
     devshell.startup.bash_extra_more = lib.noDepEntry final.shellHook;
 
-    # disables devshell to change the prompt in anyway
+    # disables devshell to change the prompt in any way
     devshell.interactive.PS1 = lib.noDepEntry "";
 
     # default empty shellHook, implies no override

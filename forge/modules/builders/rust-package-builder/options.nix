@@ -6,53 +6,26 @@
   ...
 }:
 {
-  options.build.rustPackageBuilder = {
+  options = {
     enable = lib.mkEnableOption ''
-      Rust package builder for reusable Rust crates.
+      Rust package builder for applications and libraries.
 
-      Uses rustPlatform.buildRustPackage'';
+      Uses `rustPlatform.buildRustPackage` from Nixpkgs, which builds Rust
+      packages using Cargo with a vendored dependency set locked by `Cargo.lock`.
 
-    packages = {
-      build = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Build-time dependencies (native architecture).
-
-          Tools needed during compilation that run on the build machine.
-        '';
-        example = lib.literalExpression "[ pkgs.pkg-config pkgs.rustPlatform.bindgenHook ]";
-      };
-      run = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Runtime dependencies (target architecture).
-
-          Libraries needed by the package at runtime.
-        '';
-        example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.libopus ]";
-      };
-      check = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
-        default = [ ];
-        description = ''
-          Test dependencies.
-
-          Packages needed to run Rust tests.
-        '';
-        example = lib.literalExpression "[ pkgs.cargo-nextest ]";
-      };
-    };
+      For more information, see the
+      [Nixpkgs Rust documentation](https://nixos.org/manual/nixpkgs/unstable/#rust)
+    '';
 
     cargoHash = lib.mkOption {
       type = lib.types.str;
       default = "";
       description = ''
-        SHA256 hash of the Cargo.lock file or source.
+        Hash of the Cargo dependencies vendored from `Cargo.lock`.
 
-        For git sources without Cargo.lock, this is the source hash.
-        Leave empty initially - nix will provide the correct hash on first build.
+        Leave empty initially to let Nix print the correct hash on first build.
+
+        Mapped to `cargoHash`.
       '';
       example = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
@@ -61,12 +34,11 @@
       type = lib.types.listOf lib.types.str;
       default = [ ];
       description = ''
-        Additional flags to pass to cargo build.
+        Additional flags passed to `cargo build`.
+
+        Mapped to `cargoBuildFlags`.
       '';
-      example = [
-        "--release"
-        "--features enable-feature"
-      ];
+      example = lib.literalExpression ''[ "--features" "enable-feature" ]'';
     };
   };
 }

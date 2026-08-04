@@ -79,7 +79,12 @@ viewPageAppsApp _ _ app =
             ]
             [ small []
                 (List.concat
-                    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
+                    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "program" ] ]
+
+                      else
+                        []
+                    , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
                         [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "shell" ] ]
 
                       else

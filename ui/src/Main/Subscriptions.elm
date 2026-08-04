@@ -80,8 +80,9 @@ decodeAmbientKeyPress =
         )
         (Decode.field "key" Decode.string)
         (Decode.at [ "target", "nodeName" ] Decode.string)
-        (Decode.oneOf
-            [ Decode.field "ctrlKey" Decode.bool
-            , Decode.field "metaKey" Decode.bool
-            ]
+        (Decode.map3
+            (\ctrl meta alt -> ctrl || meta || alt)
+            (Decode.field "ctrlKey" Decode.bool)
+            (Decode.field "metaKey" Decode.bool)
+            (Decode.field "altKey" Decode.bool)
         )

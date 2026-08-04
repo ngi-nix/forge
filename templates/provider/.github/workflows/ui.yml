@@ -40,7 +40,7 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Build UI
-        run: nix build .#_forge-ui --accept-flake-config
+        run: nix build .#_forge.ui --accept-flake-config
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

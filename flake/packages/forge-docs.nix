@@ -20,7 +20,7 @@ let
 in
 
 stdenv.mkDerivation {
-  pname = "_forge-docs";
+  pname = "_forge.docs";
   version = "0.1.0";
 
   src = lib.fileset.toSource {

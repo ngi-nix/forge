@@ -20,16 +20,15 @@ def generate_grants():
     return grants
 
 
-def generate_package_recipe(name, index):
+def generate_pkg_recipe(name, index):
     return f"""{{
   config,
   lib,
   pkgs,
   ...
 }}:
-
 {{
-  name = "{name}";
+pkgs."{name}" = {{
   version = "0.0.{index}";
   description = "{fake.sentence()}";
   homePage = "{fake.url()}";
@@ -40,6 +39,7 @@ def generate_package_recipe(name, index):
   source.hash = lib.fakeHash;
 
   build.standardBuilder.enable = true;
+}};
 }}
 """
 
@@ -56,6 +56,7 @@ def generate_app_recipe(name, index, is_test_app=False):
     grants_nix = "{\n" + "\n".join(grant_lines) + "\n  }"
 
     # Force enable all runtimes for the test app
+    program_en = "true" if is_test_app else str(fake.boolean()).lower()
     shell_en = "true" if is_test_app else str(fake.boolean()).lower()
     container_en = "true" if is_test_app else str(fake.boolean()).lower()
     nixos_vm_en = "true" if is_test_app else str(fake.boolean()).lower()
@@ -66,9 +67,8 @@ def generate_app_recipe(name, index, is_test_app=False):
   pkgs,
   ...
 }}:
-
 {{
-  name = "{name}";
+apps."{name}" = {{
   description = "{fake.sentence()}";
   usage = "{fake.text()}";
 
@@ -82,16 +82,16 @@ def generate_app_recipe(name, index, is_test_app=False):
 
   services = {{
     components.{name} = {{
-      command = pkgs.hello;
+      process.command = pkgs.hello;
     }};
     runtimes = {{
       container = {{
         enable = {container_en};
-        packages = [ pkgs.hello ];
+        components.{name}.packages = [ pkgs.hello ];
       }};
       nixos = {{
         enable = {nixos_vm_en};
-        extraConfig = {{ }};
+        nixosConfig = {{ }};
       }};
     }};
   }};
@@ -99,7 +99,10 @@ def generate_app_recipe(name, index, is_test_app=False):
   programs = {{
     packages = [ pkgs.hello ];
     runtimes.shell.enable = {shell_en};
+    {"mainPackage = pkgs.hello;" if program_en == "true" else ""}
+    runtimes.program.enable = {program_en};
   }};
+}};
 }}
 """
 
@@ -107,12 +110,12 @@ def generate_app_recipe(name, index, is_test_app=False):
 def main():
     try:
         num_apps = int(sys.argv[1]) if len(sys.argv) > 1 else 20
-        num_packages = int(sys.argv[2]) if len(sys.argv) > 2 else 20
+        num_pkgs = int(sys.argv[2]) if len(sys.argv) > 2 else 20
         out_path = Path(
             sys.argv[3] if len(sys.argv) > 3 else "ui/build/forge-config.json"
         )
     except (ValueError, IndexError):
-        print("Usage: dev-ui-config <num_apps> <num_packages> <out_path>")
+        print("Usage: dev-ui-config <num_apps> <num_pkgs> <out_path>")
         sys.exit(1)
 
     git_root = Path(
@@ -126,54 +129,47 @@ def main():
     if not out_path.is_absolute():
         out_path = git_root / out_path
 
-    print(f"Generating {num_apps} apps and {num_packages} package recipes...")
+    print(f"Generating {num_apps} apps and {num_pkgs} pkgs recipes...")
 
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
-        run_command(
-            [
-                "git",
-                "archive",
-                "--format=tar",
-                "HEAD",
-                "-o",
-                str(temp_path / "repo.tar"),
-            ],
-            cwd=str(git_root),
-            check=True,
+        _ = shutil.copytree(
+            git_root,
+            temp_dir,
+            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns(".git"),
         )
-        run_command(["tar", "-xf", "repo.tar"], cwd=str(temp_path), check=True)
 
         mock_recipes_root = temp_path / "recipes"
         if mock_recipes_root.exists():
             shutil.rmtree(mock_recipes_root)
 
-        apps_dir, pkgs_dir = mock_recipes_root / "apps", mock_recipes_root / "packages"
-        apps_dir.mkdir(parents=True), pkgs_dir.mkdir(parents=True)
+        apps_dir, pkgs_dir = mock_recipes_root / "apps", mock_recipes_root / "pkgs"
+        _ = apps_dir.mkdir(parents=True), pkgs_dir.mkdir(parents=True)
 
         # Generate an unchanging test app
-        test_app_name = "mock-test-app"
+        test_app_name = "mock-test"
         (apps_dir / test_app_name).mkdir(parents=True)
         with open(apps_dir / test_app_name / "recipe.nix", "w") as f:
-            f.write(generate_app_recipe(test_app_name, 0, is_test_app=True))
+            _ = f.write(generate_app_recipe(test_app_name, 0, is_test_app=True))
 
         for i in range(num_apps):
-            app_name = f"mock-app-{i}"
+            app_name = f"mock-{i}"
             (apps_dir / app_name).mkdir(parents=True)
             with open(apps_dir / app_name / "recipe.nix", "w") as f:
                 f.write(generate_app_recipe(app_name, i))
 
         # Generate a unchanging test package
-        test_pkg_name = "mock-test-package"
+        test_pkg_name = "mock-test-pkg"
         (pkgs_dir / test_pkg_name).mkdir(parents=True)
         with open(pkgs_dir / test_pkg_name / "recipe.nix", "w") as f:
-            f.write(generate_package_recipe(test_pkg_name, 0))
+            f.write(generate_pkg_recipe(test_pkg_name, 0))
 
-        for i in range(num_packages):
-            pkg_name = f"mock-package-{i}"
+        for i in range(num_pkgs):
+            pkg_name = f"mock-pkg-{i}"
             (pkgs_dir / pkg_name).mkdir(parents=True)
             with open(pkgs_dir / pkg_name / "recipe.nix", "w") as f:
-                f.write(generate_package_recipe(pkg_name, i))
+                f.write(generate_pkg_recipe(pkg_name, i))
 
         run_command(["git", "init"], cwd=str(temp_path), check=True)
         run_command(
@@ -196,7 +192,7 @@ def main():
 
         try:
             result = run_command(
-                ["nix", "eval", ".#_forge-config.text", "--raw"],
+                ["nix", "eval", ".#_forge.config.text", "--raw"],
                 cwd=str(temp_path),
                 stdout=subprocess.PIPE,
                 text=True,
@@ -220,7 +216,7 @@ def main():
     out_path.symlink_to(real_file.relative_to(out_path.parent))
     print(f"Mock config symlinked: {out_path} -> {real_file}")
 
-    sys.path.append("@devUIDir@")
+    sys.path.append("@forgeUIDir@")
     try:
         from build_app_resources import populate_resources_dir
 

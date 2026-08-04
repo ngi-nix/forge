@@ -6,7 +6,7 @@
   flake ? flake-inputs.import-flake { src = ./.; },
   inputs ? flake.inputs,
   system ? builtins.currentSystem,
-  pkgs ? import inputs.nixpkgs {
+  nixpkgs ? import inputs.nixpkgs {
     config = { };
     overlays = [ ];
     inherit system;
@@ -14,26 +14,40 @@
   lib ? import "${inputs.nixpkgs}/lib",
 }:
 let
-  default = lib.makeScope pkgs.newScope (def: {
+  drvToAttrs =
+    drv:
+    builtins.removeAttrs drv [
+      "drvPath"
+      "outPath"
+      "outputName"
+      "name"
+      "type"
+      "system"
+    ];
+  default = lib.makeScope nixpkgs.newScope (def: {
     inherit
       lib
-      pkgs
       flake
+      nixpkgs
       system
       inputs
       default # recurse scope
       ;
 
-    nimi-def = import inputs.nimi-def { inherit pkgs; };
+    nimi-def = import inputs.nimi { pkgs = nixpkgs; };
     nimi = def.nimi-def.nimi;
     nimiLib = def.nimi.passthru;
 
-    apps = flake.outputs.apps.${system};
-    forgePkgs = flake.outputs.packages.${system};
+    # requires debug to be enabled in flake
+    debug = flake.outputs.flakeConfig.allSystems.${system};
+
+    inherit (default.debug) forge;
+
+    apps = drvToAttrs flake.outputs.packages.${system}.apps;
+    pkgs = drvToAttrs flake.outputs.packages.${system}.pkgs;
+    _forge = drvToAttrs flake.outputs.packages.${system}._forge;
+
     shells = flake.outputs.devShells.${system};
   });
-
-  eval = module: (lib.evalModules { modules = [ module ]; });
-  call = default.callPackage;
 in
-default // flake.outputs.packages.${system}
+default // flake.outputs.legacyPackages.${system}

@@ -114,12 +114,6 @@
         "sha256": "04gm52qn9rd4llabdj5gbf0g4yk43w4h9anvm4gpdwz1i835q3p2"
     },
     {
-        "author": "pablohirafuji",
-        "package": "elm-syntax-highlight",
-        "version": "3.7.1",
-        "sha256": "1z8pyqnfq090hkiw2jhprs735bb06hckab5cn6maivrjff13l0rj"
-    },
-    {
         "author": "rtfeldman",
         "package": "elm-hex",
         "version": "1.0.0",

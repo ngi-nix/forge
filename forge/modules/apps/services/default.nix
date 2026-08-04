@@ -1,4 +1,6 @@
 {
+  options,
+  config,
   specialArgs,
 
   lib,
@@ -6,19 +8,6 @@
 }:
 {
   options = {
-    ports = lib.mkOption {
-      type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
-      default = [ ];
-      description = ''
-        List of ports exposed by the application's services.
-
-        Format: HOST_PORT:SERVICE_PORT
-      '';
-      example = lib.literalExpression ''
-        [ "8000:8000" "5432:5432" ]
-      '';
-    };
-
     components = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submoduleWith {
@@ -27,32 +16,49 @@
         }
       );
       default = { };
-      description = "Portable service components.";
-      example = lib.literalExpression ''
-        {
-          service1 = {
-            command = pkgs.mypkgs.service1;
-          };
-          service2 = {
-            command = pkgs.mypkgs.service2;
-          };
-        }
+      description = ''
+        Services components.
+
+        Each component must have `process.command` set and can optionally
+        declare one or more `resources` providing NixOS configuration.
       '';
-      # map user-config to a format which can be used by modular services
       apply =
         self:
         lib.mapAttrs (
           _: service:
+          let
+            knownComponents = lib.attrNames config.components;
+            invalidDependsOn = lib.filter (dep: !lib.elem dep knownComponents) service.dependsOn;
+            optionPath = lib.showOption (options.components.loc ++ [ service.name ]);
+
+            prettyPrint = lib.generators.toPretty { };
+
+            checks.dependsOn = {
+              cond = invalidDependsOn != [ ];
+              msg = ''
+                `${optionPath}.dependsOn` references invalid services: ${prettyPrint invalidDependsOn}
+                Must be one of: ${prettyPrint knownComponents}
+              '';
+            };
+
+          in
+
+          assert (lib.any (c: lib.throwIf c.cond c.msg true) (lib.attrValues checks));
+
           service
           // {
             result = {
               process.argv =
                 let
-                  command = if lib.isDerivation service.command then lib.getExe service.command else service.command;
+                  serviceCommand =
+                    if lib.isDerivation service.process.command then
+                      lib.getExe service.process.command
+                    else
+                      service.process.command;
                 in
-                [ command ] ++ service.argv;
-              configData = service.configData;
-              preStart = service.preStart;
+                [ serviceCommand ] ++ service.process.argv;
+              configData = service.process.configData;
+              preStart = service.process.preStart;
             };
           }
         ) self;
@@ -66,5 +72,30 @@
       default = { };
       description = "Portable services runtimes.";
     };
+
+    resources = lib.mkOption {
+      internal = true;
+      visible = false;
+      type = lib.types.attrsOf (lib.types.submodule ./resource.nix);
+      default = { };
+      description = "Resource configuration";
+      example = lib.literalExpression ''
+        {
+          database.nixosConfig = { services.postgresql.enable = true; };
+          cache.nixosConfig = { services.redis.servers.default.enable = true; };
+        }
+      '';
+    };
   };
+
+  config.resources =
+    let
+      componentResources = lib.pipe config.components [
+        (lib.attrValues)
+        (lib.catAttrs "resources")
+      ];
+
+      runtimeResources = [ config.runtimes.container.resources ];
+    in
+    lib.mkMerge (runtimeResources ++ componentResources);
 }

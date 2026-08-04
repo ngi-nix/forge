@@ -1,0 +1,4 @@
+:8080 {
+	root * {$PMTILES_APP_ROOT}
+	file_server
+}

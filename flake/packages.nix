@@ -1,19 +1,19 @@
-{ ... }:
+{ forge-inputs, ... }:
 {
   perSystem =
     {
+      self',
       config,
       lib,
       pkgs,
       system,
-      inputs',
       ...
     }:
 
     {
-      packages = {
+      legacyPackages = {
         elm-watch = pkgs.callPackage packages/elm-watch.nix { };
-        elm2nix = inputs'.elm2nix.packages.default;
+        elm2nix = forge-inputs.elm2nix.packages.${system}.default;
       };
     };
 }

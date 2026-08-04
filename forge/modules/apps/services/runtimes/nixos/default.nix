@@ -1,45 +1,57 @@
 {
   lib,
-  inputs,
-
-  app,
+  forge-inputs,
   config,
   system,
+  app,
   ...
 }@args:
 {
   options = {
-    enable = lib.mkEnableOption "NixOS/VM output";
+    enable = lib.mkEnableOption "NixOS runtime";
 
     setup = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.lines;
       default = "";
-      description = "Script to run once at startup.";
+      description = ''
+        Script to run once at system startup.
+        Use this option for one-off system preparation steps.
+      '';
+      example = ''
+        # bash
+        echo "Creating directory structure ..."
+        mkdir --parents /var/lib/myservice/config /var/lib/myservice/db
+      '';
     };
 
     packages = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
       description = ''
-        Packages to add to the NixOS system.
+        List of packages available in the NixOS system.
+
+        Use this option to add packages required by setup script.
 
         This is a convenience option equivalent to setting
-        `extraConfig.environment.systemPackages`.
+        `nixosConfig.environment.systemPackages`.
       '';
       example = lib.literalExpression "[ pkgs.btop ]";
     };
 
-    extraConfig = lib.mkOption {
+    nixosConfig = lib.mkOption {
       type = with lib.types; deferredModule;
       default = { };
       description = ''
-        NixOS system configuration
+        NixOS runtime specific configuration.
 
-        See: https://search.nixos.org/options
+        See the list of available
+        [NixOS options](https://search.nixos.org/options) .
       '';
       example = lib.literalExpression ''
         {
-          services.postgresql.enable = true;
+          services.postgresql.authentication = '''
+            local all all trust
+          ''';
         }
       '';
     };
@@ -88,6 +100,13 @@
         description = "NixOS Virtual Machine.";
       };
 
+      nixosModule = lib.mkOption {
+        internal = true;
+        readOnly = true;
+        type = lib.types.deferredModule;
+        description = "Final application NixOS module exposed as packages.\${system}.apps.\${app}.nixosModules.default.";
+      };
+
       # HACK:
       # Prevent toJSON from attempting to convert the `eval` option,
       # which won't work because it's a whole NixOS evaluation.
@@ -106,13 +125,37 @@
       setup = import ./modules/setup.nix args;
       nimi = import ./modules/nimi.nix args;
       virt = import ./modules/virt.nix args;
-      extraConfig = config.extraConfig;
+      nixosConfig = config.nixosConfig;
       packages = {
         environment.systemPackages = config.packages;
       };
+      nixosComponents = {
+        imports = lib.mapAttrsToList (name: value: value.nixosConfig) app.services.resources;
+
+        networking.extraHosts =
+          let
+            componentNames = lib.attrNames app.services.components;
+            resourceNames = lib.concatMap (c: lib.attrNames c.resources) (
+              lib.attrValues app.services.components
+            );
+          in
+          lib.concatMapStringsSep "\n" (name: "127.0.0.1 ${name}") (
+            lib.unique (componentNames ++ resourceNames)
+          );
+      };
     };
 
-    result.eval = inputs.nixpkgs.lib.nixosSystem {
+    result.nixosModule = {
+      imports = [
+        config.result.modules.setup
+        config.result.modules.nimi
+        config.result.modules.packages
+        config.result.modules.nixosConfig
+        config.result.modules.nixosComponents
+      ];
+    };
+
+    result.eval = forge-inputs.nixpkgs.lib.nixosSystem {
       inherit system;
       modules = lib.attrValues config.result.modules;
     };

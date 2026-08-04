@@ -58,7 +58,10 @@ updateRouteApps route =
                                 _ ->
                                     Nothing
                         )
-                        (model.model_config.config_apps |> Dict.values)
+                        (model.model_config.config_apps
+                            |> Dict.values
+                            |> List.sortBy .app_displayName
+                        )
                         search
 
                 filteredItems =

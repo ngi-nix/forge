@@ -3,7 +3,7 @@ module Main.Model.Page exposing (..)
 import List.Extra as List
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
-import Main.Config.Package exposing (..)
+import Main.Config.Pkg exposing (..)
 import Main.Helpers.List as List
 import Main.Helpers.Nix exposing (..)
 import Main.Helpers.Tree exposing (Trees)
@@ -16,7 +16,7 @@ import Set exposing (Set)
 type Page
     = Page_App PageApp
     | Page_Apps PageApps
-    | Page_Packages PagePackages
+    | Page_Pkgs PagePkgs
     | Page_RecipeOptions PageRecipeOptions
 
 
@@ -34,7 +34,7 @@ isPageSearch page =
         Page_Apps _ ->
             True
 
-        Page_Packages _ ->
+        Page_Pkgs _ ->
             True
 
         Page_RecipeOptions _ ->
@@ -63,16 +63,16 @@ defaultPageApps routePagination apps =
     }
 
 
-type alias PagePackages =
-    { pagePackages_route : RoutePackages
-    , pagePackages_pagination : PagePagination Package
+type alias PagePkgs =
+    { pagePkgs_route : RoutePkgs
+    , pagePkgs_pagination : PagePagination Pkg
     }
 
 
-defaultPagePackages : RoutePagination -> List Package -> PagePackages
-defaultPagePackages routePagination packages =
-    { pagePackages_route = defaultRoutePackages
-    , pagePackages_pagination = defaultPagePagination routePagination packages
+defaultPagePkgs : RoutePagination -> List Pkg -> PagePkgs
+defaultPagePkgs routePagination pkgs =
+    { pagePkgs_route = defaultRoutePkgs
+    , pagePkgs_pagination = defaultPagePagination routePagination pkgs
     }
 
 

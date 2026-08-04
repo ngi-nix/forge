@@ -43,7 +43,7 @@ self-host using the
 - Add [support for more programming languages](https://github.com/ngi-nix/forge/issues/56)
 - Add support for [application configuration via portable NixOS modules](https://github.com/ngi-nix/forge/issues/294)
 - Provide [development environments for upstream projects](https://github.com/ngi-nix/forge/issues/312).
-- Migrate projects from Ngipkgs repository to NGI Forge and Nixpkgs
+- Migrate projects from NGIpkgs repository to NGI Forge and Nixpkgs
 
 Browse [the list of open user stories](https://github.com/orgs/ngi-nix/projects/8/views/27) to see more.
 

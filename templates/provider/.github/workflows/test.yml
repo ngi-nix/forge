@@ -31,4 +31,4 @@ jobs:
         run: nix flake check --accept-flake-config
 
       - name: Check UI build
-        run: nix build .#_forge-ui --accept-flake-config
+        run: nix build .#_forge.ui --accept-flake-config

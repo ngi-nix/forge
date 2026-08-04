@@ -26,6 +26,30 @@ test.describe("Ambient Search in Home page", () => {
     await expect(searchBar).toBeFocused();
   });
 
+  test("modifier key combinations do not trigger ambient search", async ({ page }) => {
+    const searchBar = page.getByTestId("main-search-bar");
+    await expect(searchBar).toBeVisible();
+    await expect(searchBar).not.toBeFocused();
+
+    await page.locator("body").click();
+
+    await page.keyboard.press("Meta+c");
+    await expect(searchBar).not.toBeFocused();
+    await expect(searchBar).toHaveValue("");
+
+    await page.keyboard.press("Control+c");
+    await expect(searchBar).not.toBeFocused();
+    await expect(searchBar).toHaveValue("");
+
+    await page.keyboard.press("Meta+f");
+    await expect(searchBar).not.toBeFocused();
+    await expect(searchBar).toHaveValue("");
+
+    await page.keyboard.press("Alt+f");
+    await expect(searchBar).not.toBeFocused();
+    await expect(searchBar).toHaveValue("");
+  });
+
   test("a full search can be done via ambient key presses", async ({ page }) => {
     const searchBar = page.getByTestId("main-search-bar");
     await expect(searchBar).toBeVisible();

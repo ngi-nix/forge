@@ -1,13 +1,15 @@
 {
+  lib,
   buildElmApplication,
   fetchzip,
   jq,
   symlinkJoin,
+  esbuild,
 
-  _forge-config,
-  _forge-docs,
-  _forge-options,
   appIcons,
+
+  _forge,
+  highlight-js,
   ...
 }:
 
@@ -23,12 +25,11 @@ let
     enableOptimizations = true;
   };
 
-  agentsFile = ../AGENTS.md;
-
   defaultIcon = ./src/app-icon.svg;
 
   bootstrapCss = fetchzip rec {
     pname = "bootstrap";
+    # TODO updateScript
     version = "5.3.8";
     url = "https://github.com/twbs/bootstrap/releases/download/v${version}/bootstrap-${version}-dist.zip";
     hash = "sha256-StRhHJIRGzguLlo0BGOAMy0PCCmMovzgU/5xZJgVrqQ=";
@@ -42,25 +43,37 @@ symlinkJoin {
 
     # Copy static files
     cp ${./src/index.html} index.html
+    cp ${./src/404.html} 404.html
     cp ${./src/favicon.svg} favicon.svg
+
+    mkdir -p css js/src
+
     cp -aR ${./src/css}/. css
-    cp -aR ${./src/js}/. js
+    cp -aR ${./src/js}/. js/src
+
     chmod -R u+w css js
+
     install -D ${bootstrapCss}/css/bootstrap.min.css bootstrap/css/bootstrap.min.css
+    install -D ${highlight-js}/theme.css css/highlightjs-theme.css
+
+    install -D ${highlight-js}/highlight.min.js js/highlight.min.js
 
     # Rename minimized Elm output
     mv js/Elm.min.js js/Elm.js
 
+    ${esbuild}/bin/esbuild --bundle --outfile=js/main.js --minify js/src/main.js
+    rm -rf js/src
+
     # Symlink config files
-    ln -s ${_forge-config} forge-config.json
-    ln -s ${_forge-options} forge-options.json
+    ln -s ${_forge.config} forge-config.json
+    ln -s ${_forge.options} forge-options.json
 
     # Create resources directory and copy default icon
     mkdir -p resources/apps
     cp ${defaultIcon} resources/apps/app-icon.svg
 
     # Process each app: copy icons and create HTML routes
-    for app in $(${jq}/bin/jq '.apps.[].name' -r forge-config.json); do
+    for app in $(${lib.getExe jq} '.apps.[].name' -r forge-config.json); do
       # Copy custom icon if it exists, otherwise use default
       mkdir -p "resources/apps/$app"
       if [ -f "${appIcons}/$app/icon.svg" ]; then
@@ -72,15 +85,19 @@ symlinkJoin {
       # Create SPA routing for this app (github pages workaround)
       mkdir -p "app/$app"
       ln -s $out/index.html "app/$app/index.html"
+
+      # For backward compatibility with the -app namespace
+      mkdir -p "app/$app-app"
+      ln -s $out/index.html "app/$app-app/index.html"
     done
 
-    for page in apps packages recipe recipe/options; do
+    for page in apps pkgs recipe recipe/options; do
       mkdir -p "$page"
       ln -s $out/index.html "$page/index.html"
     done
 
     # Install docs
-    ln -s ${_forge-docs} docs
+    ln -s ${_forge.docs} docs
 
     popd
   '';

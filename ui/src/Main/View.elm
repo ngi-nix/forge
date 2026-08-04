@@ -20,7 +20,7 @@ import Main.View.Error exposing (..)
 import Main.View.Page exposing (..)
 import Main.View.Page.App exposing (..)
 import Main.View.Page.Apps exposing (..)
-import Main.View.Page.Packages exposing (..)
+import Main.View.Page.Pkgs exposing (..)
 import Main.View.Page.Recipe exposing (..)
 
 
@@ -37,7 +37,7 @@ view model =
                     [ viewSearchInput model ]
                 , div
                     [ class "d-none d-md-flex align-items-center gap-4" ]
-                    [ viewPagePackagesLink
+                    [ viewPagePkgsLink
                     , viewPageRecipeOptionsLink Layout_Desktop
                     , viewDocsLink
                     , viewThemeToggle model
@@ -71,7 +71,7 @@ view model =
                 [ div
                     [ class "card card-body bg-body-tertiary shadow-sm" ]
                     [ ul [ class "nav flex-column gap-2" ]
-                        [ li [ class "nav-item" ] [ viewPagePackagesLink ]
+                        [ li [ class "nav-item" ] [ viewPagePkgsLink ]
                         , li [ class "nav-item" ] [ viewPageRecipeOptionsLink Layout_Mobile ]
                         , li [ class "nav-item" ] [ viewDocsLink ]
                         , li [ class "nav-item mt-2 pt-2 border-top" ] [ viewThemeToggle model ]
@@ -155,12 +155,12 @@ viewSearchInput model =
             , placeholder <|
                 case model.model_page of
                     Page_App _ ->
-                        "Search apps"
+                        "Search applications"
 
                     Page_Apps _ ->
-                        "Search apps"
+                        "Search applications"
 
-                    Page_Packages _ ->
+                    Page_Pkgs _ ->
                         "Search packages"
 
                     Page_RecipeOptions page ->
