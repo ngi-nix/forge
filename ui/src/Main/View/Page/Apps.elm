@@ -50,7 +50,7 @@ viewPageAppsApp _ _ app =
     in
     a
         [ href (onClickRoute |> routeToString)
-        , class "card m-item-card shadow-sm p-3"
+        , class "card m-item-card shadow-sm p-2 p-sm-3"
         , style "text-decoration" "none"
         , attribute "data-testid" "app-result"
         , onClick (Update_Route onClickRoute)
@@ -72,7 +72,7 @@ viewPageAppsApp _ _ app =
                 [ text app.app_description ]
             ]
         , div
-            [ class "d-flex flex-wrap justify-content-center align-items-center gap-1 w-100 mt-auto"
+            [ class "d-none d-sm-flex flex-wrap justify-content-center align-items-center gap-1 w-100 mt-auto"
             ]
             (List.concat
                 [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then

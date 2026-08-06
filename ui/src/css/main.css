@@ -190,11 +190,11 @@ body {
 }
 
 .m-item-card-description {
-  display: none; /* Hide on mobile to prevent overflow in square cards */
-  -webkit-line-clamp: 4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 6em;
+  height: 3em;
   line-height: 1.5;
   font-size: 0.9rem;
   margin-bottom: 0;
@@ -202,7 +202,8 @@ body {
 
 @media (min-width: 576px) {
   .m-item-card-description {
-    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    height: 6em;
   }
 }
 
