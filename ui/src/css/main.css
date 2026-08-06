@@ -190,7 +190,7 @@ body {
 }
 
 .m-item-card-description {
-  display: -webkit-box;
+  display: none; /* Hide on mobile to prevent overflow in square cards */
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -200,10 +200,16 @@ body {
   margin-bottom: 0;
 }
 
+@media (min-width: 576px) {
+  .m-item-card-description {
+    display: -webkit-box;
+  }
+}
+
 /* App icons */
 .item-card-icon {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
   flex-shrink: 0;
   background-color: transparent;
