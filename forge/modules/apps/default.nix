@@ -78,6 +78,7 @@
         lib.fix (self: {
           config = app;
           forge.broken = app.broken;
+          pkgs = app.packagesList;
         })
         // lib.optionalAttrs app.programs.runtimes.program.enable {
           program = app.programs.mainPackage;

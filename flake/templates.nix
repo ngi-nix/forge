@@ -4,6 +4,10 @@
       path = ../templates/consumer;
       description = "Template for using and extending an NGI Forge instance";
     };
+    developer = {
+      path = ../templates/developer;
+      description = "Template for external development using an NGI Forge instance";
+    };
     provider = {
       path = ../templates/provider;
       description = "Template for self hosting your own NGI Forge instance";
