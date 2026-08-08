@@ -18,7 +18,12 @@ let
         }
       ];
       options.perSystem = flake-parts-lib.mkPerSystemOption (
-        { system, forge-inputs, ... }:
+        {
+          system,
+          forge-inputs,
+          config,
+          ...
+        }:
         {
           imports = [
             # Definitions of options under `forge`.
@@ -35,7 +40,15 @@ let
           _module.args.forge-lib = forge-inputs.self.lib;
 
           # Do not require users to pin their own `inputs.nixpkgs`.
-          _module.args.pkgs = lib.mkDefault forge-inputs.nixpkgs.legacyPackages.${system};
+          _module.args.pkgs = lib.mkDefault (
+            import forge-inputs.nixpkgs {
+              inherit system;
+              config = {
+                permittedInsecurePackages = config.forge.allowInsecurePackages;
+                allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) config.forge.allowUnfreePackages;
+              };
+            }
+          );
         }
       );
     };
