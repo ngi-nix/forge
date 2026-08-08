@@ -1,0 +1,21 @@
+--- a/webpack.config.js
++++ b/webpack.config.js
+@@ -1,6 +1,7 @@
+ const Dotenv = require("dotenv-webpack");
+ const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
+ const path = require("path");
++const webpack = require("webpack");
+ 
+ module.exports = {
+   mode: "development",
+@@ -33,6 +34,10 @@
+   },
+   plugins: [
+     new Dotenv(),
++    new webpack.EnvironmentPlugin({
++      MAILBOX_URL: "",
++      RELAY_URL: "",
++    }),
+   ],
+   optimization: {
+     minimize: process.env.NODE_ENV === "production",
