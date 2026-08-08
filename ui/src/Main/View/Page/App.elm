@@ -89,7 +89,7 @@ viewPageAppHeader _ pageApp =
 
 viewPageAppFeedback : Model -> Html Update
 viewPageAppFeedback model =
-    if not model.model_askFeedback then
+    if model.model_preferences.preferences_feedbackDismissed then
         text ""
 
     else
