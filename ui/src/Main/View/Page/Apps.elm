@@ -50,56 +50,51 @@ viewPageAppsApp _ _ app =
     in
     a
         [ href (onClickRoute |> routeToString)
-        , class "card m-item-card shadow-sm p-3"
+        , class "card m-item-card shadow-sm p-2 p-sm-3"
         , style "text-decoration" "none"
         , attribute "data-testid" "app-result"
         , onClick (Update_Route onClickRoute)
         ]
         [ div
-            [ class "w-100"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "gap" "12px"
+            [ class "d-flex flex-column align-items-center w-100"
             ]
             [ img
                 [ src (getAppIconPath app.app_name)
-                , class "item-card-icon"
+                , class "item-card-icon mb-2"
                 , attribute "loading" "lazy"
                 , attribute "alt" (app.app_displayName ++ " icon")
                 ]
                 []
-            , h5 [ class "mb-10" ] [ text app.app_displayName ]
+            , h5 [ class "mb-1 fw-bold item-card-title text-center" ] [ text app.app_displayName ]
+            , p
+                [ class "mb-2 text-body-secondary m-item-card-description text-center"
+                ]
+                [ text app.app_description ]
             ]
-        , p
-            [ class "mb-1 text-body-secondary m-item-card-description"
+        , div
+            [ class "d-none d-sm-flex flex-wrap justify-content-center align-items-center gap-1 w-100 mt-auto"
             ]
-            [ text app.app_description ]
-        , p
-            [ class "mb-1"
-            ]
-            [ small []
-                (List.concat
-                    [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
-                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "program" ] ]
+            (List.concat
+                [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+                    [ span [ class "badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" ] [ text "program" ] ]
 
-                      else
-                        []
-                    , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
-                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "shell" ] ]
+                  else
+                    []
+                , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
+                    [ span [ class "badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" ] [ text "shell" ] ]
 
-                      else
-                        []
-                    , if app.app_services.appServices_runtimes.appServicesRuntimes_container.enable then
-                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "container" ] ]
+                  else
+                    []
+                , if app.app_services.appServices_runtimes.appServicesRuntimes_container.enable then
+                    [ span [ class "badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" ] [ text "container" ] ]
 
-                      else
-                        []
-                    , if app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                        [ span [ class "badge bg-primary me-1", style "font-size" "0.85em" ] [ text "nixos" ] ]
+                  else
+                    []
+                , if app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
+                    [ span [ class "badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle" ] [ text "nixos" ] ]
 
-                      else
-                        []
-                    ]
-                )
-            ]
+                  else
+                    []
+                ]
+            )
         ]

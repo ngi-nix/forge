@@ -78,10 +78,10 @@
     icon = ./icon.svg;
 
     programs = {
-      packages = [
-        pkgs.garage
-      ];
+      packages = [ pkgs.garage ];
+      mainPackage = pkgs.garage;
 
+      runtimes.program.enable = true;
       runtimes.shell.enable = true;
     };
 
