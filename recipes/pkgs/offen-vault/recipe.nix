@@ -16,13 +16,13 @@
     build.pnpmPackageBuilder = {
       enable = true;
       pnpmDepsHash = "sha256-vAXHm85rlsG0pAeRmqzmmI+Ztw0CmkzgVg9f67m3S3g=";
-      sourceRoot = "source/vault";
       buildScript = "build";
       installDir = "dist";
     };
 
-    build.extraAttrs = {
-      preBuild = ''
+    phases = {
+      unpack.sourceRoot = "source/vault";
+      build.script.pre = ''
         cp -r ../locales locales
       '';
     };

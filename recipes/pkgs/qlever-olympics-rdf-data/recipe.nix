@@ -23,13 +23,14 @@
       ];
     };
 
-    build.extraAttrs = {
-      dontBuild = true;
-      dontUnpack = true;
-      installPhase = ''
-        unzip $src
-        install -D olympics.nt -t $out
-      '';
+    phases.install.script.main = ''
+      unzip $src
+      install -D olympics.nt -t $out
+    '';
+
+    phases = {
+      unpack.enable = false;
+      build.enable = false;
     };
   };
 }

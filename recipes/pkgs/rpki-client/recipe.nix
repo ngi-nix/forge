@@ -16,6 +16,18 @@
       hash = "sha256-PejvnEGr+K+g+vLgO+JroZXRAa1LUJUzCwDVm8AyScY=";
     };
 
+    phases = {
+      configure.script.pre = ''
+        cp -r $openbsdSrc openbsd
+        chmod -R +w openbsd
+        ./autogen.sh
+      '';
+      configure.flags = [
+        "--with-base-dir=/var/cache/rpki-client"
+        "--with-output-dir=/var/db/rpki-client"
+      ];
+    };
+
     build = {
       extraAttrs = {
         openbsdSrc = pkgs.fetchFromGitHub {
@@ -24,15 +36,6 @@
           rev = "027566b8e6827a9e280a0ef067464fc2336f0179";
           hash = "sha256-lmyECC4uhBLJb89Gm+oqO4ClkkhFGqGm+cD7GivDqok=";
         };
-        configureFlags = [
-          "--with-base-dir=/var/cache/rpki-client"
-          "--with-output-dir=/var/db/rpki-client"
-        ];
-        preConfigure = ''
-          cp -r $openbsdSrc openbsd
-          chmod -R +w openbsd
-          ./autogen.sh
-        '';
       };
       standardBuilder = {
         enable = true;
