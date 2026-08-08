@@ -27,6 +27,8 @@
         options.build = lib.mkOption {
           type = lib.types.submoduleWith {
             modules = [
+              ./env.nix
+              ./structuredAttrs.nix
               ({ specialArgs, config, ... }: {
                 options.${name} = lib.mkOption {
                   default = { };
@@ -34,6 +36,8 @@
                     inherit specialArgs;
                     modules = [
                       imports
+                      ./env.nix
+                      ./structuredAttrs.nix
                       {
                         options.packages = {
                           build = lib.mkOption {
@@ -73,6 +77,9 @@
                     ];
                   };
                 };
+                config = lib.mkIf config.${name}.enable {
+                  inherit (config.${name}) env structuredAttrs;
+                };
               })
             ];
           };
@@ -83,7 +90,8 @@
             let
               mkSharedAttrs =
                 finalAttrs:
-                {
+                config.build.structuredAttrs
+                // {
                   inherit (config)
                     pname
                     version
@@ -94,6 +102,9 @@
                   inherit (config.source)
                     patches
                     ;
+
+                  __structuredAttrs = true;
+                  inherit (config.build) env;
 
                   nativeBuildInputs = builder.packages.build;
                   buildInputs = builder.packages.run;

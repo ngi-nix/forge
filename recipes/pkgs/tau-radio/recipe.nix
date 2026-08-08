@@ -42,7 +42,12 @@
 
     build.extraAttrs = {
       # fatal error: 'opus.h' file not found
-      env.NIX_CFLAGS_COMPILE = "-I${pkgs.libopus.dev}/include/opus";
+      # Because `pkg-config`'s configuration
+      # from `pkgs.libopus.dev` in `nativeBuildInputs` is not considered
+      # by the `bingen` wrapper.
+      preConfigure = ''
+        BINDGEN_EXTRA_CLANG_ARGS+=" $(pkg-config opus --cflags)"
+      '';
     };
 
     test.script = ''
