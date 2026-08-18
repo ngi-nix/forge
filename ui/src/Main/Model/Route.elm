@@ -35,6 +35,7 @@ type alias RouteApp =
     -- The selected `AppRuntime` will then be in `pageApp_runtime`
     , routeApp_runRuntime : Maybe AppRuntime
     , routeApp_focus : Maybe RouteAppFocus
+    , routeApp_runSecurityShown : Bool
     }
 
 
@@ -45,6 +46,7 @@ defaultRouteApp =
     , routeApp_iconShown = False
     , routeApp_runRuntime = Nothing
     , routeApp_focus = Nothing
+    , routeApp_runSecurityShown = False
     }
 
 
@@ -279,6 +281,13 @@ appUrlToRoute url =
                                 , routeApp_iconShown = True
                             }
 
+                        Just "run-security" ->
+                            { defaultRouteApp
+                                | routeApp_name = appName
+                                , routeApp_runShown = True
+                                , routeApp_runSecurityShown = True
+                            }
+
                         Just focusId ->
                             { defaultRouteApp
                                 | routeApp_name = appName
@@ -392,27 +401,31 @@ routeToAppUrl route =
             , queryParameters = Dict.empty
             , fragment =
                 if routeApp.routeApp_runShown then
-                    Just
-                        ("run"
-                            ++ (case routeApp.routeApp_runRuntime of
-                                    Nothing ->
-                                        ""
+                    if routeApp.routeApp_runSecurityShown then
+                        Just "run-security"
 
-                                    Just output ->
-                                        case output of
-                                            AppRuntime_Program ->
-                                                "-program"
+                    else
+                        Just
+                            ("run"
+                                ++ (case routeApp.routeApp_runRuntime of
+                                        Nothing ->
+                                            ""
 
-                                            AppRuntime_Shell ->
-                                                "-shell"
+                                        Just output ->
+                                            case output of
+                                                AppRuntime_Program ->
+                                                    "-program"
 
-                                            AppRuntime_Container ->
-                                                "-container"
+                                                AppRuntime_Shell ->
+                                                    "-shell"
 
-                                            AppRuntime_NixOS ->
-                                                "-nixos"
-                               )
-                        )
+                                                AppRuntime_Container ->
+                                                    "-container"
+
+                                                AppRuntime_NixOS ->
+                                                    "-nixos"
+                                   )
+                            )
 
                 else if routeApp.routeApp_iconShown then
                     Just "icon"
