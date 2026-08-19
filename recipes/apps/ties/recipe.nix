@@ -13,64 +13,6 @@ in
     displayName = "Ties";
     description = "A federated network to bookmark, organize, share and discover good web pages.";
     usage = ''
-      Ties is a personal and federated space for keeping track of the web pages you care about. Use it to build collections of interesting pages, browse and search bookmarks, share curated lists with others, and discover pages through people whose taste you trust.
-
-      Ties is designed around the idea that finding good websites is valuable and that sharing carefully curated collections can help others discover them. You can follow other users, explore their collections, and build a network of trusted users whose bookmarks become part of your search and discovery space.
-
-      #### Getting Started
-      Ties requires a PostgreSQL database. There are several ways to run the server:
-
-      - **Container:** Run Ties together with a PostgreSQL service using the container runtime.
-      - **NixOS/VM:** Run Ties as a NixOS service with PostgreSQL configured by the VM runtime.
-      - **Local binary:** Use the Ties binary directly with an existing PostgreSQL instance.
-
-      For instructions on starting each runtime, click the `Run` button in the top-right corner of this page.
-
-      If you already have PostgreSQL running locally, you can start Ties directly with:
-
-      ```bash
-      ties start \ 
-        --database-url <pg-socket> \ 
-        --base-url http://localhost:${listenPort} \ 
-        --listen localhost:${listenPort}
-      ```
-
-      Once Ties is running, open the web interface:
-
-      [http://localhost:${listenPort}](http://localhost:${listenPort})
-
-      Optionally setup the administrator credentials for this instance:
-
-      - **Username:** `configData.adminUsername` (defaults to `admin`)
-      - **Password:** `configData.adminPasswordFile` path to a file with the admin password (defaults to `/var/lib/ties/admin-password`, password defaults to `Admin@1234`)
-
-      #### Discovery
-
-      Ties provides several ways to discover new web pages:
-
-      - Browse collections shared by other users.
-      - Follow users whose interests and taste you enjoy.
-      - Search through bookmarks from users you trust.
-      - Expand your search to include users trusted by people you already trust.
-
-      You can also annotate, highlight, and discuss web pages with other users.
-
-      #### Sharing
-
-      Collections can be shared with other Ties users or exposed publicly on the web. This makes Ties useful both as a personal bookmark manager and as a way to curate and publish reading lists or collections of interesting websites.
-
-      #### Browser Compatibility
-
-      When running a self-hosted instance locally, some browsers may not work correctly with the default configuration. Ties uses secure cookies for authentication, but browsers differ in whether they allow secure cookies when accessing an application over `http://localhost`.
-
-      If you are unable to log in, try accessing the instance with a browser that supports secure cookies on `localhost` eg. Chromium.
-
-      #### Current Limitations
-
-      Ties is currently in an exploratory alpha stage, so features and behavior may change between releases.
-
-      Only single-user instances are currently supported. The project also recommends treating all data as publicly available, including bookmarks in private lists.
-
       For more information, see the [Ties documentation](${recipe.links.docs}).
     '';
 
