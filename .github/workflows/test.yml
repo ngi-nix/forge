@@ -89,47 +89,68 @@ jobs:
           commit=${commit:-master}
           sed -i "s/master/$commit/g" ui/src/Main/Config.elm
 
-      - name: Configure the baseUrl
-        run: |
-          sed -i "s|:baseUrl|/forge/|g" ui/src/Main/Model/Route.elm
-          sed -i "s|<base href=\"/\"|<base href=\"/forge/\"|g" ui/src/index.html
-
       - name: Build UI
-        run: nix build .#_forge.ui --accept-flake-config
-
-      - name: Resolve Nix symlink
         run: |
-          mkdir -p deploy_dist/forge
-          cp -rL result/. deploy_dist/forge/
-          cp deploy_dist/forge/404.html deploy_dist/404.html
+          PR_NUMBER=$(cat pr-number.txt)
+          PR_REV=$(cat pr-rev.txt)
 
-      # Provider template UI
-      - name: Restore repository baseUrl
-        run: git checkout -- ui/src/Main/Model/Route.elm ui/src/index.html
+          for TARGET in "commit" "pr"; do
+            if [ "$TARGET" = "commit" ]; then
+              BASE_URL_FORGE="/${PR_REV}/forge/"
+              BASE_URL_PROVIDER="/${PR_REV}/templates/provider/"
+              OUT_DIR="deploy_dist_commit"
+            else
+              BASE_URL_FORGE="/pr-${PR_NUMBER}/forge/"
+              BASE_URL_PROVIDER="/pr-${PR_NUMBER}/templates/provider/"
+              OUT_DIR="deploy_dist_pr"
+            fi
 
-      - name: Initialize provider template
-        working-directory: /tmp
+            # --- Forge UI ---
+            git checkout -- ui/src/Main/Model/Route.elm ui/src/index.html
+            sed -i "s|:baseUrl|$BASE_URL_FORGE|g" ui/src/Main/Model/Route.elm
+            sed -i "s|<base href=\"/\"|<base href=\"$BASE_URL_FORGE\"|g" ui/src/index.html
+
+            nix build .#_forge.ui --accept-flake-config
+            mkdir -p $OUT_DIR/forge
+            cp -rL result/. $OUT_DIR/forge/
+            cp $OUT_DIR/forge/404.html $OUT_DIR/404.html
+
+            # --- Provider UI ---
+            git checkout -- ui/src/Main/Model/Route.elm ui/src/index.html
+
+            rm -rf /tmp/template-provider
+            mkdir -p /tmp/template-provider
+            cd /tmp/template-provider
+            git init -q
+            nix flake init -t "${{ github.workspace }}#provider"
+            sed -i 's|ngi-forge.url = .*;|ngi-forge.url = "path:${{ github.workspace }}";|g' flake.nix
+            git add ./*
+
+            pushd ${{ github.workspace }}
+            sed -i "s|:baseUrl|$BASE_URL_PROVIDER|g" ui/src/Main/Model/Route.elm
+            sed -i "s|<base href=\"/\"|<base href=\"$BASE_URL_PROVIDER\"|g" ui/src/index.html
+            popd
+
+            nix build .#_forge.ui --accept-flake-config
+            mkdir -p ${{ github.workspace }}/$OUT_DIR/templates/provider
+            cp -rL result/. ${{ github.workspace }}/$OUT_DIR/templates/provider/
+
+            cd ${{ github.workspace }}
+          done
+
+      - name: Cache git-pages-cli
+        id: cache-gpc
+        uses: actions/cache@v4
+        with:
+          path: git-pages-cli
+          key: git-pages-cli-static-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+
+      - name: Build static git-pages-cli
+        if: steps.cache-gpc.outputs.cache-hit != 'true'
         run: |
-          mkdir -p template-provider
-          cd template-provider
-          git init -q
-          nix flake init -t "${{ github.workspace }}#provider"
-          sed -i 's|ngi-forge.url = .*;|ngi-forge.url = "path:${{ github.workspace }}";|g' flake.nix
-          git add ./*
-
-      - name: Configure the provider baseUrl
-        run: |
-          sed -i "s|:baseUrl|/templates/provider/|g" ui/src/Main/Model/Route.elm
-          sed -i "s|<base href=\"/\"|<base href=\"/templates/provider/\"|g" ui/src/index.html
-
-      - name: Build provider template UI
-        working-directory: /tmp/template-provider
-        run: nix build .#_forge.ui --accept-flake-config
-
-      - name: Resolve provider template Nix symlink
-        run: |
-          mkdir -p deploy_dist/templates/provider
-          cp -rL /tmp/template-provider/result/. deploy_dist/templates/provider/
+          nix build --inputs-from . nixpkgs#pkgsStatic.git-pages-cli -o gpc-result
+          cp gpc-result/bin/git-pages-cli ./git-pages-cli
+          chmod +x ./git-pages-cli
 
       # Deployment
       - name: Upload preview UI
@@ -137,7 +158,9 @@ jobs:
         with:
           name: ui-build-preview
           path: |
-            deploy_dist/
+            deploy_dist_commit/
+            deploy_dist_pr/
             pr-number.txt
             pr-rev.txt
+            git-pages-cli
           retention-days: 1

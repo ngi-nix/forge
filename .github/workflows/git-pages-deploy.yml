@@ -1,4 +1,4 @@
-name: Netlify Deploy
+name: git-pages Deploy
 
 on:
   workflow_run:
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   deploy-preview:
-    name: Push Preview to Netlify
+    name: Push Preview to git-pages
     runs-on: ubuntu-latest
     permissions:
       deployments: write # deployments
@@ -53,46 +53,33 @@ jobs:
               repo: context.repo.repo,
               sha: process.env.PR_REV,
               state: 'pending',
-              context: 'Netlify PR Preview',
+              context: 'git-pages PR Preview',
               description: 'Deploying UI preview...',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-      - name: Get cache month
-        id: month
-        run: echo "month=$(date +'%Y-%m')" >> "$GITHUB_OUTPUT"
-
-      - name: Cache npx
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        if: env.PR_NUMBER != ''
-        with:
-          path: ~/.npm/_npx
-          key: ${{ runner.os }}-npx-netlify-${{ steps.month.outputs.month }}
-          restore-keys: |
-            ${{ runner.os }}-npx-netlify-
-
-      - name: Deploy to Netlify
+      - name: Deploy to git-pages
         if: env.PR_NUMBER != ''
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          GIT_PAGES_PASSWORD: ${{ secrets.GIT_PAGES_PASSWORD }}
         run: |
-          npx netlify-cli deploy \
-            --dir=deploy_dist \
-            --alias="pr-${PR_NUMBER}" \
-            --message="PR Preview for PR #${PR_NUMBER}" \
-            | tee deploy_output.txt
+          PREVIEW_URL="https://dev.ngi.nixos.org"
+          PREVIEW_URL_BASE="${PREVIEW_URL}/pr-${PR_NUMBER}"
+          COMMIT_URL_BASE="${PREVIEW_URL}/${PR_REV}"
 
-          PREVIEW_URL=$(grep 'Draft URL:' deploy_output.txt | awk '{print $3}' | tr -d '<>')
-          DEPLOY_ID=$(grep 'Build logs:' deploy_output.txt | grep -o 'deploys/[^>]*' | cut -d'/' -f2)
+          chmod +x ./git-pages-cli
 
-          SITE_NAME=$(echo "$PREVIEW_URL" | sed -E 's/https:\/\/[^/]+--([^.]+)\.netlify\.app/\1/')
-          DEPLOY_URL="https://${DEPLOY_ID}--${SITE_NAME}.netlify.app/forge"
+          # make each preview expire in 100 days
+          ./git-pages-cli "$COMMIT_URL_BASE" --upload-dir deploy_dist_commit --expires 100
+          ./git-pages-cli "$PREVIEW_URL_BASE" --upload-dir deploy_dist_pr --expires 100
+
+          # Use the PR rev as the deploy ID for state tracking
+          DEPLOY_ID="${PR_REV:0:7}"
 
           {
-            echo "PREVIEW_URL=$PREVIEW_URL/forge"
-            echo "EXAMPLES_URL=$PREVIEW_URL/templates/provider"
-            echo "DEPLOY_URL=$DEPLOY_URL"
+            echo "PREVIEW_URL=$PREVIEW_URL_BASE/forge"
+            echo "EXAMPLES_URL=$PREVIEW_URL_BASE/templates/provider"
+            echo "DEPLOY_URL=$COMMIT_URL_BASE/forge"
             echo "DEPLOY_ID=$DEPLOY_ID"
           } >>"$GITHUB_ENV"
 
@@ -157,7 +144,7 @@ jobs:
 
             messageBodyParts.push(
               '---',
-              '**Note:** See the **checks** section at the bottom of this PR. Once the Netlify run is green, you can click **Details** to visit the deployment directly.',
+              '**Note:** See the **checks** section at the bottom of this PR. Once the git-pages run is green, you can click **Details** to visit the deployment directly.',
               '',
               '<!--',
               ...allDeployState,
@@ -193,7 +180,7 @@ jobs:
               repo: context.repo.repo,
               sha: process.env.PR_REV,
               state: 'success',
-              context: 'Netlify PR Preview',
+              context: 'git-pages PR Preview',
               description: 'Preview ready!',
               target_url: process.env.PREVIEW_URL
             });
@@ -210,7 +197,7 @@ jobs:
               repo: context.repo.repo,
               sha: process.env.PR_REV,
               state: 'error',
-              context: 'Netlify PR Preview',
+              context: 'git-pages PR Preview',
               description: 'Deployment failed. Click details for logs.',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
@@ -224,7 +211,7 @@ jobs:
           {
             "ref": "${PR_REV}",
             "environment": "Preview PR-${PR_NUMBER}",
-            "description": "Netlify PR Preview",
+            "description": "git-pages PR Preview",
             "transient_environment": true,
             "auto_merge": false,
             "required_contexts": []
