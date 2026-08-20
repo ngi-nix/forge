@@ -36,18 +36,19 @@ main =
 init : Flags -> ( Model, Cmd Update )
 init flags =
     let
+        prefs =
+            flags.flags_preferences
+                |> Json.Decode.decodeValue decodePreferences
+                |> Result.withDefault defaultPreferences
         model =
             { model_config = Main.Config.initConfig
             , model_search = defaultSearch
             , model_page = defaultPage
             , model_errors = []
-            , model_preferences =
-                flags.flags_preferences
-                    |> Json.Decode.decodeValue decodePreferences
-                    |> Result.withDefault defaultPreferences
+            , model_preferences = prefs
             , model_navbarExpanded = False
             , model_RecipeOptions = defaultRecipeOptions
-            , model_askFeedback = True
+            , model_askFeedback = not prefs.preferences_feedbackDismissed
             }
     in
     case flags.href |> Url.fromString of
