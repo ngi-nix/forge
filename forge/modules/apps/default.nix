@@ -39,14 +39,42 @@
       shellBundle =
         app:
         let
+          # Collect all of the packages into one derivation.
           appDrv = pkgs.symlinkJoin {
             name = "${app.name}";
             paths = app.programs.packages;
           };
+          overridePackageWithName =
+            packageName: newArgs:
+            let
+              matches = p: lib.strings.getName p == packageName;
+              packageMatched = lib.any matches app.programs.packages;
+
+              newApp = app // {
+                programs = app.programs // {
+                  # If package name matches packageName, then we override it.
+                  packages = map (p: if matches p then p.override newArgs else p) app.programs.packages;
+                };
+              };
+            in
+            assert
+              packageMatched
+              || throw "${packageName} does not match any of the packages in the packages of ${app.name}.";
+            shellBundle newApp;
         in
-        # Passthru
         appDrv.overrideAttrs (_: {
-          passthru = mkPassthru app appDrv;
+          passthru = (mkPassthru app appDrv) // {
+            override = overridePackageWithName app.name;
+
+            /**
+              To override a specific package within the packages list,
+              It should be indicated in the documentation of the package when this is necessary.
+
+              This is to handle cases like the one described in the example of the shell runtime
+              in the documentation.
+            */
+            overridePackage = overridePackageWithName;
+          };
         });
 
       mkPassthru =
@@ -115,6 +143,7 @@
           );
         };
 
+      # For each app, shellBundle it
       bundledApps = lib.mapAttrs (appName: app: shellBundle app) config.forge.apps;
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
