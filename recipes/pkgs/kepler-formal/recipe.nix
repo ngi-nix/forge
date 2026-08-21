@@ -29,23 +29,28 @@
         pkgs.onetbb
         pkgs.pkg-config
         pkgs.python3
-        pkgs.spdlog
         pkgs.zlib
       ];
       packages.run = [
+        pkgs.flex
+        pkgs.boost
         pkgs.capnproto
         pkgs.onetbb
         pkgs.python3
         pkgs.zlib
+        pkgs.spdlog
       ];
       packages.check = [
         pkgs.ctestCheckHook
       ];
     };
 
+    phases = {
+      check.enable = true;
+    };
+
     build.extraAttrs = {
       # Tests use shared tmpDir paths and are not safe to run in parallel
-      doCheck = true;
       ctestFlags = [ "-j1" ];
       postPatch = ''
         find thirdparty/naja/thirdparty/slang \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec sed -i 's|#include <fmt/core.h>|#include <fmt/core.h>\n#include <fmt/format.h>\n#include <fmt/ranges.h>|g' {} +
