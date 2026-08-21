@@ -27,6 +27,7 @@ lib.makeExtensible (self: {
       excludes = [
         "**/node_modules"
         "**/*-lock.json"
+        "CHANGELOG.md"
       ];
       settings = {
         plugins = pkgs.dprint-plugins.getPluginList (
