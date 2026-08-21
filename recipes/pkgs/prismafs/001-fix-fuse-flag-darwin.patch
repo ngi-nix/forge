@@ -1,0 +1,19 @@
+diff --git a/Makefile b/Makefile
+index 8913362..68b039b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,14 +2,8 @@
+ CC ?= cc
+ CFLAGS = -Wall -D_FILE_OFFSET_BITS=64 -Isrc
+ 
+-UNAME_S := $(shell uname -s)
+-ifeq ($(UNAME_S),Darwin)
+-FUSE_CFLAGS := -I/usr/local/include
+-FUSE_LIBS := /usr/local/lib/libosxfuse.2.dylib
+-else
+ FUSE_CFLAGS := $(shell pkg-config --cflags fuse3 2>/dev/null)
+ FUSE_LIBS := $(shell pkg-config --libs fuse3 2>/dev/null)
+-endif
+ 
+ # binary name
+ TARGET = prismafs
