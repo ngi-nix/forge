@@ -39,7 +39,7 @@
     icon = ./icon.svg;
 
     links = {
-      website = "https://mitmproxy.org/";
+      website = "https://www.mitmproxy.org/";
       source = "https://github.com/mitmproxy/mitmproxy";
       docs = "https://docs.mitmproxy.org/stable/";
     };
