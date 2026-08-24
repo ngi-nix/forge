@@ -41,7 +41,7 @@ let
 
     mapCommands =
       category: packages:
-      builtins.map (p: {
+      map (p: {
         inherit category;
         package = p;
       }) packages;
@@ -61,7 +61,7 @@ let
         lib.filterAttrs (
           name: value:
           # filter only the valid args for devshell.eval
-          builtins.elem name [
+          lib.elem name [
             "name"
             "motd"
             "commands"
@@ -151,12 +151,12 @@ let
           else
             baseNameOf parentDir;
 
-        groupedFiles = builtins.groupBy getCategory files;
+        groupedFiles = lib.groupBy getCategory files;
       in
       lib.concatLists (
         lib.mapAttrsToList (
           category: categoryFiles:
-          final.mapCommands category (builtins.map (path: callPackage' path { }) categoryFiles)
+          final.mapCommands category (map (path: callPackage' path { }) categoryFiles)
         ) groupedFiles
       );
   });
