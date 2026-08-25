@@ -331,7 +331,12 @@
               "/tmp:rw,size=64m"
               "/run:rw,size=64m"
             ];
-            volumes = [ "${name}-data:${service.process.stateDir}" ];
+            volumes = [
+              "${name}-data:${service.process.stateDir}"
+            ]
+            ++ lib.mapAttrsToList (
+              sourceName: destPath: "${sourceName}-data:${destPath}"
+            ) service.process.sharedState;
             labels = [ "ngi-forge.type=component" ];
           }
           // lib.optionalAttrs service.healthcheck.enable {
@@ -379,7 +384,10 @@
             "/run"
             "/run/wrappers"
           ];
-          volumes = [ "${name}-data:/var/lib" ];
+          volumes = [
+            "${name}-data:/var/lib"
+          ]
+          ++ lib.mapAttrsToList (sourceName: destPath: "${sourceName}-data:${destPath}") resource.sharedState;
           cap_add = [ "SYS_ADMIN" ];
           stop_signal = "SIGRTMIN+3";
           stop_grace_period = "30s";

@@ -47,4 +47,19 @@
     example = lib.literalExpression ''[ "5432:5432" ]'';
     apply = self: lib.unique self;
   };
+  options.sharedState = lib.mkOption {
+    type = lib.types.attrsOf lib.types.str;
+    default = { };
+    description = ''
+      Mount state directories from other components or resources into this resource.
+
+      The key is the name of the source component or resource.
+      The value is the absolute path where it should be mounted inside this resource.
+
+      Note: In the container runtime, this mounts the source's data volume.
+    '';
+    example = {
+      "geoip" = "/var/lib/geoip";
+    };
+  };
 }
