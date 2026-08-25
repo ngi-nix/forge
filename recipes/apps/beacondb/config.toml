@@ -3,6 +3,8 @@ database_url = "postgresql://postgres@database/postgres"
 http_port = 8080
 h3_resolution = 8
 
+geoip_path = "/var/lib/geoip/GeoIP/GeoLite2-City.mmdb"
+
 [stats]
 path = "stats.json"
 archived_reports = 0

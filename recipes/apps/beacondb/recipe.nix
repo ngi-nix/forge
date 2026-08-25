@@ -65,6 +65,19 @@ in
       ```
 
       Once you submit the reports, you can geolocate a device which lacks GPS based on the wifi and cellular access points nearby or based on the ip address.
+
+      #### IP Fallback
+
+      IP fallback is integrated natively using `services.geoipupdate`.
+
+      To enable it, simply edit `recipe.nix` and provide your free MaxMind credentials in the `resources.geoipupdate` block:
+
+      ```nix
+      AccountID = 123456; # Replace with your ID
+      LicenseKey = "/path/to/your/license_key_file"; # Replace with the path to your key, eg. provided via sops or agenix secrets
+      ```
+
+      Once provided, the `geoipupdate` resource will automatically keep the `GeoLite2-City.mmdb` database updated, and `beacondb` will securely mount and read it using our `sharedState` feature!
     '';
 
     links = {
@@ -107,12 +120,29 @@ in
               path = "config.toml";
             };
           };
+          sharedState = {
+            "geoipupdate" = "/var/lib/geoip";
+          };
           ports = [ "8080:8080" ];
         };
 
         resources.database.ports = [ "5432:5432" ];
         resources.database.nixosConfig = {
           services.postgresql.enable = true;
+        };
+
+        resources.geoipupdate = {
+          role = "backend";
+          nixosConfig = {
+            services.geoipupdate = {
+              enable = true;
+              settings = {
+                AccountID = 0;
+                LicenseKey = "/var/lib/secrets/geoip_license";
+                EditionIDs = [ "GeoLite2-City" ];
+              };
+            };
+          };
         };
 
         resources.proxy = {
