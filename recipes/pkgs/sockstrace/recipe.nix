@@ -14,9 +14,6 @@
     source = {
       git = "github:namecoin/sockstrace/v1";
       hash = "sha256-vUJSuazo5C23UacQGKxTXrLek6vEu9+S9PzfBjXa9Nc=";
-      patches = [
-        ./add-go-deps.patch
-      ];
     };
 
     build.goPackageBuilder = {
@@ -30,8 +27,11 @@
       vendorHash = "sha256-EFHYvWYXvpB6QMk345wUgcx54W1yWzXuphq+8oDiVzE=";
     };
 
-    build.extraAttrs = {
-      postInstall = ''
+    phases = {
+      patch.patches = [
+        ./add-go-deps.patch
+      ];
+      install.script.post = ''
         mv $out/bin/main.go $out/bin/sockstrace
       '';
     };
