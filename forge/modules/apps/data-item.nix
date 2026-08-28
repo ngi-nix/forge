@@ -17,20 +17,21 @@
         attribute name otherwise.
       '';
     };
-    isBinary = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-      description = "Whether the data item is a binary file. Set to true for images/binaries to prevent Nix string evaluation errors.";
-    };
     content = lib.mkOption {
       type = lib.types.str;
       default =
-        # https://github.com/NixOS/nix/issues/1307
-        if config.path != null && !config.isBinary then
-          lib.removeSuffix "\n" (lib.readFile config.path)
-        else
-          "";
-      defaultText = lib.literalExpression ''if config.path != null && !config.isBinary then lib.removeSuffix "\n" (lib.readFile config.path) else ""'';
+        let
+          binaryExts = [
+            ".png"
+            ".jpg"
+            ".ico"
+          ];
+
+          # https://github.com/NixOS/nix/issues/1307
+          isBinary = lib.elem true (map (ext: lib.hasSuffix ext config.path) binaryExts);
+        in
+        if config.path != null && !isBinary then lib.removeSuffix "\n" (lib.readFile config.path) else "";
+      defaultText = lib.literalExpression ''if config.path != null && !isBinary then lib.removeSuffix "\n" (lib.readFile config.path) else ""'';
       description = "Data item content. Will be an empty string for binary files as nix doesn't support reading binary files.";
     };
     path = lib.mkOption {

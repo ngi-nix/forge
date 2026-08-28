@@ -74,10 +74,7 @@ in
 
     data = {
       sampleDoc = ./sample.typ;
-      referenceImage = {
-        path = ./reference.png;
-        isBinary = true;
-      };
+      referenceImage = ./reference.png;
     };
 
     programs = {
