@@ -5,15 +5,15 @@
 
 {
   pkgs.rpki-client = {
-    version = "9.8";
+    version = "9.9";
     description = "Port of OpenBSD's rpki-client RPKI relying party validator to other operating systems.";
     homePage = "https://www.rpki-client.org";
     mainProgram = "rpki-client";
     license = "isc";
 
     source = {
-      git = "github:rpki-client/rpki-client-portable/9.8";
-      hash = "sha256-PejvnEGr+K+g+vLgO+JroZXRAa1LUJUzCwDVm8AyScY=";
+      git = "github:rpki-client/rpki-client-portable/9.9";
+      hash = "sha256-YYEz2F0R15Fr+eYO9RIXW8+BOh3sJA7acmN1d4ka0ns=";
     };
 
     build = {
