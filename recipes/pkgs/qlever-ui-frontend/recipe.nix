@@ -18,12 +18,8 @@
       npmDepsHash = "sha256-Zq7+HLPO+lVYJflz7SK1rTgQtNSgbx2mZ7wFd6McBCo=";
     };
 
-    build.extraAttrs = {
-      installPhase = ''
-        runHook preInstall
-        cp -r ./backend/static/wasm $out
-        runHook postInstall
-      '';
-    };
+    phases.install.script.main = ''
+      cp -r ./backend/static/wasm $out
+    '';
   };
 }

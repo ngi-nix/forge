@@ -17,6 +17,27 @@
       hash = "sha256-DIlmSaRdOJXDj3HvAxnSzmEr6595x9Avcg0jWH9fUuU=";
     };
 
+    phases = {
+      build.script.pre = ''
+        cp -r ${pkgs.qlever-ui-frontend}/. ./backend/static/wasm/
+      '';
+
+      install.script.post = ''
+        makeWrapper ${pkgs.python3Packages.gunicorn}/bin/gunicorn \
+          $out/bin/qlever-ui \
+          --add-flags "qlever.wsgi:application" \
+          --add-flags "--limit-request-line 10000" \
+          --prefix PYTHONPATH : "$PYTHONPATH"
+
+        cp -r $PWD $out/opt
+
+        makeWrapper ${placeholder "out"}/opt/manage.py \
+          $out/bin/qlever-ui-manage \
+          --set DJANGO_SETTINGS_MODULE qlever.settings \
+          --prefix PYTHONPATH : "$PYTHONPATH"
+      '';
+    };
+
     build.pythonAppBuilder = {
       enable = true;
       packages = {
@@ -48,27 +69,6 @@
       importsCheck = [
         "qlever"
       ];
-    };
-
-    build.extraAttrs = {
-      preBuild = ''
-        cp -r ${pkgs.qlever-ui-frontend}/. ./backend/static/wasm/
-      '';
-
-      postInstall = ''
-        makeWrapper ${pkgs.python3Packages.gunicorn}/bin/gunicorn \
-          $out/bin/qlever-ui \
-          --add-flags "qlever.wsgi:application" \
-          --add-flags "--limit-request-line 10000" \
-          --prefix PYTHONPATH : "$PYTHONPATH"
-
-        cp -r $PWD $out/opt
-
-        makeWrapper ${placeholder "out"}/opt/manage.py \
-          $out/bin/qlever-ui-manage \
-          --set DJANGO_SETTINGS_MODULE qlever.settings \
-          --prefix PYTHONPATH : "$PYTHONPATH"
-      '';
     };
 
     test.script = ''
