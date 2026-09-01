@@ -52,12 +52,6 @@ let
     apps = lib.filterAttrs (_: app: !app.broken) config.forge.apps;
   };
 
-  buildElmApplication =
-    (pkgs.callPackage "${forge-inputs.elm2nix}/nix" {
-      # TODO remove once https://github.com/dwayne/elm2nix/pull/5 is available
-      elmVersion = pkgs.elmPackages.elm.version;
-    }).buildElmApplication;
-
   _forge = {
     config = pkgs.writeTextFile {
       name = "forge-config.json";
@@ -71,7 +65,7 @@ let
     ui = pkgs.callPackage ../ui/package.nix {
       inherit (config.packages) _forge;
       inherit appIcons;
-      inherit buildElmApplication;
+      buildElmApplication = forge-inputs.self.legacyPackages.${system}.elm2nix.buildElmApplication;
       highlight-js = pkgs.callPackage ../flake/packages/highlight-js.nix { };
     };
 
