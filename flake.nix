@@ -38,6 +38,13 @@
       url = "github:ngi-nix/nimi/ngi-patches";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Empty by default. Swap this at the CLI to override recipe configuration.
+    # E.g.: nix run --override-input overrides path:./my-overrides.nix -- .#apps.mox.<app-name>
+    overrides = {
+      url = "path:./overrides.nix";
+      flake = false;
+    };
   };
 
   outputs =
@@ -81,6 +88,8 @@
             perSystem =
               { system, ... }:
               {
+                imports = [ (import inputs.overrides) ];
+
                 forge = {
                   repositoryUrl = self.sourceInfo.url or "github:ngi-nix/forge";
                   maintainerLists = [ self.maintainerList ];
