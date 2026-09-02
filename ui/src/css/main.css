@@ -559,6 +559,10 @@ pre code.hljs {
 .markdown-alert-caution .markdown-alert-title { color: #cf222e; }
 [data-bs-theme="dark"] .markdown-alert-caution .markdown-alert-title { color: #f85149; }
 
+[data-bs-theme="dark"] .feedback-message { color: #dbdbdb; }
+.feedback-message { color: #010101; }
+[data-bs-theme="light"] .feedback-link { color: #0074ff; }
+
 /* Custom Tooltip */
 .has-tooltip {
   position: relative;
