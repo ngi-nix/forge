@@ -8,7 +8,7 @@
   pkgs.pmtiles-viewer = {
     version = "0-unstable-2026-08-19";
     description = "Web viewer for PMTiles archives.";
-    homePage = "https://protomaps.com/docs/pmtiles/";
+    homePage = "https://docs.protomaps.com";
     license = lib.licenses.bsd3;
 
     source = {

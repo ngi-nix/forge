@@ -54,7 +54,7 @@
     icon = ./icon.svg;
 
     links = {
-      docs = "https://diesel.rs/guides";
+      docs = "https://diesel.rs/guides/";
       website = "https://diesel.rs";
       source = "https://github.com/diesel-rs/diesel";
     };

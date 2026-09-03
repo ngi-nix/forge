@@ -53,8 +53,8 @@
     '';
 
     links = {
-      website = "https://pijul.org";
-      source = "https://nest.pijul.com/pijul/pijul";
+      website = "https://pijul.org/";
+      source = "https://nest.pijul.com/pijul/pijul/tree";
     };
 
     ngi.grants = {

@@ -76,4 +76,5 @@ let
 in
 {
   packages = recursePackageSet null pkgs;
+  inherit pkgs;
 }
