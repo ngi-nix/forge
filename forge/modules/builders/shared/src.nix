@@ -66,6 +66,7 @@ let
             inherit url;
             hash = pkg.source.hash;
             fetchSubmodules = pkg.source.submodules;
+            fetchLFS = pkg.source.lfs;
           }
         )
       else
@@ -77,10 +78,15 @@ let
           sourceAttrs = lib.listToAttrs (lib.zipListsWith lib.nameValuePair schema pathParts);
         in
         forges.${forge} (
-          lib.recursiveUpdate sourceAttrs {
-            hash = pkg.source.hash;
-            fetchSubmodules = pkg.source.submodules;
-          }
+          lib.recursiveUpdate sourceAttrs (
+            {
+              hash = pkg.source.hash;
+              fetchSubmodules = pkg.source.submodules;
+            }
+            // lib.optionalAttrs pkg.source.lfs {
+              fetchLFS = true;
+            }
+          )
         );
 
     url =

@@ -163,6 +163,16 @@
         '';
         example = true;
       };
+      lfs = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Fetch Git LFS objects along with the repository source.
+
+          Only applicable when using `source.git`.
+        '';
+        example = true;
+      };
       patches = lib.mkOption {
         type = lib.types.listOf lib.types.path;
         default = [ ];
