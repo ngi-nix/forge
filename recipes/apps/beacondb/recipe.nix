@@ -30,10 +30,8 @@ in
       Example config.toml:
 
       ```
-      ${recipe.data.config.content}
+      ${recipe.data.config}
       ```
-
-
     '';
 
     links = {

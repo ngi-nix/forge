@@ -31,6 +31,7 @@
           isBinary = lib.elem true (map (ext: lib.hasSuffix ext config.path) binaryExts);
         in
         if config.path != null && !isBinary then lib.removeSuffix "\n" (lib.readFile config.path) else "";
+      apply = lib.trim;
       defaultText = lib.literalExpression ''if config.path != null && !isBinary then lib.removeSuffix "\n" (lib.readFile config.path) else ""'';
       description = "Data item content. Will be an empty string for binary files as nix doesn't support reading binary files.";
     };
@@ -39,6 +40,10 @@
       default = pkgs.writeText config.name config.content;
       defaultText = lib.literalExpression "pkgs.writeText config.name config.content";
       description = "Data item absolute path.";
+    };
+    __toString = lib.mkOption {
+      type = lib.types.functionTo lib.types.str;
+      default = self: toString self.content;
     };
   };
 }

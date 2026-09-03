@@ -32,7 +32,7 @@ in
       A sample document is bundled for a quick first try
 
       ```
-      ${recipe.data.sampleDoc.content}
+      ${recipe.data.sampleDoc}
       ```
 
       Compile the sample document to PDF

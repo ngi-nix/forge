@@ -53,7 +53,7 @@ in
       #### Quick Start
 
       ```yaml
-      ${app.data.exampleKsy.content}
+      ${app.data.exampleKsy}
       ```
 
       Consider the simple `.ksy` format description above, which describes the header of a GIF image file.
@@ -86,7 +86,7 @@ in
       This shell environment provides python with `kaitaistruct` python package pre-installed.
 
       ```bash
-      ${lib.trim app.data.testInstructions.content}
+      ${app.data.testInstructions}
       ```
 
       This example shows only a very limited subset of what Kaitai Struct can do. Please refer to the [documentation](${config.apps.kaitai-struct.links.docs}) and try the online [ide](https://ide.kaitai.io), which has many examples.

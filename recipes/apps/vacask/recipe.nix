@@ -25,10 +25,10 @@ in
 
       #### Basic Usage
 
-      For testing, download one of the [upstream test files](https://codeberg.org/arpadbuermen/VACASK/src/commit/${app.data.testCommit.content}/test). For example:
+      For testing, download one of the [upstream test files](https://codeberg.org/arpadbuermen/VACASK/src/commit/${app.data.testCommit}/test). For example:
 
       ```bash
-      wget https://codeberg.org/arpadbuermen/VACASK/raw/commit/${app.data.testCommit.content}/test/${app.data.testOp.name}
+      wget https://codeberg.org/arpadbuermen/VACASK/raw/commit/${app.data.testCommit}/test/${app.data.testOp.name}
       ```
 
       Afterwards, run the simulation on the netlist file you downloaded:

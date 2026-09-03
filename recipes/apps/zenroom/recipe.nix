@@ -32,7 +32,7 @@ in
       First, write the following script into a local file (e.g. `${app.data.arrayGenerator.name}`):
 
       ```
-      ${app.data.arrayGenerator.content}
+      ${app.data.arrayGenerator}
       ```
 
       Then, [enter the Nix shell](app/zenroom#run-shell) and execute the script:
