@@ -94,6 +94,13 @@
       '';
       example = lib.literalExpression "with lib.maintainers; [ ngi-nix ]";
     };
+    scope = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "The scope for the package to allow the forge to categorise it.";
+      example = lib.literalExpression ''[ "ocamlPackages" "coolOcamlPackages" ] # Scopes as pkgs.ocamlPackages.coolOcamlPackages.pkgName'';
+      internal = true;
+    };
     broken = lib.mkOption {
       type = lib.types.bool;
       default = false;
