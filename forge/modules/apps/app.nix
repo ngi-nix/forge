@@ -124,22 +124,23 @@
       '';
       type =
         let
-          contentType = lib.types.oneOf [
+          valueType = lib.types.oneOf [
             lib.types.str
             lib.types.int
             lib.types.bool
             lib.types.float
           ];
+
           atomType = lib.types.oneOf [
             lib.types.path
-            contentType
+            valueType
           ];
 
           toDataItem =
             value:
-            if contentType.check value then
+            if valueType.check value then
               {
-                content = value;
+                value = value;
               }
             else if lib.isPath value then
               {
@@ -153,7 +154,7 @@
           dataItemType = lib.types.coercedTo atomType toDataItem (
             lib.types.submoduleWith {
               modules = [ ./data-item.nix ];
-              specialArgs = { inherit pkgs contentType; };
+              specialArgs = { inherit pkgs valueType; };
             }
           );
         in
