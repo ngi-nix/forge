@@ -12,6 +12,7 @@ type alias App =
     , app_description : String
     , app_longDescription : String
     , app_usage : String
+    , app_instructions : AppInstructionFlows
     , app_programs : AppPrograms
     , app_services : AppServices
     , app_ngi : Ngi
@@ -30,7 +31,8 @@ decodeApp =
         |> Decode.andMap (Decode.field "displayName" Decode.string)
         |> Decode.andMap (Decode.field "description" Decode.string)
         |> Decode.andMap (Decode.field "longDescription" Decode.string)
-        |> Decode.andMap (Decode.field "usage" Decode.string)
+        |> Decode.andMap (Decode.map (Maybe.withDefault "") (Decode.field "usage" (Decode.maybe Decode.string)))
+        |> Decode.andMap (Decode.field "instructionFlows" decodeAppInstructionFlows)
         |> Decode.andMap (Decode.field "programs" decodeAppPrograms)
         |> Decode.andMap (Decode.field "services" decodeAppServices)
         |> Decode.andMap (Decode.field "ngi" decodeNgi)
@@ -94,6 +96,38 @@ decodeAppProgramsRuntimesShell : Decoder AppProgramsRuntimesShell
 decodeAppProgramsRuntimesShell =
     Decode.map AppProgramsRuntimesShell
         (Decode.field "enable" Decode.bool)
+
+
+type alias Instruction =
+    { description : String, command : Maybe String, altCommand : Maybe String }
+
+
+type alias InstructionFlow =
+    ( String, List Instruction )
+
+
+type alias AppInstructionFlows =
+    List InstructionFlow
+
+
+decodeAppInstructionFlows : Decoder AppInstructionFlows
+decodeAppInstructionFlows =
+    Decode.list decodeInstructionFlow
+
+
+decodeInstructionFlow : Decoder InstructionFlow
+decodeInstructionFlow =
+    Decode.map2 (\n f -> ( n, f ))
+        (Decode.field "name" Decode.string)
+        (Decode.field "flow" <| Decode.list decodeInstruction)
+
+
+decodeInstruction : Decoder Instruction
+decodeInstruction =
+    Decode.map3 Instruction
+        (Decode.field "description" Decode.string)
+        (Decode.maybe (Decode.field "command" Decode.string))
+        (Decode.maybe (Decode.field "altCommand" Decode.string))
 
 
 type alias AppResource =

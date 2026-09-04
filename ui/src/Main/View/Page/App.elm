@@ -1,8 +1,8 @@
 module Main.View.Page.App exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target, title)
+import Html exposing (Html, a, button, details, div, h2, h4, h6, hr, img, li, p, small, summary, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -18,6 +18,8 @@ import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
 import Main.Update.Types exposing (..)
 import Main.View.Page.App.Run exposing (..)
+import Set
+import Set.Extra
 
 
 viewPageApp : Model -> PageApp -> Html Update
@@ -29,6 +31,7 @@ viewPageApp model pageApp =
                 [ viewPageAppFeedback model
                 , viewPageAppHeader model pageApp
                 , viewPageAppDescription model pageApp
+                , viewPageAppInstructionFlows model pageApp
                 , viewPageAppRun model pageApp
                 , viewPageAppIconModal model pageApp
                 ]
@@ -41,6 +44,71 @@ viewPageApp model pageApp =
                 ]
             ]
         ]
+
+
+viewPageAppInstructionFlows : Model -> PageApp -> Html Update
+viewPageAppInstructionFlows _ pageApp =
+    if not <| List.isEmpty pageApp.pageApp_app.app_instructions then
+        div []
+            [ hr [] []
+            , h4 [] [ text "Instructions" ]
+            , div [ class "accordion" ]
+                (List.map (viewPageAppInstructionFlow pageApp) pageApp.pageApp_app.app_instructions)
+            ]
+
+    else
+        text ""
+
+
+viewPageAppInstructionFlow : PageApp -> InstructionFlow -> Html Update
+viewPageAppInstructionFlow pageApp instructionFlow =
+    let
+        ins =
+            List.indexedMap
+                (\_ i ->
+                    let
+                        command =
+                            if i.altCommand /= Nothing then
+                                i.altCommand
+
+                            else
+                                i.command
+                    in
+                    div [ class "text-body-secondary" ]
+                        [ p [] [ i.description |> Markdown.render ]
+                        , bashCodeBlock <| Maybe.withDefault "" command
+                        ]
+                )
+                (Tuple.second <| instructionFlow)
+    in
+    details
+        (List.append [ class "accordion-item" ]
+            (if instructionIsActive pageApp instructionFlow then
+                [ attribute "open" "" ]
+
+             else
+                []
+            )
+        )
+        [ summary
+            [ class "accordion-button accordion-header fw-bold"
+            , let
+                route =
+                    pageApp.pageApp_route
+              in
+              onClick
+                (Update_RouteWithoutHistory
+                    (Route_App { route | routeApp_instructionFlows = Set.Extra.toggle (Tuple.first instructionFlow) route.routeApp_instructionFlows })
+                )
+            ]
+            [ text <| Tuple.first instructionFlow ]
+        , div [ class "accordion-body" ] ins
+        ]
+
+
+instructionIsActive : PageApp -> InstructionFlow -> Bool
+instructionIsActive pageApp instructionFlow =
+    Set.member (Tuple.first instructionFlow) pageApp.pageApp_route.routeApp_instructionFlows
 
 
 viewPageAppHeader : Model -> PageApp -> Html Update

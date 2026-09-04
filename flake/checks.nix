@@ -50,6 +50,7 @@
         // (passthruAttr "test-services-container")
         // (passthruAttr "test-services-nixos")
         // (passthruAttr "test-programs")
+        // (passthruAttr "test-all-instruction-flows")
         // (passthruAttr "check-programs-main-package");
     };
 }
