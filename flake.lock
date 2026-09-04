@@ -181,6 +181,18 @@
         "type": "github"
       }
     },
+    "overrides": {
+      "flake": false,
+      "locked": {
+        "path": "./overrides.nix",
+        "type": "path"
+      },
+      "original": {
+        "path": "./overrides.nix",
+        "type": "path"
+      },
+      "parent": []
+    },
     "root": {
       "inputs": {
         "devshell": "devshell",
@@ -190,6 +202,7 @@
         "nimi": "nimi",
         "nix-utils": "nix-utils",
         "nixpkgs": "nixpkgs",
+        "overrides": "overrides",
         "treefmt-nix": "treefmt-nix"
       }
     },
