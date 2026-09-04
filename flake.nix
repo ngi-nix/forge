@@ -20,7 +20,8 @@
     };
 
     elm2nix = {
-      url = "github:dwayne/elm2nix";
+      # TODO switch to dwayne/elm2nix once https://github.com/dwayne/elm2nix/pull/5 is merged
+      url = "github:phanirithvij/elm2nix/elm-0.19.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
