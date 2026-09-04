@@ -27,7 +27,7 @@ in
     usage = ''
       First, [launch the shell envrionment](app/${app.name}#run-shell) containing `${app.name}`.
 
-      The instructions below will use the `tiny` dataset of the [vg tests](https://github.com/vgteam/vg/tree/${app.data.vgCommit.content}/test) directory.
+      The instructions below will use the `tiny` dataset of the [vg tests](https://github.com/vgteam/vg/tree/${app.data.vgCommit}/test) directory.
       You can fetch them either by cloning the repository locally with git:
 
       ```bash

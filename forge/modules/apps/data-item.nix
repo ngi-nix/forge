@@ -3,6 +3,7 @@
   name,
   lib,
   pkgs,
+  valueType,
   ...
 }:
 {
@@ -17,8 +18,8 @@
         attribute name otherwise.
       '';
     };
-    content = lib.mkOption {
-      type = lib.types.str;
+    value = lib.mkOption {
+      type = valueType;
       default =
         let
           binaryExts = [
@@ -37,13 +38,13 @@
     };
     path = lib.mkOption {
       type = lib.types.path;
-      default = pkgs.writeText config.name config.content;
-      defaultText = lib.literalExpression "pkgs.writeText config.name config.content";
+      default = pkgs.writeText config.name (toString config.value);
+      defaultText = lib.literalExpression "pkgs.writeText config.name (toString config.value)";
       description = "Data item absolute path.";
     };
     __toString = lib.mkOption {
       type = lib.types.functionTo lib.types.str;
-      default = self: toString self.content;
+      default = self: toString self.value;
     };
   };
 }
