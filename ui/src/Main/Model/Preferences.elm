@@ -7,6 +7,7 @@ import Json.Encode as Encode exposing (Value)
 type alias Preferences =
     { preferences_install : PreferencesInstall
     , preferences_theme : PreferencesTheme
+    , preferences_sort : PreferencesSort
     }
 
 
@@ -14,26 +15,28 @@ defaultPreferences : Preferences
 defaultPreferences =
     { preferences_install = PreferencesInstall_NixFlakes
     , preferences_theme = PreferencesTheme_Light
+    , preferences_sort = PreferencesSort_Random
     }
 
 
 decodePreferences : Decoder Preferences
 decodePreferences =
-    Decode.map2
+    Decode.map3
         Preferences
-        (Decode.field "install"
-            (Decode.oneOf
-                [ decodePreferencesInstall
-                , Decode.succeed defaultPreferences.preferences_install
-                ]
-            )
+        (Decode.oneOf
+            [ Decode.field "install" decodePreferencesInstall
+            , Decode.succeed defaultPreferences.preferences_install
+            ]
         )
-        (Decode.field "theme"
-            (Decode.oneOf
-                [ decodePreferencesTheme
-                , Decode.succeed defaultPreferences.preferences_theme
-                ]
-            )
+        (Decode.oneOf
+            [ Decode.field "theme" decodePreferencesTheme
+            , Decode.succeed defaultPreferences.preferences_theme
+            ]
+        )
+        (Decode.oneOf
+            [ Decode.field "sort" decodePreferencesSort
+            , Decode.succeed defaultPreferences.preferences_sort
+            ]
         )
 
 
@@ -42,6 +45,7 @@ encodePreferences preferences =
     Encode.object
         [ ( "install", preferences.preferences_install |> encodePreferencesInstall )
         , ( "theme", preferences.preferences_theme |> encodePreferencesTheme )
+        , ( "sort", preferences.preferences_sort |> encodePreferencesSort )
         ]
 
 
@@ -134,3 +138,42 @@ encodePreferencesTheme theme =
 
             PreferencesTheme_Dark ->
                 "dark"
+
+
+type PreferencesSort
+    = PreferencesSort_Random
+    | PreferencesSort_Alphabetical
+
+
+decodePreferencesSort : Decoder PreferencesSort
+decodePreferencesSort =
+    Decode.string
+        |> Decode.andThen
+            (\s ->
+                case s of
+                    "default" ->
+                        Decode.succeed PreferencesSort_Random
+
+                    "random_weekly" ->
+                        Decode.succeed PreferencesSort_Random
+
+                    "random" ->
+                        Decode.succeed PreferencesSort_Random
+
+                    "alphabetical" ->
+                        Decode.succeed PreferencesSort_Alphabetical
+
+                    _ ->
+                        Decode.fail <| "Invalid PreferencesSort: " ++ s
+            )
+
+
+encodePreferencesSort : PreferencesSort -> Value
+encodePreferencesSort sort =
+    Encode.string <|
+        case sort of
+            PreferencesSort_Random ->
+                "random"
+
+            PreferencesSort_Alphabetical ->
+                "alphabetical"

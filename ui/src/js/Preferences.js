@@ -14,6 +14,11 @@ const initDefaultPreferences = () => {
     localStorage.setItem("preferences", JSON.stringify(preferences));
   }
 
+  if (preferences.sort === undefined) {
+    preferences.sort = "random";
+    localStorage.setItem("preferences", JSON.stringify(preferences));
+  }
+
   // Set the initial theme on page load
   document.documentElement.setAttribute("data-bs-theme", preferences.theme);
 

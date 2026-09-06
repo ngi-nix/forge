@@ -6,6 +6,7 @@ import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Cmd as Cmd
 import Main.Helpers.Nix exposing (..)
+import Main.Helpers.String
 import Main.Model exposing (..)
 import Main.Model.Error exposing (..)
 import Main.Model.Page exposing (..)
@@ -17,6 +18,7 @@ import Main.Update.Focus exposing (..)
 import Main.Update.Route.Recipe exposing (..)
 import Main.Update.Search exposing (..)
 import Main.Update.Types exposing (..)
+import Random
 
 
 updateRouteApps : RouteApps -> Updater
@@ -60,13 +62,38 @@ updateRouteApps route =
                         )
                         (model.model_config.config_apps
                             |> Dict.values
-                            |> List.sortBy (\app -> String.toLower app.app_displayName)
                         )
                         search
+
+                sortApps =
+                    \apps ->
+                        case model.model_preferences.preferences_sort of
+                            PreferencesSort_Alphabetical ->
+                                List.sortWith
+                                    (\appA appB ->
+                                        compare (String.toLower appA.app_displayName) (String.toLower appB.app_displayName)
+                                    )
+                                    apps
+
+                            PreferencesSort_Random ->
+                                let
+                                    initialSeed =
+                                        Random.initialSeed model.model_ephemeralSeed
+
+                                    generator =
+                                        Random.list (List.length apps) (Random.float 0 1)
+
+                                    ( randomFloats, _ ) =
+                                        Random.step generator initialSeed
+                                in
+                                List.map2 Tuple.pair randomFloats apps
+                                    |> List.sortBy Tuple.first
+                                    |> List.map Tuple.second
 
                 filteredItems =
                     availableItems
                         |> filterMatches
+                        |> sortApps
               in
               { model
                 | model_page =

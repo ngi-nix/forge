@@ -89,6 +89,12 @@ update upd modelInit =
             , setPreferences prefs
             )
 
+        Update_ShuffleApps ->
+            ( { model | model_ephemeralSeed = model.model_ephemeralSeed + 1 }, Cmd.none )
+
+        Update_ToggleAppsSortDropdown ->
+            ( { model | model_appsSortDropdownOpen = not model.model_appsSortDropdownOpen }, Cmd.none )
+
         Update_DismissFeedback ->
             ( { model | model_askFeedback = False }, Cmd.none )
 
