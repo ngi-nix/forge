@@ -10,15 +10,15 @@ let
 in
 {
   pkgs.mustang = {
-    version = "0.9.37";
+    version = "0.9.38";
     description = "Full-featured desktop email, chat, video conference, calendar and contacts client.";
     homePage = "https://www.mustang.im";
     mainProgram = "mustang";
     license = lib.licenses.eupl12;
 
     source = {
-      git = "github:mustang-im/mustang/v${recipe.version}";
-      hash = "sha256-ldmAiiUDPC+5Pbr0cDy4FqgFXyG6K9TNovON+MbvhNQ=";
+      git = "github:mustang-im/mustang/v0.9.38";
+      hash = "sha256-vW7JueYkmmIxAcGq9UACH2WC55rH3ugoVWkRCTtSD7Q=";
     };
 
     build.standardBuilder = {
