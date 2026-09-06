@@ -50,6 +50,9 @@
           Group = lib.mkDefault serviceName;
           StateDirectory = serviceName;
           WorkingDirectory = service.process.stateDir;
+          BindPaths = lib.mapAttrsToList (
+            sourceName: destPath: "/var/lib/${sourceName}:${destPath}"
+          ) service.process.sharedState;
         }
         (lib.optionalAttrs (service.process.user == "prefer-dynamic") {
           DynamicUser = true;

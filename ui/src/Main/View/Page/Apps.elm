@@ -1,9 +1,7 @@
 module Main.View.Page.Apps exposing (..)
 
-import Html exposing (Html, a, div, h5, img, p, small, span, text)
-import Html.Attributes exposing (attribute, class, href, src, style, title)
-import Html.Events exposing (stopPropagationOn)
-import Json.Decode as Decode
+import Html exposing (Html, a, div, h5, img, p, text)
+import Html.Attributes exposing (attribute, class, href, src, style)
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)

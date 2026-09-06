@@ -1,0 +1,5 @@
+database_url = "postgresql://postgres@localhost:5432/postgres"
+http_port = 8080
+h3_resolution = 8
+
+geoip_path = "/var/lib/geoip/GeoIP/GeoLite2-City.mmdb"

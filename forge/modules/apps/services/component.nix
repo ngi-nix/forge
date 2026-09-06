@@ -108,6 +108,22 @@
                 example = "/var/lib/myservice";
               };
 
+              sharedState = lib.mkOption {
+                type = lib.types.attrsOf lib.types.str;
+                default = { };
+                description = ''
+                  Mount state directories from other components or resources into this component.
+
+                  The key is the name of the source component or resource.
+                  The value is the absolute path where it should be mounted inside this component.
+
+                  Note: In the container runtime, this mounts the source's data volume.
+                '';
+                example = {
+                  "geoip" = "/var/lib/geoip";
+                };
+              };
+
               packages = lib.mkOption {
                 type = lib.types.listOf lib.types.package;
                 default = [ ];
