@@ -20,7 +20,7 @@ test.describe("Packages Page", () => {
     await searchBar.fill(TEST_PKG_SEARCH);
 
     const results = page.getByTestId("pkg-result");
-    await expect(await results.count()).toBeGreaterThan(0);
+    await expect(results.first()).toBeVisible();
 
     await expect(results.first()).toContainText(new RegExp(TEST_PKG_SEARCH, "i"));
   });

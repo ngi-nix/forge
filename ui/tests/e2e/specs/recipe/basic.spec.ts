@@ -19,7 +19,7 @@ test.describe("Recipe Options Page", () => {
     await searchBar.fill(searchTerm);
 
     const results = page.getByTestId("option-result");
-    await expect(await results.count()).toBeGreaterThan(0);
+    await expect(results.first()).toBeVisible();
     await expect(results.first()).toContainText(searchTerm);
   });
 

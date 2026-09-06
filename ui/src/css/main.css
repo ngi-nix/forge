@@ -602,9 +602,6 @@ pre code.hljs {
 .feedback-message {
   color: #010101;
 }
-[data-bs-theme="light"] .feedback-link {
-  color: #0074ff;
-}
 
 /* Custom Tooltip */
 .has-tooltip {
@@ -708,8 +705,7 @@ details.markdown-content highlightjs-code pre {
   100% { opacity: 0; visibility: hidden; }
 }
 
-.has-tooltip.autohide:hover .tooltip,
-.has-tooltip.autohide:active .tooltip {
+.has-tooltip.autohide:hover .tooltip {
   opacity: 0;
   visibility: hidden;
   animation: autoHideTooltip 2s forwards;

@@ -2,7 +2,7 @@ module Main.View.Page.Apps exposing (..)
 
 import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
-import Html.Events exposing (stopPropagationOn)
+import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
@@ -116,7 +116,15 @@ viewPageAppsApp _ _ app =
                     [ href (onClickRoute |> routeToString)
                     , class "text-decoration-none"
                     , style "color" "inherit"
-                    , onClick (Update_Route onClickRoute)
+
+                    -- FIX: Custom click handler stops the Elm text-selection bug from hard-reloading
+                    , custom "click"
+                        (Decode.succeed
+                            { message = Update_Route onClickRoute
+                            , stopPropagation = True
+                            , preventDefault = True
+                            }
+                        )
                     , attribute "draggable" "false"
                     ]
                     [ text app.app_displayName ]
@@ -126,6 +134,15 @@ viewPageAppsApp _ _ app =
             [ class "flex-grow-1 d-flex align-items-center w-100 my-2" ]
             [ p
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
+
+                -- FIX: Stop propagation here so dragging/highlighting this text doesn't trigger the card's onClick
+                , custom "click"
+                    (Decode.succeed
+                        { message = Update_Chain []
+                        , stopPropagation = True
+                        , preventDefault = False
+                        }
+                    )
                 ]
                 [ text app.app_description ]
             ]

@@ -126,7 +126,7 @@ viewPageAppFeedback model =
                 [ href "https://cryptpad.ngi.nixos.org/form/#/2/form/view/3X1lzb3+XxsLUq-TygwGn-R3aHcvwuNo3L7Ya8Z1VWo/"
                 , target "_blank"
                 , rel "noopener"
-                , class "feedback-link"
+                , class "alert-link"
                 ]
                 [ text "know how it went" ]
             , text "."
