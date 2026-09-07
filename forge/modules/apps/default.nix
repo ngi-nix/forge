@@ -5,6 +5,87 @@
   pkgs,
   ...
 }:
+let
+  getEndNodes =
+    tree:
+    let
+      go =
+        id: curr:
+        if builtins.elem "description" (builtins.attrNames curr) then
+          {
+            ${lib.lists.last id} = {
+              pos = id;
+              val = curr;
+            };
+          }
+        else
+          lib.foldlAttrs (
+            acc: name: value:
+            lib.recursiveUpdate acc (go (id ++ [ name ]) value)
+          ) { } curr;
+    in
+    go [ ] tree;
+
+  treeNode =
+    appData:
+    lib.mkOptionType {
+      name = "treeNode";
+      description = "tree node with leaves ${
+        lib.optionDescriptionPhrase (class: class == "noun" || class == "composite") appData
+      }";
+      descriptionClass = "conjunction"; # treeNode OR appData
+      check = val: builtins.isAttrs val;
+      merge =
+        loc: defs:
+        let
+          go =
+            id: currentLevel:
+            lib.trace id (
+              if builtins.all (v: builtins.hasAttr "description" v.value) currentLevel then
+                appData.merge id currentLevel
+              else if builtins.any (v: builtins.hasAttr "description" v.value) currentLevel then
+                abort "appData and not attrset of treenodes on same level"
+              else
+                let
+                  attrNamesToLookAt = builtins.foldl' (
+                    names: curr: # names :: Attrset ( null ), curr :: Attrset
+                    names
+                    // (builtins.foldl' (acc: elem: acc // { ${elem} = null; }) { } (builtins.attrNames curr.value))
+                  ) { } currentLevel;
+                  attrNamesWithNodes = builtins.mapAttrs (
+                    name: _v: builtins.filter (node: builtins.elem name (builtins.attrNames node.value)) currentLevel
+                  ) attrNamesToLookAt;
+                  attrNamesApplied = builtins.mapAttrs (
+                    name: value:
+                    go (id ++ [ name ]) (
+                      map (n: {
+                        value = n.value.${name};
+                        inherit (n) file;
+                      }) value
+                    )
+                  ) attrNamesWithNodes;
+                in
+                attrNamesApplied
+            );
+        in
+        go loc defs;
+      getSubModules = appData.getSubModules;
+      substSubModules = m: treeNode (appData.substSubModules m);
+      emptyValue = {
+        value = { };
+      };
+      /*
+        functor = (lib.types.defaultFunctor "treeNode") // {
+          payload = { inherit appData; };
+            binOp = a: b:
+              let merged = a.appData.typeMerge b.appData.functor;
+              in if merged == null then null else { appData = merged; };
+          binOp = abort "oh no";
+          type = { appData }: treeNode appData;
+        };
+      */
+    };
+in
 {
   options.forge = lib.mkOption {
     type = lib.types.submoduleWith {
@@ -19,7 +100,7 @@
             options.apps = lib.mkOption {
               default = { };
               description = "Applications indexed by their `name`.";
-              type = lib.types.attrsOf (
+              type = treeNode (
                 lib.types.submoduleWith {
                   specialArgs = specialArgs // {
                     forgeOptions = forgeArgs.options;
@@ -115,7 +196,10 @@
           );
         };
 
-      bundledApps = lib.mapAttrs (appName: app: shellBundle app) config.forge.apps;
+      bundledApps = lib.foldlAttrs (
+        acc: name: app:
+        lib.recursiveUpdate acc (lib.setAttrByPath app.pos (shellBundle app.val))
+      ) config.forge.apps (getEndNodes config.forge.apps);
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
         derivations = bundledApps;
