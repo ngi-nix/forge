@@ -28,11 +28,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782731936,
-        "narHash": "sha256-fv+DN/pN5V6jeMIOuxjM9/jvbE7MLZPHUIMiIH903x0=",
+        "lastModified": 1788695026,
+        "narHash": "sha256-gDTIFHI6RE0xss6uhxf9J6PFQq1qQmMupvvzAeP0iwU=",
         "owner": "dwayne",
         "repo": "elm2nix",
-        "rev": "c31bb4c3c6ad2a6b6b328c2975126cfb6140c052",
+        "rev": "ea5293850cc98d7acd3f7fc45fc95d9308334e27",
         "type": "github"
       },
       "original": {
@@ -72,8 +72,9 @@
         "type": "github"
       },
       "original": {
-        "id": "flake-utils",
-        "type": "indirect"
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
       }
     },
     "import-tree": {
