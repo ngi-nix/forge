@@ -246,9 +246,7 @@
               system.disableInstallerTools = true;
               system.switch.enable = false;
               services.nscd.enable = false;
-              services.journald.extraConfig = ''
-                Storage=volatile
-              '';
+              services.journald.settings.Journal.Storage = "volatile";
               system.activationScripts.logs-hint.text = ''
                 echo "Run 'podman exec \$(podman ps -qf name=${app.name}_${name}) journalctl -f' to see more logs ..."
               '';
