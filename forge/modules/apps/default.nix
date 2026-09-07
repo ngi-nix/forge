@@ -115,7 +115,9 @@
           );
         };
 
-      bundledApps = lib.mapAttrs (appName: app: shellBundle app) config.forge.apps;
+      bundledApps = lib.mapAttrs (appName: app: shellBundle app) (
+        lib.filterAttrs (_: app: !app.broken) config.forge.apps
+      );
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
         derivations = bundledApps;
