@@ -101,6 +101,13 @@
       '';
       example = lib.literalExpression "with lib.maintainers; [ ngi-nix ]";
     };
+    scope = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "The scope for the application to allow the forge to categorise it.";
+      example = lib.literalExpression ''[ "ocamlApps" "coolOcamlApps" ] # Scopes as apps.ocamlApps.coolOcamlApps.appName'';
+      internal = true;
+    };
     data = lib.mkOption {
       description = ''
         Data to be re-used in an application.
