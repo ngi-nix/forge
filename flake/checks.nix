@@ -16,9 +16,7 @@
       # which we don't want to include in the checks.
       isRealDrv = v: lib.isDerivation v && v ? drvPath;
 
-      nonBrokenPackages = lib.filterAttrs (
-        n: v: (isRealDrv v && !(v.passthru.forge.broken or false))
-      ) config.packages;
+      filteredPackages = lib.filterAttrs (n: v: isRealDrv v) config.packages;
 
       # Helper function to extract passthru attribute, ensuring it is a valid derivation
       passthruAttr =
@@ -30,13 +28,13 @@
               lib.nameValuePair "${name}-${attr}" package.${attr}
             else
               lib.nameValuePair name null
-          ) nonBrokenPackages
+          ) filteredPackages
         );
     in
 
     {
       checks =
-        nonBrokenPackages
+        filteredPackages
 
         # All packages passthru attributes
         // (passthruAttr "env")
