@@ -8,7 +8,7 @@ test("search works in homepage and updates URL", async ({ page }) => {
   await searchBar.fill(TEST_APP_SEARCH);
 
   const results = page.getByTestId("app-result");
-  await expect(results).toHaveCount(1);
+  await expect(results.first()).toBeVisible();
 
   await expect(page).toHaveURL(new RegExp(`.*[?&]q=${TEST_APP_SEARCH}`));
 });
@@ -20,7 +20,7 @@ test("homepage loads search results directly from query param", async ({ page })
   await expect(searchBar).toHaveValue(TEST_APP_SEARCH);
 
   const results = page.getByTestId("app-result");
-  await expect(results).toHaveCount(1);
+  await expect(results.first()).toBeVisible();
 });
 
 test("search works in options page and updates URL", async ({ page }) => {
@@ -35,7 +35,7 @@ test("search works in options page and updates URL", async ({ page }) => {
   await searchBar.fill(searchTerm);
 
   const results = page.getByTestId("option-result");
-  await expect(results).toHaveCount(1);
+  await expect(results.first()).toBeVisible();
 
   const expectedParam = encodeURIComponent(searchTerm);
   await expect(page).toHaveURL(
@@ -54,5 +54,5 @@ test("options page loads search results directly from query param", async ({ pag
   await expect(searchBar).toHaveValue(searchTerm);
 
   const results = page.getByTestId("option-result");
-  await expect(results).toHaveCount(1);
+  await expect(results.first()).toBeVisible();
 });

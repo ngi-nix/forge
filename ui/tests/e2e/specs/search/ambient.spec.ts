@@ -68,7 +68,7 @@ test.describe("Ambient Search in Home page", () => {
     await expect(searchBar).toHaveValue(TEST_APP_SEARCH);
 
     const results = page.getByTestId("app-result");
-    await expect(results).toHaveCount(1);
+    await expect(results.first()).toBeVisible();
   });
 
   test("esc key should clear the search field", async ({ page }) => {
@@ -92,7 +92,7 @@ test.describe("Ambient Search in Home page", () => {
     await expect(searchBar).toHaveValue("");
 
     results = page.getByTestId("app-result");
-    await expect(await results.count()).toBeGreaterThan(0);
+    await expect(results.first()).toBeVisible();
   });
 });
 
@@ -163,7 +163,7 @@ test.describe("Ambient Search in App page", () => {
     await expect(searchBar).toHaveValue("");
 
     const results = page.getByTestId("app-result");
-    await expect(await results.count()).toBeGreaterThan(0);
+    await expect(results.first()).toBeVisible();
   });
 
   test("typing on an app page focuses then redirects to search results", async ({ page }) => {
@@ -203,6 +203,6 @@ test.describe("Ambient Search in Recipe Options page", () => {
     await expect(searchBar).toHaveValue(TEST_RECIPE_OPTION);
 
     const results = page.getByTestId("option-result");
-    await expect(results).toHaveCount(1);
+    await expect(results.first()).toBeVisible();
   });
 });

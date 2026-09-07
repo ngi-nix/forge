@@ -2,7 +2,7 @@ module Main.View.Page.Apps exposing (..)
 
 import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
-import Html.Events exposing (stopPropagationOn)
+import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
@@ -23,7 +23,8 @@ import Main.View.Pagination exposing (PaginationVisibility(..), viewPaginationIt
 viewPageApps : Model -> PageApps -> Html Update
 viewPageApps model pageApps =
     div []
-        [ viewPageAppsPagination
+        [ viewSortDropdown model pageApps
+        , viewPageAppsPagination
             pageApps.pageApps_pagination
             (viewPageAppsApp model pageApps)
             (\modifyRoutePagination ->
@@ -115,7 +116,15 @@ viewPageAppsApp _ _ app =
                     [ href (onClickRoute |> routeToString)
                     , class "text-decoration-none"
                     , style "color" "inherit"
-                    , onClick (Update_Route onClickRoute)
+
+                    -- FIX: Custom click handler stops the Elm text-selection bug from hard-reloading
+                    , custom "click"
+                        (Decode.succeed
+                            { message = Update_Route onClickRoute
+                            , stopPropagation = True
+                            , preventDefault = True
+                            }
+                        )
                     , attribute "draggable" "false"
                     ]
                     [ text app.app_displayName ]
@@ -125,6 +134,15 @@ viewPageAppsApp _ _ app =
             [ class "flex-grow-1 d-flex align-items-center w-100 my-2" ]
             [ p
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
+
+                -- FIX: Stop propagation here so dragging/highlighting this text doesn't trigger the card's onClick
+                , custom "click"
+                    (Decode.succeed
+                        { message = Update_Chain []
+                        , stopPropagation = True
+                        , preventDefault = False
+                        }
+                    )
                 ]
                 [ text app.app_description ]
             ]
@@ -154,4 +172,102 @@ viewPageAppsApp _ _ app =
                     []
                 ]
             )
+        ]
+
+
+viewSortDropdown : Model -> PageApps -> Html Update
+viewSortDropdown model pageApps =
+    div [ class "d-flex justify-content-start mb-3 gap-2" ]
+        [ div [ class "dropdown" ]
+            [ Html.button
+                [ class "btn btn-sm border text-body dropdown-toggle"
+                , attribute "type" "button"
+                , attribute "data-testid" "sort-dropdown-button"
+                , onClick Update_ToggleAppsSortDropdown
+                ]
+                [ Html.text <|
+                    case model.model_preferences.preferences_sort of
+                        PreferencesSort_Random ->
+                            "Sort: Random"
+
+                        PreferencesSort_Alphabetical ->
+                            "Sort: Alphabetical"
+                ]
+            , Html.ul
+                [ class <|
+                    "dropdown-menu dropdown-menu-end shadow"
+                        ++ (if model.model_appsSortDropdownOpen then
+                                " show"
+
+                            else
+                                ""
+                           )
+                ]
+                [ Html.li []
+                    [ Html.button
+                        [ class "dropdown-item d-flex align-items-center gap-2"
+                        , attribute "data-testid" "sort-dropdown-option-random"
+                        , onClick
+                            (Update_Chain
+                                [ Update_SetPreferences
+                                    { preferences_install = model.model_preferences.preferences_install
+                                    , preferences_theme = model.model_preferences.preferences_theme
+                                    , preferences_sort = PreferencesSort_Random
+                                    }
+                                , Update_ToggleAppsSortDropdown
+                                , Update_RouteWithoutHistory (Route_Apps pageApps.pageApps_route)
+                                ]
+                            )
+                        ]
+                        [ Main.Icons.iconShuffle, Html.text "Random" ]
+                    ]
+                , Html.li []
+                    [ Html.button
+                        [ class "dropdown-item d-flex align-items-center gap-2"
+                        , attribute "data-testid" "sort-dropdown-option-alphabetical"
+                        , onClick
+                            (Update_Chain
+                                [ Update_SetPreferences
+                                    { preferences_install = model.model_preferences.preferences_install
+                                    , preferences_theme = model.model_preferences.preferences_theme
+                                    , preferences_sort = PreferencesSort_Alphabetical
+                                    }
+                                , Update_ToggleAppsSortDropdown
+                                , Update_RouteWithoutHistory (Route_Apps pageApps.pageApps_route)
+                                ]
+                            )
+                        ]
+                        [ Main.Icons.iconSortAlphaDown, Html.text "Alphabetical" ]
+                    ]
+                ]
+            ]
+        , if model.model_preferences.preferences_sort == PreferencesSort_Random then
+            div [ class "has-tooltip autohide d-inline-block" ]
+                [ Html.button
+                    [ class "btn btn-sm border text-body"
+                    , attribute "type" "button"
+                    , attribute "data-testid" "sort-shuffle-button"
+                    , onClick
+                        (Update_Chain
+                            [ Update_ShuffleApps
+                            , Update_RouteWithoutHistory (Route_Apps pageApps.pageApps_route)
+                            ]
+                        )
+                    ]
+                    [ Main.Icons.iconShuffle ]
+                , div
+                    [ class "tooltip bs-tooltip-end"
+                    , attribute "role" "tooltip"
+                    , style "top" "50%"
+                    , style "left" "100%"
+                    , style "transform" "translate(0, -50%)"
+                    , style "margin-top" "0"
+                    , style "margin-left" "8px"
+                    ]
+                    [ div [ class "tooltip-inner" ] [ Html.text "Shuffle apps (order resets on reload)" ]
+                    ]
+                ]
+
+          else
+            Html.text ""
         ]

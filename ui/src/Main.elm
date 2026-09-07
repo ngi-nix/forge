@@ -20,6 +20,7 @@ import Url
 type alias Flags =
     { href : String
     , flags_preferences : Json.Encode.Value
+    , flags_weeklySeed : Int
     }
 
 
@@ -49,6 +50,9 @@ init flags =
             , model_RecipeOptions = defaultRecipeOptions
             , model_askFeedback = True
             , model_searchFocused = False
+            , model_weeklySeed = flags.flags_weeklySeed
+            , model_ephemeralSeed = flags.flags_weeklySeed
+            , model_appsSortDropdownOpen = False
             }
     in
     case flags.href |> Url.fromString of

@@ -25,11 +25,14 @@ if (
   window.history.replaceState(null, "", cleanUrl);
 }
 
+const getWeeklySeed = () => Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+
 const app = Elm.Main.init({
   node: document.getElementById("elm-main"),
   flags: {
     href: window.location.href,
     flags_preferences: getPreferences(),
+    flags_weeklySeed: getWeeklySeed(),
   },
 });
 

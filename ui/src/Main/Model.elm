@@ -21,6 +21,9 @@ type alias Model =
     , model_RecipeOptions : RecipeOptions
     , model_askFeedback : Bool
     , model_searchFocused : Bool
+    , model_weeklySeed : Int
+    , model_ephemeralSeed : Int
+    , model_appsSortDropdownOpen : Bool
     }
 
 

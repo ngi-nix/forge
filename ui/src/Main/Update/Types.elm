@@ -37,6 +37,8 @@ type Update
     | Update_CycleTheme
     | Update_Focus String
     | Update_SetPreferences Preferences
+    | Update_ShuffleApps
+    | Update_ToggleAppsSortDropdown
     | Update_DismissFeedback
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState
