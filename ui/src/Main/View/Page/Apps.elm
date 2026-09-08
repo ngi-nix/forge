@@ -1,9 +1,11 @@
 module Main.View.Page.Apps exposing (..)
 
+import Dict
 import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
 import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
+import List.Extra
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
@@ -23,7 +25,8 @@ import Main.View.Pagination exposing (PaginationVisibility(..), viewPaginationIt
 viewPageApps : Model -> PageApps -> Html Update
 viewPageApps model pageApps =
     div []
-        [ viewSortDropdown model pageApps
+        [ viewCategoryFilters model pageApps
+        , viewSortDropdown model pageApps
         , viewPageAppsPagination
             pageApps.pageApps_pagination
             (viewPageAppsApp model pageApps)
@@ -271,3 +274,47 @@ viewSortDropdown model pageApps =
           else
             Html.text ""
         ]
+
+
+viewCategoryFilters : Model -> PageApps -> Html Update
+viewCategoryFilters model pageApps =
+    let
+        allCategories =
+            model.model_config.config_apps
+                |> Dict.values
+                |> List.concatMap .app_categories
+                |> List.Extra.unique
+                |> List.sort
+
+        viewCategory category =
+            let
+                isSelected =
+                    model.model_categoryFilter == Just category
+
+                btnClass =
+                    if isSelected then
+                        "btn btn-sm btn-primary rounded-pill"
+
+                    else
+                        "btn btn-sm border text-body rounded-pill"
+
+                newCategory =
+                    if isSelected then
+                        Nothing
+
+                    else
+                        Just category
+            in
+            Html.button
+                [ class btnClass
+                , attribute "data-testid" ("category-filter-" ++ category)
+                , onClick (Update_CategoryFilter newCategory)
+                ]
+                [ Html.text category ]
+    in
+    if List.isEmpty allCategories then
+        Html.text ""
+
+    else
+        div [ class "d-flex flex-wrap gap-2 mb-3" ]
+            (allCategories |> List.map viewCategory)

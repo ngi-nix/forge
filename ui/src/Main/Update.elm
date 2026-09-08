@@ -136,6 +136,10 @@ update upd modelInit =
                 { model | model_search = search }
                     |> update (Update_Route (routeSearch model search))
 
+        Update_CategoryFilter category ->
+            { model | model_categoryFilter = category }
+                |> update (Update_Search model.model_search)
+
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then
                 model

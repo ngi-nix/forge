@@ -80,6 +80,7 @@ apps."{name}" = {{
   }};
 
   ngi.grants = {grants_nix};
+  categories = with lib.categories; [ Office Science ];
 
   services = {{
     components.{name} = {{
