@@ -140,30 +140,30 @@ highlightjs-code pre {
 
 /* Light mode styling */
 [data-bs-theme="light"] .m-item-card,
-[data-bs-theme="light"] .list-group-item,
+[data-bs-theme="light"] .list-group-item:not(.active),
 [data-bs-theme="light"] .m-sidebar {
   background-color: #f8f9fa;
   border-color: #e9ecef;
 }
 
 [data-bs-theme="light"] .m-item-card:hover,
-[data-bs-theme="light"] .list-group-item-action:hover,
-[data-bs-theme="light"] .list-group-item-action:focus {
+[data-bs-theme="light"] .list-group-item-action:not(.active):hover,
+[data-bs-theme="light"] .list-group-item-action:not(.active):focus {
   background-color: #f1f5f9;
   border-color: #cbd5e1;
 }
 
 /* Dark mode: darker background color for cards and list items */
 [data-bs-theme="dark"] .m-item-card,
-[data-bs-theme="dark"] .list-group-item,
+[data-bs-theme="dark"] .list-group-item:not(.active),
 [data-bs-theme="dark"] .m-sidebar {
   background-color: #16191d;
   border-color: #2d3238;
 }
 
 [data-bs-theme="dark"] .m-item-card:hover,
-[data-bs-theme="dark"] .list-group-item-action:hover,
-[data-bs-theme="dark"] .list-group-item-action:focus {
+[data-bs-theme="dark"] .list-group-item-action:not(.active):hover,
+[data-bs-theme="dark"] .list-group-item-action:not(.active):focus {
   background-color: #1f2329;
   border-color: #3e454d;
 }
@@ -171,15 +171,15 @@ highlightjs-code pre {
 /* Fallback for when data-bs-theme is unset */
 @media (prefers-color-scheme: light) {
   :root:not([data-bs-theme="dark"]) .m-item-card,
-  :root:not([data-bs-theme="dark"]) .list-group-item,
+  :root:not([data-bs-theme="dark"]) .list-group-item:not(.active),
   :root:not([data-bs-theme="dark"]) .m-sidebar {
     background-color: #f8f9fa;
     border-color: #e9ecef;
   }
 
   :root:not([data-bs-theme="dark"]) .m-item-card:hover,
-  :root:not([data-bs-theme="dark"]) .list-group-item-action:hover,
-  :root:not([data-bs-theme="dark"]) .list-group-item-action:focus {
+  :root:not([data-bs-theme="dark"]) .list-group-item-action:not(.active):hover,
+  :root:not([data-bs-theme="dark"]) .list-group-item-action:not(.active):focus {
     background-color: #f1f5f9;
     border-color: #cbd5e1;
   }
@@ -187,15 +187,15 @@ highlightjs-code pre {
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-bs-theme="light"]) .m-item-card,
-  :root:not([data-bs-theme="light"]) .list-group-item,
+  :root:not([data-bs-theme="light"]) .list-group-item:not(.active),
   :root:not([data-bs-theme="light"]) .m-sidebar {
     background-color: #16191d;
     border-color: #2d3238;
   }
 
   :root:not([data-bs-theme="light"]) .m-item-card:hover,
-  :root:not([data-bs-theme="light"]) .list-group-item-action:hover,
-  :root:not([data-bs-theme="light"]) .list-group-item-action:focus {
+  :root:not([data-bs-theme="light"]) .list-group-item-action:not(.active):hover,
+  :root:not([data-bs-theme="light"]) .list-group-item-action:not(.active):focus {
     background-color: #1f2329;
     border-color: #3e454d;
   }

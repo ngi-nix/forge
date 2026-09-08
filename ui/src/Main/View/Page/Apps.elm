@@ -5,6 +5,7 @@ import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
 import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
+import List.Extra
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
@@ -35,23 +36,28 @@ viewPageApps model pageApps =
                         | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
                     }
     in
-    div []
-        [ div
-            [ style "display" "grid"
-            , style "grid-template-columns" "1fr auto 1fr"
-            , class "align-items-center my-2"
+    div [ class "row" ]
+        [ div [ class "col-md-3 mt-3 mb-1" ]
+            [ viewCategoryFilters model pageApps
             ]
-            [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
-                [ viewAppsCount model pageApps
-                , viewSortDropdown model pageApps
+        , div [ class "col-md-9 mt-1 mb-1" ]
+            [ div
+                [ style "display" "grid"
+                , style "grid-template-columns" "1fr auto 1fr"
+                , class "align-items-center my-2"
                 ]
-            , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
-            , text ""
+                [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
+                    [ viewAppsCount model pageApps
+                    , viewSortDropdown model pageApps
+                    ]
+                , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
+                , text ""
+                ]
+            , viewPageAppsPagination
+                pageApps.pageApps_pagination
+                (viewPageAppsApp model pageApps)
+                reRoute
             ]
-        , viewPageAppsPagination
-            pageApps.pageApps_pagination
-            (viewPageAppsApp model pageApps)
-            reRoute
         , let
             nextPageApps =
                 pageApps.pageApps_pagination.pagePagination_list
@@ -296,3 +302,53 @@ viewSortDropdown model pageApps =
           else
             Html.text ""
         ]
+
+
+viewCategoryFilters : Model -> PageApps -> Html Update
+viewCategoryFilters model pageApps =
+    let
+        allCategories =
+            model.model_config.config_apps
+                |> Dict.values
+                |> List.concatMap .app_categories
+                |> List.Extra.unique
+                |> List.sort
+
+        viewCategory category =
+            let
+                isSelected =
+                    pageApps.pageApps_route.routeApps_category == Just category
+
+                btnClass =
+                    if isSelected then
+                        "list-group-item list-group-item-action active has-tooltip autohide"
+
+                    else
+                        "list-group-item list-group-item-action has-tooltip autohide"
+
+                newCategory =
+                    if isSelected then
+                        Nothing
+
+                    else
+                        Just category
+
+                desc =
+                    Dict.get category model.model_config.config_categories
+                        |> Maybe.map .category_description
+                        |> Maybe.withDefault ""
+            in
+            Html.button
+                [ class btnClass
+                , attribute "data-testid" ("category-filter-" ++ category)
+                , title desc
+                , onClick (Update_CategoryFilter newCategory)
+                ]
+                [ Html.text category ]
+    in
+    if List.isEmpty allCategories then
+        Html.text ""
+
+    else
+        div [ class "list-group shadow-sm" ]
+            (allCategories |> List.map viewCategory)
