@@ -1,6 +1,7 @@
 module Main.Update exposing (..)
 
 import Browser.Dom as Dom
+import Dict
 import File.Download
 import List.Extra as List
 import Main.Config exposing (..)
@@ -95,6 +96,152 @@ update upd modelInit =
         Update_ToggleAppsSortDropdown ->
             ( { model | model_appsSortDropdownOpen = not model.model_appsSortDropdownOpen }, Cmd.none )
 
+        Update_CategorySearch text ->
+            ( { model | model_appsCategorySearch = text, model_appsCategorySearchIndex = 0 }, Cmd.none )
+
+        Update_CategorySearchMove delta ->
+            let
+                allCategories =
+                    model.model_config.config_apps
+                        |> Dict.values
+                        |> List.concatMap .app_categories
+                        |> List.unique
+                        |> List.sort
+
+                filteredCategories =
+                    if model.model_appsCategorySearch == "" then
+                        allCategories
+
+                    else
+                        allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
+
+                filteredCount =
+                    List.length filteredCategories + 1
+
+                newIndex =
+                    clamp 0 (max 0 (filteredCount - 1)) (model.model_appsCategorySearchIndex + delta)
+
+                finalList =
+                    if model.model_appsCategorySearch == "" then
+                        Nothing :: List.map Just filteredCategories
+
+                    else
+                        List.map Just filteredCategories ++ [ Nothing ]
+
+                selectedCat =
+                    finalList
+                        |> List.drop newIndex
+                        |> List.head
+                        |> Maybe.withDefault Nothing
+
+                testId =
+                    case selectedCat of
+                        Nothing ->
+                            "category-filter-All"
+
+                        Just c ->
+                            "category-filter-" ++ c
+            in
+            ( { model | model_appsCategorySearchIndex = newIndex }
+            , Main.Ports.SmoothScroll.scrollIntoView testId
+            )
+
+        Update_CategorySearchSelect ->
+            let
+                allCategories =
+                    model.model_config.config_apps
+                        |> Dict.values
+                        |> List.concatMap .app_categories
+                        |> List.unique
+                        |> List.sort
+
+                filteredCategories =
+                    if model.model_appsCategorySearch == "" then
+                        allCategories
+
+                    else
+                        allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
+
+                -- Recreate the view's list order to find the selected item
+                finalList =
+                    if model.model_appsCategorySearch == "" then
+                        Nothing :: List.map Just filteredCategories
+
+                    else
+                        List.map Just filteredCategories ++ [ Nothing ]
+
+                selectedCat =
+                    finalList
+                        |> List.drop model.model_appsCategorySearchIndex
+                        |> List.head
+                        |> Maybe.withDefault Nothing
+            in
+            update (Update_Chain [ Update_CategoryFilter selectedCat, Update_ToggleAppsCategoryDropdown, Update_CategorySearch "" ]) model
+
+        Update_ToggleAppsCategoryDropdown ->
+            let
+                isOpen =
+                    not model.model_appsCategoryDropdownOpen
+
+                cmd =
+                    if isOpen then
+                        Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+
+                    else
+                        Cmd.none
+
+                currentCat =
+                    case model.model_page of
+                        Page_Apps pageApps ->
+                            pageApps.pageApps_route.routeApps_category
+
+                        _ ->
+                            Nothing
+
+                allCategories =
+                    model.model_config.config_apps
+                        |> Dict.values
+                        |> List.concatMap .app_categories
+                        |> List.unique
+                        |> List.sort
+
+                finalList =
+                    Nothing :: List.map Just allCategories
+
+                selectedIndex =
+                    if isOpen && model.model_appsCategorySearch == "" then
+                        List.elemIndex currentCat finalList |> Maybe.withDefault 0
+
+                    else
+                        model.model_appsCategorySearchIndex
+
+                -- If the dropdown is opening, we also want to instantly scroll to the selected item
+                -- We can batch the focus command and the scroll command
+                testIdToScroll =
+                    case currentCat of
+                        Nothing ->
+                            "category-filter-All"
+
+                        Just c ->
+                            "category-filter-" ++ c
+
+                finalCmd =
+                    if isOpen then
+                        Cmd.batch [ cmd, Main.Ports.SmoothScroll.scrollIntoView testIdToScroll ]
+
+                    else
+                        cmd
+            in
+            ( { model
+                | model_appsCategoryDropdownOpen = isOpen
+                , model_appsCategorySearchIndex = selectedIndex
+              }
+            , finalCmd
+            )
+
+        Update_Blur id ->
+            ( model, Task.attempt Update_FocusResult (Dom.blur id) )
+
         Update_DismissFeedback ->
             ( { model | model_askFeedback = False }, Cmd.none )
 
@@ -136,6 +283,22 @@ update upd modelInit =
                 { model | model_search = search }
                     |> update (Update_Route (routeSearch model search))
 
+        Update_CategoryFilter category ->
+            let
+                newRoute =
+                    case model.model_page of
+                        Page_Apps pageApps ->
+                            let
+                                routeApps =
+                                    pageApps.pageApps_route
+                            in
+                            Route_Apps { routeApps | routeApps_category = category, routeApps_pagination = defaultRoutePagination }
+
+                        _ ->
+                            Route_Apps { defaultRouteApps | routeApps_category = category }
+            in
+            update (Update_Route newRoute) model
+
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then
                 model
@@ -143,7 +306,21 @@ update upd modelInit =
                     |> Cmd.append (Task.attempt Update_FocusResult (Dom.blur "main-search-bar"))
 
             else if not input.focusedTyping && not input.hasModifier then
-                if input.key == "/" then
+                if model.model_appsCategoryDropdownOpen then
+                    if input.key == "/" then
+                        ( model
+                        , Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+                        )
+
+                    else if (String.length input.key == 1) && (input.key |> String.all Char.isAlphaNum) then
+                        ( { model | model_appsCategorySearch = input.key }
+                        , Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                else if input.key == "/" then
                     ( model
                     , Task.attempt Update_FocusResult (Dom.focus "main-search-bar")
                     )
