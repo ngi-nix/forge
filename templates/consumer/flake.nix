@@ -1,5 +1,5 @@
 {
-  description = "NGI Forge";
+  description = "NGI Forge consumer";
 
   nixConfig = {
     extra-substituters = [ "https://ngi-forge.cachix.org" ];
