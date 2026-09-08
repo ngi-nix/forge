@@ -7,7 +7,8 @@
   pkgs.icestudio = {
     build.identityBuilder = {
       enable = true;
-      derivation = pkgs.pkgsOriginal.icestudio;
+      # TODO: remove once https://github.com/NixOS/nixpkgs/pull/560827 is available
+      derivation = pkgs.callPackage ./_icestudio.nix { };
     };
   };
   apps.icestudio = {

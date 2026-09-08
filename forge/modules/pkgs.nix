@@ -57,7 +57,9 @@
 
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "pkgs";
-        derivations = lib.mapAttrs (packageName: package: package.result.derivation) config.forge.pkgs;
+        derivations = lib.mapAttrs (packageName: package: package.result.derivation) (
+          lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs
+        );
       }) { };
     in
     {
