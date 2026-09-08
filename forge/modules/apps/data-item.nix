@@ -44,6 +44,8 @@
     __toString = lib.mkOption {
       type = lib.types.functionTo lib.types.str;
       default = self: toString self.content;
+      internal = true;
+      readOnly = true;
     };
   };
 }
