@@ -27,10 +27,17 @@ type alias UrlHttp =
     Url
 
 
+type alias Category =
+    { category_name : String
+    , category_description : String
+    }
+
+
 type alias Config =
     { config_repository : NixUrl
     , config_apps : Dict AppName App
     , config_pkgs : Dict PkgName Pkg
+    , config_categories : Dict String Category
     }
 
 
@@ -39,12 +46,21 @@ initConfig =
     { config_repository = "github:ngi-nix/forge"
     , config_apps = Dict.empty
     , config_pkgs = Dict.empty
+    , config_categories = Dict.empty
     }
+
+
+decodeCategory : Decoder Category
+decodeCategory =
+    Decode.map2 Category
+        (Decode.field "name" Decode.string)
+        (Decode.field "description" Decode.string)
 
 
 decodeConfig : Decoder Config
 decodeConfig =
-    Decode.map3 Config
+    Decode.map4 Config
         (Decode.field "repositoryUrl" Decode.string)
         (Decode.field "apps" (Decode.dict Config.decodeApp))
         (Decode.field "pkgs" (Decode.dict Config.decodePkg))
+        (Decode.field "categories" (Decode.dict decodeCategory))

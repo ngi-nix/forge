@@ -56,6 +56,18 @@ def generate_app_recipe(name, index, is_test_app=False):
 
     grants_nix = "{\n" + "\n".join(grant_lines) + "\n  }"
 
+    if is_test_app:
+        cats = "[ Office ]"
+    elif index == 0:
+        cats = "[ Security ]"
+    elif index == 1:
+        cats = "[ Science ]"
+    else:
+        rand_cat = fake.random_element(
+            elements=("Office", "Security", "Science", "System")
+        )
+        cats = f"[ {rand_cat} ]"
+
     # Force enable all runtimes for the test app
     program_en = "true" if is_test_app else str(fake.boolean()).lower()
     shell_en = "true" if is_test_app else str(fake.boolean()).lower()
@@ -80,6 +92,7 @@ apps."{name}" = {{
   }};
 
   ngi.grants = {grants_nix};
+  categories = with lib.categories; {cats};
 
   services = {{
     components.{name} = {{
