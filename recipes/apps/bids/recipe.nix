@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -6,6 +7,7 @@
   apps.bids = {
     displayName = "BIDS";
     description = "Analyse ELF binaries and search dependency information.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       BIDS (Binary Identification of Dependencies with Search) is a toolkit for
       analysing ELF binaries, generating Software Bill of Materials (SBOMs), and

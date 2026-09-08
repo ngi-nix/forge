@@ -47,7 +47,7 @@ updateRouteApps route =
                                     String.contains search app_description
 
                                 category_matches =
-                                    case model.model_categoryFilter of
+                                    case route.routeApps_category of
                                         Nothing ->
                                             True
 

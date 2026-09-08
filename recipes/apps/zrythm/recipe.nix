@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -20,6 +21,7 @@ in
   apps.zrythm = {
     displayName = "Zrythm";
     description = "Digital audio workstation for composing, recording, editing, arranging, mixing and mastering audio and MIDI.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Zrythm is a digital audio workstation (DAW), providing all the tools
       needed to compose, record, edit, arrange, mix, and master entire tracks

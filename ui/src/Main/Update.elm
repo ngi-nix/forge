@@ -137,8 +137,19 @@ update upd modelInit =
                     |> update (Update_Route (routeSearch model search))
 
         Update_CategoryFilter category ->
-            { model | model_categoryFilter = category }
-                |> update (Update_Search model.model_search)
+            let
+                newRoute =
+                    case model.model_page of
+                        Page_Apps pageApps ->
+                            let
+                                routeApps = pageApps.pageApps_route
+                            in
+                            Route_Apps { routeApps | routeApps_category = category, routeApps_pagination = defaultRoutePagination }
+                        
+                        _ ->
+                            Route_Apps { defaultRouteApps | routeApps_category = category }
+            in
+            ( model, Cmd.pushUrl (routeToString newRoute) )
 
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then

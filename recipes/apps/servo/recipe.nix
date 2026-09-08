@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.servo = {
     displayName = "Servo";
     description = "Embeddable, independent, memory-safe, modular, parallel web rendering engine.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Servo is a web rendering engine written in Rust, designed to be safe,
       modular, and embeddable in other applications.

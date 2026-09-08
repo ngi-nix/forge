@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -10,6 +11,7 @@ in
   apps.authlib = {
     displayName = "Authlib";
     description = "The ultimate Python library in building OAuth and OpenID Connect servers. JWS, JWK, JWA, JWT are included.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Authlib is a Python library for building OAuth 1.0, OAuth 2.0, and OpenID
       Connect clients and providers, including JWS, JWK, JWA, and JWT support.

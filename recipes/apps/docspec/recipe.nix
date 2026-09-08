@@ -13,6 +13,7 @@ in
   apps.docspec = {
     displayName = "DocSpec";
     description = "Document conversion SDK for rich text formats.";
+    categories = with lib.categories; [ Office ];
     usage = ''
       ##### Convert document with CLI
 

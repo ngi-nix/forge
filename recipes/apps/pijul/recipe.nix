@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.pijul = {
     displayName = "Pijul";
     description = "Modern patch-based distributed version control system.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Pijul is a distributed version control system based on a mathematical theory
       of patches, where independent changes always commute.

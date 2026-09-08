@@ -74,6 +74,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   meta = {
     description = "User-friendly and modern chat app, using XMPP";
+    categories = with lib.categories; [ Chat ];
     mainProgram = "kaidan";
     longDescription = ''
       Kaidan is a user-friendly and modern chat app for every device. It uses

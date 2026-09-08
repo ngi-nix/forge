@@ -24,22 +24,27 @@ import Main.View.Pagination exposing (PaginationVisibility(..), viewPaginationIt
 
 viewPageApps : Model -> PageApps -> Html Update
 viewPageApps model pageApps =
-    div []
-        [ viewCategoryFilters model pageApps
-        , viewSortDropdown model pageApps
-        , viewPageAppsPagination
-            pageApps.pageApps_pagination
-            (viewPageAppsApp model pageApps)
-            (\modifyRoutePagination ->
-                let
-                    routeApps =
-                        pageApps.pageApps_route
-                in
-                Route_Apps
-                    { routeApps
-                        | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
-                    }
-            )
+    div [ class "row" ]
+        [ div [ class "col-md-3 mb-3" ]
+            [ h5 [ class "mb-3" ] [ text "Categories" ]
+            , viewCategoryFilters model pageApps
+            ]
+        , div [ class "col-md-9" ]
+            [ viewSortDropdown model pageApps
+            , viewPageAppsPagination
+                pageApps.pageApps_pagination
+                (viewPageAppsApp model pageApps)
+                (\modifyRoutePagination ->
+                    let
+                        routeApps =
+                            pageApps.pageApps_route
+                    in
+                    Route_Apps
+                        { routeApps
+                            | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
+                        }
+                )
+            ]
         , let
             nextPageApps =
                 pageApps.pageApps_pagination.pagePagination_list
@@ -289,25 +294,29 @@ viewCategoryFilters model pageApps =
         viewCategory category =
             let
                 isSelected =
-                    model.model_categoryFilter == Just category
+                    pageApps.pageApps_route.routeApps_category == Just category
 
                 btnClass =
                     if isSelected then
-                        "btn btn-sm btn-primary rounded-pill"
-
+                        "list-group-item list-group-item-action active has-tooltip autohide"
                     else
-                        "btn btn-sm border text-body rounded-pill"
+                        "list-group-item list-group-item-action has-tooltip autohide"
 
                 newCategory =
                     if isSelected then
                         Nothing
-
                     else
                         Just category
+                        
+                desc =
+                    Dict.get category model.model_config.config_categories
+                        |> Maybe.map .category_description
+                        |> Maybe.withDefault ""
             in
             Html.button
                 [ class btnClass
                 , attribute "data-testid" ("category-filter-" ++ category)
+                , title desc
                 , onClick (Update_CategoryFilter newCategory)
                 ]
                 [ Html.text category ]
@@ -316,5 +325,5 @@ viewCategoryFilters model pageApps =
         Html.text ""
 
     else
-        div [ class "d-flex flex-wrap gap-2 mb-3" ]
+        div [ class "list-group shadow-sm" ]
             (allCategories |> List.map viewCategory)

@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.ip2unix = {
     displayName = "ip2unix";
     description = "Turn IP sockets into Unix domain sockets.";
+    categories = with lib.categories; [ Security ];
     usage = ''
       A lot of programs are designed to only work with IP sockets, however very few of them allow to communicate via Unix domain sockets. Unix domain sockets usually are just files, so standard Unix file permissions apply to them.
 

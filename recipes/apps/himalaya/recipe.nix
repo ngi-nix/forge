@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,7 @@
   apps.himalaya = {
     displayName = "Himalaya";
     description = "Command-line email client supporting IMAP, Maildir, and SMTP.";
+    categories = with lib.categories; [ Security ];
     usage = ''
       Himalaya is a command-line email client that supports IMAP, Maildir, SMTP,
       and Sendmail backends with PGP encryption.

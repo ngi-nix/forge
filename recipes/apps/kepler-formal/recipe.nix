@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,7 @@
   apps.kepler-formal = {
     displayName = "Kepler Formal";
     description = "Formal verification tool for Verilog and Naja interchange format.";
+    categories = with lib.categories; [ System ];
     usage = ''
       Kepler Formal is a CLI tool for formal verification of logic equivalence between two netlists.
 

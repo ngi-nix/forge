@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -12,6 +13,7 @@
   apps.lychee = {
     displayName = "Lychee";
     description = "Reliable and fast link checker to combat linkrot.";
+    categories = with lib.categories; [ Network ];
     usage = ''
       Recursively checks all links in all supported files.
 

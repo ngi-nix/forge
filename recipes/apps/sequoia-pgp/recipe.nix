@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,7 @@
   apps.sequoia-pgp = {
     displayName = "Sequoia PGP";
     description = "Command-line OpenPGP tool with post-quantum cryptography support.";
+    categories = with lib.categories; [ Security ];
     usage = ''
       Sequoia PGP (`sq`) is a command-line OpenPGP tool with post-quantum
       cryptography support, implementing draft-ietf-openpgp-pqc.

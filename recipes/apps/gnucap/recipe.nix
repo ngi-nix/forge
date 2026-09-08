@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.gnucap = {
     displayName = "Gnucap";
     description = "GNU Circuit Analysis Package.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Gnucap is a general purpose circuit simulator that performs DC, transient,
       and AC analyses, and supports Spice-compatible netlists.

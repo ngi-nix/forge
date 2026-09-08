@@ -32,9 +32,10 @@ viewPageApp model pageApp =
                 , viewPageAppRun model pageApp
                 , viewPageAppIconModal model pageApp
                 ]
-            , div
+                        , div
                 [ class "col-12 col-lg-3 order-lg-first" ]
-                [ viewPageAppResources model pageApp
+                [ viewPageAppCategories model pageApp
+                , viewPageAppResources model pageApp
                 , viewPageAppNgiGrants model pageApp
                 , viewPageAppConfiguration model pageApp
                 , viewPageAppMaintainers model pageApp
@@ -297,6 +298,43 @@ viewPageAppConfiguration _ pageApp =
             )
         ]
 
+
+viewPageAppCategories : Model -> PageApp -> Html Update
+viewPageAppCategories model pageApp =
+    let
+        cats =
+            pageApp.pageApp_app.app_categories |> List.sort
+            
+        viewCat c =
+            let
+                desc =
+                    Dict.get c model.model_config.config_categories
+                        |> Maybe.map .category_description
+                        |> Maybe.withDefault ""
+                        
+                route = Route_Apps { defaultRouteApps | routeApps_category = Just c }
+            in
+            a
+                [ class "badge bg-secondary text-decoration-none me-1 mb-1"
+                , title desc
+                , href (routeToString route)
+                , custom "click"
+                    (Decode.succeed
+                        { message = Update_Route route
+                        , stopPropagation = True
+                        , preventDefault = True
+                        }
+                    )
+                ]
+                [ text c ]
+    in
+    if List.isEmpty cats then
+        text ""
+    else
+        div [ class "mb-4" ]
+            [ h5 [ class "mb-3" ] [ text "Categories" ]
+            , div [ class "d-flex flex-wrap" ] (cats |> List.map viewCat)
+            ]
 
 viewPageAppResources : Model -> PageApp -> Html Update
 viewPageAppResources model pageApp =

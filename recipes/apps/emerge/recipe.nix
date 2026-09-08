@@ -23,6 +23,7 @@ in
   apps.emerge = {
     displayName = "EMerge";
     description = "Electromagnetic field computation program.";
+    categories = with lib.categories; [ Development ];
     longDescription = ''
       EMerge is a python based FEM EM library for the time harmonic helmholtz formulation.
 

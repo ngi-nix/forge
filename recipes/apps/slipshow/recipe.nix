@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.slipshow = {
     displayName = "Slipshow";
     description = "Innovative presentation tool that moves away from the traditional slide-based approach.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Slipshow is a presentation engine that uses a continuous scrolling canvas
       instead of discrete slides, allowing for more flexible and dynamic presentations.
