@@ -1,9 +1,9 @@
 module Main.View.Page.App exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, span, text, ul)
+import Html exposing (Html, a, button, div, h2, h4, h5, h6, hr, img, li, p, small, span, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target, title)
-import Html.Events exposing (stopPropagationOn)
+import Html.Events exposing (custom, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
@@ -32,7 +32,7 @@ viewPageApp model pageApp =
                 , viewPageAppRun model pageApp
                 , viewPageAppIconModal model pageApp
                 ]
-                        , div
+            , div
                 [ class "col-12 col-lg-3 order-lg-first" ]
                 [ viewPageAppCategories model pageApp
                 , viewPageAppResources model pageApp
@@ -304,15 +304,16 @@ viewPageAppCategories model pageApp =
     let
         cats =
             pageApp.pageApp_app.app_categories |> List.sort
-            
+
         viewCat c =
             let
                 desc =
                     Dict.get c model.model_config.config_categories
                         |> Maybe.map .category_description
                         |> Maybe.withDefault ""
-                        
-                route = Route_Apps { defaultRouteApps | routeApps_category = Just c }
+
+                route =
+                    Route_Apps { defaultRouteApps | routeApps_category = Just c }
             in
             a
                 [ class "badge bg-secondary text-decoration-none me-1 mb-1"
@@ -330,11 +331,13 @@ viewPageAppCategories model pageApp =
     in
     if List.isEmpty cats then
         text ""
+
     else
         div [ class "mb-4" ]
             [ h5 [ class "mb-3" ] [ text "Categories" ]
             , div [ class "d-flex flex-wrap" ] (cats |> List.map viewCat)
             ]
+
 
 viewPageAppResources : Model -> PageApp -> Html Update
 viewPageAppResources model pageApp =

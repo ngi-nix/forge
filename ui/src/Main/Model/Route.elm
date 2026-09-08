@@ -233,7 +233,8 @@ appUrlToRoute url =
         [] ->
             Ok <|
                 Route_Apps
-                    { routeApps_search = ""
+                    { routeApps_category = url.queryParameters |> Dict.get "c" |> Maybe.andThen List.uncons |> Maybe.map Tuple.first
+                    , routeApps_search = ""
                     , routeApps_pagination = url |> appUrlToRoutePagination
                     }
 
@@ -313,8 +314,11 @@ appUrlToRoute url =
             Ok <|
                 Route_Apps <|
                     let
-                        cat = url.queryParameters |> Dict.get "c" |> Maybe.andThen List.uncons |> Maybe.map Tuple.first
-                        search = url.queryParameters |> Dict.get "q" |> Maybe.andThen List.uncons |> Maybe.map Tuple.first |> Maybe.withDefault ""
+                        cat =
+                            url.queryParameters |> Dict.get "c" |> Maybe.andThen List.uncons |> Maybe.map Tuple.first
+
+                        search =
+                            url.queryParameters |> Dict.get "q" |> Maybe.andThen List.uncons |> Maybe.map Tuple.first |> Maybe.withDefault ""
                     in
                     { routeApps_category = cat
                     , routeApps_search = search
@@ -426,20 +430,33 @@ routeToAppUrl route =
             let
                 searchParam =
                     case routeApps.routeApps_search of
-                        "" -> []
-                        q -> [ ( "q", [ q ] ) ]
-                
+                        "" ->
+                            []
+
+                        q ->
+                            [ ( "q", [ q ] ) ]
+
                 catParam =
                     case routeApps.routeApps_category of
-                        Nothing -> []
-                        Just c -> [ ( "c", [ c ] ) ]
-                
+                        Nothing ->
+                            []
+
+                        Just c ->
+                            [ ( "c", [ c ] ) ]
+
                 queryParams =
                     (searchParam ++ catParam)
                         |> Dict.fromList
                         |> Dict.union (routePaginationToQueryParameters routeApps.routeApps_pagination)
             in
-            { path = deployPath ++ (if Dict.isEmpty queryParams then [] else [ "apps" ])
+            { path =
+                deployPath
+                    ++ (if Dict.isEmpty queryParams then
+                            []
+
+                        else
+                            [ "apps" ]
+                       )
             , queryParameters = queryParams
             , fragment = Nothing
             }

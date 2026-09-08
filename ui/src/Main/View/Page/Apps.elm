@@ -302,15 +302,17 @@ viewCategoryFilters model pageApps =
                 btnClass =
                     if isSelected then
                         "list-group-item list-group-item-action active has-tooltip autohide"
+
                     else
                         "list-group-item list-group-item-action has-tooltip autohide"
 
                 newCategory =
                     if isSelected then
                         Nothing
+
                     else
                         Just category
-                        
+
                 desc =
                     Dict.get category model.model_config.config_categories
                         |> Maybe.map .category_description

@@ -32,6 +32,7 @@ type alias Category =
     , category_description : String
     }
 
+
 type alias Config =
     { config_repository : NixUrl
     , config_apps : Dict AppName App
@@ -54,6 +55,7 @@ decodeCategory =
     Decode.map2 Category
         (Decode.field "name" Decode.string)
         (Decode.field "description" Decode.string)
+
 
 decodeConfig : Decoder Config
 decodeConfig =
