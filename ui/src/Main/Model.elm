@@ -24,6 +24,9 @@ type alias Model =
     , model_weeklySeed : Int
     , model_ephemeralSeed : Int
     , model_appsSortDropdownOpen : Bool
+    , model_appsCategorySearch : String
+    , model_appsCategoryDropdownOpen : Bool
+    , model_appsCategorySearchIndex : Int
     }
 
 

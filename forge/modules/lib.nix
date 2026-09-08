@@ -130,5 +130,18 @@
         lib.mapAttrs (n: v: if n == "__toString" then v else scrubNixContext v) x
       else
         x;
+
+    # Helper to convert a flake URL shorthand (e.g. "github:owner/repo")
+    # into a standard HTTP/HTTPS web URL.
+    showNixUrl =
+      url:
+      if lib.hasPrefix "github:" url then
+        "https://github.com/" + lib.removePrefix "github:" url
+      else if lib.hasPrefix "gitlab:" url then
+        "https://gitlab.com/" + lib.removePrefix "gitlab:" url
+      else if lib.hasPrefix "codeberg:" url then
+        "https://codeberg.org/" + lib.removePrefix "codeberg:" url
+      else
+        url;
   };
 }
