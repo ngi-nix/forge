@@ -50,7 +50,7 @@
             inherit inputs;
           }
           (flakeArgs: {
-            # Uncomment this to enable flake-parts debug.
+            # Uncomment this to enable debug attributes of this flake.
             # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
             # debug = true;
 
