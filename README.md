@@ -52,6 +52,16 @@ graph TB
     APP --> AO3
 ```
 
+## Development
+
+Launch local development environment
+
+```bash
+nix develop
+```
+
+and choose a command from menu.
+
 ## Self hosting
 
 - Initiate new Nix Forge instance from template
