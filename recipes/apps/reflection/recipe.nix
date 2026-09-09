@@ -43,7 +43,10 @@
 
     ngi.grants = {
       Entrust = [ "P2Panda-groups" ];
-      Commons = [ "p2panda-systemservice" ];
+      Commons = [
+        "p2panda-systemservice"
+        "Pillow"
+      ];
       Review = [ "P2Panda" ];
     };
 
