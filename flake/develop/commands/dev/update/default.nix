@@ -24,5 +24,5 @@ writeShellApplication {
     export PYTHONPATH="${srcDir}:''${PYTHONPATH-}"
     exec python3 -m forge_update "$@"
   '';
-  meta.description = "Update forge package recipes to latest upstream versions";
+  meta.description = "update forge package recipes to latest upstream versions";
 }
