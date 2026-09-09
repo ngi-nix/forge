@@ -60,7 +60,7 @@ Launch local development environment
 nix develop
 ```
 
-and choose a command from menu.
+and choose a command from the menu e.g, `forge-ui`.
 
 ## Self hosting
 
