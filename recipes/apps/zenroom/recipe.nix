@@ -35,7 +35,7 @@ in
       ${app.data.arrayGenerator}
       ```
 
-      Then, [enter the Nix shell](app/zenroom#run-shell) and execute the script:
+      Then, ${app.usageSnippets.shell} and execute the script:
 
       ```bash
       zenroom -z ${app.data.arrayGenerator.name} | tee myFirstRandomArray.json

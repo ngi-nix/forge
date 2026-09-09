@@ -67,8 +67,8 @@
       default = {
         program = "[launch the program](app/${config.name}#run-program)";
         shell = "[launch the shell environment](app/${config.name}#run-shell) containing `${config.name}`";
-        container = "[launch app in the container](app/${config.name}#run-container)";
-        nixos = "[launch app in the NixOS VM](app/${config.name}#run-nixos)";
+        container = "[launch the app in the container](app/${config.name}#run-container)";
+        nixos = "[launch the app in the NixOS VM](app/${config.name}#run-nixos)";
         docs = "For more details and examples, please see the [project documentation](${
           lib.optionalString (config.links.docs != null) config.links.docs
         }) page.";

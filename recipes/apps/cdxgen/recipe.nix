@@ -30,7 +30,7 @@ in
     usage = ''
       ##### SBOM for local projects
 
-      First, [launch the shell envrionment](app/${app.name}#run-shell) containing `${app.name}`.
+      First, ${app.usageSnippets.shell}.
 
       Then, navigate to the project you want to use.
       For the examples below, we will use the [`npm-smoke`](https://github.com/cdxgen/cdxgen/tree/${app.data.cdxgenCommit}/test/repotests/npm-smoke) test repository.
@@ -78,7 +78,7 @@ in
       > If no tag is specified, the `latest` one will be used.
 
       We can also scan a local OCI artifact.
-      For example, [build the `cdxgen` service container](http://127.0.0.1:3000/app/cdxgen#run-container), then scan the resulting tar file:
+      For example, [build the `cdxgen` service container](app/${app.name}#run-container), then scan the resulting tar file:
 
       ```bash
       cdxgen ~/.cache/ngi-forge/e70cdb81/cdxgen-cdxgen-3jv5dvlwc83xkbavgyvfbyr4j9w3acz2.tar -o bom-forge.json -t docker
@@ -90,7 +90,7 @@ in
 
       ##### cdxgen server
 
-      First, launch the HTTP server in [the NixOS](app/cdxgen#run-nixos) or [container](app/cdxgen#run-nixos) runtimes.
+      First, ${app.usageSnippets.container} or ${app.usageSnippets.nixos}.
       By default, it will be accessible from `http://127.0.0.1:${app.data.mainPort}`, but you can change this from the application recipe.
 
       Next, to scan a local path, run the following:

@@ -4,6 +4,10 @@
   ...
 }:
 
+let
+  app = config.apps.reflection;
+in
+
 {
   pkgs.reflection.build.identityBuilder = {
     enable = true;
@@ -22,7 +26,7 @@
 
       If you don't have access to multiple devices you can run still test this by launching multiple instances of the desktop application locally using `dbus-run-session`.
 
-      First enter the [nix shell](app/reflection#run-shell), then run two instances like so,
+      First, ${app.usageSnippets.shell}, then run two instances like so,
 
       ```bash
       reflection
