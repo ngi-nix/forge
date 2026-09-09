@@ -25,7 +25,10 @@ in
 
       #### Basic Usage
 
-      For testing, download one of the [upstream test files](https://codeberg.org/arpadbuermen/VACASK/src/commit/${app.data.testCommit}/test). For example:
+      First, [launch the shell environment](app/${app.name}#run-shell) containing the `${app.name}`.
+
+      Then, download one of the [upstream test files](https://codeberg.org/arpadbuermen/VACASK/src/commit/${app.data.testCommit}/test) for testing.
+      For example:
 
       ```bash
       wget https://codeberg.org/arpadbuermen/VACASK/raw/commit/${app.data.testCommit}/test/${app.data.testOp.name}
