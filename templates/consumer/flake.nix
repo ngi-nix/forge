@@ -18,7 +18,7 @@
       systems = [ "x86_64-linux" ];
       imports = [ inputs.ngi-forge.flakeModules.default ];
 
-      debug = true;
+      # debug = true;
 
       perSystem =
         { system, pkgs, ... }:
