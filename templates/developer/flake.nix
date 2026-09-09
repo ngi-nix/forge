@@ -20,6 +20,10 @@
       systems = [ "x86_64-linux" ];
       imports = [ ngi-forge.flakeModules.default ];
 
+      # Uncomment this to enable debug attributes of this flake.
+      # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
+      # debug = true;
+
       perSystem =
         {
           config,

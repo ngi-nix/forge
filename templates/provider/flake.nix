@@ -18,6 +18,8 @@
       systems = [ "x86_64-linux" ];
       imports = [ inputs.ngi-forge.flakeModules.base ];
 
+      # Uncomment this to enable debug attributes of this flake.
+      # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
       # debug = true;
 
       perSystem =
