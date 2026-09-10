@@ -10,7 +10,7 @@ let
 in
 {
   pkgs.mustang = {
-    version = "0.9.37";
+    version = "0.9.38";
     description = "Full-featured desktop email, chat, video conference, calendar and contacts client.";
     homePage = "https://www.mustang.im";
     mainProgram = "mustang";
@@ -18,7 +18,7 @@ in
 
     source = {
       git = "github:mustang-im/mustang/v${recipe.version}";
-      hash = "sha256-ldmAiiUDPC+5Pbr0cDy4FqgFXyG6K9TNovON+MbvhNQ=";
+      hash = "sha256-vW7JueYkmmIxAcGq9UACH2WC55rH3ugoVWkRCTtSD7Q=";
     };
 
     build.standardBuilder = {
@@ -36,15 +36,36 @@ in
     };
 
     build.extraAttrs = {
-      # None of app/, desktop/, desktop/backend/, lib/ ship a yarn.lock upstream.
-      # This one is generated via a synthetic root package.json with
-      # workspaces = [app desktop desktop/backend lib], to get a single merged
-      # lockfile / fetchYarnDeps cache instead of one per subdir. Needed a
-      # "resolutions": { "vite": "^7.3.1" } override in that package.json too -
-      # yarn couldn't resolve vite across the workspaces without it.
+      # None of app/, desktop/, desktop/backend/, lib/ ship a yarn.lock
+      # upstream.
+      # yarn.lock file is generated via a synthetic root package.json:
+      #
+      # {
+      #   "name": "mustang-synthetic-root",
+      #   "private": true,
+      #   "workspaces": [
+      #     "app",
+      #     "desktop",
+      #     "desktop/backend",
+      #     "lib"
+      #   ],
+      #   "resolutions": {
+      #     "vite": "^7.3.1"
+      #   }
+      # }
+      #
+      # to get a single merged lockfile / fetchYarnDeps cache instead of one
+      # per subdir.
+      #
+      # How to update yarn.lock file:
+      #
+      # nix develop .#pkgs.mustang.env
+      # cp -r --no-preserve=mode,ownership /nix/store/<hash>-source src
+      # yarn install --mode=update-lockfile --ignore-scripts
+      # cp yarn.lock ../recipes/pkgs/mustang/yarn.lock
       yarnDeps = pkgs.fetchYarnDeps {
         yarnLock = ./yarn.lock;
-        hash = "sha256-XmIdiL+F4Gj3rAtm9D0EY668G9zw72TBChaA9sl2Kto=";
+        hash = "sha256-n7HBQbZSYbWlMcxIhfVNniE6lnJONxUdeTCNW14uggA=";
       };
 
       postPatch = ''
