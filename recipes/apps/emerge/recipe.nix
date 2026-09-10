@@ -39,7 +39,7 @@ in
       Write the following script into a local file:
 
       ```python file ${app.data.first-sim.name}
-      ${app.data.first-sim.value}
+      ${app.data.first-sim}
       ```
 
       Then, [enter the Nix shell](app/emerge#run-shell) and execute the script:
