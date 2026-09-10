@@ -18,11 +18,14 @@
 
     build = {
       extraAttrs = {
+        # IMPORTANT:
+        # rpki-client-openbsd needs to be updated along with rpki-client to the
+        # version matching rpki-client release date.
         openbsdSrc = pkgs.fetchFromGitHub {
           owner = "rpki-client";
           repo = "rpki-client-openbsd";
-          rev = "027566b8e6827a9e280a0ef067464fc2336f0179";
-          hash = "sha256-lmyECC4uhBLJb89Gm+oqO4ClkkhFGqGm+cD7GivDqok=";
+          rev = "65b0882149d7c1a22208b0415b9ece507d8f9522";
+          hash = "sha256-SVAe68oVTuQHcVD+KbbRPm0wNrrV4kc8VG20a1BUZ1w=";
         };
         configureFlags = [
           "--with-base-dir=/var/cache/rpki-client"
