@@ -58,7 +58,7 @@ in
       Third, run the following script:
 
       ```python file ${app.data.test.name}
-      ${app.data.test.content}
+      ${app.data.test.value}
       ```
 
       ```bash
