@@ -34,6 +34,7 @@
         pkgs.elmPackages.elm-test
         pkgs.elmPackages.elm-test-rs
         pkgs.esbuild
+        pkgs.git-cliff
         pkgs.gnumake
         pkgs.json-diff
         pkgs.nixfmt
