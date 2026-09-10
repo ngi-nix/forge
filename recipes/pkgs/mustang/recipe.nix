@@ -17,7 +17,7 @@ in
     license = lib.licenses.eupl12;
 
     source = {
-      git = "github:mustang-im/mustang/v0.9.38";
+      git = "github:mustang-im/mustang/v${recipe.version}";
       hash = "sha256-vW7JueYkmmIxAcGq9UACH2WC55rH3ugoVWkRCTtSD7Q=";
     };
 
