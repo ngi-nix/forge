@@ -49,8 +49,8 @@
       description = "Long application description. Maximum 420 characters.";
     };
     usage = lib.mkOption {
-      type = lib.types.str;
-      default = "";
+      type = lib.types.nullOr lib.types.str;
+      default = null;
       description = "Application usage description in markdown format.";
       example = ''
         Launch the application in your browser at `http://localhost:8080`.
@@ -149,6 +149,75 @@
           );
         in
         lib.types.lazyAttrsOf dataItemType;
+    };
+
+    instructionFlows = lib.mkOption {
+      description = ''
+        A list of instructionFlow modules, each of which is a
+          - name: the name of the instructionFlow
+          - flow: a list of instructions to follow
+
+        These are used to show a user how to use the application being
+        provided via the command line.
+
+        During testing, each instructionFlow's flow is tested sequentially,
+        i.e. for each instructionFlow, we run the first instruction in the
+        flow, then the second, ... .
+
+        The order of the instructionFlows in the list determines the order
+        in which they are shown in the web ui.
+      '';
+      example = lib.literalExpression ''
+        let
+          testing_for_file = {
+            description = "# Hello! `markdown` is supported"
+            command = "[ \"Hello Nix!\" == \"$(cat welcome)\" ]";
+          };
+
+          creating_file = {
+            description = "Fill the file welcome with your contents, just make sure it is correct :)";
+            command = \'\'
+              cat <<EOF > welcome
+              Hello Nix!
+              EOF
+            \'\';
+            altCommand = "vim welcome";
+          };
+        in
+        [
+          {
+            name = "Creating then testing (will pass)";
+            flow = [
+              creating_file
+              testing_for_file
+            ];
+          }
+          {
+            name = "Testing then creating (will fail)";
+            flow = [
+              testing_for_file
+              creating_file
+            ];
+          }
+        ];
+      '';
+      default = [ ];
+      type =
+        let
+          instruction = lib.types.submoduleWith {
+            modules = [
+              ./instruction.nix
+            ];
+          };
+
+          instructionFlow = {
+            options = {
+              flow = lib.mkOption { type = lib.types.listOf instruction; };
+              name = lib.mkOption { type = lib.types.str; };
+            };
+          };
+        in
+        lib.types.listOf (lib.types.submoduleWith { modules = [ instructionFlow ]; });
     };
 
     # Portable services configuration
