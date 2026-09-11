@@ -45,7 +45,10 @@
               type = lib.types.listOf lib.types.path;
               default = [ forge-inputs.self.maintainerList ];
               defaultText = lib.literalExpression "[ inputs.ngi-forge.maintainerList ]";
-              description = "Paths to maintainer list files in the format of Nixpkgs maintainer-list.nix.";
+              description = ''
+                Paths to files containing a list of Forge maintainers.
+                Each file must follow the format of the
+                [Nixpkgs maintainer-list.nix file](https://github.com/NixOS/nixpkgs/blob/master/maintainers/maintainer-list.nix).'';
               example = lib.literalExpression ''
                 [ inputs.ngi-forge.maintainerList
                 ./maintainers/maintainer-list.nix ]
@@ -56,7 +59,7 @@
               type = lib.types.str;
               default = "github:ngi-nix/forge";
               example = "github:ngi-nix/forge";
-              description = "URL of the flake repository.";
+              description = "URL of the Forge repository.";
             };
           };
         }
