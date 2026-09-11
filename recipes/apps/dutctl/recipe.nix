@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.dutctl = {
     displayName = "DUT Control";
     description = "Unified device management for open firmware development.";
+    categories = with lib.categories; [ Network ];
 
     usage = ''
       DUT Control is a tool that provides a unified interface to interact with development boards and test fixtures across platforms.

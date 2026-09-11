@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -10,6 +11,7 @@ in
   apps.beacondb = {
     displayName = "BeaconDB";
     description = "A privacy focused assisted GPS service written in Rust.";
+    categories = with lib.categories; [ Utility ];
     usage = ''
       This is a privacy focused assisted GPS service written in Rust.
 

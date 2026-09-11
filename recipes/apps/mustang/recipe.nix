@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -6,6 +7,7 @@
   apps.mustang = {
     displayName = "Mustang";
     description = "Full-featured desktop email, chat, video conference, calendar and contacts client.";
+    categories = with lib.categories; [ Chat ];
     usage = ''
       Mustang is a full desktop client combining email, chat,
       video conferencing, calendar, contacts, and file sharing in one app. Data

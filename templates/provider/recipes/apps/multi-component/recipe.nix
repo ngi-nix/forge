@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -11,6 +12,7 @@ in
   apps.multi-component = {
     displayName = "Advanced Example";
     description = "Advanced multi-component configuration.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       This application demonstrates the _hello-web_ package running across all
       Forge runtimes.

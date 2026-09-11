@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -6,6 +7,7 @@
   apps.prismafs = {
     displayName = "PrismaFS";
     description = "Lightweight, portable userspace filesystem with isolated session layer.";
+    categories = with lib.categories; [ System ];
     usage = ''
       #### Running PrismaFS
 

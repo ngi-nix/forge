@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -25,6 +26,7 @@
   apps.kikit = {
     displayName = "KiKit";
     description = "Tooling for automation of production of PCB designed in KiCAD.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       KiKit is a Python library, KiCAD plugin, and a CLI tool to automate several tasks in a standard KiCAD workflow.
 

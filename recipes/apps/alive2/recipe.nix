@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.alive2 = {
     displayName = "Alive2";
     description = "Automatic verification of LLVM optimizations.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Alive2 is a translation validation tool for LLVM that verifies that compiler
       optimizations preserve the semantics of the original program.

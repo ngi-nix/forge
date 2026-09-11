@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -12,6 +13,7 @@
   apps.diesel = {
     displayName = "Diesel";
     description = "Safe, Extensible ORM and Query Builder for Rust.";
+    categories = with lib.categories; [ Security ];
     usage = ''
       Note: Diesel is primarily a Rust library. You use it in your code by adding the [`diesel`](https://crates.io/crates/diesel) crate to your `Cargo.toml` dependencies.
 

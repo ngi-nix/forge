@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -6,6 +7,7 @@
   apps.mwoffliner = {
     displayName = "MWOffliner";
     description = "Crawls any recent MediaWiki wiki and packages it into an offline ZIM snapshot for local browsing.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       MWoffliner scrapes an online MediaWiki instance (like Wikipedia or
       Wiktionary) and packages the pages into an offline ZIM file, viewable with

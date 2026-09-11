@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.alps = {
     displayName = "Alps";
     description = "Simple, extensible webmail client.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Alps is a simple and extensible webmail client. It connects to an existing
       IMAP server for reading mail and an SMTP server for sending mail.

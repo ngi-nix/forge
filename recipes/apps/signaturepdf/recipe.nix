@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -12,6 +13,7 @@
   apps.signaturepdf = {
     displayName = "Signature PDF";
     description = "Self-hosted tool to add signature to PDFs.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Signature PDF is a web application for signing PDFs, alone or with
       others, as well as organizing pages (merge, sort, rotate, delete,

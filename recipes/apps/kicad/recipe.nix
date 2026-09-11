@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -12,6 +13,7 @@
   apps.kicad = {
     displayName = "KiCAD";
     description = "KiCAD is a free software suite for electronic design automation (EDA).";
+    categories = with lib.categories; [ Development ];
     usage = ''
       KiCAD is a free software suite for electronic design automation (EDA). It facilitates the design of schematics for electronic circuits and their conversion to PCB designs.
 

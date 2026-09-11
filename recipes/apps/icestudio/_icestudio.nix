@@ -143,6 +143,7 @@ buildNpmPackage (finalAttrs: {
 
   meta = {
     description = "Visual editor for open FPGA boards";
+    categories = with lib.categories; [ Development ];
     homepage = "https://github.com/FPGAwars/icestudio/";
     license = lib.licenses.gpl2Only;
     maintainers = with lib.maintainers; [

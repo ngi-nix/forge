@@ -13,6 +13,7 @@ in
   apps.vacask = {
     displayName = "VACASK";
     description = "Analog circuit simulator.";
+    categories = with lib.categories; [ Development ];
 
     data = {
       testOp = ./tests/test_op.sim;

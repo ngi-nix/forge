@@ -27,3 +27,4 @@ writeShellApplication {
   '';
   meta.description = "configure Forge content for dev-ui";
 }
+# force rebuild

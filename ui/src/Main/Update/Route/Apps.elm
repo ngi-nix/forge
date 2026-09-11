@@ -45,8 +45,16 @@ updateRouteApps route =
 
                                 desc_matches =
                                     String.contains search app_description
+
+                                category_matches =
+                                    case route.routeApps_category of
+                                        Nothing ->
+                                            True
+
+                                        Just category ->
+                                            List.member category app.app_categories
                             in
-                            name_matches || desc_matches
+                            (name_matches || desc_matches) && category_matches
                         )
 
                 availableItems =

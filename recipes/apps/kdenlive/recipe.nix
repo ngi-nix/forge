@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.kdenlive = {
     displayName = "Kdenlive";
     description = "Free and open source video editor, based on MLT Framework and KDE Frameworks.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Kdenlive is a powerful, free and open-source video editor that brings professional-grade video editing capabilities to everyone. Whether you're creating a simple family video or working on a complex project, Kdenlive provides the tools you need to bring your vision to life.
 

@@ -90,6 +90,41 @@
       default = { };
       description = "NGI specific options.";
     };
+    categories = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "The category name.";
+            };
+            description = lib.mkOption {
+              type = lib.types.str;
+              description = "The category description.";
+            };
+          };
+        }
+      );
+      default = throw ''
+        The application '${name}' is missing a category!
+        Please assign at least one category to this application.
+        Categories should be chosen from the valid categories in `forge/categories-list.nix`.
+        For example:
+          categories = with lib.categories; [ Office Science ];
+      '';
+      defaultText = lib.literalMD "No default value. You must specify at least one category.";
+      apply = cats: map (c: c.name) cats;
+      description = ''
+        A list of categories this application belongs to.
+
+        Categories must be chosen from the list of valid categories.
+        Please check `forge/categories-list.nix` for the available options (e.g. "Office", "Analytics").
+      '';
+      example = [
+        "Office"
+        "Email"
+      ];
+    };
     maintainers = lib.mkOption {
       type = lib.types.listOf lib.types.anything;
       default = [ ];

@@ -15,6 +15,7 @@
   apps.allauth = {
     displayName = "Django Allauth";
     description = "Django library for authentication, account management as well as 3rd party (social) account authentication.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       A free, secure, well integrated, reusable authentication solution for the Django framework, covering all functionality related to local and social user accounts, multi-factor authentication, in various configurations.
 

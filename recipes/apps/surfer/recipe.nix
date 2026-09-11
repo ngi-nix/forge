@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,7 @@
   apps.surfer = {
     displayName = "Surfer Waveform Viewer";
     description = "A waveform viewer with a focus on a snappy usable interface, and extensibility.";
+    categories = with lib.categories; [ Utility ];
     usage = ''
       Surfer is a waveform viewer for VCD, FST, and GHW files, with a focus on a
       snappy, extensible interface.

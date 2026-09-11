@@ -126,7 +126,6 @@ highlightjs-code pre {
   align-items: center;
   height: auto;
   min-height: 100%;
-  aspect-ratio: 1 / 1;
   border-radius: 0.75rem;
 }
 
@@ -283,31 +282,17 @@ highlightjs-code pre {
 }
 
 /* Default (Super tiny width, < 380px): 1 column (12 / 1 = 12 full rows) */
-.m-item-grid {
-  display: grid;
-  gap: 0.85rem;
-  grid-template-columns: repeat(1, 1fr);
-}
 
 /* 380px to 767px (Mobile & Small Tablets): 2 columns (12 / 2 = 6 full rows) */
 @media (min-width: 380px) {
-  .m-item-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 /* 768px to 991px: 3 columns (12 / 3 = 4 full rows) */
 @media (min-width: 768px) {
-  .m-item-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 /* 992px+: 4 columns max (12 / 4 = 3 full rows) */
 @media (min-width: 992px) {
-  .m-item-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 /* hide the native summary icon */

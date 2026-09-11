@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -6,6 +7,7 @@
   apps.pnut = {
     displayName = "Pnut";
     description = "C to POSIX shell transpiler for reproducible and auditable bootstrapping of GCC from a minimal seed.";
+    categories = with lib.categories; [ Utility ];
     usage = ''
       Pnut transpiles C source code to POSIX shell scripts, enabling
       reproducible and auditable bootstrapping of GCC from a minimal seed.

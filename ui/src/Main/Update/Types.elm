@@ -44,6 +44,7 @@ type Update
     | Update_AmbientKeyPress AmbientKeyState
     | Update_Search Search
     | Update_SearchFocus Bool
+    | Update_CategoryFilter (Maybe String)
     | Update_NoOp
 
 

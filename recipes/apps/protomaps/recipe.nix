@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.protomaps = {
     displayName = "Protomaps";
     description = "Toolchain for creating and serving PMTiles map archives.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Protomaps provides tools for working with PMTiles, a single-file archive
       format for tilesets that can be served directly from cloud storage.

@@ -1,9 +1,11 @@
 module Main.View.Page.Apps exposing (..)
 
+import Dict
 import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
 import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
+import List.Extra
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
@@ -22,21 +24,27 @@ import Main.View.Pagination exposing (PaginationVisibility(..), viewPaginationIt
 
 viewPageApps : Model -> PageApps -> Html Update
 viewPageApps model pageApps =
-    div []
-        [ viewSortDropdown model pageApps
-        , viewPageAppsPagination
-            pageApps.pageApps_pagination
-            (viewPageAppsApp model pageApps)
-            (\modifyRoutePagination ->
-                let
-                    routeApps =
-                        pageApps.pageApps_route
-                in
-                Route_Apps
-                    { routeApps
-                        | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
-                    }
-            )
+    div [ class "row" ]
+        [ div [ class "col-md-3 mb-3" ]
+            [ h5 [ class "mb-3" ] [ text "Categories" ]
+            , viewCategoryFilters model pageApps
+            ]
+        , div [ class "col-md-9" ]
+            [ viewSortDropdown model pageApps
+            , viewPageAppsPagination
+                pageApps.pageApps_pagination
+                (viewPageAppsApp model pageApps)
+                (\modifyRoutePagination ->
+                    let
+                        routeApps =
+                            pageApps.pageApps_route
+                    in
+                    Route_Apps
+                        { routeApps
+                            | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
+                        }
+                )
+            ]
         , let
             nextPageApps =
                 pageApps.pageApps_pagination.pagePagination_list
@@ -72,7 +80,10 @@ viewPageApps model pageApps =
 viewPageAppsPagination : PagePagination a -> (a -> Html Update) -> ((RoutePagination -> RoutePagination) -> Route) -> Html Update
 viewPageAppsPagination pagePagination viewItem reRoute =
     div []
-        [ div [ class "m-item-grid" ] (viewPaginationItems pagePagination viewItem)
+        [ div [ class "row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 mb-4" ]
+            (viewPaginationItems pagePagination viewItem
+                |> List.map (\item -> div [ class "col" ] [ item ])
+            )
         , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pagePagination reRoute
         ]
 
@@ -271,3 +282,53 @@ viewSortDropdown model pageApps =
           else
             Html.text ""
         ]
+
+
+viewCategoryFilters : Model -> PageApps -> Html Update
+viewCategoryFilters model pageApps =
+    let
+        allCategories =
+            model.model_config.config_apps
+                |> Dict.values
+                |> List.concatMap .app_categories
+                |> List.Extra.unique
+                |> List.sort
+
+        viewCategory category =
+            let
+                isSelected =
+                    pageApps.pageApps_route.routeApps_category == Just category
+
+                btnClass =
+                    if isSelected then
+                        "list-group-item list-group-item-action active has-tooltip autohide"
+
+                    else
+                        "list-group-item list-group-item-action has-tooltip autohide"
+
+                newCategory =
+                    if isSelected then
+                        Nothing
+
+                    else
+                        Just category
+
+                desc =
+                    Dict.get category model.model_config.config_categories
+                        |> Maybe.map .category_description
+                        |> Maybe.withDefault ""
+            in
+            Html.button
+                [ class btnClass
+                , attribute "data-testid" ("category-filter-" ++ category)
+                , title desc
+                , onClick (Update_CategoryFilter newCategory)
+                ]
+                [ Html.text category ]
+    in
+    if List.isEmpty allCategories then
+        Html.text ""
+
+    else
+        div [ class "list-group shadow-sm" ]
+            (allCategories |> List.map viewCategory)

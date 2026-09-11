@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -10,6 +11,7 @@ in
   apps.amaranth = {
     displayName = "Amaranth HDL";
     description = "Amaranth is a hardware definition langauge for synchronous digital logic embedded within Python.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Amaranth is a Python-based hardware description language and toolchain,
       covering the full FPGA development workflow: the HDL itself, a standard

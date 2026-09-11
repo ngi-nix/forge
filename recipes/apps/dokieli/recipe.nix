@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.dokieli = {
     displayName = "Dokieli";
     description = "Clientside editor for decentralised article publishing, annotations, and social interactions.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       dokieli is a clientside editor for authoring, annotating, and sharing
       articles in a decentralised way.

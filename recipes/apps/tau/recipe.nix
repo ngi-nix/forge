@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,7 @@
   apps.tau = {
     displayName = "Tau";
     description = "Web radio streaming system.";
+    categories = with lib.categories; [ Security ];
 
     usage = ''
       This app provides both the _tau-tower_ server and the _tau-radio_ client.

@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.xrsh = {
     displayName = "xrsh";
     description = "Interactive text/OS terminal inside WebXR.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       xrsh is a terminal emulator and Linux ISO launcher that runs inside a WebXR
       environment, enabling REPLs and interactive sessions in virtual reality.
