@@ -31,7 +31,7 @@ in
 
       #### GUI
 
-      First, [enter the Nix shell](app/datalab#run-shell), then launch the DataLab desktop application:
+      First, ${app.usageSnippets.shell}, then launch the DataLab desktop application:
 
       ```bash
       datalab
@@ -45,7 +45,7 @@ in
 
       #### API
 
-      First, [enter the Nix shell](app/datalab#run-shell), which provides a Python environment with DataLab already installed.
+      First, ${app.usageSnippets.shell}, which provides a Python environment with DataLab already installed.
 
       In the example below, we use a [remote proxy](https://datalab-platform.com/en/features/advanced/proxy.html#module-datalab.control.proxy) to programmatically create and display some data.
 

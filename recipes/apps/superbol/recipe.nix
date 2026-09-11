@@ -4,6 +4,10 @@
   ...
 }:
 
+let
+  app = config.apps.superbol-studio;
+in
+
 {
   pkgs = {
     superbol-studio = {
@@ -37,13 +41,13 @@
     '';
 
     usage = ''
-      First, [launch the program](app/${config.apps.superbol-studio.name}#run-program).
+      First, ${app.usageSnippets.program}.
 
       To start using the extension on an existing project, open its folder in VS Code (`File > Add Folder to Workspace...`). The extension will start automatically whenever the folder contains files with usual COBOL filename extensions (`.cob`, `.cbl`, `.cpy`, `.cbx`).
 
       When editing a program, you can press `Ctrl`+`Space` to obtain suggestions on valid keywords, user-defined words (data item or paragraph names), and even complete COBOL sentences. Select an option with the arrow keys, and press `Enter` to insert the selected suggestion.
 
-      For more information, please consult the [project documentation](${config.apps.superbol-studio.links.docs}), the [VSCode Marketplace Entry](https://marketplace.visualstudio.com/items?itemName=OCamlPro.SuperBOL) and the [VSCode Documentation](https://code.visualstudio.com/docs)
+      For more information, please consult the [project documentation](${app.links.docs}), the [VSCode Marketplace Entry](https://marketplace.visualstudio.com/items?itemName=OCamlPro.SuperBOL) and the [VSCode Documentation](https://code.visualstudio.com/docs)
     '';
 
     links = {
