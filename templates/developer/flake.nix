@@ -1,5 +1,5 @@
 {
-  description = "NGI Forge-based Development flake";
+  description = "NGI Forge developer";
 
   nixConfig = {
     extra-substituters = [
@@ -31,26 +31,20 @@
           ...
         }:
         {
+          # nix fmt
+          formatter = pkgs.nixfmt-tree;
+
           devShells.default = pkgs.mkShell {
-            # Install build dependencies required to build the apps/pkgs
-            # NOTE:
-            #   This does not include the tools themselves.
-            #   For that, use `packages`, below.
+            # Install build dependencies of a Forge package.
+            # NOTE: this doesn't include package itself
             inputsFrom = [
-              config.packages.apps.cpdf
-              config.packages.apps.qlever
-              config.packages.pkgs.arwen
+              config.packages.pkgs.offen
             ];
 
-            # Install build tools
+            # Install additional packages
             packages = [
-              config.packages.pkgs.arwen
-              pkgs.coreutils
-              pkgs.jq
-            ]
-            # include forge packages (main executables)
-            ++ config.packages.apps.cpdf.pkgs
-            ++ config.packages.apps.qlever.pkgs;
+              # pkgs.jq
+            ];
           };
         };
     };

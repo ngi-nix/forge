@@ -31,9 +31,6 @@
           forge = {
             # NOTE: update the repository url to your forge. e.g. "github:username/forge-repo"
             repositoryUrl = "github:ngi-nix/forge";
-            maintainerLists = [
-              inputs.ngi-forge.maintainerList
-            ];
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
           };
         };

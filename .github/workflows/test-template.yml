@@ -60,3 +60,10 @@ jobs:
       pkg: himalaya
       app: himalaya
       test_app: true
+
+  test-developer:
+    name: Test developer template
+    uses: ./.github/workflows/build-template.yml
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.template == 'developer'
+    with:
+      template: developer
