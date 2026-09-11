@@ -135,8 +135,9 @@ defaultRouteRecipeOptions =
     { routeRecipeOptions_searchPattern = ""
     , routeRecipeOptions_unfolds =
         Set.fromList
-            [ [ "apps" ]
-            , [ "pkgs" ]
+            [ [ "forge" ]
+            , [ "forge", "apps" ]
+            , [ "forge", "pkgs" ]
             ]
     , routeRecipeOptions_scope = []
     , routeRecipeOptions_focus = Nothing

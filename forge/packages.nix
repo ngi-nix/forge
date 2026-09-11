@@ -25,9 +25,9 @@ let
         opt:
         opt
         // {
-          name = lib.removePrefix "perSystem.forge." opt.name;
+          name = lib.removePrefix "perSystem." opt.name;
           declarations = [ ];
-          visible = lib.match ("^perSystem\\.forge\\.(apps|pkgs)(\\..+)?") opt.name != null;
+          visible = lib.hasPrefix "perSystem.forge." opt.name;
         };
     };
 
