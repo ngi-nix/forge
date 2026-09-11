@@ -146,7 +146,10 @@ viewAppsCount model pageApps =
 viewPageAppsPagination : PagePagination a -> (a -> Html Update) -> ((RoutePagination -> RoutePagination) -> Route) -> Html Update
 viewPageAppsPagination pagePagination viewItem reRoute =
     div []
-        [ div [ class "m-item-grid" ] (viewPaginationItems pagePagination viewItem)
+        [ div [ class "row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 mb-4" ]
+            (viewPaginationItems pagePagination viewItem
+                |> List.map (\item -> div [ class "col" ] [ item ])
+            )
         , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pagePagination reRoute
         ]
 
