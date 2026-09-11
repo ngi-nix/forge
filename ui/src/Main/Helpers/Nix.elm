@@ -143,3 +143,17 @@ nixModuleOptionsToTrees options =
                     )
                 )
             )
+        -- Root level forge options (eg. `maintainerLists`, `repositoryUrl`) are
+        -- showing after `apps` and `pkgs`.
+        |> List.map
+            (Tree.mapChildren
+                (List.sortBy
+                    (\child ->
+                        if child |> Tree.children |> List.isEmpty then
+                            1
+
+                        else
+                            0
+                    )
+                )
+            )
