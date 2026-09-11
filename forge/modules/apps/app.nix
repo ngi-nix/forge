@@ -110,7 +110,7 @@
         Please assign at least one category to this application.
         Categories should be chosen from the valid categories in `forge/categories-list.nix`.
         For example:
-          categories = with lib.categories; [ office science ];
+          categories = with lib.categories; [ Office Science ];
       '';
       defaultText = lib.literalMD "No default value. You must specify at least one category.";
       apply = cats: map (c: c.name) cats;
