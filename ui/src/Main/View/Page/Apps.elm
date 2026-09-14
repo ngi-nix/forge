@@ -1,5 +1,6 @@
 module Main.View.Page.Apps exposing (..)
 
+import Dict
 import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
 import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
@@ -67,6 +68,32 @@ viewPageApps model pageApps =
                 nextPageApps
             )
         ]
+
+
+viewAppsCount : Model -> PageApps -> Html Update
+viewAppsCount model pageApps =
+    let
+        total =
+            Dict.size model.model_config.config_apps
+
+        filtered =
+            pageApps.pageApps_pagination.pagePagination_list
+                |> List.concat
+                |> List.length
+
+        label =
+            if pageApps.pageApps_route.routeApps_search == "" then
+                String.fromInt total ++ " applications"
+
+            else
+                String.fromInt filtered ++ " of " ++ String.fromInt total ++ " applications"
+    in
+    span
+        [ class "btn btn-sm border d-inline-flex align-items-center"
+        , style "color" "var(--bs-body-color)"
+        , attribute "data-testid" "apps-count-badge"
+        ]
+        [ text label ]
 
 
 viewPageAppsPagination : PagePagination a -> (a -> Html Update) -> ((RoutePagination -> RoutePagination) -> Route) -> Html Update
@@ -178,7 +205,8 @@ viewPageAppsApp _ _ app =
 viewSortDropdown : Model -> PageApps -> Html Update
 viewSortDropdown model pageApps =
     div [ class "d-flex justify-content-start mb-3 gap-2" ]
-        [ div [ class "dropdown" ]
+        [ viewAppsCount model pageApps
+        , div [ class "dropdown" ]
             [ Html.button
                 [ class "btn btn-sm border text-body dropdown-toggle"
                 , attribute "type" "button"
@@ -270,4 +298,6 @@ viewSortDropdown model pageApps =
 
           else
             Html.text ""
+
+        -- , viewAppsCount model pageApps
         ]
