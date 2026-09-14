@@ -2,10 +2,12 @@
   lib,
   name,
   specialArgs,
+  config,
   ...
 }:
 {
   imports = [
+    ../assertions-warnings.nix
     ../builders/identity-builder
     ../builders/standard-builder
     ../builders/go-builder
@@ -303,5 +305,64 @@
         description = "Resulting derivation of the package.";
       };
     };
+  };
+
+  config = {
+    assertions =
+      let
+        builders = lib.filterAttrs (name: _: lib.hasSuffix "Builder" name) config.build;
+        builderNames = map (name: "build." + name) (lib.attrNames builders);
+
+        enabledBuilders = lib.filterAttrs (_: b: b.enable) builders;
+        enabledBuilderNames = map (name: "build." + name) (lib.attrNames enabledBuilders);
+
+        enabledBuildersCount = lib.length enabledBuilderNames;
+      in
+      [
+        {
+          condition =
+            !(
+              config.source.git == null
+              && config.source.url == null
+              && config.source.path == null
+              && !config.build.identityBuilder.enable
+            );
+          message = ''
+            Package '${config.pname}': one of sources options must be defined.
+            Available options: source.git, source.url, or source.path.
+          '';
+        }
+        {
+          condition = !(enabledBuildersCount != 1);
+          message = ''
+            Package '${config.pname}': only one builder can be enabled at a time.
+            Enabled options: ${lib.concatStringsSep ", " enabledBuilderNames}.
+          '';
+        }
+        {
+          condition = !(enabledBuildersCount == 0);
+          message = ''
+            Package '${config.pname}': one of builder options must be enabled.
+            Available options: ${lib.concatStringsSep ", " builderNames}.
+          '';
+        }
+      ];
+
+    warnings = [
+      {
+        condition =
+          config.source.hash == "" && config.source.path == null && !config.build.identityBuilder.enable;
+        message = ''
+          Package '${config.pname}': source.hash is empty.
+          Correct hash will be printed in the error message when package is built.
+        '';
+      }
+      {
+        condition = config.license == [ ];
+        message = ''
+          Package '${config.pname}': license is empty.
+        '';
+      }
+    ];
   };
 }

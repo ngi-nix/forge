@@ -66,68 +66,18 @@
       inherit (packagesWithNamespace) packages;
 
       # Collect warnings from forge.pkgs
-      warnings = lib.flatten (
-        map (pkg: [
-          {
-            condition = pkg.source.hash == "" && pkg.source.path == null && !pkg.build.identityBuilder.enable;
-            message = ''
-              Package '${pkg.pname}': source.hash is empty.
-              Correct hash will be printed in the error message when package is built.
-            '';
-          }
-          {
-            condition = pkg.license == [ ];
-            message = ''
-              Package '${pkg.pname}': license is empty.
-            '';
-          }
-        ]) (lib.attrValues config.forge.pkgs)
-      );
+      warnings = lib.pipe config.forge.pkgs [
+        (lib.attrValues)
+        (map (x: x.warnings))
+        (lib.flatten)
+      ];
 
       # Collect assertions from forge.pkgs
-      assertions = lib.flatten (
-        map (
-          pkg:
-          let
-            builders = lib.filterAttrs (name: _: lib.hasSuffix "Builder" name) pkg.build;
-            builderNames = map (name: "build." + name) (lib.attrNames builders);
-
-            enabledBuilders = lib.filterAttrs (_: b: b.enable) builders;
-            enabledBuilderNames = map (name: "build." + name) (lib.attrNames enabledBuilders);
-
-            enabledBuildersCount = lib.length enabledBuilderNames;
-          in
-          [
-            {
-              condition =
-                !(
-                  pkg.source.git == null
-                  && pkg.source.url == null
-                  && pkg.source.path == null
-                  && !pkg.build.identityBuilder.enable
-                );
-              message = ''
-                Package '${pkg.pname}': one of sources options must be defined.
-                Available options: source.git, source.url, or source.path.
-              '';
-            }
-            {
-              condition = !(enabledBuildersCount != 1);
-              message = ''
-                Package '${pkg.pname}': only one builder can be enabled at a time.
-                Enabled options: ${lib.concatStringsSep ", " enabledBuilderNames}.
-              '';
-            }
-            {
-              condition = !(enabledBuildersCount == 0);
-              message = ''
-                Package '${pkg.pname}': one of builder options must be enabled.
-                Available options: ${lib.concatStringsSep ", " builderNames}.
-              '';
-            }
-          ]
-        ) (lib.attrValues config.forge.pkgs)
-      );
+      assertions = lib.pipe config.forge.pkgs [
+        (lib.attrValues)
+        (map (x: x.assertions))
+        (lib.flatten)
+      ];
 
       # Evaluation check: show warnings first, then throw on failed assertions
       _module.check =
