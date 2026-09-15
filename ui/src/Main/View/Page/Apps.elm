@@ -161,13 +161,18 @@ viewPageAppsApp _ _ app =
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
                 , attribute "data-full-text" app.app_description
 
-                -- FIX: Stop propagation here so dragging/highlighting this text doesn't trigger the card's onClick
+                -- FIX: Allow single clicks to bubble, but stop double clicks.
+                -- Note: Drags/holds are caught by the global JS interceptor in main.js.
                 , custom "click"
-                    (Decode.succeed
-                        { message = Update_Chain []
-                        , stopPropagation = True
-                        , preventDefault = False
-                        }
+                    (Decode.field "detail" Decode.int
+                        |> Decode.andThen
+                            (\detail ->
+                                Decode.succeed
+                                    { message = Update_Chain []
+                                    , stopPropagation = detail > 1
+                                    , preventDefault = False
+                                    }
+                            )
                     )
                 ]
                 [ text app.app_description ]
