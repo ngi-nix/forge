@@ -95,6 +95,15 @@ update upd modelInit =
         Update_ToggleAppsSortDropdown ->
             ( { model | model_appsSortDropdownOpen = not model.model_appsSortDropdownOpen }, Cmd.none )
 
+        Update_CategorySearch text ->
+            ( { model | model_appsCategorySearch = text }, Cmd.none )
+
+        Update_ToggleAppsCategoryDropdown ->
+            ( { model | model_appsCategoryDropdownOpen = not model.model_appsCategoryDropdownOpen }, Cmd.none )
+
+        Update_Blur id ->
+            ( model, Task.attempt Update_FocusResult (Dom.blur id) )
+
         Update_DismissFeedback ->
             ( { model | model_askFeedback = False }, Cmd.none )
 
@@ -136,6 +145,22 @@ update upd modelInit =
                 { model | model_search = search }
                     |> update (Update_Route (routeSearch model search))
 
+        Update_CategoryFilter category ->
+            let
+                newRoute =
+                    case model.model_page of
+                        Page_Apps pageApps ->
+                            let
+                                routeApps =
+                                    pageApps.pageApps_route
+                            in
+                            Route_Apps { routeApps | routeApps_category = category, routeApps_pagination = defaultRoutePagination }
+
+                        _ ->
+                            Route_Apps { defaultRouteApps | routeApps_category = category }
+            in
+            update (Update_Route newRoute) model
+
         Update_AmbientKeyPress input ->
             if input.key == "Escape" then
                 model
@@ -143,7 +168,21 @@ update upd modelInit =
                     |> Cmd.append (Task.attempt Update_FocusResult (Dom.blur "main-search-bar"))
 
             else if not input.focusedTyping && not input.hasModifier then
-                if input.key == "/" then
+                if model.model_appsCategoryDropdownOpen then
+                    if input.key == "/" then
+                        ( model
+                        , Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+                        )
+
+                    else if (String.length input.key == 1) && (input.key |> String.all Char.isAlphaNum) then
+                        ( { model | model_appsCategorySearch = input.key }
+                        , Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                else if input.key == "/" then
                     ( model
                     , Task.attempt Update_FocusResult (Dom.focus "main-search-bar")
                     )

@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -6,6 +7,10 @@
   apps.texlyre = {
     displayName = "Texlyre";
     description = "Local-first real-time LaTeX and Typst collaboration platform with offline editing capabilities.";
+    categories = with lib.categories; [
+      Office
+      P2P
+    ];
     usage = ''
       TeXlyre is a local-first, real-time LaTeX and Typst collaboration platform.
       Documents are stored locally in the browser (IndexedDB) and synchronized

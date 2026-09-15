@@ -22,6 +22,10 @@ in
   apps.cdxgen = {
     displayName = "cdxgen";
     description = "Tool to create CycloneDX Software Bill-of-Materials (SBOM) for projects from source and container images.";
+    categories = with lib.categories; [
+      Development
+      Security
+    ];
     longDescription = ''
       CLI tool, library, REPL, and server to create, validate, sign, and verify software BOMs.
 

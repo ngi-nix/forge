@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,10 @@
   apps.weasyprint = {
     displayName = "WeasyPrint";
     description = "Print rendering engine for HTML and CSS.";
+    categories = with lib.categories; [
+      Development
+      Printing
+    ];
     usage = ''
       WeasyPrint converts HTML and CSS documents into PDF files.
 

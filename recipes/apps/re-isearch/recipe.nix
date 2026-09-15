@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.re-isearch = {
     displayName = "Re-Isearch";
     description = "Novel multimodal search and retrieval engine.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Re-Isearch is a multimodal search engine that supports ranked retrieval across
       structured and unstructured data using a variety of ranking models.

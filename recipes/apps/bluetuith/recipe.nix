@@ -1,10 +1,15 @@
 {
+  lib,
   pkgs,
   ...
 }:
 {
   apps.bluetuith = {
     description = "bluetuith is a TUI-based bluetooth connection manager, which can interact with bluetooth adapters and devices.";
+    categories = with lib.categories; [
+      Network
+      Utility
+    ];
     usage = ''
       bluetuith is a terminal-based Bluetooth connection manager. It works
       out-of-the-box with no configuration required.

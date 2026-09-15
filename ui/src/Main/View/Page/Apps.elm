@@ -5,6 +5,7 @@ import Html exposing (Html, a, div, h5, img, p, small, span, text)
 import Html.Attributes exposing (attribute, class, href, src, style, title)
 import Html.Events exposing (custom, preventDefaultOn, stopPropagationOn)
 import Json.Decode as Decode
+import List.Extra
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
@@ -35,23 +36,26 @@ viewPageApps model pageApps =
                         | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
                     }
     in
-    div []
-        [ div
-            [ style "display" "grid"
-            , style "grid-template-columns" "1fr auto 1fr"
-            , class "align-items-center my-2"
-            ]
-            [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
-                [ viewAppsCount model pageApps
-                , viewSortDropdown model pageApps
+    div [ class "row" ]
+        [ div [ class "col-md-12 mt-1 mb-1" ]
+            [ div
+                [ style "display" "grid"
+                , style "grid-template-columns" "1fr auto 1fr"
+                , class "align-items-center my-2"
                 ]
-            , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
-            , text ""
+                [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
+                    [ viewAppsCount model pageApps
+                    , viewCategoryDropdown model pageApps
+                    , viewSortDropdown model pageApps
+                    ]
+                , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
+                , text ""
+                ]
+            , viewPageAppsPagination
+                pageApps.pageApps_pagination
+                (viewPageAppsApp model pageApps)
+                reRoute
             ]
-        , viewPageAppsPagination
-            pageApps.pageApps_pagination
-            (viewPageAppsApp model pageApps)
-            reRoute
         , let
             nextPageApps =
                 pageApps.pageApps_pagination.pagePagination_list
@@ -86,10 +90,53 @@ viewPageApps model pageApps =
 
 viewAppsCount : Model -> PageApps -> Html Update
 viewAppsCount model pageApps =
+    let
+        globalTotal =
+            Dict.size model.model_config.config_apps
+
+        filtered =
+            pageApps.pageApps_pagination.pagePagination_list
+                |> List.concat
+                |> List.length
+
+        hasSearch =
+            pageApps.pageApps_route.routeApps_search /= ""
+
+        hasCategory =
+            pageApps.pageApps_route.routeApps_category
+
+        ( activeTotal, noun ) =
+            case ( hasCategory, hasSearch ) of
+                ( Just cat, True ) ->
+                    let
+                        categoryTotal =
+                            model.model_config.config_apps
+                                |> Dict.values
+                                |> List.filter (\a -> List.member cat a.app_categories)
+                                |> List.length
+                    in
+                    ( categoryTotal, "apps in " ++ cat ++ " matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\"" )
+
+                ( Just cat, False ) ->
+                    let
+                        categoryTotal =
+                            model.model_config.config_apps
+                                |> Dict.values
+                                |> List.filter (\a -> List.member cat a.app_categories)
+                                |> List.length
+                    in
+                    ( categoryTotal, "apps in " ++ cat )
+
+                ( Nothing, True ) ->
+                    ( globalTotal, "apps matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\"" )
+
+                ( Nothing, False ) ->
+                    ( globalTotal, "applications" )
+    in
     viewCountWidget
-        { total = Dict.size model.model_config.config_apps
-        , filtered = pageApps.pageApps_pagination.pagePagination_list |> List.concat |> List.length
-        , noun = "applications"
+        { total = activeTotal
+        , filtered = filtered
+        , noun = noun
         , testId = "apps-count-badge"
         }
 
@@ -159,14 +206,20 @@ viewPageAppsApp _ _ app =
             [ class "flex-grow-1 d-flex align-items-center w-100 my-2" ]
             [ p
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
+                , attribute "data-full-text" app.app_description
 
-                -- FIX: Stop propagation here so dragging/highlighting this text doesn't trigger the card's onClick
+                -- FIX: Allow single clicks to bubble, but stop double clicks.
+                -- Note: Drags/holds are caught by the global JS interceptor in main.js.
                 , custom "click"
-                    (Decode.succeed
-                        { message = Update_Chain []
-                        , stopPropagation = True
-                        , preventDefault = False
-                        }
+                    (Decode.field "detail" Decode.int
+                        |> Decode.andThen
+                            (\detail ->
+                                Decode.succeed
+                                    { message = Update_Chain []
+                                    , stopPropagation = detail > 1
+                                    , preventDefault = False
+                                    }
+                            )
                     )
                 ]
                 [ text app.app_description ]
@@ -295,4 +348,154 @@ viewSortDropdown model pageApps =
 
           else
             Html.text ""
+        ]
+
+
+viewCategoryDropdown : Model -> PageApps -> Html Update
+viewCategoryDropdown model pageApps =
+    let
+        allCategories =
+            model.model_config.config_apps
+                |> Dict.values
+                |> List.concatMap .app_categories
+                |> List.Extra.unique
+                |> List.sort
+
+        filteredCategories =
+            if model.model_appsCategorySearch == "" then
+                allCategories
+
+            else
+                allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
+
+        currentCat =
+            pageApps.pageApps_route.routeApps_category |> Maybe.withDefault "All"
+
+        isDropdownOpen =
+            model.model_appsCategoryDropdownOpen
+
+        -- Ensure the dropdown closes when clicking outside by rendering an invisible full-screen overlay
+        overlay =
+            if isDropdownOpen then
+                div
+                    [ class "position-fixed top-0 start-0 w-100 h-100"
+                    , style "z-index" "1040"
+                    , onClick
+                        (Update_Chain
+                            [ Update_ToggleAppsCategoryDropdown
+                            , Update_CategorySearch ""
+                            ]
+                        )
+                    ]
+                    []
+
+            else
+                Html.text ""
+    in
+    div [ class "dropdown d-inline-block" ]
+        [ overlay
+        , Html.button
+            [ class "btn btn-sm border text-body dropdown-toggle"
+            , attribute "type" "button"
+            , attribute "data-testid" "category-dropdown-button"
+            , style "position" "relative"
+            , style "z-index"
+                (if isDropdownOpen then
+                    "1050"
+
+                 else
+                    "auto"
+                )
+            , onClick Update_ToggleAppsCategoryDropdown
+            ]
+            [ Html.text ("Category: " ++ currentCat) ]
+        , div
+            [ class <|
+                "dropdown-menu shadow p-0"
+                    ++ (if isDropdownOpen then
+                            " show"
+
+                        else
+                            ""
+                       )
+            , style "min-width" "240px"
+            , style "border-radius" "0.5rem"
+            , style "overflow" "hidden"
+            , style "z-index" "1050"
+            ]
+            [ div [ class "p-2 border-bottom bg-body", style "position" "sticky", style "top" "0", style "z-index" "1" ]
+                [ Html.input
+                    [ class "form-control form-control-sm"
+                    , Html.Attributes.id "category-search-input"
+                    , attribute "placeholder" "Search categories..."
+                    , Html.Attributes.value model.model_appsCategorySearch
+                    , Html.Events.onInput Update_CategorySearch
+                    , stopPropagationOn "click" (Decode.succeed ( Update_NoOp, True ))
+
+                    -- The global Escape listener in Subscriptions.elm will handle Esc key
+                    ]
+                    []
+                ]
+            , Html.ul
+                [ class "list-unstyled mb-0 py-1"
+                , style "max-height" "300px"
+                , style "overflow-y" "auto"
+                ]
+                (Html.li []
+                    [ Html.button
+                        [ attribute "data-testid" "category-filter-All"
+                        , class
+                            ("dropdown-item d-flex justify-content-between align-items-center"
+                                ++ (if pageApps.pageApps_route.routeApps_category == Nothing then
+                                        " active"
+
+                                    else
+                                        ""
+                                   )
+                            )
+                        , onClick
+                            (Update_Chain
+                                [ Update_CategoryFilter Nothing
+                                , Update_ToggleAppsCategoryDropdown
+                                , Update_CategorySearch ""
+                                ]
+                            )
+                        ]
+                        [ Html.text "All Categories" ]
+                    ]
+                    :: (if List.isEmpty filteredCategories then
+                            [ Html.li [ class "px-3 py-2 text-muted small text-center" ]
+                                [ Html.text "No categories found" ]
+                            ]
+
+                        else
+                            filteredCategories
+                                |> List.map
+                                    (\cat ->
+                                        Html.li []
+                                            [ Html.button
+                                                [ attribute "data-testid" ("category-filter-" ++ cat)
+                                                , class
+                                                    ("dropdown-item d-flex justify-content-between align-items-center"
+                                                        ++ (if pageApps.pageApps_route.routeApps_category == Just cat then
+                                                                " active"
+
+                                                            else
+                                                                ""
+                                                           )
+                                                    )
+                                                , onClick
+                                                    (Update_Chain
+                                                        [ Update_CategoryFilter (Just cat)
+                                                        , Update_ToggleAppsCategoryDropdown
+                                                        , Update_CategorySearch ""
+                                                        ]
+                                                    )
+                                                ]
+                                                [ Html.text cat ]
+                                            ]
+                                    )
+                       )
+                )
+            ]
         ]

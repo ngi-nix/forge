@@ -36,6 +36,12 @@
           maintainers =
             (import "${forge-inputs.nixpkgs}/maintainers/maintainer-list.nix")
             // lib.foldl' (acc: path: acc // import path) { } config.forge.maintainerLists;
+          categories = builtins.listToAttrs (
+            map (c: {
+              name = c.name;
+              value = c;
+            }) (import ../categories-list.nix)
+          );
         };
       };
       modules = [
@@ -60,6 +66,24 @@
               default = "github:ngi-nix/forge";
               example = "github:ngi-nix/forge";
               description = "URL of the Forge repository.";
+            };
+
+            categories = lib.mkOption {
+              type = lib.types.attrsOf (
+                lib.types.submodule {
+                  options = {
+                    name = lib.mkOption { type = lib.types.str; };
+                    description = lib.mkOption { type = lib.types.str; };
+                  };
+                }
+              );
+              default = builtins.listToAttrs (
+                map (c: {
+                  name = c.name;
+                  value = c;
+                }) (import ../categories-list.nix)
+              );
+              description = "List of valid categories.";
             };
           };
         }
