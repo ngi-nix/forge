@@ -397,6 +397,7 @@ viewCategoryDropdown model pageApps =
         , Html.button
             [ class "btn btn-sm border text-body dropdown-toggle"
             , attribute "type" "button"
+            , attribute "data-testid" "category-dropdown-button"
             , style "position" "relative"
             , style "z-index"
                 (if isDropdownOpen then
@@ -442,7 +443,8 @@ viewCategoryDropdown model pageApps =
                 ]
                 (Html.li []
                     [ Html.button
-                        [ class
+                        [ attribute "data-testid" "category-filter-All"
+                        , class
                             ("dropdown-item d-flex justify-content-between align-items-center"
                                 ++ (if pageApps.pageApps_route.routeApps_category == Nothing then
                                         " active"
@@ -472,7 +474,8 @@ viewCategoryDropdown model pageApps =
                                     (\cat ->
                                         Html.li []
                                             [ Html.button
-                                                [ class
+                                                [ attribute "data-testid" ("category-filter-" ++ cat)
+                                                , class
                                                     ("dropdown-item d-flex justify-content-between align-items-center"
                                                         ++ (if pageApps.pageApps_route.routeApps_category == Just cat then
                                                                 " active"
