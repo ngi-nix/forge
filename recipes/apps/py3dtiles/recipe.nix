@@ -16,7 +16,7 @@
       # TODO: remove once https://github.com/nixOS/nixpkgs/pull/563014 is available
       # https://nixpkgs-tracker.ocfox.me/?pr=563014
       derivation = pkgs.pkgsOriginal.python3.pkgs.py3dtiles.override {
-        ifcopenshell = pkgs.python3Packages.callPackage ../../_nixpkgs/ifcopenshell { };
+        ifcopenshell = pkgs.python3Packages.callPackage ../../_nixpkgs/ifcopenshell { inherit (pkgs) libxml2; };
       };
     };
   };

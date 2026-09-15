@@ -15,7 +15,7 @@ in
       derivation = pkgs.pkgsOriginal.freecad.override {
         python3Packages = pkgs.python3Packages.overrideScope (
           _: _: {
-            ifcopenshell = pkgs.python3Packages.callPackage ../../_nixpkgs/ifcopenshell { };
+            ifcopenshell = pkgs.python3Packages.callPackage ../../_nixpkgs/ifcopenshell { inherit (pkgs) libxml2; };
           }
         );
       };
