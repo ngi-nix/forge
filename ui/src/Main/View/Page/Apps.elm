@@ -72,28 +72,12 @@ viewPageApps model pageApps =
 
 viewAppsCount : Model -> PageApps -> Html Update
 viewAppsCount model pageApps =
-    let
-        total =
-            Dict.size model.model_config.config_apps
-
-        filtered =
-            pageApps.pageApps_pagination.pagePagination_list
-                |> List.concat
-                |> List.length
-
-        label =
-            if pageApps.pageApps_route.routeApps_search == "" then
-                String.fromInt total ++ " applications"
-
-            else
-                String.fromInt filtered ++ " of " ++ String.fromInt total ++ " applications"
-    in
-    span
-        [ class "btn btn-sm border d-inline-flex align-items-center"
-        , style "color" "var(--bs-body-color)"
-        , attribute "data-testid" "apps-count-badge"
-        ]
-        [ text label ]
+    viewCountWidget
+        { total = Dict.size model.model_config.config_apps
+        , filtered = pageApps.pageApps_pagination.pagePagination_list |> List.concat |> List.length
+        , noun = "applications"
+        , testId = "apps-count-badge"
+        }
 
 
 viewPageAppsPagination : PagePagination a -> (a -> Html Update) -> ((RoutePagination -> RoutePagination) -> Route) -> Html Update
@@ -298,6 +282,4 @@ viewSortDropdown model pageApps =
 
           else
             Html.text ""
-
-        -- , viewAppsCount model pageApps
         ]
