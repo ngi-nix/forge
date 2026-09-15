@@ -23,12 +23,9 @@ import Main.View.Pagination exposing (PaginationVisibility(..), viewPaginationIt
 
 viewPageApps : Model -> PageApps -> Html Update
 viewPageApps model pageApps =
-    div []
-        [ viewSortDropdown model pageApps
-        , viewPageAppsPagination
-            pageApps.pageApps_pagination
-            (viewPageAppsApp model pageApps)
-            (\modifyRoutePagination ->
+    let
+        reRoute =
+            \modifyRoutePagination ->
                 let
                     routeApps =
                         pageApps.pageApps_route
@@ -37,7 +34,24 @@ viewPageApps model pageApps =
                     { routeApps
                         | routeApps_pagination = routeApps.routeApps_pagination |> modifyRoutePagination
                     }
-            )
+    in
+    div []
+        [ div
+            [ style "display" "grid"
+            , style "grid-template-columns" "1fr auto 1fr"
+            , class "align-items-center my-2"
+            ]
+            [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
+                [ viewAppsCount model pageApps
+                , viewSortDropdown model pageApps
+                ]
+            , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
+            , text ""
+            ]
+        , viewPageAppsPagination
+            pageApps.pageApps_pagination
+            (viewPageAppsApp model pageApps)
+            reRoute
         , let
             nextPageApps =
                 pageApps.pageApps_pagination.pagePagination_list
@@ -188,9 +202,8 @@ viewPageAppsApp _ _ app =
 
 viewSortDropdown : Model -> PageApps -> Html Update
 viewSortDropdown model pageApps =
-    div [ class "d-flex justify-content-start mb-3 gap-2" ]
-        [ viewAppsCount model pageApps
-        , div [ class "dropdown" ]
+    div [ class "d-flex justify-content-start align-items-center gap-2" ]
+        [ div [ class "dropdown" ]
             [ Html.button
                 [ class "btn btn-sm border text-body dropdown-toggle"
                 , attribute "type" "button"
