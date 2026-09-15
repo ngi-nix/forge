@@ -92,10 +92,53 @@ viewPageApps model pageApps =
 
 viewAppsCount : Model -> PageApps -> Html Update
 viewAppsCount model pageApps =
+    let
+        globalTotal =
+            Dict.size model.model_config.config_apps
+
+        filtered =
+            pageApps.pageApps_pagination.pagePagination_list
+                |> List.concat
+                |> List.length
+
+        hasSearch =
+            pageApps.pageApps_route.routeApps_search /= ""
+
+        hasCategory =
+            pageApps.pageApps_route.routeApps_category
+
+        ( activeTotal, noun ) =
+            case ( hasCategory, hasSearch ) of
+                ( Just cat, True ) ->
+                    let
+                        categoryTotal =
+                            model.model_config.config_apps
+                                |> Dict.values
+                                |> List.filter (\a -> List.member cat a.app_categories)
+                                |> List.length
+                    in
+                    ( categoryTotal, "apps in " ++ cat ++ " matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\"" )
+
+                ( Just cat, False ) ->
+                    let
+                        categoryTotal =
+                            model.model_config.config_apps
+                                |> Dict.values
+                                |> List.filter (\a -> List.member cat a.app_categories)
+                                |> List.length
+                    in
+                    ( categoryTotal, "apps in " ++ cat )
+
+                ( Nothing, True ) ->
+                    ( globalTotal, "apps matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\"" )
+
+                ( Nothing, False ) ->
+                    ( globalTotal, "applications" )
+    in
     viewCountWidget
-        { total = Dict.size model.model_config.config_apps
-        , filtered = pageApps.pageApps_pagination.pagePagination_list |> List.concat |> List.length
-        , noun = "applications"
+        { total = activeTotal
+        , filtered = filtered
+        , noun = noun
         , testId = "apps-count-badge"
         }
 
