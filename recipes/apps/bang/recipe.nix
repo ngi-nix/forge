@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -7,6 +8,10 @@
   apps.bang = {
     displayName = "BANG";
     description = "Binary Analysis Next Generation framework for recursive unpacking and analysis of binary files.";
+    categories = with lib.categories; [
+      BinaryAnalysis
+      Development
+    ];
     usage = ''
       BANG recursively unpacks and classifies binary files, supporting 220+ formats
       including firmware images, archives, file systems, and executables.

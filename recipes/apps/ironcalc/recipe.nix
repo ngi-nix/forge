@@ -14,6 +14,10 @@
   apps.ironcalc = {
     displayName = "IronCalc";
     description = "Open source selfhosted spreadsheet engine.";
+    categories = with lib.categories; [
+      Office
+      Development
+    ];
 
     usage = ''
       IronCalc is an Open source spreadsheet engine and ecosystem.
