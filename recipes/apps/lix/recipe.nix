@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -15,6 +16,7 @@
   apps.lix = {
     displayName = "Lix";
     description = "A modern and fast implementation of the Nix package manager.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       Lix is a modern, delicious implementation of the Nix package manager, focused on correctness, usability, and growth – and committed to doing right by its community.
 

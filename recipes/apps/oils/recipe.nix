@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   pkgs,
   ...
@@ -14,6 +15,10 @@
   apps.oils = {
     displayName = "Oils";
     description = "Bringing shell environments into the 21st century.";
+    categories = with lib.categories; [
+      Development
+      Utility
+    ];
     usage = ''
       Oil is a new Unix shell.
 

@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -10,6 +11,7 @@ in
   apps.vm-builder = {
     displayName = "vm-builder";
     description = "Portable, isolated tool for building virtual machines from text-based configurations.";
+    categories = with lib.categories; [ Development ];
     usage = ''
       vm-builder is a tool for building VM images using minimal hypervisor
       requirements (a serial console and virtual hard disks).
