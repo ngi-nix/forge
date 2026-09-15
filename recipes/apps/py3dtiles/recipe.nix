@@ -6,16 +6,21 @@
   pkgs.py3dtiles = {
     build.identityBuilder = {
       enable = true;
-      derivation = pkgs.pkgsOriginal.py3dtiles;
+      derivation = pkgs.pkgsOriginal.python3Packages.toPythonApplication pkgs.python3-py3dtiles;
     };
   };
 
   pkgs.python3-py3dtiles = {
     build.identityBuilder = {
       enable = true;
-      derivation = pkgs.pkgsOriginal.python3.pkgs.py3dtiles;
+      # TODO: remove once https://github.com/nixOS/nixpkgs/pull/563014 is available
+      # https://nixpkgs-tracker.ocfox.me/?pr=563014
+      derivation = pkgs.pkgsOriginal.python3.pkgs.py3dtiles.override {
+        ifcopenshell = pkgs.python3Packages.callPackage ../../_nixpkgs/ifcopenshell { };
+      };
     };
   };
+
   apps.py3dtiles = {
     displayName = "Py3DTiles";
     description = "Python module and CLI to create 3DTiles from various 3D geo-referenced data types and formats.";
