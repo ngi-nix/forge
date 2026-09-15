@@ -39,6 +39,9 @@ type Update
     | Update_SetPreferences Preferences
     | Update_ShuffleApps
     | Update_ToggleAppsSortDropdown
+    | Update_CategorySearch String
+    | Update_ToggleAppsCategoryDropdown
+    | Update_Blur String
     | Update_DismissFeedback
     | Update_FocusResult (Result Dom.Error ())
     | Update_AmbientKeyPress AmbientKeyState

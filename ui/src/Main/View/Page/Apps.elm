@@ -37,10 +37,7 @@ viewPageApps model pageApps =
                     }
     in
     div [ class "row" ]
-        [ div [ class "col-md-3 mt-3 mb-1" ]
-            [ viewCategoryFilters model pageApps
-            ]
-        , div [ class "col-md-9 mt-1 mb-1" ]
+        [ div [ class "col-md-12 mt-1 mb-1" ]
             [ div
                 [ style "display" "grid"
                 , style "grid-template-columns" "1fr auto 1fr"
@@ -48,6 +45,7 @@ viewPageApps model pageApps =
                 ]
                 [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
                     [ viewAppsCount model pageApps
+                    , viewCategoryDropdown model pageApps
                     , viewSortDropdown model pageApps
                     ]
                 , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
@@ -146,10 +144,7 @@ viewAppsCount model pageApps =
 viewPageAppsPagination : PagePagination a -> (a -> Html Update) -> ((RoutePagination -> RoutePagination) -> Route) -> Html Update
 viewPageAppsPagination pagePagination viewItem reRoute =
     div []
-        [ div [ class "row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 mb-4" ]
-            (viewPaginationItems pagePagination viewItem
-                |> List.map (\item -> div [ class "col" ] [ item ])
-            )
+        [ div [ class "m-item-grid" ] (viewPaginationItems pagePagination viewItem)
         , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pagePagination reRoute
         ]
 
@@ -356,8 +351,8 @@ viewSortDropdown model pageApps =
         ]
 
 
-viewCategoryFilters : Model -> PageApps -> Html Update
-viewCategoryFilters model pageApps =
+viewCategoryDropdown : Model -> PageApps -> Html Update
+viewCategoryDropdown model pageApps =
     let
         allCategories =
             model.model_config.config_apps
@@ -366,41 +361,138 @@ viewCategoryFilters model pageApps =
                 |> List.Extra.unique
                 |> List.sort
 
-        viewCategory category =
-            let
-                isSelected =
-                    pageApps.pageApps_route.routeApps_category == Just category
+        filteredCategories =
+            if model.model_appsCategorySearch == "" then
+                allCategories
 
-                btnClass =
-                    if isSelected then
-                        "list-group-item list-group-item-action active has-tooltip autohide"
+            else
+                allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
 
-                    else
-                        "list-group-item list-group-item-action has-tooltip autohide"
+        currentCat =
+            pageApps.pageApps_route.routeApps_category |> Maybe.withDefault "All"
 
-                newCategory =
-                    if isSelected then
-                        Nothing
+        isDropdownOpen =
+            model.model_appsCategoryDropdownOpen
 
-                    else
-                        Just category
+        -- Ensure the dropdown closes when clicking outside by rendering an invisible full-screen overlay
+        overlay =
+            if isDropdownOpen then
+                div
+                    [ class "position-fixed top-0 start-0 w-100 h-100"
+                    , style "z-index" "1040"
+                    , onClick
+                        (Update_Chain
+                            [ Update_ToggleAppsCategoryDropdown
+                            , Update_CategorySearch ""
+                            ]
+                        )
+                    ]
+                    []
 
-                desc =
-                    Dict.get category model.model_config.config_categories
-                        |> Maybe.map .category_description
-                        |> Maybe.withDefault ""
-            in
-            Html.button
-                [ class btnClass
-                , attribute "data-testid" ("category-filter-" ++ category)
-                , title desc
-                , onClick (Update_CategoryFilter newCategory)
-                ]
-                [ Html.text category ]
+            else
+                Html.text ""
     in
-    if List.isEmpty allCategories then
-        Html.text ""
+    div [ class "dropdown d-inline-block" ]
+        [ overlay
+        , Html.button
+            [ class "btn btn-sm border text-body dropdown-toggle"
+            , attribute "type" "button"
+            , style "position" "relative"
+            , style "z-index"
+                (if isDropdownOpen then
+                    "1050"
 
-    else
-        div [ class "list-group shadow-sm" ]
-            (allCategories |> List.map viewCategory)
+                 else
+                    "auto"
+                )
+            , onClick Update_ToggleAppsCategoryDropdown
+            ]
+            [ Html.text ("Category: " ++ currentCat) ]
+        , div
+            [ class <|
+                "dropdown-menu shadow p-0"
+                    ++ (if isDropdownOpen then
+                            " show"
+
+                        else
+                            ""
+                       )
+            , style "min-width" "240px"
+            , style "border-radius" "0.5rem"
+            , style "overflow" "hidden"
+            , style "z-index" "1050"
+            ]
+            [ div [ class "p-2 border-bottom bg-body", style "position" "sticky", style "top" "0", style "z-index" "1" ]
+                [ Html.input
+                    [ class "form-control form-control-sm"
+                    , Html.Attributes.id "category-search-input"
+                    , attribute "placeholder" "Search categories..."
+                    , Html.Attributes.value model.model_appsCategorySearch
+                    , Html.Events.onInput Update_CategorySearch
+                    , stopPropagationOn "click" (Decode.succeed ( Update_NoOp, True ))
+
+                    -- The global Escape listener in Subscriptions.elm will handle Esc key
+                    ]
+                    []
+                ]
+            , Html.ul
+                [ class "list-unstyled mb-0 py-1"
+                , style "max-height" "300px"
+                , style "overflow-y" "auto"
+                ]
+                (Html.li []
+                    [ Html.button
+                        [ class
+                            ("dropdown-item d-flex justify-content-between align-items-center"
+                                ++ (if pageApps.pageApps_route.routeApps_category == Nothing then
+                                        " active"
+
+                                    else
+                                        ""
+                                   )
+                            )
+                        , onClick
+                            (Update_Chain
+                                [ Update_CategoryFilter Nothing
+                                , Update_ToggleAppsCategoryDropdown
+                                , Update_CategorySearch ""
+                                ]
+                            )
+                        ]
+                        [ Html.text "All Categories" ]
+                    ]
+                    :: (if List.isEmpty filteredCategories then
+                            [ Html.li [ class "px-3 py-2 text-muted small text-center" ]
+                                [ Html.text "No categories found" ]
+                            ]
+
+                        else
+                            filteredCategories
+                                |> List.map
+                                    (\cat ->
+                                        Html.li []
+                                            [ Html.button
+                                                [ class
+                                                    ("dropdown-item d-flex justify-content-between align-items-center"
+                                                        ++ (if pageApps.pageApps_route.routeApps_category == Just cat then
+                                                                " active"
+
+                                                            else
+                                                                ""
+                                                           )
+                                                    )
+                                                , onClick
+                                                    (Update_Chain
+                                                        [ Update_CategoryFilter (Just cat)
+                                                        , Update_ToggleAppsCategoryDropdown
+                                                        , Update_CategorySearch ""
+                                                        ]
+                                                    )
+                                                ]
+                                                [ Html.text cat ]
+                                            ]
+                                    )
+                       )
+                )
+            ]
+        ]

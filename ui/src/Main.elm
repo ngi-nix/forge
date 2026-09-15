@@ -53,6 +53,8 @@ init flags =
             , model_weeklySeed = flags.flags_weeklySeed
             , model_ephemeralSeed = flags.flags_weeklySeed
             , model_appsSortDropdownOpen = False
+            , model_appsCategorySearch = ""
+            , model_appsCategoryDropdownOpen = False
             }
     in
     case flags.href |> Url.fromString of
