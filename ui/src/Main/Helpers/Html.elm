@@ -20,8 +20,9 @@ viewCountWidget { total, filtered, noun, testId } =
                 String.fromInt filtered ++ " of " ++ String.fromInt total ++ " " ++ noun
     in
     Html.span
-        [ class "btn btn-sm border d-inline-flex align-items-center"
+        [ class "btn btn-sm border d-inline-flex align-items-center flex-shrink-0"
         , style "color" "var(--bs-body-color)"
+        , style "white-space" "nowrap"
         , attribute "data-testid" testId
         ]
         [ Html.text label ]

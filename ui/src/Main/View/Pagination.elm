@@ -116,7 +116,7 @@ viewPaginationNavigation visibility page reRoute =
         in
         div [ class "d-flex justify-content-center align-items-center my-2" ]
             [ button
-                ([ class "btn me-2 border-0"
+                ([ class "btn border-0"
                  , attribute "data-testid" "pagination-prev"
                  ]
                     ++ (case routePagePreviousMaybe of
