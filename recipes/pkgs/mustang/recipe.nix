@@ -6,7 +6,7 @@
 }:
 let
   recipe = config.pkgs.mustang;
-  electron = pkgs.electron_41;
+  electron = pkgs.electron;
 in
 {
   pkgs.mustang = {

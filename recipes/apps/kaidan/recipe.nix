@@ -7,9 +7,7 @@
   pkgs.kaidan = {
     build.identityBuilder = {
       enable = true;
-      # TODO: use `pkgs.pkgsOriginal.kaidan` after this propagates:
-      # https://github.com/NixOS/nixpkgs/pull/495112
-      derivation = pkgs.callPackage ./_kaidan.nix { };
+      derivation = pkgs.pkgsOriginal.kaidan;
     };
   };
 
