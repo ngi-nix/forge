@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   forgeConfig,
@@ -19,6 +20,10 @@ in
   apps.reflection = {
     displayName = "Reflection";
     description = "Collaborative, p2p, local-first GTK text editor.";
+    categories = with lib.categories; [
+      Network
+      P2P
+    ];
     usage = ''
       Reflection is a collaborative, local-first GTK text editor based on [p2panda](https://p2panda.org/).
 

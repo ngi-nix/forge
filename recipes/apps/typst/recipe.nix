@@ -18,6 +18,7 @@ in
   apps.typst = {
     displayName = "Typst";
     description = "New markup-based typesetting system that is powerful and easy to learn.";
+    categories = with lib.categories; [ Development ];
     usage = ''
         Typst is a markup-based typesetting system, combining plain-text writing
       with built-in styling, math, and scripting to produce typeset documents
