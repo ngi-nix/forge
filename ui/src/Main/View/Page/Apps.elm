@@ -159,6 +159,7 @@ viewPageAppsApp _ _ app =
             [ class "flex-grow-1 d-flex align-items-center w-100 my-2" ]
             [ p
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
+                , attribute "data-full-text" app.app_description
 
                 -- FIX: Stop propagation here so dragging/highlighting this text doesn't trigger the card's onClick
                 , custom "click"
