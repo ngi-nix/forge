@@ -14,6 +14,30 @@ document.addEventListener("click", (e) => {
   }
 }, true);
 
+// Show native tooltip only if description is truncated by ellipses
+// Use MutationObserver so the title is present *before* hover, ensuring native tooltips display instantly
+const updateTruncatedTitles = () => {
+  document.querySelectorAll(".m-item-card-description").forEach(desc => {
+    // If the content is larger than the clamped box, it has ellipses
+    if (desc.scrollHeight > desc.clientHeight) {
+      if (!desc.hasAttribute("title")) {
+        desc.setAttribute("title", desc.getAttribute("data-full-text") || desc.textContent);
+      }
+    } else {
+      desc.removeAttribute("title");
+    }
+  });
+};
+
+const observer = new MutationObserver(() => {
+  // debounce slightly to let Elm finish DOM updates and browser layout
+  requestAnimationFrame(updateTruncatedTitles);
+});
+observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+window.addEventListener("resize", updateTruncatedTitles);
+// Run once on load
+setTimeout(updateTruncatedTitles, 100);
+
 // work around github pages adding extra trailing slash
 if (
   window.location.pathname.endsWith("/")
