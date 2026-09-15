@@ -1,5 +1,6 @@
 module Main.View.Page.Pkgs exposing (..)
 
+import Dict
 import Html exposing (Html, a, code, div, h5, span, text)
 import Html.Attributes exposing (attribute, class, href, id, rel, style, target, title)
 import Main.Config exposing (..)
@@ -38,21 +39,42 @@ viewPagePkgsLink =
 
 viewPagePkgs : Model -> PagePkgs -> Html Update
 viewPagePkgs model pagePkgs =
-    viewPagination
-        PaginationVisibility_AlwaysVisible
-        pagePkgs.pagePkgs_pagination
-        (viewPagePkgsItem model pagePkgs)
-        (\modifyRoutePagination ->
-            let
-                routePkgs =
-                    pagePkgs.pagePkgs_route
-            in
-            Route_Pkgs
-                { routePkgs
-                    | routePkgs_pagination = routePkgs.routePkgs_pagination |> modifyRoutePagination
-                    , routePkgs_focus = Nothing
-                }
-        )
+    let
+        reRoute =
+            \modifyRoutePagination ->
+                let
+                    routePkgs =
+                        pagePkgs.pagePkgs_route
+                in
+                Route_Pkgs
+                    { routePkgs
+                        | routePkgs_pagination = routePkgs.routePkgs_pagination |> modifyRoutePagination
+                        , routePkgs_focus = Nothing
+                    }
+    in
+    div []
+        [ div
+            [ style "display" "grid"
+            , style "grid-template-columns" "1fr auto 1fr"
+            , class "align-items-center my-2"
+            ]
+            [ div [ class "d-flex justify-content-start" ] [ viewPkgsCount model pagePkgs ]
+            , viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute
+            , text ""
+            ]
+        , viewPaginationContent pagePkgs.pagePkgs_pagination (viewPagePkgsItem model pagePkgs)
+        , viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute
+        ]
+
+
+viewPkgsCount : Model -> PagePkgs -> Html Update
+viewPkgsCount model pagePkgs =
+    viewCountWidget
+        { total = Dict.size model.model_config.config_pkgs
+        , filtered = pagePkgs.pagePkgs_pagination.pagePagination_list |> List.concat |> List.length
+        , noun = "packages"
+        , testId = "pkgs-count-badge"
+        }
 
 
 viewPagePkgsItem : Model -> PagePkgs -> Pkg -> Html Update
