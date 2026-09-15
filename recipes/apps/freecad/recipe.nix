@@ -7,6 +7,21 @@ let
   recipe = config.apps.freecad;
 in
 {
+  pkgs.freecad = {
+    build.identityBuilder = {
+      enable = true;
+      # TODO: remove once https://github.com/nixOS/nixpkgs/pull/563014 is available
+      # https://nixpkgs-tracker.ocfox.me/?pr=563014
+      derivation = pkgs.pkgsOriginal.freecad.override {
+        python3Packages = pkgs.python3Packages.overrideScope (
+          _: _: {
+            ifcopenshell = pkgs.python3Packages.callPackage ../../_nixpkgs/ifcopenshell { };
+          }
+        );
+      };
+    };
+  };
+
   apps.freecad = {
     displayName = "FreeCAD";
     description = "General purpose Open Source 3D CAD/MCAD/CAx/CAE/PLM modeler.";
