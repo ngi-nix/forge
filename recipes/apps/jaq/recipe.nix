@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -12,6 +13,10 @@
   apps.jaq = {
     displayName = "jaq";
     description = "Data wrangling tool focusing on correctness, speed, and simplicity.";
+    categories = with lib.categories; [
+      ConsoleOnly
+      Development
+    ];
     usage = ''
       jaq is a fast and correct reimplementation of jq for processing JSON, YAML, TOML, XML, and CSV data.
 

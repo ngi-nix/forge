@@ -25,6 +25,7 @@ in
   apps.datalab = {
     displayName = "DataLab";
     description = "Open-source Platform for Scientific and Technical Data Processing and Visualization.";
+    categories = with lib.categories; [ Network ];
     usage = ''
       DataLab is an open-source platform for scientific signal and image processing and visualization.
       It can be used as a standalone application, embedded in your own software, or remote-controlled via its XML-RPC API.
