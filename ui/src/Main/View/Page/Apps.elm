@@ -208,6 +208,7 @@ viewPageAppsApp _ _ app =
             [ class "flex-grow-1 d-flex align-items-center w-100 my-2" ]
             [ p
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
+                , attribute "data-full-text" app.app_description
 
                 -- FIX: Allow single clicks to bubble, but stop double clicks.
                 -- Note: Drags/holds are caught by the global JS interceptor in main.js.
