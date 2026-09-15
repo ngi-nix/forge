@@ -90,10 +90,43 @@ viewPageApps model pageApps =
 
 viewAppsCount : Model -> PageApps -> Html Update
 viewAppsCount model pageApps =
+    let
+        globalTotal =
+            Dict.size model.model_config.config_apps
+
+        filtered =
+            pageApps.pageApps_pagination.pagePagination_list
+                |> List.concat
+                |> List.length
+
+        hasSearch =
+            pageApps.pageApps_route.routeApps_search /= ""
+
+        hasCategory =
+            pageApps.pageApps_route.routeApps_category
+
+        activeTotal =
+            case hasCategory of
+                Just cat ->
+                    model.model_config.config_apps
+                        |> Dict.values
+                        |> List.filter (\a -> List.member cat a.app_categories)
+                        |> List.length
+
+                Nothing ->
+                    globalTotal
+
+        noun =
+            if hasSearch then
+                "applications matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\""
+
+            else
+                "applications"
+    in
     viewCountWidget
-        { total = Dict.size model.model_config.config_apps
-        , filtered = pageApps.pageApps_pagination.pagePagination_list |> List.concat |> List.length
-        , noun = "applications"
+        { total = activeTotal
+        , filtered = filtered
+        , noun = noun
         , testId = "apps-count-badge"
         }
 
