@@ -13,7 +13,7 @@
   };
 
   outputs =
-    inputs:
+    inputs@{ self, ... }:
     inputs.ngi-forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
       imports = [ inputs.ngi-forge.flakeModules.default ];
@@ -23,7 +23,7 @@
       # debug = true;
 
       perSystem =
-        { system, pkgs, ... }:
+        { config, pkgs, ... }:
         {
           # nix fmt
           formatter = pkgs.nixfmt-tree;
@@ -34,5 +34,22 @@
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
           };
         };
+
+      # NixOS system configuration
+      flake.nixosConfigurations.offen = inputs.ngi-forge.inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          # Boot configuration
+          {
+            fileSystems."/" = {
+              device = "/dev/disk/by-label/nixos";
+              fsType = "ext4";
+            };
+            boot.loader.grub.devices = [ "/dev/sda" ];
+          }
+          # Application module. See: recipes/apps/offen/recipe.nix
+          self.packages.x86_64-linux.apps.offen.nixosModules.default
+        ];
+      };
     };
 }
