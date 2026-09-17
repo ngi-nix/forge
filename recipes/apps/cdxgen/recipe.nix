@@ -13,9 +13,7 @@ in
   pkgs.cdxgen = {
     build.identityBuilder = {
       enable = true;
-      # TODO: replace with `pkgs.pkgsOriginal.cdxgen` after:
-      # https://github.com/NixOS/nixpkgs/pull/558435
-      derivation = pkgs.callPackage ./_cdxgen.nix { };
+      derivation = pkgs.pkgsOriginal.cdxgen;
     };
   };
 

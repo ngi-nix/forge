@@ -20,12 +20,12 @@
 
     build.standardBuilder = {
       enable = true;
-      packages.build = lib.optionals pkgs.stdenv.isLinux [ pkgs.autoPatchelfHook ];
+      packages.build = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.autoPatchelfHook ];
       packages.run = [
         pkgs.libusb1
         pkgs.libz
       ]
-      ++ lib.optionals pkgs.stdenv.isLinux [ pkgs.systemd ];
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.systemd ];
     };
 
     build.extraAttrs = {
