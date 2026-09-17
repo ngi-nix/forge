@@ -1,29 +1,48 @@
 {
+  config,
   pkgs,
   ...
 }:
 
+let
+  app = config.apps.offen;
+in
 {
   apps.offen = {
     displayName = "Offen";
     description = "Fair and privacy-focused web analytics.";
-    usage = ''
+    longDescription = ''
       Offen is a self-hosted web analytics server that gives operators insight
-      into usage while allowing users to access, review, and delete their own data.
-
-      #### Access
-
-      Open the Offen interface at [http://localhost:3000](http://localhost:3000).
+      into usage while allowing users to access, review, and delete their own
+      data.
+    '';
+    usage = ''
+      First, launch the app [in a container](app/${app.name}#run-container) or
+      [in a NixOS VM](app/${app.name}#run-nixos).
 
       #### Initial Setup
 
-      Create an account on first run:
+      1. Enter the running container
+
+      ```bash
+      podman exec -it offen_offen_1 bash
+      ```
+
+      or log in to the NixOS VM (the console logs in automatically as root).
+
+      2. Create an operator account
 
       ```bash
       export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
       offen setup -name <account-name> -email <email> -password <password>
       ```
 
+      #### Web Interface
+
+      Open the [web interface](http://localhost:3000) and log in as
+      the operator using the account created in the previous step.
+
+      Read the [docs](${app.links.docs}) for more details.
     '';
 
     links = {
