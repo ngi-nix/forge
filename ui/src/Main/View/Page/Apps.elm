@@ -281,13 +281,8 @@ viewSortDropdown model pageApps =
                     ]
                     [ Main.Icons.iconShuffle ]
                 , div
-                    [ class "tooltip bs-tooltip-end"
+                    [ class "tooltip bs-tooltip-top shuffle-tooltip"
                     , attribute "role" "tooltip"
-                    , style "top" "50%"
-                    , style "left" "100%"
-                    , style "transform" "translate(0, -50%)"
-                    , style "margin-top" "0"
-                    , style "margin-left" "8px"
                     ]
                     [ div [ class "tooltip-inner" ] [ Html.text "Shuffle apps (order resets on reload)" ]
                     ]
