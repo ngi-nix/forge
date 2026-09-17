@@ -647,6 +647,27 @@ pre code.hljs {
   visibility: visible;
 }
 
+@keyframes autoHideTooltip {
+  0% { opacity: 0; visibility: hidden; }
+  5%, 80% { opacity: var(--bs-tooltip-opacity, 0.9); visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+.has-tooltip.autohide:hover .tooltip {
+  opacity: 0;
+  visibility: hidden;
+  animation: autoHideTooltip 2s forwards;
+}
+
+/* Fix for shuffle tooltip overflowing viewport on mobile */
+@media (max-width: 575px) {
+  .has-tooltip .tooltip.shuffle-tooltip {
+    left: auto;
+    right: 0;
+    transform: translate(0, -100%);
+  }
+}
+
 /* File code blocks (collapsible) */
 details.markdown-content {
   font-weight: 300;
@@ -697,16 +718,4 @@ details.markdown-content highlightjs-code pre {
   background-color: transparent;
   opacity: 1;
   border: solid 1px gray;
-}
-
-@keyframes autoHideTooltip {
-  0% { opacity: 0; visibility: hidden; }
-  5%, 80% { opacity: var(--bs-tooltip-opacity, 0.9); visibility: visible; }
-  100% { opacity: 0; visibility: hidden; }
-}
-
-.has-tooltip.autohide:hover .tooltip {
-  opacity: 0;
-  visibility: hidden;
-  animation: autoHideTooltip 2s forwards;
 }
