@@ -506,6 +506,21 @@ a:link {
   --bs-code-color: #b2d5ff;
 }
 
+/* Fix category dropdown overflowing offscreen on mobile */
+@media (max-width: 767px) {
+  .mobile-centered-dropdown {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 400px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+  }
+}
+
 /* highlight js customised */
 pre code.hljs {
   padding: 0px !important;
