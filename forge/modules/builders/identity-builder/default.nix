@@ -1,5 +1,8 @@
 {
   packageBuilderModule,
+  forge-inputs,
+  config,
+  lib,
   ...
 }:
 {
@@ -9,7 +12,16 @@
       imports = ./options.nix;
       mkDerivation = mk: (mk { }).derivation;
       attrs = builder: finalAttrs: previousAttrs: {
-        derivation = builder.derivation;
+        derivation = builder.derivation // {
+          shellHook =
+            builder.derivation.shellHook or ""
+            + ''
+              echo "ngi-forge: '${builder.derivation.pname}' is available at version '${builder.derivation.version}'."
+            ''
+            + lib.optionalString config.build.debug ''
+              source ${forge-inputs.nix-utils}/nix-develop-interactive.bash
+            '';
+        };
       };
     })
     (
