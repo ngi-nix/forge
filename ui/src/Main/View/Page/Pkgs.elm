@@ -54,13 +54,19 @@ viewPagePkgs model pagePkgs =
     in
     div []
         [ div
-            [ style "display" "grid"
-            , style "grid-template-columns" "1fr auto 1fr"
-            , class "align-items-center my-2"
-            ]
-            [ div [ class "d-flex justify-content-start" ] [ viewPkgsCount model pagePkgs ]
-            , viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute
-            , text ""
+            [ class "d-flex flex-column flex-md-row align-items-center my-2 gap-3 w-100" ]
+            [ div
+                [ class "d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start align-items-center gap-2 flex-grow-1 w-100"
+                , style "flex-basis" "0"
+                ]
+                [ viewPkgsCount model pagePkgs ]
+            , div [ class "flex-shrink-0" ]
+                [ viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute ]
+            , div
+                [ class "d-none d-md-block flex-grow-1"
+                , style "flex-basis" "0"
+                ]
+                []
             ]
         , viewPaginationContent pagePkgs.pagePkgs_pagination (viewPagePkgsItem model pagePkgs)
         , viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute
