@@ -29,6 +29,7 @@ type Route
 type alias RouteApp =
     { routeApp_name : AppName
     , routeApp_runShown : Bool
+    , routeApp_deployShown : Bool
     , routeApp_iconShown : Bool
 
     -- `Nothing` means to select the first available `AppRuntime`.
@@ -42,6 +43,7 @@ defaultRouteApp : RouteApp
 defaultRouteApp =
     { routeApp_name = ""
     , routeApp_runShown = False
+    , routeApp_deployShown = False
     , routeApp_iconShown = False
     , routeApp_runRuntime = Nothing
     , routeApp_focus = Nothing
@@ -274,6 +276,12 @@ appUrlToRoute url =
                                 , routeApp_runShown = True
                             }
 
+                        Just "deploy-nixos" ->
+                            { defaultRouteApp
+                                | routeApp_name = appName
+                                , routeApp_deployShown = True
+                            }
+
                         Just "icon" ->
                             { defaultRouteApp
                                 | routeApp_name = appName
@@ -414,6 +422,9 @@ routeToAppUrl route =
                                                 "-nixos"
                                )
                         )
+
+                else if routeApp.routeApp_deployShown then
+                    Just "deploy-nixos"
 
                 else if routeApp.routeApp_iconShown then
                     Just "icon"

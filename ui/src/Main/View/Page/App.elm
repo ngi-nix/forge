@@ -17,6 +17,7 @@ import Main.Model.Preferences exposing (..)
 import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
 import Main.Update.Types exposing (..)
+import Main.View.Page.App.Deploy exposing (..)
 import Main.View.Page.App.Run exposing (..)
 
 
@@ -30,6 +31,7 @@ viewPageApp model pageApp =
                 , viewPageAppHeader model pageApp
                 , viewPageAppDescription model pageApp
                 , viewPageAppRun model pageApp
+                , viewPageAppDeploy model pageApp
                 , viewPageAppIconModal model pageApp
                 ]
             , div
@@ -92,22 +94,41 @@ viewPageAppHeader _ pageApp =
                 [ text pageApp.pageApp_app.app_displayName
                 ]
             ]
-        , button
-            [ class "btn"
-            , attribute "data-testid" "app-run-button"
-            , case pageApp.pageApp_runtime of
-                Nothing ->
-                    class "btn-secondary"
+        , div [ style "display" "flex", style "gap" "8px" ]
+            ([ button
+                [ class "btn"
+                , attribute "data-testid" "app-run-button"
+                , case pageApp.pageApp_runtime of
+                    Nothing ->
+                        class "btn-secondary"
 
-                Just _ ->
-                    class "btn-success"
-            , let
-                route =
-                    pageApp.pageApp_route
-              in
-              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
-            ]
-            [ text "Run" ]
+                    Just _ ->
+                        class "btn-success"
+                , let
+                    route =
+                        pageApp.pageApp_route
+                  in
+                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
+                ]
+                [ text "Run" ]
+             ]
+                ++ (if pageApp.pageApp_app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
+                        [ button
+                            [ class "btn btn-success"
+                            , attribute "data-testid" "app-deploy-button"
+                            , let
+                                route =
+                                    pageApp.pageApp_route
+                              in
+                              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
+                            ]
+                            [ text "Deploy" ]
+                        ]
+
+                    else
+                        []
+                   )
+            )
         ]
 
 
