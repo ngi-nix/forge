@@ -39,17 +39,22 @@ viewPageApps model pageApps =
     div [ class "row" ]
         [ div [ class "col-md-12 mt-1 mb-1" ]
             [ div
-                [ style "display" "grid"
-                , style "grid-template-columns" "1fr auto 1fr"
-                , class "align-items-center my-2"
-                ]
-                [ div [ class "d-flex justify-content-start align-items-center gap-2" ]
+                [ class "d-flex flex-column flex-md-row align-items-center my-2 gap-3 w-100" ]
+                [ div
+                    [ class "d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start align-items-center gap-2 flex-grow-1 w-100"
+                    , style "flex-basis" "0"
+                    ]
                     [ viewAppsCount model pageApps
                     , viewCategoryDropdown model pageApps
                     , viewSortDropdown model pageApps
                     ]
-                , viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute
-                , text ""
+                , div [ class "flex-shrink-0" ]
+                    [ viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute ]
+                , div
+                    [ class "d-none d-md-block flex-grow-1"
+                    , style "flex-basis" "0"
+                    ]
+                    []
                 ]
             , viewPageAppsPagination
                 pageApps.pageApps_pagination
@@ -395,7 +400,7 @@ viewCategoryDropdown model pageApps =
             [ Html.text ("Category: " ++ currentCat) ]
         , div
             [ class <|
-                "dropdown-menu shadow p-0"
+                "dropdown-menu shadow p-0 mobile-centered-dropdown"
                     ++ (if isDropdownOpen then
                             " show"
 
