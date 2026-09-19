@@ -313,8 +313,15 @@ update upd modelInit =
                         )
 
                     else if (String.length input.key == 1) && (input.key |> String.all Char.isAlphaNum) then
-                        ( { model | model_appsCategorySearch = input.key }
-                        , Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+                        let
+                            ( newModel, cmd ) =
+                                update (Update_CategorySearch input.key) model
+                        in
+                        ( newModel
+                        , Cmd.batch
+                            [ cmd
+                            , Task.attempt Update_FocusResult (Dom.focus "category-search-input")
+                            ]
                         )
 
                     else
