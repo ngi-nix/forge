@@ -1,7 +1,12 @@
 {
+  config,
   pkgs,
   ...
 }:
+
+let
+  app = config.apps.vivliostyle;
+in
 
 {
   pkgs.vivliostyle = {
@@ -10,6 +15,7 @@
       derivation = pkgs.pkgsOriginal.vivliostyle;
     };
   };
+
   apps.vivliostyle = {
     displayName = "Vivliostyle";
     description = "CSS typesetting ecosystem for creating beautifully formatted documents using web technologies.";
@@ -18,7 +24,7 @@
 
       #### Basic Usage
 
-      First, [enter the Nix shell](app/vivliostyle#run-shell), then scaffold a new project:
+      First, ${app.usageSnippets.shell}, then scaffold a new project:
 
       ```bash
       vivliostyle create ./my-project

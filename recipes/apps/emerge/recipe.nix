@@ -42,7 +42,7 @@ in
       ${app.data.first-sim}
       ```
 
-      Then, [enter the Nix shell](app/emerge#run-shell) and execute the script:
+      Then, ${app.usageSnippets.shell} and execute the script:
 
       ```bash
       python ${app.data.first-sim.name}
