@@ -90,6 +90,41 @@
       default = { };
       description = "NGI specific options.";
     };
+    categories = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "The category name.";
+              internal = true;
+            };
+            description = lib.mkOption {
+              type = lib.types.str;
+              description = "The category description.";
+              internal = true;
+            };
+          };
+        }
+      );
+      default = [ lib.categories.Uncategorised ];
+      defaultText = lib.literalExpression "[ lib.categories.Uncategorised ]";
+      example = lib.literalExpression ''
+        with lib.categories; [ Office Science ];
+      '';
+      apply = cats: map (c: c.name) cats;
+      description =
+        let
+          repo = specialArgs.forgeConfig.forge.repositoryUrl;
+          baseUrl = specialArgs.forge-lib.showNixUrl repo;
+          version = specialArgs.inputs.self.rev or "master";
+        in
+        ''
+          A list of categories this application belongs to.
+
+          Categories must be chosen from the list of valid categories defined in [`forge/categories-list.nix`](${baseUrl}/blob/${version}/forge/categories-list.nix).
+        '';
+    };
     maintainers = lib.mkOption {
       type = lib.types.listOf lib.types.anything;
       default = [ ];

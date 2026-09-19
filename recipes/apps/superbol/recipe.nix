@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   pkgs,
   ...
@@ -30,6 +31,7 @@
   apps.superbol-studio = {
     displayName = "Superbol Studio";
     description = "Modern development environment for COBOL in VSCode.";
+    categories = with lib.categories; [ Development ];
     longDescription = ''
       SuperBOL Studio is a modern development environment for COBOL in VSCode.
 

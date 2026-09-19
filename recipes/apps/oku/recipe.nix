@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.oku = {
     displayName = "Oku";
     description = "Browser and encrypted data vault based on IPFS.";
+    categories = with lib.categories; [ WebBrowser ];
     usage = ''
       Oku is a web browser built on top of IPFS that provides an encrypted personal
       data vault and supports peer-to-peer websites.

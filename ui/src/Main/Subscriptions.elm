@@ -45,7 +45,36 @@ subscriptions model =
                     Sub.none
 
             _ ->
-                Sub.none
+                if model.model_appsCategoryDropdownOpen || model.model_appsSortDropdownOpen then
+                    Browser.Events.onKeyDown
+                        (decodeEscapeKey
+                            |> Decode.map
+                                (\_ ->
+                                    if model.model_appsCategoryDropdownOpen && model.model_appsCategorySearch /= "" then
+                                        Update_Chain
+                                            [ Update_CategorySearch ""
+                                            , Update_Blur "category-search-input"
+                                            ]
+
+                                    else
+                                        Update_Chain
+                                            [ if model.model_appsCategoryDropdownOpen then
+                                                Update_ToggleAppsCategoryDropdown
+
+                                              else
+                                                Update_NoOp
+                                            , if model.model_appsSortDropdownOpen then
+                                                Update_ToggleAppsSortDropdown
+
+                                              else
+                                                Update_NoOp
+                                            , Update_CategorySearch ""
+                                            ]
+                                )
+                        )
+
+                else
+                    Sub.none
         ]
 
 

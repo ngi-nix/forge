@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,10 @@
   apps.cpdf = {
     displayName = "cpdf";
     description = "Command-line PDF manipulation tool.";
+    categories = with lib.categories; [
+      ConsoleOnly
+      Office
+    ];
     usage = ''
       The `cpdf` toolkit is able to merge, split, encrypt, decrypt, and manipulate PDF files.
 

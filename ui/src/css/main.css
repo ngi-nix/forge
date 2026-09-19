@@ -140,30 +140,30 @@ highlightjs-code pre {
 
 /* Light mode styling */
 [data-bs-theme="light"] .m-item-card,
-[data-bs-theme="light"] .list-group-item,
+[data-bs-theme="light"] .list-group-item:not(.active),
 [data-bs-theme="light"] .m-sidebar {
   background-color: #f8f9fa;
   border-color: #e9ecef;
 }
 
 [data-bs-theme="light"] .m-item-card:hover,
-[data-bs-theme="light"] .list-group-item-action:hover,
-[data-bs-theme="light"] .list-group-item-action:focus {
+[data-bs-theme="light"] .list-group-item-action:not(.active):hover,
+[data-bs-theme="light"] .list-group-item-action:not(.active):focus {
   background-color: #f1f5f9;
   border-color: #cbd5e1;
 }
 
 /* Dark mode: darker background color for cards and list items */
 [data-bs-theme="dark"] .m-item-card,
-[data-bs-theme="dark"] .list-group-item,
+[data-bs-theme="dark"] .list-group-item:not(.active),
 [data-bs-theme="dark"] .m-sidebar {
   background-color: #16191d;
   border-color: #2d3238;
 }
 
 [data-bs-theme="dark"] .m-item-card:hover,
-[data-bs-theme="dark"] .list-group-item-action:hover,
-[data-bs-theme="dark"] .list-group-item-action:focus {
+[data-bs-theme="dark"] .list-group-item-action:not(.active):hover,
+[data-bs-theme="dark"] .list-group-item-action:not(.active):focus {
   background-color: #1f2329;
   border-color: #3e454d;
 }
@@ -171,15 +171,15 @@ highlightjs-code pre {
 /* Fallback for when data-bs-theme is unset */
 @media (prefers-color-scheme: light) {
   :root:not([data-bs-theme="dark"]) .m-item-card,
-  :root:not([data-bs-theme="dark"]) .list-group-item,
+  :root:not([data-bs-theme="dark"]) .list-group-item:not(.active),
   :root:not([data-bs-theme="dark"]) .m-sidebar {
     background-color: #f8f9fa;
     border-color: #e9ecef;
   }
 
   :root:not([data-bs-theme="dark"]) .m-item-card:hover,
-  :root:not([data-bs-theme="dark"]) .list-group-item-action:hover,
-  :root:not([data-bs-theme="dark"]) .list-group-item-action:focus {
+  :root:not([data-bs-theme="dark"]) .list-group-item-action:not(.active):hover,
+  :root:not([data-bs-theme="dark"]) .list-group-item-action:not(.active):focus {
     background-color: #f1f5f9;
     border-color: #cbd5e1;
   }
@@ -187,15 +187,15 @@ highlightjs-code pre {
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-bs-theme="light"]) .m-item-card,
-  :root:not([data-bs-theme="light"]) .list-group-item,
+  :root:not([data-bs-theme="light"]) .list-group-item:not(.active),
   :root:not([data-bs-theme="light"]) .m-sidebar {
     background-color: #16191d;
     border-color: #2d3238;
   }
 
   :root:not([data-bs-theme="light"]) .m-item-card:hover,
-  :root:not([data-bs-theme="light"]) .list-group-item-action:hover,
-  :root:not([data-bs-theme="light"]) .list-group-item-action:focus {
+  :root:not([data-bs-theme="light"]) .list-group-item-action:not(.active):hover,
+  :root:not([data-bs-theme="light"]) .list-group-item-action:not(.active):focus {
     background-color: #1f2329;
     border-color: #3e454d;
   }
@@ -506,6 +506,71 @@ a:link {
   --bs-code-color: #b2d5ff;
 }
 
+/* Category Dropdown and Clear Button Styles */
+
+#category-dropdown-button {
+  transition: filter 0.4s ease-out, border-color 0.4s ease-out, color 0.4s ease-out;
+}
+
+#category-dropdown-button:hover {
+  filter: brightness(1.2);
+}
+
+.category-clear-wrapper {
+  display: inline-flex;
+}
+
+@media (hover: hover) {
+  .category-clear-wrapper {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-width 0.5s ease-out, opacity 0.4s ease-out, margin 0.5s ease-out;
+    margin-left: 0;
+  }
+  #category-dropdown-button:hover .category-clear-wrapper {
+    max-width: 2rem;
+    opacity: 1;
+    margin-left: 0.25rem;
+  }
+}
+
+@media (hover: none) {
+  .category-clear-wrapper {
+    margin-left: 0.25rem;
+  }
+}
+
+.category-clear-btn {
+  opacity: 0.5;
+  transition: all 0.2s ease-in-out;
+  color: inherit;
+  cursor: pointer;
+}
+
+.category-clear-btn:hover {
+  opacity: 1;
+}
+
+.category-clear-btn:active {
+  transform: scale(0.85);
+}
+
+/* Fix category dropdown overflowing offscreen on mobile */
+@media (max-width: 767px) {
+  .mobile-centered-dropdown {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 400px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    margin: 0 !important;
+  }
+}
+
 /* highlight js customised */
 pre code.hljs {
   padding: 0px !important;
@@ -601,6 +666,16 @@ pre code.hljs {
 }
 .feedback-message {
   color: #010101;
+}
+
+/* Keyboard focus styles for dropdown items */
+.dropdown-item.keyboard-focused {
+  background-color: var(--bs-gray-200);
+  color: var(--bs-gray-900);
+}
+.dropdown-item.active.keyboard-focused {
+  background-color: #0a58ca;
+  color: #fff;
 }
 
 /* Custom Tooltip */

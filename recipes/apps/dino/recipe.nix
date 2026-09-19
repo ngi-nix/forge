@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.dino = {
     displayName = "Dino";
     description = "Open source XMPP messaging application.";
+    categories = with lib.categories; [ Chat ];
     usage = ''
       Dino is an open-source chat client desktop application, based on the XMPP protocol. It focuses on providing a clean and reliable Jabber/XMPP experience while having your privacy in mind.
     '';
