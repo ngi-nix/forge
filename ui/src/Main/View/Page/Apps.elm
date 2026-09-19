@@ -244,12 +244,37 @@ viewPageAppsApp _ _ app =
 
 viewSortDropdown : Model -> PageApps -> Html Update
 viewSortDropdown model pageApps =
+    let
+        isDropdownOpen =
+            model.model_appsSortDropdownOpen
+
+        overlay =
+            if isDropdownOpen then
+                div
+                    [ class "position-fixed top-0 start-0 w-100 h-100"
+                    , style "z-index" "1040"
+                    , onClick Update_ToggleAppsSortDropdown
+                    ]
+                    []
+
+            else
+                Html.text ""
+    in
     div [ class "d-flex justify-content-start align-items-center gap-2" ]
         [ div [ class "dropdown" ]
-            [ Html.button
+            [ overlay
+            , Html.button
                 [ class "btn btn-sm border text-body dropdown-toggle"
                 , attribute "type" "button"
                 , attribute "data-testid" "sort-dropdown-button"
+                , style "position" "relative"
+                , style "z-index"
+                    (if isDropdownOpen then
+                        "1050"
+
+                     else
+                        "auto"
+                    )
                 , onClick Update_ToggleAppsSortDropdown
                 ]
                 [ Html.text <|
@@ -263,12 +288,20 @@ viewSortDropdown model pageApps =
             , Html.ul
                 [ class <|
                     "dropdown-menu dropdown-menu-end shadow"
-                        ++ (if model.model_appsSortDropdownOpen then
+                        ++ (if isDropdownOpen then
                                 " show"
 
                             else
                                 ""
                            )
+                , style "position" "absolute"
+                , style "z-index"
+                    (if isDropdownOpen then
+                        "1050"
+
+                     else
+                        "auto"
+                    )
                 ]
                 [ Html.li []
                     [ Html.button
