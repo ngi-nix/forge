@@ -17,10 +17,10 @@ test.describe("Card Selection and Clicking", () => {
       const box = await typeElement.boundingBox();
       expect(box).not.toBeNull();
 
-      // Simulate mouse drag to select text
-      await page.mouse.move(box!.x + 10, box!.y + box!.height / 2);
+      // Simulate mouse drag to select text reliably by dragging diagonally across the element
+      await page.mouse.move(box!.x + 2, box!.y + 2);
       await page.mouse.down();
-      await page.mouse.move(box!.x + box!.width - 10, box!.y + box!.height / 2, { steps: 5 });
+      await page.mouse.move(box!.x + box!.width - 2, box!.y + box!.height - 2, { steps: 10 });
       await page.mouse.up();
 
       // Wait a moment to see if it navigates (it shouldn't)
@@ -63,10 +63,10 @@ test.describe("App Card Selection and Clicking", () => {
       const box = await description.boundingBox();
       expect(box).not.toBeNull();
 
-      // Simulate mouse drag to select text
-      await page.mouse.move(box!.x + 10, box!.y + box!.height / 2);
+      // Simulate mouse drag to select text reliably by dragging diagonally across the element
+      await page.mouse.move(box!.x + 2, box!.y + 2);
       await page.mouse.down();
-      await page.mouse.move(box!.x + box!.width - 10, box!.y + box!.height / 2, { steps: 5 });
+      await page.mouse.move(box!.x + box!.width - 2, box!.y + box!.height - 2, { steps: 10 });
       await page.mouse.up();
 
       // Wait a moment to see if it navigates (it shouldn't)

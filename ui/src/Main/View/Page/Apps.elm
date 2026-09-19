@@ -159,14 +159,20 @@ viewPageAppsApp _ _ app =
             [ class "flex-grow-1 d-flex align-items-center w-100 my-2" ]
             [ p
                 [ class "mb-0 text-body-secondary m-item-card-description text-center w-100"
+                , attribute "data-full-text" app.app_description
 
-                -- FIX: Stop propagation here so dragging/highlighting this text doesn't trigger the card's onClick
+                -- FIX: Allow single clicks to bubble, but stop double clicks.
+                -- Note: Drags/holds are caught by the global JS interceptor in main.js.
                 , custom "click"
-                    (Decode.succeed
-                        { message = Update_Chain []
-                        , stopPropagation = True
-                        , preventDefault = False
-                        }
+                    (Decode.field "detail" Decode.int
+                        |> Decode.andThen
+                            (\detail ->
+                                Decode.succeed
+                                    { message = Update_Chain []
+                                    , stopPropagation = detail > 1
+                                    , preventDefault = False
+                                    }
+                            )
                     )
                 ]
                 [ text app.app_description ]
@@ -281,13 +287,8 @@ viewSortDropdown model pageApps =
                     ]
                     [ Main.Icons.iconShuffle ]
                 , div
-                    [ class "tooltip bs-tooltip-end"
+                    [ class "tooltip bs-tooltip-top shuffle-tooltip"
                     , attribute "role" "tooltip"
-                    , style "top" "50%"
-                    , style "left" "100%"
-                    , style "transform" "translate(0, -50%)"
-                    , style "margin-top" "0"
-                    , style "margin-left" "8px"
                     ]
                     [ div [ class "tooltip-inner" ] [ Html.text "Shuffle apps (order resets on reload)" ]
                     ]
