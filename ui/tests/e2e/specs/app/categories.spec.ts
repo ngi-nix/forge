@@ -215,3 +215,28 @@ test.describe("App Categories Filtering", () => {
     await expect(buttons[0]).not.toHaveClass(/keyboard-focused/);
   });
 });
+
+test("can clear category filter using the explicit clear button", async ({ page }) => {
+  // Open dropdown and click category filter
+  const dropdownButton = page.getByTestId("category-dropdown-button");
+  await dropdownButton.click();
+  const categoryButton = page.getByTestId("category-filter-Office");
+  await expect(categoryButton).toBeVisible();
+  await categoryButton.click();
+
+  // Verify it is filtered
+  await expect(page).toHaveURL(/.*category=Office.*/);
+
+  // Clear button should be visible
+  const clearButton = page.getByTestId("clear-category-button");
+  await expect(clearButton).toBeVisible();
+
+  // Click clear button
+  await clearButton.click();
+
+  // Verify URL no longer contains category
+  await expect(page).not.toHaveURL(/.*category=Office.*/);
+
+  // Verify clear button is now hidden
+  await expect(clearButton).toBeHidden();
+});

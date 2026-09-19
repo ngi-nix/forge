@@ -384,8 +384,16 @@ viewCategoryDropdown model pageApps =
     div [ class "dropdown d-inline-block" ]
         [ overlay
         , Html.button
-            [ class "btn btn-sm border text-body dropdown-toggle"
+            [ class <|
+                "btn btn-sm border text-body text-nowrap d-inline-flex align-items-center"
+                    ++ (if pageApps.pageApps_route.routeApps_category == Nothing then
+                            " dropdown-toggle"
+
+                        else
+                            ""
+                       )
             , attribute "type" "button"
+            , Html.Attributes.id "category-dropdown-button"
             , attribute "data-testid" "category-dropdown-button"
             , style "position" "relative"
             , style "z-index"
@@ -397,7 +405,22 @@ viewCategoryDropdown model pageApps =
                 )
             , onClick Update_ToggleAppsCategoryDropdown
             ]
-            [ Html.text ("Category: " ++ currentCat) ]
+            [ Html.text ("Category: " ++ currentCat)
+            , if pageApps.pageApps_route.routeApps_category /= Nothing then
+                Html.span [ class "category-clear-wrapper" ]
+                    [ Html.span
+                        [ class "category-clear-btn d-inline-flex align-items-center justify-content-center"
+                        , style "padding" "0.3rem"
+                        , attribute "title" "Clear category filter"
+                        , attribute "data-testid" "clear-category-button"
+                        , Html.Events.stopPropagationOn "click" (Decode.succeed ( Update_CategoryFilter Nothing, True ))
+                        ]
+                        [ iconX ]
+                    ]
+
+              else
+                Html.text ""
+            ]
         , div
             [ class <|
                 "dropdown-menu shadow p-0 mobile-centered-dropdown"

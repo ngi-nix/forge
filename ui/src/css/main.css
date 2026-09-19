@@ -506,6 +506,56 @@ a:link {
   --bs-code-color: #b2d5ff;
 }
 
+/* Category Dropdown and Clear Button Styles */
+
+#category-dropdown-button {
+  transition: filter 0.4s ease-out, border-color 0.4s ease-out, color 0.4s ease-out;
+}
+
+#category-dropdown-button:hover {
+  filter: brightness(1.2);
+}
+
+.category-clear-wrapper {
+  display: inline-flex;
+}
+
+@media (hover: hover) {
+  .category-clear-wrapper {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-width 0.5s ease-out, opacity 0.4s ease-out, margin 0.5s ease-out;
+    margin-left: 0;
+  }
+  #category-dropdown-button:hover .category-clear-wrapper {
+    max-width: 2rem;
+    opacity: 1;
+    margin-left: 0.25rem;
+  }
+}
+
+@media (hover: none) {
+  .category-clear-wrapper {
+    margin-left: 0.25rem;
+  }
+}
+
+.category-clear-btn {
+  opacity: 0.5;
+  transition: all 0.2s ease-in-out;
+  color: inherit;
+  cursor: pointer;
+}
+
+.category-clear-btn:hover {
+  opacity: 1;
+}
+
+.category-clear-btn:active {
+  transform: scale(0.85);
+}
+
 /* Fix category dropdown overflowing offscreen on mobile */
 @media (max-width: 767px) {
   .mobile-centered-dropdown {
