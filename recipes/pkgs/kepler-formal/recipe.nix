@@ -6,16 +6,16 @@
 
 {
   pkgs.kepler-formal = {
-    version = "0-unstable-2026-06-11";
+    version = "0-unstable-2026-09-20";
     description = "Formal Verification tool for Verilog and Naja interchange format.";
     homePage = "https://github.com/keplertech/kepler-formal";
     mainProgram = "kepler-formal";
     license = lib.licenses.gpl3Only;
 
     source = {
-      git = "github:keplertech/kepler-formal/5a9e7edded7e8d185bc0842e38f2852df814f0d5";
+      git = "github:keplertech/kepler-formal/4a4ad38f7d56e4757f6a702c4e6191c2670a3406";
       submodules = true;
-      hash = "sha256-LGOeY0K0cke/Egm7J32YsTIAGn6j/okTWJLYZf8nmTo=";
+      hash = "sha256-LMGHFcVj0BxaBtFrtLON1XU3AG/8Wn1WrT6SSwhexaQ=";
     };
 
     build.standardBuilder = {
