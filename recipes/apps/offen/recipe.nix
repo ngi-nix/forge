@@ -93,12 +93,16 @@ in
       };
     };
 
-    test.services.script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
+    test.services = {
+      packages = [ pkgs.offen ];
+      script = ''
+        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
 
-      export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
-      offen setup -name test -email test@localhost -password test123456
-      $curl localhost:3000 | grep "Offen Fair Web Analytics"
-    '';
+        mkdir --parent /var/lib/offen
+        export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
+        offen setup -name test -email test@localhost -password test123456
+        $curl localhost:3000 | grep "Offen Fair Web Analytics"
+      '';
+    };
   };
 }
