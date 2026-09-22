@@ -17,7 +17,10 @@
         ${lib.concatMapAttrsStringSep "\n" (
           name: _: "machine.wait_for_unit(\"${name}.service\")"
         ) app.services.components}
-        machine.succeed("${pkgs.writeShellScript "${app.name}-test-script" config.script}")
+        machine.succeed("${pkgs.writeShellScript "${app.name}-test-script" ''
+          set -euo pipefail
+          ${config.script}
+        ''}")
       '';
       description = "Python test script passed to the NixOS test driver.";
     };
