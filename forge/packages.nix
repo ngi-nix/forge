@@ -39,17 +39,18 @@ let
   # Collect app icons into a derivation
   appIcons = pkgs.runCommand "app-icons" { } ''
     mkdir -p $out
-    ${lib.concatStringsSep "\n" (
-      map (app: ''
-        mkdir -p $out/${app.name}
-        ${if app.icon or null != null then "cp ${app.icon} $out/${app.name}/icon.svg" else ""}
-      '') (lib.attrValues forgeApps)
-    )}
+    ${lib.foldlAttrs (acc: name: app: lib.concatStringsSep "\n" [acc ''
+      mkdir -p $out/${app.val.name}
+      ${if app.val.icon or null != null then "cp ${app.val.icon} $out/${app.val.name}/icon.svg" else ""}
+    '']) "" (forge-lib.getEndNodes config.forge.apps)}
   '';
 
   forgeConfig = config.forge // {
     pkgs = lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs;
-    apps = lib.filterAttrs (_: app: !app.broken) config.forge.apps;
+    apps = lib.foldlAttrs (
+      acc: name: app:
+      if !app.val.broken then lib.recursiveUpdate acc (lib.setAttrByPath app.pos app.val) else acc
+    ) config.forge.apps (forge-lib.getEndNodes config.forge.apps);
   };
 
   _forge = {
