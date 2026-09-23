@@ -303,3 +303,19 @@ iconSortAlphaDown =
             ]
             []
         ]
+
+
+iconX : Html msg
+iconX =
+    Svg.svg
+        [ Svg.Attributes.width "10"
+        , Svg.Attributes.height "10"
+        , Svg.Attributes.viewBox "0 0 13 13"
+        ]
+        [ Svg.path
+            [ Svg.Attributes.d "M12.587 10.593L8.493 6.5l4.093-4.093A1.41 1.41 0 1 0 10.592.413L6.5 4.506 2.407.413A1.409 1.409 0 1 0 .414 2.407L4.507 6.5.413 10.593a1.41 1.41 0 0 0 1.993 1.994L6.5 8.494l4.094 4.093a1.407 1.407 0 0 0 1.993 0 1.41 1.41 0 0 0 0-1.994z"
+            , Svg.Attributes.fillRule "nonzero"
+            , Svg.Attributes.fill "currentColor"
+            ]
+            []
+        ]

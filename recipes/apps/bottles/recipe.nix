@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -8,6 +9,7 @@
   apps.bottles = {
     displayName = "Bottles";
     description = "Easy-to-use wineprefix manager.";
+    categories = with lib.categories; [ System ];
     usage = ''
       Bottles is an application that allows you to easily manage Windows prefixes on your favorite Linux distribution.
       A Windows prefix is an environment where it is possible to run Windows software using runners, which are compatibility layers capable of running Windows applications on a Linux system.

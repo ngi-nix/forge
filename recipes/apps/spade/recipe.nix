@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -20,6 +21,10 @@
   apps.spade = {
     displayName = "Spade";
     description = "Standalone hardware description language.";
+    categories = with lib.categories; [
+      Development
+      Electronics
+    ];
     usage = ''
       Spade is a hardware description language (HDL) with a Rust-inspired syntax,
       designed for safety and expressiveness in hardware design.
