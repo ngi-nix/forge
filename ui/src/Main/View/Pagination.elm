@@ -90,67 +90,71 @@ viewPaginationNavigation visibility page reRoute =
                 PaginationVisibility_HiddenIfSinglePage ->
                     page.pagePagination_last <= 1
     in
-    if isHidden then
-        text ""
+    let
+        updatePageNumber pagination =
+            reRoute <|
+                \route ->
+                    { route
+                        | routePagination_current = Just pagination.pagePagination_current
+                    }
 
-    else
-        let
-            updatePageNumber pagination =
-                reRoute <|
-                    \route ->
-                        { route
-                            | routePagination_current = Just pagination.pagePagination_current
-                        }
+        routePagePreviousMaybe : Maybe Route
+        routePagePreviousMaybe =
+            page
+                |> previousPagePagination
+                |> Maybe.map updatePageNumber
 
-            routePagePreviousMaybe : Maybe Route
-            routePagePreviousMaybe =
-                page
-                    |> previousPagePagination
-                    |> Maybe.map updatePageNumber
+        routePageNextMaybe : Maybe Route
+        routePageNextMaybe =
+            page
+                |> nextPagePagination
+                |> Maybe.map updatePageNumber
+    in
+    div
+        (class "d-flex justify-content-center align-items-center my-2"
+            :: (if isHidden then
+                    [ style "visibility" "hidden" ]
 
-            routePageNextMaybe : Maybe Route
-            routePageNextMaybe =
-                page
-                    |> nextPagePagination
-                    |> Maybe.map updatePageNumber
-        in
-        div [ class "d-flex justify-content-center align-items-center my-2" ]
-            [ button
-                ([ class "btn border-0"
-                 , attribute "data-testid" "pagination-prev"
-                 ]
-                    ++ (case routePagePreviousMaybe of
-                            Nothing ->
-                                [ disabled True ]
+                else
+                    []
+               )
+        )
+        [ button
+            ([ class "btn border-0"
+             , attribute "data-testid" "pagination-prev"
+             ]
+                ++ (case routePagePreviousMaybe of
+                        Nothing ->
+                            [ disabled True ]
 
-                            Just routePagePrevious ->
-                                [ onClick (Update_Route routePagePrevious), class "focus-ring" ]
-                       )
-                )
-                [ text "Prev" ]
-            , span
-                [ style "width" "2rem"
-                , style "text-align" "center"
-                , attribute "data-testid" "pagination-current"
-                ]
-                [ text (page.pagePagination_current |> String.fromInt) ]
-            , text " / "
-            , span
-                [ style "width" "2rem"
-                , style "text-align" "center"
-                ]
-                [ text (page.pagePagination_last |> String.fromInt) ]
-            , button
-                ([ class "btn me-2 border-0"
-                 , attribute "data-testid" "pagination-next"
-                 ]
-                    ++ (case routePageNextMaybe of
-                            Nothing ->
-                                [ disabled True ]
-
-                            Just routePageNext ->
-                                [ onClick (Update_Route routePageNext), class "focus-ring" ]
-                       )
-                )
-                [ text "Next" ]
+                        Just routePagePrevious ->
+                            [ onClick (Update_Route routePagePrevious), class "focus-ring" ]
+                   )
+            )
+            [ text "Prev" ]
+        , span
+            [ style "width" "2rem"
+            , style "text-align" "center"
+            , attribute "data-testid" "pagination-current"
             ]
+            [ text (page.pagePagination_current |> String.fromInt) ]
+        , text " / "
+        , span
+            [ style "width" "2rem"
+            , style "text-align" "center"
+            ]
+            [ text (page.pagePagination_last |> String.fromInt) ]
+        , button
+            ([ class "btn me-2 border-0"
+             , attribute "data-testid" "pagination-next"
+             ]
+                ++ (case routePageNextMaybe of
+                        Nothing ->
+                            [ disabled True ]
+
+                        Just routePageNext ->
+                            [ onClick (Update_Route routePageNext), class "focus-ring" ]
+                   )
+            )
+            [ text "Next" ]
+        ]
