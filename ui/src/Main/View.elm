@@ -1,7 +1,7 @@
 module Main.View exposing (..)
 
 import Html exposing (Html, a, button, div, footer, header, img, input, li, main_, section, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, placeholder, src, style, target, title, type_, value)
+import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, src, style, target, title, type_, value)
 import Html.Events exposing (onBlur, onFocus, onInput, preventDefaultOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -222,6 +222,7 @@ viewPoweredBy model =
         , style "flex-wrap" "wrap"
         , style "flex-direction" "row"
         , style "justify-content" "space-evenly"
+        , style "align-items" "center"
         , style "column-gap" "1ex"
         , style "font-size" "0.8em"
         ]
@@ -270,5 +271,14 @@ viewPoweredBy model =
                 ]
                 [ text shortCommit ]
             , text "."
+            ]
+        , span []
+            [ a [ href "https://offen.ngi.nixos.org/auditorium", target "_blank" ]
+                [ img
+                    [ alt "Fair web analytics Access your data"
+                    , src "https://offen.ngi.nixos.org/user-access-widget-box-en.svg"
+                    ]
+                    []
+                ]
             ]
         ]
