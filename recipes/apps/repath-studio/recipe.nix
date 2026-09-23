@@ -69,8 +69,8 @@
     test = {
       services.script = ''
         curl="curl --retry 10 --retry-max-time 60 --retry-all-errors"
-        $curl localhost:8080 | grep -qi "Repath Studio"
-        $curl localhost:8080/schema-explorer/ | grep -qi "Schema Graph"
+        $curl localhost:8080 | grep -i "Repath Studio" > /dev/null
+        $curl localhost:8080/schema-explorer/ | grep -i "Schema Graph" > /dev/null
       '';
     };
   };
