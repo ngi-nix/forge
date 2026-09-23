@@ -74,7 +74,10 @@
             testScript = ''
               machine.start()
               machine.wait_for_unit("multi-user.target")
-              machine.succeed("${pkgs.writeShellScript "${finalAttrs.pname}-test" config.script}")
+              machine.succeed("${pkgs.writeShellScript "${finalAttrs.pname}-test" ''
+                set -euo pipefail
+                ${config.script}
+              ''}")
             '';
           }).overrideTestDerivation
             (_: lib.optionalAttrs (!config.sandbox) { __noChroot = true; })
