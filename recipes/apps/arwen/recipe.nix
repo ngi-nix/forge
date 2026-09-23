@@ -33,7 +33,7 @@ in
       It's a Rust-based alternative to patchelf and install_name_tool.
     '';
     usage = ''
-      First, [launch the shell envrionment](app/${app.name}#run-shell) containing `${app.name}`.
+      First, ${app.usageSnippets.shell}.
 
       Next, get an executable you want to patch.
       For the examples below, we will be using the project itself:
