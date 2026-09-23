@@ -140,8 +140,13 @@
                     homepage = config.homePage;
                   };
                 }
-                // lib.optionalAttrs config.build.debug {
-                  shellHook = "source ${forge-inputs.nix-utils}/nix-develop-interactive.bash";
+                // {
+                  shellHook = ''
+                    echo "ngi-forge: '${finalAttrs.pname}' is available at version '${finalAttrs.version}'."
+                  ''
+                  + lib.optionalString config.build.debug ''
+                    source ${forge-inputs.nix-utils}/nix-develop-interactive.bash
+                  '';
                 }
                 //
                   # Warning(co-existence): `extraAttrs` is overridden by the builder's options.
