@@ -57,7 +57,7 @@
 
     test.services.script = ''
       curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:3000 | grep -q "dokieli"
+      $curl localhost:3000 | grep "dokieli" > /dev/null
     '';
 
   };
