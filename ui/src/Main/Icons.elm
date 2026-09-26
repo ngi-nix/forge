@@ -303,3 +303,67 @@ iconSortAlphaDown =
             ]
             []
         ]
+
+
+iconGit : Html msg
+iconGit =
+    svg
+        [ width "16"
+        , height "16"
+        , fill "currentColor"
+        , class "bi bi-git"
+        , viewBox "0 0 16 16"
+        ]
+        [ path
+            [ d "M15.698 7.287 8.712.302a1.03 1.03 0 0 0-1.457 0l-1.45 1.45 1.84 1.84a1.223 1.223 0 0 1 1.55 1.56l1.773 1.774a1.224 1.224 0 0 1 1.267 2.025 1.226 1.226 0 0 1-2.002-1.334L8.58 5.963v4.353a1.226 1.226 0 1 1-1.008-.036V5.887a1.226 1.226 0 0 1-.666-1.608L5.093 2.465l-4.79 4.79a1.03 1.03 0 0 0 0 1.457l6.986 6.986a1.03 1.03 0 0 0 1.457 0l6.953-6.953a1.03 1.03 0 0 0 0-1.457"
+            ]
+            []
+        ]
+
+
+iconTagFill : Html msg
+iconTagFill =
+    svg
+        [ width "16"
+        , height "16"
+        , fill "currentColor"
+        , class "bi bi-tag-fill"
+        , viewBox "0 0 16 16"
+        ]
+        [ path
+            [ d "M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"
+            ]
+            []
+        ]
+
+
+iconLightningChargeFill : Html msg
+iconLightningChargeFill =
+    svg
+        [ width "16"
+        , height "16"
+        , fill "currentColor"
+        , class "bi bi-lightning-charge-fill"
+        , viewBox "0 0 16 16"
+        ]
+        [ path
+            [ d "M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"
+            ]
+            []
+        ]
+
+
+iconPeopleFill : Html msg
+iconPeopleFill =
+    svg
+        [ width "16"
+        , height "16"
+        , fill "currentColor"
+        , class "bi bi-people-fill"
+        , viewBox "0 0 16 16"
+        ]
+        [ path
+            [ d "M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"
+            ]
+            []
+        ]
