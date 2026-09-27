@@ -16,7 +16,7 @@ in
     license = lib.licenses.asl20;
 
     source = {
-      git = "github:goranb131/prismaFS/v${recipe.version}";
+      git = "github:goranb131/prismaFS/v1.7.1";
       hash = "sha256-eP1z7+r+vzS1Tg7EYYUtNzjhHKwL1/Z9WWfxRelhEIo=";
     };
 
