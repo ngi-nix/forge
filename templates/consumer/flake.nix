@@ -16,7 +16,27 @@
     inputs@{ self, ... }:
     inputs.ngi-forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
-      imports = [ inputs.ngi-forge.flakeModules.default ];
+      # `flakeModules.offen` restricts `forge.apps` to just `offen`, instead
+      # of every app recipe ngi-forge ships, so only `offen` gets evaluated.
+      # Use `flakeModules.default` to also get ngi-forge's own recipes.
+      #
+      # `forge.pkgs` (custom packages app recipes may depend on, eg.
+      # `pkgs.offen`) is not scoped automatically, since there's no static
+      # link between an app and the packages it uses. Narrow it down
+      # yourself if you also want `nix flake show` to skip unrelated
+      # packages; the app recipe's own source shows which ones it needs.
+      imports = [
+        inputs.ngi-forge.flakeModules.offen
+        {
+          perSystem =
+            { lib, ... }:
+            {
+              options.forge.pkgs = lib.mkOption {
+                apply = lib.filterAttrs (name: _: builtins.match "offen.*" name != null);
+              };
+            };
+        }
+      ];
 
       # Uncomment this to enable debug attributes of this flake.
       # https://flake.parts/options/flake-parts.html?highlight=debug#opt-debug
