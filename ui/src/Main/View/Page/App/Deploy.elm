@@ -93,7 +93,7 @@ viewPageAppDeployNixOSModule model pageApp =
                     , "            boot.loader.grub.devices = [ \"/dev/sda\" ];"
                     , "          }"
                     , "          # Application module"
-                    , "          self.packages.x86_64-linux." ++ pageApp.pageApp_app.app_outputName ++ ".nixosModules.default"
+                    , "          self.modules." ++ pageApp.pageApp_app.app_outputName
                     , "        ];"
                     , "      };"
                     , ""

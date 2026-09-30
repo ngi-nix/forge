@@ -10,6 +10,7 @@ let
     base = flakeArgs: {
       imports = [
         ./modules/lib.nix
+        ./modules/apps/flake-modules.nix
         {
           # Expose the `inputs` from `ngi-forge`
           # Note that this `inputs` is always `ngi-forge`'s,
