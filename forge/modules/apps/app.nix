@@ -61,6 +61,23 @@
         - Password: `admin`
       '';
     };
+    usageSnippets = lib.mkOption {
+      readOnly = true;
+      type = lib.types.attrsOf lib.types.str;
+      default = {
+        run-program = "[launch the program](app/${config.name}#run-program)";
+        run-shell = "[launch the shell environment](app/${config.name}#run-shell) containing `${config.name}`";
+        run-container = "[launch the app in the container](app/${config.name}#run-container)";
+        run-nixos = "[launch the app in the NixOS VM](app/${config.name}#run-nixos)";
+        see-docs = "For more details and examples, please see the [project documentation](${
+          lib.optionalString (config.links.docs != null) config.links.docs
+        }) page.";
+      };
+      description = "Re-usable application usage snippets in markdown format.";
+      example = lib.literalExpression ''
+        First, ''${usageSnippets.shell}, then run the project executable.
+      '';
+    };
     icon = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
       default = null;
