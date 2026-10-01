@@ -9,15 +9,15 @@ let
 in
 {
   pkgs.mwoffliner = {
-    version = "1.17.5";
+    version = "18";
     description = "Crawls any recent MediaWiki wiki and packages it into an offline ZIM snapshot for local browsing.";
     homePage = "https://github.com/openzim/mwoffliner";
     mainProgram = "mwoffliner";
     license = lib.licenses.gpl3;
 
     source = {
-      git = "github:openzim/mwoffliner/v${recipe.version}";
-      hash = "sha256-aqhxcknSaOFZVUD7730vkyuG+H/zsD9pFdApl9cYGFU=";
+      git = "github:openzim/mwoffliner/node-redis_v18-7";
+      hash = "sha256-dZHCLbaQGVeAEI2QocNKVUPWXmjVOl/Q1fdGY7IVof8=";
     };
 
     build.npmPackageBuilder = {
