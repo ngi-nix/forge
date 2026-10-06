@@ -18,7 +18,12 @@ let
         }
       ];
       options.perSystem = flake-parts-lib.mkPerSystemOption (
-        { system, forge-inputs, ... }:
+        {
+          pkgs,
+          system,
+          forge-inputs,
+          ...
+        }:
         {
           imports = [
             # Definitions of options under `forge`.
@@ -36,6 +41,9 @@ let
 
           # Do not require users to pin their own `inputs.nixpkgs`.
           _module.args.pkgs = lib.mkDefault forge-inputs.nixpkgs.legacyPackages.${system};
+
+          # See: https://github.com/ngi-nix/forge/issues/1020
+          formatter = pkgs.lib.mkDefault pkgs.nixfmt-tree;
         }
       );
     };
