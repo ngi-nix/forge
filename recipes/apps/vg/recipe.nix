@@ -1,11 +1,13 @@
 {
   config,
+  forgeConfig,
   pkgs,
   ...
 }:
 
 let
   app = config.apps.vg;
+  usageSnippets = forgeConfig.forge.snippets.usage app;
 in
 
 {
@@ -25,7 +27,7 @@ in
       It provides tools for mapping, calling, and manipulating variation graph representations of genomes.
     '';
     usage = ''
-      First, [launch the shell envrionment](app/${app.name}#run-shell) containing `${app.name}`.
+      First, ${usageSnippets.run-shell}.
 
       The instructions below will use the `tiny` dataset of the [vg tests](https://github.com/vgteam/vg/tree/${app.data.vgCommit}/test) directory.
       You can fetch them either by cloning the repository locally with git:

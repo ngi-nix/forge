@@ -1,5 +1,6 @@
 {
   config,
+  forgeConfig,
   pkgs,
   lib,
   ...
@@ -7,6 +8,7 @@
 
 let
   app = config.apps.zenroom;
+  usageSnippets = forgeConfig.forge.snippets.usage app;
 in
 
 {
@@ -35,7 +37,7 @@ in
       ${app.data.arrayGenerator}
       ```
 
-      Then, [enter the Nix shell](app/zenroom#run-shell) and execute the script:
+      Then, ${usageSnippets.run-shell} and execute the script:
 
       ```bash
       zenroom -z ${app.data.arrayGenerator.name} | tee myFirstRandomArray.json
