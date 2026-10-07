@@ -52,18 +52,6 @@
       mkPassthru =
         app: finalApp:
         let
-          testProgramsDrv = pkgs.testers.runCommand {
-            name = "${app.name}-test";
-            buildInputs = [
-              finalApp
-            ]
-            ++ lib.optional (app.programs.mainPackage != null) app.programs.mainPackage
-            ++ app.test.programs.packages;
-            script = ''
-              ${app.test.programs.script}
-              touch $out
-            '';
-          };
           tests =
             lib.optionalAttrs (app.services.runtimes.container.enable && app.test.services.script != "") {
               test-services-container = app.test.services.result.containerBuild;
@@ -72,7 +60,7 @@
               test-services-nixos = app.test.services.result.build;
             }
             // lib.optionalAttrs (app.test.programs.script != "") {
-              test-programs = testProgramsDrv;
+              test-programs = app.test.programs.derivation { inherit pkgs finalApp; };
             };
         in
         lib.fix (self: {

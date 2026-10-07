@@ -1,15 +1,23 @@
 {
+  getTestOptions,
+  config,
   lib,
   ...
 }:
+
+let
+  testOptions = (getTestOptions config "app").getSubOptions { };
+in
+
 {
   options = {
-    packages = lib.mkOption {
-      type = lib.types.listOf lib.types.package;
-      default = [ ];
-      description = "List of packages available in the test script.";
-      example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
-    };
+    inherit (testOptions)
+      nixosConfig
+      packages
+      runner
+      sandbox
+      derivation
+      ;
 
     script = lib.mkOption {
       type = lib.types.str;

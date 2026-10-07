@@ -256,7 +256,10 @@
 
     # Test configuration
     test = lib.mkOption {
-      type = lib.types.submodule ./test.nix;
+      type = lib.types.submoduleWith {
+        inherit specialArgs;
+        modules = [ ./test.nix ];
+      };
       default = { };
       description = "Test configuration";
     };
