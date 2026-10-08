@@ -5,7 +5,6 @@
   forge-inputs,
   forge-lib,
   flake-parts-lib,
-  system,
   ...
 }:
 
@@ -126,5 +125,5 @@ let
   }) { };
 in
 {
-  inherit (packagesWithNamespace) packages;
+  packages = lib.mkIf config.forge.enable packagesWithNamespace.packages;
 }

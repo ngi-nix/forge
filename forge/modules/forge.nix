@@ -41,6 +41,14 @@
       modules = [
         {
           options = {
+            enable = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = ''
+                Whether to expose applications and packages by default in flake's `packages`.
+                If set it also expose internal packages within `_forge` in `packages`.
+              '';
+            };
             maintainerLists = lib.mkOption {
               type = lib.types.listOf lib.types.path;
               default = [ forge-inputs.self.maintainerList ];

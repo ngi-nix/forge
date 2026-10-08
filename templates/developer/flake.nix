@@ -35,6 +35,9 @@
           # nix fmt
           formatter = pkgs.nixfmt-tree;
 
+          # Expose `offen` in `config.packages.pkgs.offen`
+          forge.pkgs.offen.enable = true;
+
           # Build package from local source with: `nix run .#<package>`
           packages = {
             default = config.packages.pkgs.offen.overrideAttrs (

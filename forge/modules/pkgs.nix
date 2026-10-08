@@ -29,6 +29,7 @@
               type = lib.types.attrsOf (
                 lib.types.submoduleWith {
                   specialArgs = specialArgs // {
+                    enable = forgeArgs.config.enable;
                     forgeOptions = forgeArgs.options;
                     inherit packageBuilderModule;
                   };
@@ -58,7 +59,7 @@
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "pkgs";
         derivations = lib.mapAttrs (packageName: package: package.result.derivation) (
-          lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs
+          lib.filterAttrs (_: pkg: !pkg.broken && pkg.enable) config.forge.pkgs
         );
       }) { };
     in

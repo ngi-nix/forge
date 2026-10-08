@@ -32,6 +32,9 @@
             # NOTE: update the repository url to your forge. e.g. "github:username/forge-repo"
             repositoryUrl = "github:ngi-nix/forge";
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
+            apps.himalaya.enable = true;
+            apps.offen.enable = true;
+            pkgs.himalaya.enable = true;
           };
         };
 

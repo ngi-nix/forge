@@ -10,6 +10,12 @@
   imports = [ ../recipe-metadata.nix ];
   config._recipeType = "apps";
   options = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = specialArgs.enable;
+      defaultText = "forge.enable";
+      description = "Whether to enable the app in flake's `packages` and `checks`.";
+    };
     name = lib.mkOption {
       default = name;
       type = lib.types.strMatching "^(‹name›|[a-zA-Z0-9-]+)$";

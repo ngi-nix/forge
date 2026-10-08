@@ -12,7 +12,7 @@
     }:
 
     let
-      # Some derivations aren't acutally real (e.g. the toplevel "apps" and "pkgs"),
+      # Some derivations aren't actually real (e.g. the toplevel "apps" and "pkgs"),
       # which we don't want to include in the checks.
       isRealDrv = v: lib.isDerivation v && v ? drvPath;
 

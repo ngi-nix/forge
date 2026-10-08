@@ -22,6 +22,7 @@
               type = lib.types.attrsOf (
                 lib.types.submoduleWith {
                   specialArgs = specialArgs // {
+                    enable = forgeArgs.config.enable;
                     forgeOptions = forgeArgs.options;
                   };
                   modules = [ ./app.nix ];
@@ -116,7 +117,7 @@
         };
 
       bundledApps = lib.mapAttrs (appName: app: shellBundle app) (
-        lib.filterAttrs (_: app: !app.broken) config.forge.apps
+        lib.filterAttrs (_: app: !app.broken && app.enable) config.forge.apps
       );
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
@@ -133,6 +134,5 @@
           // lib.optionalAttrs (bundled ? program) { "apps.${appName}.program" = bundled.program; }
           // lib.optionalAttrs (bundled ? vm) { "apps.${appName}.vm" = bundled.vm; }
         ) bundledApps;
-
     };
 }

@@ -21,6 +21,12 @@
   ];
   config._recipeType = "pkgs";
   options = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = specialArgs.enable;
+      defaultText = "forge.enable";
+      description = "Whether to enable the package in flake's `packages` and `checks`.";
+    };
     pname = lib.mkOption {
       type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
       default = name;

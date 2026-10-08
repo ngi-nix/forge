@@ -27,6 +27,7 @@
         {
           forge = {
             # Configuration
+            enable = true;
 
             # Set Forge repository URL
             # e.g. "github:username/my-forge"

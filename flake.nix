@@ -82,6 +82,12 @@
               { system, ... }:
               {
                 forge = {
+                  # Expose all `apps` and `pkgs` entries in `packages`,
+                  # it's not done by `flakeModules.default`
+                  # to not overload `nix flake {show,check}`
+                  # when consuming the flake, eg. when deploying an app.
+                  enable = true;
+
                   repositoryUrl = self.sourceInfo.url or "github:ngi-nix/forge";
                 };
               };
