@@ -155,6 +155,7 @@ All notable changes to this project will be documented in this file.
 - Ngi-nix.github.io/forge -> ngi.nixos.org - ([07433b2](https://github.com/ngi-nix/forge/commit/07433b2502a428132682de648655d30aa9aea067))
 - Update CHANGELOG.md - ([739438f](https://github.com/ngi-nix/forge/commit/739438f4950717f0c171ea13b2e0f47fbaa80f93))
 - Update CHANGELOG.md - ([4fcd5a2](https://github.com/ngi-nix/forge/commit/4fcd5a23346628381fa51e600448d702b89cdfbf))
+- Update CHANGELOG.md - ([9e0156e](https://github.com/ngi-nix/forge/commit/9e0156e7997a4b76928f1be6c08bec393f8d4a19))
 
 
 ### Other
@@ -248,6 +249,7 @@ All notable changes to this project will be documented in this file.
 - *bang:* 0-unstable-2026-06-21 -> 0-unstable-2026-08-27 - ([d5e10e0](https://github.com/ngi-nix/forge/commit/d5e10e0312df170d9998415909d5172baef4c015))
 - *bang:* 0-unstable-2026-08-27 -> 0-unstable-2026-09-01 ([#974](https://github.com/ngi-nix/forge/issues/974)) - ([eb7da4b](https://github.com/ngi-nix/forge/commit/eb7da4bf3519b3846ac115be45a8cfbd9d76c62c))
 - *bang:* 0-unstable-2026-09-01 -> 0-unstable-2026-09-25 - ([8176f49](https://github.com/ngi-nix/forge/commit/8176f49c9ce817a58d1ebb85d04487e55c114dd3))
+- *bang:* 0-unstable-2026-09-25 -> 0-unstable-2026-10-01 - ([3322192](https://github.com/ngi-nix/forge/commit/33221926104c5e951a08afcb9d357d35b19f3924))
 - *mustang:* 0.9.37 -> 0.9.38 ([#975](https://github.com/ngi-nix/forge/issues/975)) - ([9829661](https://github.com/ngi-nix/forge/commit/98296611f71a16f2611b476b09a7d64c57184953))
 - *mustang:* 0.9.38 -> 0.9.39 ([#1002](https://github.com/ngi-nix/forge/issues/1002)) - ([6cd1cdb](https://github.com/ngi-nix/forge/commit/6cd1cdb84557d2d21faa11f4ebab3c2ab11e1ee5))
 - *ocaml-quic:* Init at 0-unstable-2026-03-16 - ([0a42697](https://github.com/ngi-nix/forge/commit/0a4269783ba242a6600e658f19a6986a36451797))
