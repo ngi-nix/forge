@@ -16,7 +16,7 @@ in
     license = lib.licenses.asl20;
 
     source = {
-      git = "github:APH10/BIDS/v${recipe.version}";
+      git = "github:APH10/BIDS/v0.3.1";
       hash = "sha256-2uuaovTQ8tLcGY3XII4Iws1wg7GYseM73LE7nXIkD6o=";
     };
 
