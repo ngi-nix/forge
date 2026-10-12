@@ -60,5 +60,26 @@
         lib.mapAttrs (n: v: if n == "__toString" then v else config.flake.lib.scrubNixContext v) x
       else
         x;
+
+
+    getEndNodes =
+      tree:
+      let
+        go =
+          id: curr:
+          if builtins.elem "description" (builtins.attrNames curr) then
+            {
+              ${lib.lists.last id} = {
+                pos = id;
+                val = curr;
+              };
+            }
+          else
+            lib.foldlAttrs (
+              acc: name: value:
+              lib.recursiveUpdate acc (go (id ++ [ name ]) value)
+            ) { } curr;
+      in
+      go [ ] tree;
   };
 }
