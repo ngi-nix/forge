@@ -104,7 +104,7 @@
         internal = true;
         readOnly = true;
         type = lib.types.deferredModule;
-        description = "Final application NixOS module exposed as packages.\${system}.apps.\${app}.nixosModules.default.";
+        description = "Final application NixOS module exposed as flake.modules.apps.\${app}.";
       };
 
       # HACK:

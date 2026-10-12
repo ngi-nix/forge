@@ -48,7 +48,7 @@
             boot.loader.grub.devices = [ "/dev/sda" ];
           }
           # Application module. See: recipes/apps/offen/recipe.nix
-          self.packages.x86_64-linux.apps.offen.nixosModules.default
+          self.modules.apps.offen
         ];
       };
     };
