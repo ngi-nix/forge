@@ -5,11 +5,49 @@
   ...
 }:
 let
+  reservedFlakeModuleNames = [
+    "base"
+    "recipes"
+    "default"
+  ];
+
+  # One flake-parts module per app, restricting `forge.apps` (and thus
+  # `flake.modules.apps`) to only that app. All recipes are still imported
+  # (app recipes may depend on packages defined under `recipes/pkgs`, eg.
+  # `pkgs.offen` for `recipes/apps/offen`), but only the wanted app's
+  # options get evaluated past the `apply` filter below.
+  # Use eg. `imports = [ inputs.forge.flakeModules.offen ]` to avoid
+  # evaluating every app when only a handful are actually used.
+  appFlakeModules =
+    let
+      appNames = builtins.attrNames (
+        lib.filterAttrs (n: t: t == "directory") (builtins.readDir ../recipes/apps)
+      );
+      colliding = builtins.filter (name: builtins.elem name reservedFlakeModuleNames) appNames;
+    in
+    assert
+      colliding == [ ]
+      || throw "app name(s) ${builtins.concatStringsSep ", " colliding} collide with reserved flakeModules names (${builtins.concatStringsSep ", " reservedFlakeModuleNames})";
+    lib.genAttrs appNames (
+      name: flakeArgs: {
+        imports = [
+          flakeModules.base
+          flakeModules.recipes
+          {
+            perSystem.options.forge.apps = lib.mkOption {
+              apply = lib.filterAttrs (appName: _: appName == name);
+            };
+          }
+        ];
+      }
+    );
+
   # A let-binding must be used to be able to both use and export `flakeModules`.
-  flakeModules = {
+  flakeModules = appFlakeModules // {
     base = flakeArgs: {
       imports = [
         ./modules/lib.nix
+        ./modules/apps/flake-modules.nix
         {
           # Expose the `inputs` from `ngi-forge`
           # Note that this `inputs` is always `ngi-forge`'s,
