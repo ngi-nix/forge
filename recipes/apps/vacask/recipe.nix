@@ -1,5 +1,6 @@
 {
   config,
+  forgeConfig,
   pkgs,
   lib,
   ...
@@ -7,12 +8,17 @@
 
 let
   app = config.apps.vacask;
+  usageSnippets = forgeConfig.forge.snippets.usage app;
 in
 
 {
   apps.vacask = {
     displayName = "VACASK";
     description = "Analog circuit simulator.";
+    longDescription = ''
+      VACASK (Verilog-A Circuit Analysis Kernel) is an analog circuit
+      simulator with a device library built from Verilog-A modules.
+    '';
 
     data = {
       testOp = ./tests/test_op.sim;
@@ -20,12 +26,7 @@ in
     };
 
     usage = ''
-      VACASK (Verilog-A Circuit Analysis Kernel) is an analog circuit
-      simulator with a device library built from Verilog-A modules.
-
-      #### Basic Usage
-
-      First, [launch the shell environment](app/${app.name}#run-shell) containing the `${app.name}`.
+      First, ${usageSnippets.run-shell}.
 
       Then, download one of the [upstream test files](https://codeberg.org/arpadbuermen/VACASK/src/commit/${app.data.testCommit}/test) for testing.
       For example:

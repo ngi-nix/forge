@@ -61,6 +61,13 @@
               example = "github:ngi-nix/forge";
               description = "URL of the Forge repository.";
             };
+
+            snippets = lib.mkOption {
+              readOnly = true;
+              type = lib.types.submodule ./snippets.nix;
+              default = { };
+              description = "Re-usable snippets in Markdown format.";
+            };
           };
         }
       ];

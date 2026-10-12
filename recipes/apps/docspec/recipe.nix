@@ -1,5 +1,6 @@
 {
   config,
+  forgeConfig,
   pkgs,
   lib,
   ...
@@ -7,6 +8,7 @@
 
 let
   app = config.apps.docspec;
+  usageSnippets = forgeConfig.forge.snippets.usage app;
 in
 
 {
@@ -16,7 +18,7 @@ in
     usage = ''
       ##### Convert document with CLI
 
-      First, [launch the shell envrionment](app/${app.name}#run-shell) containing `${app.name}`.
+      First, ${usageSnippets.run-shell}.
 
       Then, clone the project repository:
 
@@ -39,7 +41,7 @@ in
 
       ##### Convert document with server
 
-      First, launch the app [in a container](app/${app.name}#run-container) or [in a NixOS VM](app/${app.name}#run-nixos).
+      First, ${usageSnippets.run-container} or ${usageSnippets.run-nixos}.
 
       Then, send a markdown document to the server:
 

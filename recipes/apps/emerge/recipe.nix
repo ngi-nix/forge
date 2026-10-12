@@ -1,5 +1,6 @@
 {
   config,
+  forgeConfig,
   pkgs,
   lib,
   ...
@@ -7,6 +8,7 @@
 
 let
   app = config.apps.emerge;
+  usageSnippets = forgeConfig.forge.snippets.usage app;
   pyEnv = pkgs.python3.withPackages (ps: [ pkgs.python3-emerge ]);
 in
 
@@ -42,7 +44,7 @@ in
       ${app.data.first-sim}
       ```
 
-      Then, [enter the Nix shell](app/emerge#run-shell) and execute the script:
+      Then, ${usageSnippets.run-shell} and execute the script:
 
       ```bash
       python ${app.data.first-sim.name}
