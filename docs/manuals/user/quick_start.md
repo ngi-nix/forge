@@ -10,3 +10,6 @@
    - **NixOS VM** — run application services in a NixOS virtual machine
 
 Before running applications, make sure the [prerequisites](prerequisites.md) are met.
+
+To install an application on a physical or virtual machine, click the
+**Deploy** button and follow the [deployment](deployment.md) instructions.
