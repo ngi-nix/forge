@@ -35,6 +35,7 @@ type alias RouteApp =
     -- `Nothing` means to select the first available `AppRuntime`.
     -- The selected `AppRuntime` will then be in `pageApp_runtime`
     , routeApp_runRuntime : Maybe AppRuntime
+    , routeApp_deployTarget : DeployTarget
     , routeApp_focus : Maybe RouteAppFocus
     }
 
@@ -46,8 +47,41 @@ defaultRouteApp =
     , routeApp_deployShown = False
     , routeApp_iconShown = False
     , routeApp_runRuntime = Nothing
+    , routeApp_deployTarget = DeployTarget_BareMetal
     , routeApp_focus = Nothing
     }
+
+
+type DeployTarget
+    = DeployTarget_BareMetal
+    | DeployTarget_Hetzner
+
+
+listDeployTarget : List DeployTarget
+listDeployTarget =
+    [ DeployTarget_BareMetal
+    , DeployTarget_Hetzner
+    ]
+
+
+showDeployTarget : DeployTarget -> String
+showDeployTarget x =
+    case x of
+        DeployTarget_BareMetal ->
+            "Bare metal"
+
+        DeployTarget_Hetzner ->
+            "Hetzner Cloud"
+
+
+showDeployTargetId : DeployTarget -> String
+showDeployTargetId x =
+    case x of
+        DeployTarget_BareMetal ->
+            "bare-metal"
+
+        DeployTarget_Hetzner ->
+            "hetzner"
 
 
 type RouteAppFocus
@@ -276,10 +310,18 @@ appUrlToRoute url =
                                 , routeApp_runShown = True
                             }
 
-                        Just "deploy-nixos" ->
+                        Just "deploy-bare-metal" ->
                             { defaultRouteApp
                                 | routeApp_name = appName
                                 , routeApp_deployShown = True
+                                , routeApp_deployTarget = DeployTarget_BareMetal
+                            }
+
+                        Just "deploy-hetzner" ->
+                            { defaultRouteApp
+                                | routeApp_name = appName
+                                , routeApp_deployShown = True
+                                , routeApp_deployTarget = DeployTarget_Hetzner
                             }
 
                         Just "icon" ->
@@ -424,7 +466,7 @@ routeToAppUrl route =
                         )
 
                 else if routeApp.routeApp_deployShown then
-                    Just "deploy-nixos"
+                    Just ("deploy-" ++ showDeployTargetId routeApp.routeApp_deployTarget)
 
                 else if routeApp.routeApp_iconShown then
                     Just "icon"
