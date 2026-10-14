@@ -8,6 +8,7 @@ type alias Preferences =
     { preferences_install : PreferencesInstall
     , preferences_theme : PreferencesTheme
     , preferences_sort : PreferencesSort
+    , preferences_imageVariant : String
     }
 
 
@@ -16,12 +17,13 @@ defaultPreferences =
     { preferences_install = PreferencesInstall_NixFlakes
     , preferences_theme = PreferencesTheme_Light
     , preferences_sort = PreferencesSort_Random
+    , preferences_imageVariant = "qemu"
     }
 
 
 decodePreferences : Decoder Preferences
 decodePreferences =
-    Decode.map3
+    Decode.map4
         Preferences
         (Decode.oneOf
             [ Decode.field "install" decodePreferencesInstall
@@ -38,6 +40,11 @@ decodePreferences =
             , Decode.succeed defaultPreferences.preferences_sort
             ]
         )
+        (Decode.oneOf
+            [ Decode.field "imageVariant" Decode.string
+            , Decode.succeed defaultPreferences.preferences_imageVariant
+            ]
+        )
 
 
 encodePreferences : Preferences -> Value
@@ -46,6 +53,7 @@ encodePreferences preferences =
         [ ( "install", preferences.preferences_install |> encodePreferencesInstall )
         , ( "theme", preferences.preferences_theme |> encodePreferencesTheme )
         , ( "sort", preferences.preferences_sort |> encodePreferencesSort )
+        , ( "imageVariant", preferences.preferences_imageVariant |> Encode.string )
         ]
 
 

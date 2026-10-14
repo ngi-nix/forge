@@ -39,14 +39,19 @@
       flake.nixosConfigurations.offen = inputs.ngi-forge.inputs.nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          # Boot configuration
-          {
-            fileSystems."/" = {
-              device = "/dev/disk/by-label/nixos";
-              fsType = "ext4";
-            };
-            boot.loader.grub.devices = [ "/dev/sda" ];
-          }
+          # Boot configuration.
+          # Low priorities let the image variants of `system.build.images` replace these values.
+          (
+            { lib, ... }:
+            {
+              fileSystems."/" = lib.mkDefault {
+                device = "/dev/disk/by-label/nixos";
+                fsType = "ext4";
+              };
+              # Priority 1100 is between `lib.mkDefault` (1000) and the option default (1500).
+              boot.loader.grub.device = lib.mkOverride 1100 "/dev/sda";
+            }
+          )
           # Application module. See: recipes/apps/offen/recipe.nix
           self.packages.x86_64-linux.apps.offen.nixosModules.default
         ];

@@ -504,6 +504,18 @@ Run the application in a NixOS VM:
 nix run .#apps.<app-name>.vm
 ```
 
+Build a disk image of the NixOS system for deployment:
+
+```bash
+nix build .#apps.<app-name>.images.<variant>
+```
+
+The image variants are the variants of
+[`nixos-rebuild build-image`](https://nixos.org/manual/nixos/stable/#sec-image-nixos-rebuild-build-image),
+for example `qemu`, `iso`, `amazon` or `proxmox`.
+Images do not include the VM configuration: they have no default root password,
+and the firewall opens only the ports of the components and resources.
+
 #### Debugging
 
 Build VM artifacts (required for next steps):

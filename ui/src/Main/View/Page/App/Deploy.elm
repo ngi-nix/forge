@@ -13,7 +13,7 @@ import Main.Model.Page exposing (..)
 import Main.Model.Route exposing (..)
 import Main.Update exposing (..)
 import Main.Update.Types exposing (..)
-import Main.View.Page.App.Run exposing (showForgeInputFlakesLatest)
+import Main.View.Page.App.Run exposing (selectedImageVariant, showForgeInputFlakesLatest, viewImageVariantSelect)
 
 
 viewPageAppDeploy : Model -> PageApp -> Html Update
@@ -84,14 +84,19 @@ viewPageAppDeployNixOSModule model pageApp =
                     , "      flake.nixosConfigurations." ++ pageApp.pageApp_app.app_name ++ " = inputs.forge.inputs.nixpkgs.lib.nixosSystem {"
                     , "        system = \"x86_64-linux\";"
                     , "        modules = ["
-                    , "          # Filesystem and boot configuration"
-                    , "          {"
-                    , "            fileSystems.\"/\" = {"
-                    , "              device = \"/dev/disk/by-label/nixos\";"
-                    , "              fsType = \"ext4\";"
-                    , "            };"
-                    , "            boot.loader.grub.devices = [ \"/dev/sda\" ];"
-                    , "          }"
+                    , "          # Filesystem and boot configuration."
+                    , "          # Low priorities let the image variants of `system.build.images` replace these values."
+                    , "          ("
+                    , "            { lib, ... }:"
+                    , "            {"
+                    , "              fileSystems.\"/\" = lib.mkDefault {"
+                    , "                device = \"/dev/disk/by-label/nixos\";"
+                    , "                fsType = \"ext4\";"
+                    , "              };"
+                    , "              # Priority 1100 is between `lib.mkDefault` (1000) and the option default (1500)."
+                    , "              boot.loader.grub.device = lib.mkOverride 1100 \"/dev/sda\";"
+                    , "            }"
+                    , "          )"
                     , "          # Application module"
                     , "          self.packages.x86_64-linux." ++ pageApp.pageApp_app.app_outputName ++ ".nixosModules.default"
                     , "        ];"
@@ -122,4 +127,12 @@ viewPageAppDeployNixOSModule model pageApp =
             "nix run .#nixosConfigurations."
                 ++ pageApp.pageApp_app.app_name
                 ++ ".config.system.build.vm"
+        , hr [] []
+        , p [ style "margin-bottom" "0em" ] [ text "Build a disk image of the configuration" ]
+        , viewImageVariantSelect model pageApp "deploy-nixos-image-variant"
+        , bashCodeBlock <|
+            "nix build .#nixosConfigurations."
+                ++ pageApp.pageApp_app.app_name
+                ++ ".config.system.build.images."
+                ++ selectedImageVariant model pageApp
         ]

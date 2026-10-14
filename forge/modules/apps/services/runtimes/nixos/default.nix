@@ -6,6 +6,33 @@
   app,
   ...
 }@args:
+let
+  # Port mappings of all application services and resources, in "host:guest" notation.
+  portMappings =
+    let
+      servicePorts = lib.concatMap (service: service.process.ports) (
+        lib.attrValues app.services.components
+      );
+      resourcePorts = lib.pipe app.services.resources [
+        (lib.mapAttrsToList (name: value: value.ports))
+        (lib.flatten)
+      ];
+    in
+    map (
+      portRange:
+      let
+        portSplit = lib.splitString ":" portRange;
+      in
+      {
+        host = lib.toInt (lib.elemAt portSplit 0);
+        guest = lib.toInt (lib.elemAt portSplit 1);
+      }
+    ) (servicePorts ++ resourcePorts);
+
+  moduleArgs = args // {
+    inherit portMappings;
+  };
+in
 {
   options = {
     enable = lib.mkEnableOption "NixOS runtime";
@@ -77,6 +104,17 @@
       };
     };
 
+    imageVariants = lib.mkOption {
+      internal = true;
+      readOnly = true;
+      type = with lib.types; listOf str;
+      default = lib.attrNames config.result.images;
+      description = ''
+        Image variants supported by `nixos-rebuild build-image`.
+        The images are available as `apps.''${app}.images.''${variant}`.
+      '';
+    };
+
     result = {
       modules = lib.mkOption {
         internal = true;
@@ -100,6 +138,21 @@
         description = "NixOS Virtual Machine.";
       };
 
+      imageEval = lib.mkOption {
+        internal = true;
+        readOnly = true;
+        type = with lib.types; lazyAttrsOf (either attrs anything);
+        description = "NixOS system evaluation for disk images, without the virtual machine configuration.";
+      };
+
+      images = lib.mkOption {
+        internal = true;
+        readOnly = true;
+        type = with lib.types; lazyAttrsOf package;
+        default = config.result.imageEval.config.system.build.images;
+        description = "NixOS disk images, as built by `nixos-rebuild build-image`.";
+      };
+
       nixosModule = lib.mkOption {
         internal = true;
         readOnly = true;
@@ -121,10 +174,10 @@
 
   config = {
     result.modules = {
-      general = import ./modules/general.nix args;
-      setup = import ./modules/setup.nix args;
-      nimi = import ./modules/nimi.nix args;
-      virt = import ./modules/virt.nix args;
+      general = import ./modules/general.nix moduleArgs;
+      setup = import ./modules/setup.nix moduleArgs;
+      nimi = import ./modules/nimi.nix moduleArgs;
+      virt = import ./modules/virt.nix moduleArgs;
       nixosConfig = config.nixosConfig;
       packages = {
         environment.systemPackages = config.packages;
@@ -158,6 +211,14 @@
     result.eval = forge-inputs.nixpkgs.lib.nixosSystem {
       inherit system;
       modules = lib.attrValues config.result.modules;
+    };
+
+    result.imageEval = forge-inputs.nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        config.result.nixosModule
+        (import ./modules/image.nix moduleArgs)
+      ];
     };
   };
 }
