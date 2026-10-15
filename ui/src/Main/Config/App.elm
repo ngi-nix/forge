@@ -109,27 +109,27 @@ decodeAppResource =
 
 type alias AppComponent =
     { appComponent_ports : List String
-    , appComponent_resources : Dict String AppResource
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map2 AppComponent
+    Decode.map AppComponent
         (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
-        (Decode.field "resources" (Decode.dict decodeAppResource))
 
 
 type alias AppServices =
     { appServices_components : Dict String AppComponent
+    , appServices_resources : Dict String AppResource
     , appServices_runtimes : AppServicesRuntimes
     }
 
 
 decodeAppServices : Decoder AppServices
 decodeAppServices =
-    Decode.map2 AppServices
+    Decode.map3 AppServices
         (Decode.field "components" (Decode.dict decodeAppComponent))
+        (Decode.field "resources" (Decode.dict decodeAppResource))
         (Decode.field "runtimes" decodeAppServicesRuntimes)
 
 
@@ -357,16 +357,14 @@ deduplicate =
 
 getAppServicesPorts : AppServices -> List String
 getAppServicesPorts services =
-    services.appServices_components
-        |> Dict.toList
-        |> List.concatMap
-            (\( _, component ) ->
-                component.appComponent_ports
-                    ++ (component.appComponent_resources
-                            |> Dict.toList
-                            |> List.concatMap (Tuple.second >> .appResource_ports)
-                       )
-            )
+    (services.appServices_components
+        |> Dict.values
+        |> List.concatMap .appComponent_ports
+    )
+        ++ (services.appServices_resources
+                |> Dict.values
+                |> List.concatMap .appResource_ports
+           )
 
 
 type alias Maintainer =
