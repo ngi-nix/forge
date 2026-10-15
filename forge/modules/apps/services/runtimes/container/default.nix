@@ -378,9 +378,9 @@
               resourcesComponents
               serviceComponents
             ];
-            volumes =
-              lib.mapAttrs' (name: _: lib.nameValuePair "${name}-data" { }) app.services.components
-              // lib.mapAttrs' (name: _: lib.nameValuePair "${name}-data" { }) app.services.resources;
+            volumes = lib.genAttrs' (componentNames ++ lib.attrNames app.services.resources) (
+              name: lib.nameValuePair "${name}-data" { }
+            );
           }
         );
 
