@@ -129,9 +129,11 @@
       packages = {
         environment.systemPackages = config.packages;
       };
-      nixosComponents = {
+      resources = {
         imports = lib.mapAttrsToList (name: value: value.nixosConfig) app.services.resources;
-
+      };
+      # Resolve component and resource names, as in the container network
+      hosts = {
         networking.extraHosts =
           let
             componentNames = lib.attrNames app.services.components;
@@ -147,7 +149,8 @@
         config.result.modules.nimi
         config.result.modules.packages
         config.result.modules.nixosConfig
-        config.result.modules.nixosComponents
+        config.result.modules.resources
+        config.result.modules.hosts
       ];
     };
 
