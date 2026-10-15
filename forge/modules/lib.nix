@@ -41,6 +41,25 @@
         };
       };
 
+    # Throw an error if any of `names` is not one of `knownNames`,
+    # otherwise return `value` unchanged.
+    # Use in option `apply` functions to validate references to other options.
+    checkKnownNames =
+      {
+        optionPath,
+        names,
+        knownNames,
+      }:
+      value:
+      let
+        unknownNames = lib.subtractLists knownNames names;
+        prettyPrint = lib.generators.toPretty { };
+      in
+      lib.throwIf (unknownNames != [ ]) ''
+        `${optionPath}` references unknown names: ${prettyPrint unknownNames}
+        Must be one of: ${prettyPrint knownNames}
+      '' value;
+
     # Get the Nix store hash of a derivation's output path
     # (eg. `/nix/store/<hash>-name` -> `<hash>`).
     nixStoreHash = drv: lib.unsafeDiscardStringContext (lib.substring 0 32 (baseNameOf drv.outPath));
