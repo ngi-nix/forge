@@ -3,6 +3,7 @@
   config,
   specialArgs,
 
+  forge-lib,
   lib,
   ...
 }:
@@ -25,26 +26,11 @@
         self:
         lib.mapAttrs (
           _: service:
-          let
-            knownComponents = lib.attrNames config.components;
-            invalidDependsOn = lib.filter (dep: !lib.elem dep knownComponents) service.dependsOn;
-            optionPath = lib.showOption (options.components.loc ++ [ service.name ]);
-
-            prettyPrint = lib.generators.toPretty { };
-
-            checks.dependsOn = {
-              cond = invalidDependsOn != [ ];
-              msg = ''
-                `${optionPath}.dependsOn` references invalid services: ${prettyPrint invalidDependsOn}
-                Must be one of: ${prettyPrint knownComponents}
-              '';
-            };
-
-          in
-
-          assert (lib.any (c: lib.throwIf c.cond c.msg true) (lib.attrValues checks));
-
-          service
+          forge-lib.checkKnownNames {
+            optionPath = lib.showOption (options.components.loc ++ [ service.name ]) + ".dependsOn";
+            names = service.dependsOn;
+            knownNames = lib.attrNames config.components;
+          } service
           // {
             result = {
               process.argv =

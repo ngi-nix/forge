@@ -2,6 +2,7 @@
   forge-inputs,
   forge-lib,
   config,
+  options,
   lib,
   system,
 
@@ -54,13 +55,11 @@
       description = "Per-component container runtime configuration.";
       apply =
         self:
-        let
-          knownComponents = lib.attrNames app.services.components;
-          unknownComponents = lib.subtractLists knownComponents (lib.attrNames self);
-        in
-        lib.throwIf (unknownComponents != [ ])
-          "services.runtimes.container.components: unknown component(s): ${lib.concatStringsSep ", " unknownComponents}. Must be one of: ${lib.concatStringsSep ", " knownComponents}"
-          self;
+        forge-lib.checkKnownNames {
+          optionPath = lib.showOption options.components.loc;
+          names = lib.attrNames self;
+          knownNames = lib.attrNames app.services.components;
+        } self;
     };
 
     resources = lib.mkOption {
@@ -92,13 +91,11 @@
       description = "Per-resource container runtime NixOS configuration.";
       apply =
         self:
-        let
-          knownResources = lib.attrNames app.services.resources;
-          unknownResources = lib.subtractLists knownResources (lib.attrNames self);
-        in
-        lib.throwIf (unknownResources != [ ])
-          "services.runtimes.container.resources: unknown resource(s): ${lib.concatStringsSep ", " unknownResources}. Must be one of: ${lib.concatStringsSep ", " knownResources}"
-          self;
+        forge-lib.checkKnownNames {
+          optionPath = lib.showOption options.resources.loc;
+          names = lib.attrNames self;
+          knownNames = lib.attrNames app.services.resources;
+        } self;
     };
 
     result = {
