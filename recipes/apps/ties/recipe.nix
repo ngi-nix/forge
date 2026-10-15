@@ -130,10 +130,10 @@ in
             "0.0.0.0:${listenPort}" # accept connections from outside the container
           ];
         };
+      };
 
-        resources.database.nixosConfig = {
-          services.postgresql.enable = true;
-        };
+      resources.database.nixosConfig = {
+        services.postgresql.enable = true;
       };
 
       runtimes.container = {
