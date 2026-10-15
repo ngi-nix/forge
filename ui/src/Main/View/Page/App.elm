@@ -233,8 +233,8 @@ viewPortList ports =
 
 viewResource : ( String, AppResource ) -> Html Update
 viewResource ( rname, resource ) =
-    div []
-        [ small [ class "text-body-secondary" ] [ text rname ]
+    li []
+        [ small [] [ text rname ]
         , viewPortList resource.appResource_ports
         ]
 
@@ -244,15 +244,6 @@ viewComponent ( cname, component ) =
     li []
         [ small [] [ text cname ]
         , viewPortList component.appComponent_ports
-        , if Dict.isEmpty component.appComponent_resources then
-            text ""
-
-          else
-            div [ class "ms-2" ]
-                (component.appComponent_resources
-                    |> Dict.toList
-                    |> List.map viewResource
-                )
         ]
 
 
@@ -267,6 +258,9 @@ viewPageAppConfiguration _ pageApp =
 
         components =
             pageApp.pageApp_app.app_services.appServices_components
+
+        resources =
+            pageApp.pageApp_app.app_services.appServices_resources
     in
     div
         [ class "box-container target-highlight mb-3"
@@ -306,6 +300,16 @@ viewPageAppConfiguration _ pageApp =
                     [ small [ class "text-body-secondary" ] [ text "Services" ] ]
                 , viewBulletList
                     (components |> Dict.toList |> List.map viewComponent)
+                ]
+        , if Dict.isEmpty resources then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Resources" ] ]
+                , viewBulletList
+                    (resources |> Dict.toList |> List.map viewResource)
                 ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]

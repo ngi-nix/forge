@@ -135,18 +135,6 @@
       description = "Process configuration.";
     };
 
-    resources = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule ./resource.nix);
-      default = { };
-      description = "Resource configuration";
-      example = lib.literalExpression ''
-        {
-          database.nixosConfig = { services.postgresql.enable = true; };
-          cache.nixosConfig = { services.redis.servers.default.enable = true; };
-        }
-      '';
-    };
-
     healthcheck = lib.mkOption {
       type = lib.types.submodule ./healthcheck.nix;
       default = { };

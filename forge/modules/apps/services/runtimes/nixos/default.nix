@@ -135,13 +135,9 @@
         networking.extraHosts =
           let
             componentNames = lib.attrNames app.services.components;
-            resourceNames = lib.concatMap (c: lib.attrNames c.resources) (
-              lib.attrValues app.services.components
-            );
+            resourceNames = lib.attrNames app.services.resources;
           in
-          lib.concatMapStringsSep "\n" (name: "127.0.0.1 ${name}") (
-            lib.unique (componentNames ++ resourceNames)
-          );
+          lib.concatMapStringsSep "\n" (name: "127.0.0.1 ${name}") (componentNames ++ resourceNames);
       };
     };
 

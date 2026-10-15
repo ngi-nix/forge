@@ -21,15 +21,15 @@
     ];
     default = "backend";
     description = ''
-      Role of this resource relative to the component that declares it.
+      Role of this resource relative to the service components.
 
-      - `backend` (default): the component depends on this resource, so the
-        resource starts before the component. Use this for services the
-        component needs at startup, such as a database or a message queue.
+      - `backend` (default): the components depend on this resource, so the
+        resource starts before the components. Use this for services the
+        components need at startup, such as a database or a message queue.
 
-      - `frontend`: this resource depends on the component, so the component
-        starts before the resource. Use this for services that sit in front
-        of the component, such as a reverse proxy, which needs the component
+      - `frontend`: this resource depends on the components, so the components
+        start before the resource. Use this for services that sit in front
+        of the components, such as a reverse proxy, which needs the components
         to be running and resolvable in the container network DNS before it
         can start.
     '';

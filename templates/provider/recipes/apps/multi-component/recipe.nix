@@ -1,12 +1,8 @@
 {
-  config,
   pkgs,
   ...
 }:
 
-let
-  recipe = config.apps.multi-component;
-in
 {
   apps.multi-component = {
     displayName = "Advanced Example";
@@ -153,33 +149,6 @@ in
           startPeriod = "1s";
           retries = 10;
         };
-
-        # DB resource (shared with api component)
-        resources.database.nixosConfig = {
-          services.postgresql.enable = true;
-        };
-
-        # Reverse proxy resource (shared with api component)
-        resources.reverse-proxy = {
-          nixosConfig = {
-            services.nginx = {
-              enable = true;
-              virtualHosts."_" = {
-                listen = [
-                  {
-                    addr = "0.0.0.0";
-                    port = 8000;
-                  }
-                ];
-                locations."/" = {
-                  proxyPass = "http://web:5000";
-                };
-              };
-            };
-          };
-          ports = [ "8000:8000" ];
-          role = "frontend";
-        };
       };
 
       # PostgREST API component
@@ -216,25 +185,34 @@ in
           retries = 10;
         };
 
-        # DB resource (shared with web component)
-        resources.database = recipe.services.components.web.resources.database;
-
-        # Reverse proxy resource (shared with web component)
-        resources.reverse-proxy = {
-          nixosConfig = {
-            services.nginx = {
-              enable = true;
-              virtualHosts."_".locations."/api/" = {
-                proxyPass = "http://api:5001/";
-              };
-            };
-          };
-          ports = recipe.services.components.web.resources.reverse-proxy.ports;
-          role = recipe.services.components.web.resources.reverse-proxy.role;
-        };
-
         # Wait for `web` which runs `initdb` to create the `greetings` table.
         dependsOn = [ "web" ];
+      };
+
+      # DB resource (shared by web and api components)
+      resources.database.nixosConfig = {
+        services.postgresql.enable = true;
+      };
+
+      # Reverse proxy resource (shared by web and api components)
+      resources.reverse-proxy = {
+        role = "frontend";
+        ports = [ "8000:8000" ];
+        nixosConfig = {
+          services.nginx = {
+            enable = true;
+            virtualHosts."_" = {
+              listen = [
+                {
+                  addr = "0.0.0.0";
+                  port = 8000;
+                }
+              ];
+              locations."/".proxyPass = "http://web:5000";
+              locations."/api/".proxyPass = "http://api:5001/";
+            };
+          };
+        };
       };
 
       # Runtimes
