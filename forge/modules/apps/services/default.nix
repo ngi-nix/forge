@@ -3,6 +3,7 @@
   config,
   specialArgs,
 
+  forge-lib,
   lib,
   ...
 }:
@@ -19,33 +20,17 @@
       description = ''
         Services components.
 
-        Each component must have `process.command` set and can optionally
-        declare one or more `resources` providing NixOS configuration.
+        Each component must have `process.command` set.
       '';
       apply =
         self:
         lib.mapAttrs (
           _: service:
-          let
-            knownComponents = lib.attrNames config.components;
-            invalidDependsOn = lib.filter (dep: !lib.elem dep knownComponents) service.dependsOn;
-            optionPath = lib.showOption (options.components.loc ++ [ service.name ]);
-
-            prettyPrint = lib.generators.toPretty { };
-
-            checks.dependsOn = {
-              cond = invalidDependsOn != [ ];
-              msg = ''
-                `${optionPath}.dependsOn` references invalid services: ${prettyPrint invalidDependsOn}
-                Must be one of: ${prettyPrint knownComponents}
-              '';
-            };
-
-          in
-
-          assert (lib.any (c: lib.throwIf c.cond c.msg true) (lib.attrValues checks));
-
-          service
+          forge-lib.checkKnownNames {
+            optionPath = lib.showOption (options.components.loc ++ [ service.name ]) + ".dependsOn";
+            names = service.dependsOn;
+            knownNames = lib.attrNames config.components;
+          } service
           // {
             result = {
               process.argv =
@@ -74,28 +59,31 @@
     };
 
     resources = lib.mkOption {
-      internal = true;
-      visible = false;
       type = lib.types.attrsOf (lib.types.submodule ./resource.nix);
       default = { };
-      description = "Resource configuration";
+      description = ''
+        Resource configuration.
+
+        Resources are shared by all service components.
+      '';
       example = lib.literalExpression ''
         {
           database.nixosConfig = { services.postgresql.enable = true; };
           cache.nixosConfig = { services.redis.servers.default.enable = true; };
         }
       '';
+      # Components and resources share the same namespace (container names,
+      # volumes, images and hostnames), their names must not clash.
+      apply =
+        self:
+        let
+          clashingNames = lib.intersectLists (lib.attrNames self) (lib.attrNames config.components);
+          prettyPrint = lib.generators.toPretty { };
+        in
+        lib.throwIf (clashingNames != [ ]) ''
+          `${lib.showOption options.resources.loc}` names clash with `${lib.showOption options.components.loc}` names: ${prettyPrint clashingNames}
+          Resources and components must have unique names.
+        '' self;
     };
   };
-
-  config.resources =
-    let
-      componentResources = lib.pipe config.components [
-        (lib.attrValues)
-        (lib.catAttrs "resources")
-      ];
-
-      runtimeResources = [ config.runtimes.container.resources ];
-    in
-    lib.mkMerge (runtimeResources ++ componentResources);
 }
