@@ -19,12 +19,10 @@
       enable = true;
     };
 
-    build.extraAttrs = {
-      installPhase = ''
-        mkdir -p $out/bin
-        make install PREFIX=$out
-      '';
-    };
+    phases.install.script.main = ''
+      mkdir -p $out/bin
+      make install PREFIX=$out
+    '';
 
     test.script = ''
       echo "int main(void) { return 0; }" > /tmp/test.c
