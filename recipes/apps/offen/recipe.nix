@@ -39,7 +39,7 @@ in
 
       #### Web Interface
 
-      Open the [web interface](http://localhost:3000) and log in as
+      Open the [web interface](http://localhost:8080) and log in as
       the operator using the account created in the previous step.
 
       Read the [docs](${app.links.docs}) for more details.
@@ -69,7 +69,41 @@ in
           OFFEN_DATABASE_DIALECT = "sqlite3";
           OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
         };
-        process.ports = [ "3000:3000" ];
+
+        healthcheck = {
+          enable = true;
+          test = [
+            "curl"
+            "-fs"
+            "http://offen:3000/healthz"
+          ];
+          packages = [ pkgs.curl ];
+          interval = "3s";
+          timeout = "3s";
+          startPeriod = "10s";
+          retries = 10;
+        };
+
+        resources.web-proxy = {
+          role = "frontend";
+          ports = [ "8080:8080" ];
+          nixosConfig = {
+            services.nginx = {
+              enable = true;
+              recommendedProxySettings = true;
+              virtualHosts.offen = {
+                default = true;
+                listen = [
+                  {
+                    addr = "0.0.0.0";
+                    port = 8080;
+                  }
+                ];
+                locations."/".proxyPass = "http://offen:3000";
+              };
+            };
+          };
+        };
       };
 
       runtimes = {
@@ -101,7 +135,7 @@ in
         mkdir --parent /var/lib/offen
         export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
         offen setup -name test -email test@localhost -password test123456
-        $curl localhost:3000 | grep "Offen Fair Web Analytics"
+        $curl localhost:8080 | grep "Offen Fair Web Analytics"
       '';
     };
   };
