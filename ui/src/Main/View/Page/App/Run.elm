@@ -1,8 +1,8 @@
 module Main.View.Page.App.Run exposing (..)
 
-import Html exposing (Html, a, br, button, details, div, h5, hr, li, p, small, span, summary, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, style, tabindex, target, title)
-import Html.Events exposing (stopPropagationOn)
+import Html exposing (Html, a, br, button, details, div, h5, hr, label, li, option, p, select, small, span, summary, text, ul)
+import Html.Attributes exposing (attribute, class, for, href, id, selected, style, tabindex, target, title, value)
+import Html.Events exposing (onInput, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
@@ -442,6 +442,96 @@ viewPageAppRunNixOS model pageApp =
                         -- hence use `app_name` not `app_outputName` here.
                         , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
                         ]
+        , hr [] []
+        , viewPageAppRunNixOSBuildImage model pageApp
+        ]
+
+
+viewPageAppRunNixOSBuildImage : Model -> PageApp -> Html Update
+viewPageAppRunNixOSBuildImage model pageApp =
+    let
+        imageOutput =
+            String.concat
+                [ pageApp.pageApp_app.app_outputName
+                , ".images."
+                , selectedImageVariant model pageApp
+                ]
+    in
+    details [ attribute "data-testid" "run-nixos-build-image" ]
+        [ summary [] [ text "Build disk images for deployment" ]
+        , br [] []
+        , viewImageVariantSelect model pageApp "run-nixos-image-variant"
+        , bashCodeBlock <|
+            case model.model_preferences.preferences_install of
+                PreferencesInstall_NixFlakes ->
+                    String.concat
+                        [ "nix build "
+                        , showForgeInputFlakes model
+                        , "#"
+                        , imageOutput
+                        ]
+
+                PreferencesInstall_NixTraditional ->
+                    String.concat
+                        [ "nix-build \\\n"
+                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
+                        , "  -E '(import <forge> {})"
+                        , "."
+                        , imageOutput
+                        , "'"
+                        ]
+        , p [ class "mt-2 mb-0" ]
+            [ small []
+                [ text "The image is in the "
+                , Html.code [] [ text "./result" ]
+                , text " directory. Unlike the VM, images have no root password. Cloud image variants get SSH keys from the provider. "
+                , a [ href "https://nixos.org/manual/nixos/stable/#sec-image-nixos-rebuild-build-image", target "_blank" ]
+                    [ text "Learn more about image variants." ]
+                ]
+            ]
+        ]
+
+
+selectedImageVariant : Model -> PageApp -> String
+selectedImageVariant model pageApp =
+    let
+        preferences =
+            model.model_preferences
+
+        imageVariants =
+            pageApp.pageApp_app.app_services.appServices_runtimes.appServicesRuntimes_nixos.imageVariants
+    in
+    -- Use the last selected variant if this application supports it.
+    if List.member preferences.preferences_imageVariant imageVariants then
+        preferences.preferences_imageVariant
+
+    else
+        List.head imageVariants |> Maybe.withDefault preferences.preferences_imageVariant
+
+
+viewImageVariantSelect : Model -> PageApp -> String -> Html Update
+viewImageVariantSelect model pageApp selectId =
+    let
+        preferences =
+            model.model_preferences
+
+        imageVariant =
+            selectedImageVariant model pageApp
+    in
+    div [ class "d-flex align-items-center gap-2 mb-2" ]
+        [ label [ for selectId, class "text-nowrap" ] [ text "Image variant" ]
+        , select
+            [ id selectId
+            , class "form-select form-select-sm w-auto"
+            , attribute "data-testid" selectId
+            , onInput (\variant -> Update_SetPreferences { preferences | preferences_imageVariant = variant })
+            ]
+            (pageApp.pageApp_app.app_services.appServices_runtimes.appServicesRuntimes_nixos.imageVariants
+                |> List.map
+                    (\variant ->
+                        option [ value variant, selected (variant == imageVariant) ] [ text variant ]
+                    )
+            )
         ]
 
 

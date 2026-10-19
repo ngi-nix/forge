@@ -1,10 +1,10 @@
 {
-  app,
-
   lib,
   ...
-}:
+}@args:
 {
+  imports = [ (import ./base.nix args) ];
+
   users.users.root.password = "root";
 
   services = {
@@ -14,10 +14,7 @@
   };
 
   networking = {
-    hostName = app.name;
     useDHCP = lib.mkForce true;
     firewall.enable = lib.mkForce false;
   };
-
-  system.stateVersion = "25.11";
 }

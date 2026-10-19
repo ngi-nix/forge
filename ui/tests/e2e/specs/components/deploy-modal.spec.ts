@@ -40,9 +40,24 @@ test.describe("Deploy Modal and Hash State", () => {
     const modal = page.getByTestId("deploy-modal-container");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText("Test configuration in a VM");
-    await expect(modal.locator("pre").last()).toContainText(
+    await expect(modal.locator("pre").nth(2)).toContainText(
       "nix run .#nixosConfigurations." + TEST_APP_NAME + ".config.system.build.vm",
     );
+  });
+
+  test("deploy modal shows the disk image instruction for the selected variant", async ({ page }) => {
+    await page.goto(`${targetPage}#deploy-nixos`);
+    const modal = page.getByTestId("deploy-modal-container");
+    await expect(modal).toBeVisible();
+    await expect(modal).toContainText("Build a disk image of the configuration");
+
+    const variantSelect = modal.getByTestId("deploy-nixos-image-variant");
+    const imageCommand = "nix build .#nixosConfigurations." + TEST_APP_NAME + ".config.system.build.images.";
+    await expect(variantSelect).toHaveValue("qemu");
+    await expect(modal.locator("pre").last()).toContainText(imageCommand + "qemu");
+
+    await variantSelect.selectOption("amazon");
+    await expect(modal.locator("pre").last()).toContainText(imageCommand + "amazon");
   });
 
   test("modal closes via Escape, close button, and backdrop click", async ({ page }) => {

@@ -90,6 +90,30 @@ test.describe("Run Modal and Hash State", () => {
     await expect(modal.locator("pre").last()).toContainText("nix-shell");
   });
 
+  test("NixOS image variant selection changes the command and is remembered on page reload", async ({ page }) => {
+    await page.goto(`${targetPage}#run-nixos`);
+    const modal = page.getByTestId("run-modal-container");
+    await expect(modal).toBeVisible();
+
+    const buildImage = modal.getByTestId("run-nixos-build-image");
+    const variantSelect = modal.getByTestId("run-nixos-image-variant");
+
+    await buildImage.locator("summary").click();
+    await expect(variantSelect).toHaveValue("qemu");
+    await expect(buildImage.locator("pre")).toContainText(`apps.${TEST_APP_NAME}.images.qemu`);
+
+    await variantSelect.selectOption("iso");
+    await expect(buildImage.locator("pre")).toContainText(`apps.${TEST_APP_NAME}.images.iso`);
+    await expect(modal).toBeVisible();
+
+    await page.reload();
+
+    await expect(modal).toBeVisible();
+    await buildImage.locator("summary").click();
+    await expect(variantSelect).toHaveValue("iso");
+    await expect(buildImage.locator("pre")).toContainText(`apps.${TEST_APP_NAME}.images.iso`);
+  });
+
   test("copy button works and copies the command", async ({ context, page, browserName }) => {
     // eslint-disable-next-line playwright/no-skipped-test
     test.skip(browserName !== "chromium", "Clipboard permissions only supported in Chromium");

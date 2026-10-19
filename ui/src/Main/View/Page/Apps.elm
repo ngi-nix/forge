@@ -243,6 +243,7 @@ viewSortDropdown model pageApps =
                                     { preferences_install = model.model_preferences.preferences_install
                                     , preferences_theme = model.model_preferences.preferences_theme
                                     , preferences_sort = PreferencesSort_Random
+                                    , preferences_imageVariant = model.model_preferences.preferences_imageVariant
                                     }
                                 , Update_ToggleAppsSortDropdown
                                 , Update_RouteWithoutHistory (Route_Apps pageApps.pageApps_route)
@@ -261,6 +262,7 @@ viewSortDropdown model pageApps =
                                     { preferences_install = model.model_preferences.preferences_install
                                     , preferences_theme = model.model_preferences.preferences_theme
                                     , preferences_sort = PreferencesSort_Alphabetical
+                                    , preferences_imageVariant = model.model_preferences.preferences_imageVariant
                                     }
                                 , Update_ToggleAppsSortDropdown
                                 , Update_RouteWithoutHistory (Route_Apps pageApps.pageApps_route)
