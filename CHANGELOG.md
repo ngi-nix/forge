@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - *ui:* Position shuffle tooltip above button - ([2db5038](https://github.com/ngi-nix/forge/commit/2db50385ba1c979cbc7df0c9405f7041790c2938))
 - *ui:* Hide pagination visibility to keep consistent ui - ([5235049](https://github.com/ngi-nix/forge/commit/5235049de26a570d44a1ca37141998a0ef2c2640))
 - *ui:* Allow single clicks on app description to trigger card navigation - ([8c62319](https://github.com/ngi-nix/forge/commit/8c62319540ffc5248023e43c627b1f6c830a7a2d))
+- *ui:* Don't show assertions and warnings in options browser - ([9e020b3](https://github.com/ngi-nix/forge/commit/9e020b321e00a5695ac1d125a9ecab090f96435b))
 - Remove redundant container resources options - ([b91f638](https://github.com/ngi-nix/forge/commit/b91f63895ac803acaa298030f7e572f1b17348f2))
 - Update script recipes path - ([866105d](https://github.com/ngi-nix/forge/commit/866105ddefb5108f3a842081453a0205d77f899c))
 - Update script package regex - ([70a0c0a](https://github.com/ngi-nix/forge/commit/70a0c0afd030f9bdcd5e80da01d0c478abb3022f))
@@ -102,6 +103,7 @@ All notable changes to this project will be documented in this file.
 - *ui:* Update NixOS configuration snippet for NixOS app runtime - ([258cbae](https://github.com/ngi-nix/forge/commit/258cbaeb2b79fda646e192a943cc9cd41024aef4))
 - *ui:* Add application deploy instructions ([#1019](https://github.com/ngi-nix/forge/issues/1019)) - ([b291539](https://github.com/ngi-nix/forge/commit/b291539b8d4c4123f0f4681317f908004308b1f3))
 - *ui:* Add offen badge to footer - ([5204a07](https://github.com/ngi-nix/forge/commit/5204a07879fda71f444ba574c0900b53f5dc2129))
+- *ui:* Update website title - ([dcf8a56](https://github.com/ngi-nix/forge/commit/dcf8a5616409cebe1f97595992cf2a31bb666287))
 - Add app prefix to container image - ([e023929](https://github.com/ngi-nix/forge/commit/e0239296387614e0528ab8ae2a3575ae31fdf6b8))
 - Add healthcheck for service components and resources - ([2356724](https://github.com/ngi-nix/forge/commit/2356724b32255c0f54c4f4591cfaefac72b82abc))
 - Add forge labels to podman images - ([7f53d4c](https://github.com/ngi-nix/forge/commit/7f53d4cf0c34ba2ecfb186cadee5507f245aa13c))
@@ -119,6 +121,7 @@ All notable changes to this project will be documented in this file.
 - Added more data types for data. ([#919](https://github.com/ngi-nix/forge/issues/919)) - ([ea3f37a](https://github.com/ngi-nix/forge/commit/ea3f37af35687a9953040f112882b68927c4e317))
 - Init changelog ([#908](https://github.com/ngi-nix/forge/issues/908)) - ([ebc2a0e](https://github.com/ngi-nix/forge/commit/ebc2a0ee855167383cc32854f24a9f27193d969b))
 - Print forge packages' name and version in devshell - ([352b3b1](https://github.com/ngi-nix/forge/commit/352b3b1e75c5e1461ec046d6aed0fff49a48dfae))
+- Add default flake formatter - ([ee169df](https://github.com/ngi-nix/forge/commit/ee169df53b25988c3080982c599cff14496ea90e))
 
 
 ### Flake
@@ -144,17 +147,21 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous Tasks
 
+- *.#checks:* Remove nested duplicate attributes - ([c9f4c1b](https://github.com/ngi-nix/forge/commit/c9f4c1b8776e36dcc72522f9f61fa52a82991393))
+- *flake:* Add `forge.{apps,pkgs}.${name}.enable` options - ([9ad4c47](https://github.com/ngi-nix/forge/commit/9ad4c47603686e30d39db20da1016ea84afbe7c4))
 - *forge:* Enable `imports` in `packages.${package}.build{,.${builder}}` - ([f111ce7](https://github.com/ngi-nix/forge/commit/f111ce7990e3f9a39e092ef5e7c74fdc4dfb63a3))
 - *forge:* Move `scrubConfig` to `lib.scrubNixContext` - ([531768c](https://github.com/ngi-nix/forge/commit/531768cf05c80414da90b8f15c8470746da62884))
 - *forge:* Init `identityBuilder` to provide an external derivation - ([e0267aa](https://github.com/ngi-nix/forge/commit/e0267aacac25e68678ad9d4225d0316b628356d3))
 - *forge:* Init `packages.${package}.build{,.${builder}}.{env,structuredAttrs}` - ([fbff958](https://github.com/ngi-nix/forge/commit/fbff958deeef72e1b28ce8859b3544a45db566d1))
 - *ocamlBuilder:* Inherit `previousAttrs.propagatedBuildInputs` - ([e2b3319](https://github.com/ngi-nix/forge/commit/e2b3319b2e35e439fa4d0c15178a259b7afe6825))
 - *ocamlBuilder:* Only `buildDunePackage` is actually used - ([d01f4d0](https://github.com/ngi-nix/forge/commit/d01f4d0d9af47194f1245919faba407eb80dee78))
+- *ui:* Fix missing `formatter` - ([bd45fd8](https://github.com/ngi-nix/forge/commit/bd45fd84c6cf265587f6b8525818594c9ef91b3e))
 - Rename {packages => pkgs} - ([8a3fee3](https://github.com/ngi-nix/forge/commit/8a3fee33701f978e4b003c174d6b858b4d71cfb8))
 - OcamlBuilder.scope -> ocamlBuilder.ocamlPackages - ([cae76d6](https://github.com/ngi-nix/forge/commit/cae76d66d340f4ecf91f5be9977e037161d70e27))
 - Ngi-nix.github.io/forge -> ngi.nixos.org - ([07433b2](https://github.com/ngi-nix/forge/commit/07433b2502a428132682de648655d30aa9aea067))
 - Update CHANGELOG.md - ([739438f](https://github.com/ngi-nix/forge/commit/739438f4950717f0c171ea13b2e0f47fbaa80f93))
 - Update CHANGELOG.md - ([4fcd5a2](https://github.com/ngi-nix/forge/commit/4fcd5a23346628381fa51e600448d702b89cdfbf))
+- Update CHANGELOG.md - ([9e0156e](https://github.com/ngi-nix/forge/commit/9e0156e7997a4b76928f1be6c08bec393f8d4a19))
 
 
 ### Other
@@ -223,6 +230,9 @@ All notable changes to this project will be documented in this file.
 - *apps.prismafs:* Init - ([7cc919b](https://github.com/ngi-nix/forge/commit/7cc919be04f2324e943be2d7eb879b283a336ee6))
 - *apps.reflection:* Add missing grant ([#984](https://github.com/ngi-nix/forge/issues/984)) - ([e0e0cc8](https://github.com/ngi-nix/forge/commit/e0e0cc8c322f54bb2e53ab9538c0567e09578d0d))
 - *apps.repath-studio:* Fix test - ([eac7a75](https://github.com/ngi-nix/forge/commit/eac7a755e8c177013489a8de74e07f8209fbcf80))
+- *apps.scion:* Init app - ([715fa1a](https://github.com/ngi-nix/forge/commit/715fa1a8ffa3a1650fe06da8c5a65f3717f4569f))
+- *apps.scion:* Override scion package as needed for forge shell env - ([3dbef51](https://github.com/ngi-nix/forge/commit/3dbef5184cd622f266ab036f6e0be68c406b5459))
+- *apps.scion:* Usage instructions cleanup - ([d87415e](https://github.com/ngi-nix/forge/commit/d87415ef5473df43827caedfcc7585b6ebac1573))
 - *apps.sdcc:* Init ([#935](https://github.com/ngi-nix/forge/issues/935)) - ([a802ca1](https://github.com/ngi-nix/forge/commit/a802ca162a5022f0e7adb37764152277e263d908))
 - *apps.servo:* Add additional grants - ([712e8ac](https://github.com/ngi-nix/forge/commit/712e8ac13f253b7ac6988bc54ec98baa07035d68))
 - *apps.signaturepdf:* Init - ([6f5033a](https://github.com/ngi-nix/forge/commit/6f5033aa8f6601d6a7b994e3a8b324c70f9b402c))
@@ -248,6 +258,7 @@ All notable changes to this project will be documented in this file.
 - *bang:* 0-unstable-2026-06-21 -> 0-unstable-2026-08-27 - ([d5e10e0](https://github.com/ngi-nix/forge/commit/d5e10e0312df170d9998415909d5172baef4c015))
 - *bang:* 0-unstable-2026-08-27 -> 0-unstable-2026-09-01 ([#974](https://github.com/ngi-nix/forge/issues/974)) - ([eb7da4b](https://github.com/ngi-nix/forge/commit/eb7da4bf3519b3846ac115be45a8cfbd9d76c62c))
 - *bang:* 0-unstable-2026-09-01 -> 0-unstable-2026-09-25 - ([8176f49](https://github.com/ngi-nix/forge/commit/8176f49c9ce817a58d1ebb85d04487e55c114dd3))
+- *bang:* 0-unstable-2026-09-25 -> 0-unstable-2026-10-01 - ([3322192](https://github.com/ngi-nix/forge/commit/33221926104c5e951a08afcb9d357d35b19f3924))
 - *mustang:* 0.9.37 -> 0.9.38 ([#975](https://github.com/ngi-nix/forge/issues/975)) - ([9829661](https://github.com/ngi-nix/forge/commit/98296611f71a16f2611b476b09a7d64c57184953))
 - *mustang:* 0.9.38 -> 0.9.39 ([#1002](https://github.com/ngi-nix/forge/issues/1002)) - ([6cd1cdb](https://github.com/ngi-nix/forge/commit/6cd1cdb84557d2d21faa11f4ebab3c2ab11e1ee5))
 - *ocaml-quic:* Init at 0-unstable-2026-03-16 - ([0a42697](https://github.com/ngi-nix/forge/commit/0a4269783ba242a6600e658f19a6986a36451797))
@@ -259,6 +270,8 @@ All notable changes to this project will be documented in this file.
 - *pkgs.esp-clang:* Init at 21.1.3_20260408 - ([d586800](https://github.com/ngi-nix/forge/commit/d586800e475fa8516cb43747aa2994909e041ce5))
 - *pkgs.esp-clang:* Fix isLinux - ([cd87d51](https://github.com/ngi-nix/forge/commit/cd87d5131d6876b322f64caaf3eb63cf1c2aeea4))
 - *pkgs.esp-openocd:* Init at 0.12.0_20260703 ([#1004](https://github.com/ngi-nix/forge/issues/1004)) - ([9e0b668](https://github.com/ngi-nix/forge/commit/9e0b6685706baec2f9a12577ad30515bf0ce5a6f))
+- *pkgs.esp_idf_monitor:* Init at 1.10.0 - ([68ba2b2](https://github.com/ngi-nix/forge/commit/68ba2b267f3a3b0816352a3591c0b43555e2cc02))
+- *pkgs.esptool:* Init at 5.3.1 - ([75f5dc3](https://github.com/ngi-nix/forge/commit/75f5dc3bf4928ecc0fa6aba9c2fc2fd78c799213))
 - *pkgs.labplot:* Init at 2.12.1 - ([5c08e62](https://github.com/ngi-nix/forge/commit/5c08e62886cf173edbf36af57a18014dd31ffbfc))
 - *pkgs.mustang:* Init - ([8d98848](https://github.com/ngi-nix/forge/commit/8d9884892778d588ca52f58abd8dbb3fe3ddd43b))
 - *pkgs.mwoffliner:* Init at 1.17.5 - ([6e01bfd](https://github.com/ngi-nix/forge/commit/6e01bfd54e58d9ed223a9fb600452a170cce7e99))
