@@ -30,10 +30,9 @@
         servicePorts = lib.concatMap (service: service.process.ports) (
           lib.attrValues app.services.components
         );
-        resourcePorts = lib.pipe app.services.resources [
-          (lib.mapAttrsToList (name: value: value.ports))
-          (lib.flatten)
-        ];
+        resourcePorts = lib.concatMap (resource: resource.ports) (
+          lib.attrValues app.services.result.enabledResources
+        );
       in
       map (
         portRange:

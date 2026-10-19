@@ -4,6 +4,11 @@
 }:
 {
   options = {
+    enable = lib.mkEnableOption "the resource" // {
+      default = true;
+      example = false;
+    };
+
     nixosConfig = lib.mkOption {
       type = lib.types.deferredModule;
       default = { };

@@ -85,5 +85,13 @@
           Resources and components must have unique names.
         '' self;
     };
+
+    result.enabledResources = lib.mkOption {
+      internal = true;
+      readOnly = true;
+      type = lib.types.raw;
+      default = lib.filterAttrs (_: resource: resource.enable) config.resources;
+      description = "Enabled resources, by name.";
+    };
   };
 }

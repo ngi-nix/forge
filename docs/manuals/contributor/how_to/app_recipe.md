@@ -335,6 +335,13 @@ services = {
 };
 ```
 
+Resources are enabled by default. A resource can be disabled, for example when
+the application should use an external database instead:
+
+```nix
+services.resources.database.enable = false;
+```
+
 ### Runtimes
 
 Forge supports two service runtimes. At least one runtime must be enabled to

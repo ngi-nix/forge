@@ -97,13 +97,15 @@ decodeAppProgramsRuntimesShell =
 
 
 type alias AppResource =
-    { appResource_ports : List String
+    { appResource_enable : Bool
+    , appResource_ports : List String
     }
 
 
 decodeAppResource : Decoder AppResource
 decodeAppResource =
-    Decode.map AppResource
+    Decode.map2 AppResource
+        (Decode.field "enable" Decode.bool)
         (Decode.field "ports" (Decode.list Decode.string))
 
 
@@ -129,7 +131,12 @@ decodeAppServices : Decoder AppServices
 decodeAppServices =
     Decode.map3 AppServices
         (Decode.field "components" (Decode.dict decodeAppComponent))
-        (Decode.field "resources" (Decode.dict decodeAppResource))
+        -- Keep only enabled resources
+        (Decode.field "resources"
+            (Decode.dict decodeAppResource
+                |> Decode.map (Dict.filter (\_ resource -> resource.appResource_enable))
+            )
+        )
         (Decode.field "runtimes" decodeAppServicesRuntimes)
 
 

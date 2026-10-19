@@ -6,6 +6,9 @@
   app,
   ...
 }@args:
+let
+  enabledResources = app.services.result.enabledResources;
+in
 {
   options = {
     enable = lib.mkEnableOption "NixOS runtime";
@@ -130,14 +133,14 @@
         environment.systemPackages = config.packages;
       };
       resources = {
-        imports = lib.mapAttrsToList (name: value: value.nixosConfig) app.services.resources;
+        imports = map (resource: resource.nixosConfig) (lib.attrValues enabledResources);
       };
       # Resolve component and resource names, as in the container network
       hosts = {
         networking.extraHosts =
           let
             componentNames = lib.attrNames app.services.components;
-            resourceNames = lib.attrNames app.services.resources;
+            resourceNames = lib.attrNames enabledResources;
           in
           lib.concatMapStringsSep "\n" (name: "127.0.0.1 ${name}") (componentNames ++ resourceNames);
       };
