@@ -284,7 +284,7 @@ showAppRuntime r =
             "Container"
 
         AppRuntime_NixOS ->
-            "NixOS"
+            "NixOS VM"
 
 
 showAppRuntimeDescription : AppRuntime -> String
