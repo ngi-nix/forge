@@ -74,10 +74,10 @@ in
             };
           };
         };
+      };
 
-        resources.database.nixosConfig = {
-          services.postgresql.enable = true;
-        };
+      resources.database.nixosConfig = {
+        services.postgresql.enable = true;
       };
 
       runtimes.container = {

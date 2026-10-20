@@ -306,10 +306,12 @@ services = {
 
 ### Additional resources
 
-Additional resources required by a service - such as a database or reverse proxy
+Additional resources required by services - such as a database or reverse proxy
 can be configured using the `resources` option.
 
-Resources can be shared between multiple components.
+Resources are shared by all service components. By default, a resource has
+the `backend` role and starts before the components. A resource with the
+`frontend` role, such as a reverse proxy, starts after the components.
 
 ```nix
 services = {
@@ -317,16 +319,27 @@ services = {
     ...
     process.command = pkgs.my-service;
     ...
+  };
 
-    resources.database.nixosConfig = {
-      services.postgresql.enable = true;
-    };
+  resources.database.nixosConfig = {
+    services.postgresql.enable = true;
+  };
 
-    resources.reverse-proxy.nixosConfig = {
+  resources.reverse-proxy = {
+    role = "frontend";
+    ports = [ "8080:8080" ];
+    nixosConfig = {
       services.nginx.enable = true;
     };
   };
 };
+```
+
+Resources are enabled by default. A resource can be disabled, for example when
+the application should use an external database instead:
+
+```nix
+services.resources.database.enable = false;
 ```
 
 ### Runtimes
