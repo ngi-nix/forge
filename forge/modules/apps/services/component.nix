@@ -100,10 +100,12 @@
               };
 
               stateDir = lib.mkOption {
-                type = lib.types.str;
+                type = lib.types.strMatching "^/var/lib/[^/].*$";
                 default = "/var/lib/${name}";
                 description = ''
                   Path to the service state directory.
+
+                  Must be located in `/var/lib/`.
                 '';
                 example = "/var/lib/myservice";
               };

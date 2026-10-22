@@ -48,7 +48,7 @@
           PassEnvironment = lib.attrNames service.process.environment;
           User = lib.mkDefault serviceName;
           Group = lib.mkDefault serviceName;
-          StateDirectory = serviceName;
+          StateDirectory = lib.removePrefix "/var/lib/" service.process.stateDir;
           WorkingDirectory = service.process.stateDir;
         }
         (lib.optionalAttrs (service.process.user == "prefer-dynamic") {
