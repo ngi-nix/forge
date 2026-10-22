@@ -3,6 +3,7 @@ module Main.Config.App exposing (..)
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
 import Main.Helpers.Json.Decode as Decode
+import Set
 
 
 type alias App =
@@ -283,7 +284,7 @@ showAppRuntime r =
             "Container"
 
         AppRuntime_NixOS ->
-            "NixOS"
+            "NixOS VM"
 
 
 showAppRuntimeDescription : AppRuntime -> String
@@ -367,6 +368,21 @@ getAppServicesPorts services =
                             |> List.concatMap (Tuple.second >> .appResource_ports)
                        )
             )
+
+
+{-| Ports which need to be open in the firewall of a machine running the services.
+
+Ports are in format HOST\_PORT:SERVICE\_PORT,
+services listen on SERVICE\_PORT on the deployed machine.
+
+-}
+getAppServicesFirewallPorts : AppServices -> List Int
+getAppServicesFirewallPorts services =
+    services
+        |> getAppServicesPorts
+        |> List.filterMap (String.split ":" >> List.drop 1 >> List.head >> Maybe.andThen String.toInt)
+        |> Set.fromList
+        |> Set.toList
 
 
 type alias Maintainer =
