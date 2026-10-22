@@ -50,12 +50,12 @@
       ];
     };
 
-    build.extraAttrs = {
-      preBuild = ''
+    build.phases = {
+      build.script.pre = ''
         cp -r ${pkgs.qlever-ui-frontend}/. ./backend/static/wasm/
       '';
 
-      postInstall = ''
+      install.script.post = ''
         makeWrapper ${pkgs.python3Packages.gunicorn}/bin/gunicorn \
           $out/bin/qlever-ui \
           --add-flags "qlever.wsgi:application" \
