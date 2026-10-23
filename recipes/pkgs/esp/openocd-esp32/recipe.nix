@@ -20,20 +20,36 @@
 
     build.standardBuilder = {
       enable = true;
-      packages.build = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.autoPatchelfHook ];
+      packages.build = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.patchelf ];
       packages.run = [
         pkgs.libusb1
         pkgs.libz
       ]
-      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.systemd ];
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.udev ];
     };
 
     build.extraAttrs = {
       dontBuild = true;
+      dontStrip = true;
+      dontPatchELF = true;
 
       installPhase = ''
         mkdir -p $out
         cp -a . $out/
+      '';
+
+      postFixup = lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''
+        patchelf \
+          --page-size 2097152 \
+          --set-interpreter "${pkgs.stdenv.cc.bintools.dynamicLinker}" \
+          --set-rpath "${
+            lib.makeLibraryPath [
+              pkgs.udev
+              pkgs.libusb1
+              pkgs.libz
+            ]
+          }" \
+          $out/bin/openocd
       '';
     };
 
