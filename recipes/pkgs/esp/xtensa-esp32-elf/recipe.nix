@@ -30,6 +30,12 @@
     build.extraAttrs = {
       dontBuild = true;
       dontStrip = true;
+      dontPatchELF = true;
+
+      patchelfFlags = [
+        "--page-size"
+        "2097152"
+      ];
 
       autoPatchelfIgnoreMissingDeps = [
         "libpython2.7.so.1.0"
