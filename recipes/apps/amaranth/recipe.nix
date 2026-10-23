@@ -7,6 +7,15 @@ let
   recipe = config.apps.amaranth;
 in
 {
+  pkgs.amaranth = {
+    build.identityBuilder = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.python3.pkgs.amaranth.overridePythonAttrs (old: {
+        pythonRelaxDeps = (old.pythonRelaxDeps or [ ]) ++ [ "pyvcd" ];
+      });
+    };
+  };
+
   apps.amaranth = {
     displayName = "Amaranth HDL";
     description = "Amaranth is a hardware definition langauge for synchronous digital logic embedded within Python.";
@@ -34,7 +43,7 @@ in
 
     programs = {
       packages = [
-        (pkgs.python3.withPackages (ps: [ ps.amaranth ]))
+        (pkgs.python3.withPackages (_: [ pkgs.amaranth ]))
       ];
       runtimes.shell.enable = true;
     };
@@ -42,7 +51,7 @@ in
     test.programs.script = ''
       python -c '
       import amaranth; 
-      assert(amaranth.__version__ == "${pkgs.python3Packages.amaranth.version}")
+      assert(amaranth.__version__ == "${pkgs.amaranth.version}")
       '
     '';
   };
