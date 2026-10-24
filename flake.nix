@@ -38,6 +38,14 @@
       url = "github:ngi-nix/nimi/ngi-patches";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # This file is empty by default. Use this input to override recipe
+    # configuration via CLI.
+    # E.g.: nix run --override-input overrides path:./my-overrides.nix -- .#apps.mox.<app-name>
+    overrides = {
+      url = "path:./overrides.nix";
+      flake = false;
+    };
   };
 
   outputs =
@@ -81,6 +89,8 @@
             perSystem =
               { system, ... }:
               {
+                imports = [ (import inputs.overrides) ];
+
                 forge = {
                   # Expose all `apps` and `pkgs` entries in `packages`,
                   # it's not done by `flakeModules.default`
