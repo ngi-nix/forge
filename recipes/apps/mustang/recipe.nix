@@ -12,9 +12,12 @@
     screenshotSources.urls = [
       {
         url = "https://www.mustang.im/assets/images/screenshots/mail.png";
-        caption = "E-Mail";
+        caption = "Mail";
       }
-      "https://www.mustang.im/assets/images/screenshots/fileShare.png"
+      {
+        url = "https://www.mustang.im/assets/images/screenshots/fileShare.png";
+        caption = "File sharing";
+      }
     ];
     usage = ''
       Mustang is a full desktop client combining email, chat,

@@ -5,29 +5,24 @@
 {
   apps.signaturepdf.screenshots = lib.mkDefault [
     {
-      url = "https://github.com/24eme/signaturepdf/assets/71143205/c3e8b8d2-3f94-45a3-a8fd-143077443337";
-      hash = "sha256-zS/xj8B/qhD+SDlX/XKfmWrNuhi9oUXkqvk+3vCq0nY=";
-      caption = "Signature feature";
-    }
-    {
       url = "https://github.com/24eme/signaturepdf/assets/71143205/4deeb6fb-caa9-4365-895e-d22177a6ec3b";
       hash = "sha256-YJQoCmgd833SnODDY38ChfqByRlbZwh2VQOWi5kkpWk=";
-      caption = "Signature feature";
-    }
-    {
-      url = "https://github.com/24eme/signaturepdf/assets/71143205/800c45a4-4c4c-42d5-b09b-c81cfcc0e6e0";
-      hash = "sha256-+hG/M10Jdsphzd54hMHKUmfqW+lLJNGNL7r9ggebblQ=";
-      caption = "Organizing feature";
+      caption = "Add a signature, initials, a stamp, text or check boxes to a PDF";
     }
     {
       url = "https://github.com/24eme/signaturepdf/assets/71143205/a008d765-3a74-4ab4-b2bc-4af6c81575fe";
       hash = "sha256-BQLgiBEKvgi/FtJCznEhCwV0hieSmUNGzNvSnBxyoRI=";
-      caption = "Organizing feature";
+      caption = "Merge, sort, rotate, delete and extract pages";
     }
     {
       url = "https://github.com/24eme/signaturepdf/assets/71143205/1f195bae-4af3-4d7b-9e31-3acd7552c2eb";
       hash = "sha256-tX8uOnTVl2TR2B5Y/MUil5YzQBOuiltMrXdR5yGq9aY=";
-      caption = "Metadata feature";
+      caption = "Edit the metadata of a PDF";
+    }
+    {
+      url = "https://github.com/24eme/signaturepdf/assets/71143205/7d0e93a3-5567-4545-9c43-033b9028b036";
+      hash = "sha256-u8z3II7dqlODkyUkLaaUavxZCJIdgA3N66m/nsJ3IL8=";
+      caption = "Compress a PDF to reduce its file size";
     }
   ];
 }
