@@ -84,6 +84,7 @@ in
       packages = [ pkgs.typst ];
       runtimes.program.enable = true;
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     test.programs = {

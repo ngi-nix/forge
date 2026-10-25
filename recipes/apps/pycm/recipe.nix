@@ -66,6 +66,7 @@
         ]))
       ];
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     test.programs.script = ''
