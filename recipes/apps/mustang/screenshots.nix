@@ -7,11 +7,12 @@
     {
       url = "https://www.mustang.im/assets/images/screenshots/mail.png";
       hash = "sha256-KEPvrNRruBHSAsULi6/RK4EdeBhePkuJTKVkv6rRUis=";
-      caption = "E-Mail";
+      caption = "Mail";
     }
     {
       url = "https://www.mustang.im/assets/images/screenshots/fileShare.png";
       hash = "sha256-TmJJRSq636C1WlFxkC3We8m6+7QWodyvUVD2UYQYUiQ=";
+      caption = "File sharing";
     }
   ];
 }

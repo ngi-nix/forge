@@ -12,10 +12,12 @@
     {
       url = "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_list.png";
       hash = "sha256-AzARd1MxkAiARdlJ05o7t3NhL1oxXDmCXKRQEuQ3MoQ=";
+      caption = "A list of bookmarks with its backlinks";
     }
     {
       url = "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_bookmark.png";
       hash = "sha256-R9IFOHCDJavlcswllVMudhg8R3XdnoIkdRIy+s7MeO4=";
+      caption = "An archived bookmark with its backlinks";
     }
   ];
 }

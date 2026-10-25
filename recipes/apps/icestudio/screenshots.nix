@@ -7,22 +7,32 @@
     {
       url = "https://raw.githubusercontent.com/FPGAwars/icestudio-wiki/main/Readme/screenshot-01-icek-Alhambra-II.png";
       hash = "sha256-eYFg/K6dQ+N/8J04INRNVOLSkPiSMfbQWO2pbMzgGkU=";
-      caption = "Alhambra II board";
+      caption = "Hello world example for the Alhambra II board";
     }
     {
       url = "https://raw.githubusercontent.com/FPGAwars/icestudio-wiki/main/Readme/screenshot-02-icek-icebreaker.png";
       hash = "sha256-JBR8les9IBNsWZWIgq+MVYJcwEIe5Iqwue9leiiB06E=";
-      caption = "iceBreaker board";
+      caption = "Hello world example for the iceBreaker board";
     }
     {
       url = "https://raw.githubusercontent.com/FPGAwars/icestudio-wiki/main/Readme/screenshot-03-icemem.png";
       hash = "sha256-kOto5n6V0eI72FwIiLz7oxC1AQaQWwYr2Mvwhw+19dI=";
-      caption = "IceMem collection: example 23";
+      caption = "Example from the IceMem collection";
+    }
+    {
+      url = "https://raw.githubusercontent.com/FPGAwars/icestudio-wiki/main/Readme/screenshot-03-1-spi-display-7seg.png";
+      hash = "sha256-4igPJclA4GHYpHoD/E1FioXlJGLKZYgIGxDMwAQs1PI=";
+      caption = "SPI controller for a 4-digit 7-segment display";
     }
     {
       url = "https://raw.githubusercontent.com/FPGAwars/icestudio-wiki/main/Readme/screenshot-04-RISC-V.png";
       hash = "sha256-pI5Kbs3pLeocNjsQhXZt1LWQx6qNxck50tHdNlG7tjI=";
       caption = "RISC-V CPU";
+    }
+    {
+      url = "https://raw.githubusercontent.com/FPGAwars/icestudio-wiki/main/Readme/screenshot-05-Z80.png";
+      hash = "sha256-/j7fBrvs1SVZNSO1SA5np1YM9hZKZ98KHwXbHIIgWAs=";
+      caption = "Z80 CPU";
     }
   ];
 }
