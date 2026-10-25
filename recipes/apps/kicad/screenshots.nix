@@ -6,7 +6,7 @@
   apps.kicad.screenshots = lib.mkDefault [
     {
       url = "https://www.kicad.org/img/screenshots/appstream/eeschema_9.png";
-      hash = "sha256-2Nuoa0hLzsvnUWm7lbvnhJZz2l5Z4vH2rVkcxr987gs=";
+      hash = "sha256-TAMmr0kYg1J/fHdhLYtt+V65hNuEaCJIPFhH04eGBJc=";
       caption = "KiCad Schematic Editor";
     }
     {
