@@ -16,16 +16,6 @@
     displayName = "mitmproxy";
     description = "Interactive TLS-capable intercepting HTTP proxy.";
     categories = with forge-lib.categories; [ Network ];
-    screenshotSources.urls = [
-      {
-        url = "https://raw.githubusercontent.com/mitmproxy/mitmproxy/main/docs/src/static/screenshots/mitmproxy.png";
-        caption = "Console interface of mitmproxy";
-      }
-      {
-        url = "https://raw.githubusercontent.com/mitmproxy/mitmproxy/main/docs/src/static/screenshots/mitmweb.png";
-        caption = "Web interface of mitmweb";
-      }
-    ];
     usage = ''
       mitmproxy is a free and open source interactive HTTPS proxy for intercepting,
       inspecting, modifying and replaying HTTP and HTTPS traffic.
