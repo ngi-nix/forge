@@ -30,6 +30,13 @@ in
     displayName = "Goupile";
     description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";
     categories = with forge-lib.categories; [ Uncategorised ];
+    screenshotSources.urls = [
+      "https://raw.githubusercontent.com/Koromix/rygel/master/web/goupile.org/en/static/screenshots/editor.webp"
+      "https://raw.githubusercontent.com/Koromix/rygel/master/web/goupile.org/en/static/screenshots/data.webp"
+      "https://raw.githubusercontent.com/Koromix/rygel/master/web/goupile.org/en/static/screenshots/overview.webp"
+      "https://raw.githubusercontent.com/Koromix/rygel/master/web/goupile.org/en/static/screenshots/tablet.webp"
+      "https://raw.githubusercontent.com/Koromix/rygel/master/web/goupile.org/en/static/screenshots/admin.webp"
+    ];
     usage = ''
       Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
