@@ -15,7 +15,10 @@ them to a `screenshots.nix` file next to the recipe. Sources, in order:
 4. Flathub, for the `screenshotSources.appstreamIds` option of the application,
    for the component IDs in the metainfo files, and for the desktop file IDs
    in reverse-DNS format.
-5. The `screenshotSources.urls` option of the application.
+5. Flathub, for the components found by a search for the name of the
+   application, if the homepage or the source repository of the component is
+   the same as a link of the application or of its packages.
+6. The `screenshotSources.urls` option of the application.
 
 If a source gives no image that can be fetched, the next source is used.
 If a source before `screenshotSources.urls` gives screenshots, the command
@@ -34,12 +37,18 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
+from functools import cache
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
 SUBSTITUTERS = ["https://cache.nixos.org", "https://ngi-forge.cachix.org"]
 FLATHUB_API = "https://flathub.org/api/v2/appstream/"
+FLATHUB_SEARCH = "https://flathub.org/api/v2/search"
+# Search results to compare with the links of an application.
+SEARCH_HITS = 5
+# Flathub URLs that identify an application.
+FLATHUB_LINKS = {"homepage": "homepage", "vcs_browser": "source repository"}
 METAINFO_DIRS = ["share/metainfo", "share/appdata"]
 # Wrappers often link these directories, or the files in them, from the
 # wrapped package.
@@ -342,23 +351,50 @@ def parse_metainfo(data: bytes) -> tuple[str, list[Screenshot]]:
     return component_id, screenshots
 
 
-def flathub_screenshots(component_id: str) -> list[Screenshot]:
+def flathub_get(request: urllib.request.Request, name: str) -> dict | None:
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            warn(f"Flathub {name}: {e}")
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+        warn(f"Flathub {name}: {e}")
+    return None
+
+
+@cache
+def flathub_component(component_id: str) -> dict:
     request = urllib.request.Request(
         FLATHUB_API + urllib.parse.quote(component_id),
         headers={"User-Agent": USER_AGENT},
     )
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            data = json.load(response)
-    except urllib.error.HTTPError as e:
-        if e.code != 404:
-            warn(f"Flathub `{component_id}`: {e}")
-        return []
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
-        warn(f"Flathub `{component_id}`: {e}")
-        return []
+    return flathub_get(request, f"`{component_id}`") or {}
+
+
+def flathub_search(query: str) -> list[str]:
+    """Return the IDs of the first Flathub components found for `query`."""
+    request = urllib.request.Request(
+        FLATHUB_SEARCH,
+        data=json.dumps({"query": query}).encode(),
+        headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"},
+    )
+    hits = (flathub_get(request, f"search `{query}`") or {}).get("hits") or []
+    return [hit["app_id"] for hit in hits[:SEARCH_HITS] if hit.get("app_id")]
+
+
+def normalize_url(url: str) -> str:
+    """Remove the parts of `url` that do not identify a web page."""
+    parts = urllib.parse.urlsplit(url.strip().lower())
+    return parts.netloc.removeprefix("www.") + parts.path.rstrip("/").removesuffix(
+        ".git"
+    )
+
+
+def flathub_screenshots(component_id: str) -> list[Screenshot]:
+    data = flathub_component(component_id)
     screenshots = []
-    for element in (data or {}).get("screenshots") or []:
+    for element in data.get("screenshots") or []:
         sizes = sorted(element.get("sizes") or [], key=lambda s: int(s.get("width", 0)))
         if not sizes:
             continue
@@ -416,7 +452,9 @@ def parse(data: bytes, name: str, root: str) -> tuple[str, list[Screenshot]]:
 HINTS = "`screenshotSources.urls`"
 
 
-def candidates(app: dict, store: Store) -> Iterator[tuple[str, list[Screenshot]]]:
+def candidates(
+    name: str, app: dict, store: Store
+) -> Iterator[tuple[str, list[Screenshot]]]:
     sources = app["screenshotSources"]
     component_ids = list(sources["appstreamIds"])
     desktop_component_ids = []
@@ -469,6 +507,25 @@ def candidates(app: dict, store: Store) -> Iterator[tuple[str, list[Screenshot]]
     component_ids += [i for i in desktop_component_ids if i not in component_ids]
     for component_id in dict.fromkeys(component_ids):
         yield f"Flathub `{component_id}`", flathub_screenshots(component_id)
+    # Find other components with the same homepage or source repository as the application.
+    links = {normalize_url(url) for url in app["links"] + app["repos"]}
+    tried = set(component_ids)
+    for query in dict.fromkeys([app["displayName"], name]):
+        for component_id in flathub_search(query):
+            if component_id in tried:
+                continue
+            tried.add(component_id)
+            urls = flathub_component(component_id).get("urls") or {}
+            same = [
+                label
+                for key, label in FLATHUB_LINKS.items()
+                if urls.get(key) and normalize_url(urls[key]) in links
+            ]
+            if same:
+                yield (
+                    f"Flathub `{component_id}`, with the same {' and '.join(same)}",
+                    flathub_screenshots(component_id),
+                )
     yield HINTS, [
         Screenshot(url=item["url"], caption=item["caption"]) for item in sources["urls"]
     ]
@@ -539,7 +596,7 @@ def same_metainfo(old: str, source: str) -> bool:
 def update(
     name: str, app: dict, store: Store, root: Path, args: argparse.Namespace
 ) -> str:
-    for source, screenshots in candidates(app, store):
+    for source, screenshots in candidates(name, app, store):
         locked = lock(screenshots, args.max)
         if not locked:
             continue
