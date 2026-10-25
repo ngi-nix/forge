@@ -25,6 +25,29 @@ test.describe("App Details Page", () => {
     await expect(recipeLink).toHaveAttribute("href", new RegExp(`blob/.*/recipes/apps/${TEST_APP_NAME}/recipe.nix`));
   });
 
+  test("shows screenshots with captions and links to the full images", async ({ page }) => {
+    // mock-test in mock data has two screenshots
+    const screenshots = page.getByTestId("app-screenshots");
+    await expect(screenshots).toBeVisible();
+    await expect(screenshots.locator("figcaption")).toHaveText(["Mock screenshot.", "Second mock screenshot."]);
+    const path = `resources/apps/${TEST_APP_NAME}/screenshots`;
+    for (const index of [0, 1]) {
+      await expect(screenshots.locator("a").nth(index)).toHaveAttribute("href", `${path}/${index}.webp`);
+      await expect(screenshots.locator("img").nth(index)).toHaveAttribute("src", `${path}/${index}-thumb.webp`);
+    }
+    await expect(screenshots.locator("img").first()).toHaveAttribute("alt", "Mock screenshot.");
+  });
+
+  test("shows buttons that scroll the screenshots", async ({ page }) => {
+    const rowId = await page.getByTestId("app-screenshots").getAttribute("id");
+    for (const name of ["Show the previous screenshots", "Show the next screenshots"]) {
+      const button = page.getByRole("button", { name });
+      await expect(button).toBeVisible();
+      await expect(button).toHaveAttribute("aria-controls", rowId!);
+      await button.click();
+    }
+  });
+
   test("shows NGI grants section if available", async ({ page }) => {
     // mock-test in mock data has grants
     const grants = page.locator("#grants");

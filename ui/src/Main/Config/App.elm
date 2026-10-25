@@ -23,6 +23,7 @@ type alias App =
     , app_categories : List String
     , app_broken : Bool
     , app_unfree : Bool
+    , app_screenshots : List AppScreenshot
     }
 
 
@@ -45,6 +46,18 @@ decodeApp =
         |> Decode.andMap (Decode.field "categories" (Decode.list Decode.string))
         |> Decode.andMap (Decode.field "broken" Decode.bool)
         |> Decode.andMap (Decode.field "unfree" Decode.bool)
+        |> Decode.andMap (Decode.field "screenshots" (Decode.list decodeAppScreenshot))
+
+
+type alias AppScreenshot =
+    { appScreenshot_caption : String
+    }
+
+
+decodeAppScreenshot : Decoder AppScreenshot
+decodeAppScreenshot =
+    Decode.map AppScreenshot
+        (Decode.field "caption" Decode.string)
 
 
 type alias AppName =

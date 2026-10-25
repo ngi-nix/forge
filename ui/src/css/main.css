@@ -274,6 +274,26 @@ highlightjs-code pre {
   }
 }
 
+/* The scroll buttons move the row a step at a time, thus the step is shown as movement when the reader accepts motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .screenshots {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Screenshot thumbnails are 752 pixels wide or less. */
+.screenshots .screenshot {
+  max-width: min(376px, 85%);
+}
+
+.screenshots img {
+  display: block;
+  height: 240px;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
 /* Hide the annoying border around search bar that bootstrap adds */
 .form-control:focus {
   box-shadow: none !important;
