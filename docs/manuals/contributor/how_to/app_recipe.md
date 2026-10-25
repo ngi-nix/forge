@@ -124,7 +124,7 @@ Add a `programs` block if the application provides GUI or CLI programs.
 
 ### Runtimes
 
-Forge supports two program runtimes.
+Forge supports three program runtimes.
 
 #### "program" runtime
 
@@ -165,6 +165,51 @@ Enter the _shell_ runtime environment and run a program:
 nix shell .#apps.<app-name>
 
 program-cli
+```
+
+#### "browser" runtime
+
+The _browser_ runtime lets users try CLI programs in the web browser,
+without Nix.
+
+The web page links to [trynix.dev](https://trynix.dev), which starts an x86_64
+Linux virtual machine in the web browser with the `packages` from the Forge
+binary cache.
+The virtual machine has no display and no network.
+
+If a WASI build of the program is available, the web page also runs it natively
+with the example arguments and standard input.
+The user can change them before running the program.
+
+Enable the browser runtime only for CLI programs.
+Do not enable it for GUI programs or for daemons.
+
+```nix
+programs = {
+  runtimes.shell.enable = true;
+  packages = [
+    pkgs.package-cli
+  ];
+  runtimes.browser = {
+    enable = true;
+    # Optional. Must contain `bin/<meta.mainProgram>.wasm`.
+    # In `pkgs.pkgsCross.wasi32`, the Forge packages are not cross-compiled,
+    # so use the Nixpkgs packages from `pkgsOriginal`.
+    wasmPackage = pkgs.pkgsCross.wasi32.pkgsOriginal.package-cli;
+    args = "--flag 'some value'";
+    stdin = "input text";
+  };
+};
+```
+
+The browser splits `args` as POSIX shell words (like Python `shlex.split`).
+It does not expand variables, globs or `~`.
+
+Build the WASI program and run it with the example arguments and standard input:
+
+```bash
+nix build .#apps.<app-name>.browser
+nix build .#apps.<app-name>.test-browser
 ```
 
 ## Services

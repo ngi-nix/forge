@@ -6,6 +6,7 @@
 4. Follow the instructions to launch the application using your preferred runtime:
    - **Program** — launch a single CLI or GUI program
    - **Shell** — enter a shell environment with CLI or GUI programs
+   - **Browser** — run a CLI program in the web page, without installation
    - **Container** — run application services in OCI containers
    - **NixOS VM** — run application services in a NixOS virtual machine
 

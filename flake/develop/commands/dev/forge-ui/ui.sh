@@ -84,6 +84,7 @@ Type=simple
 Slice=$slice.slice
 WorkingDirectory=$rootDir/ui
 Environment=PATH=$PATH
+Environment=NODE_PATH=$rootDir/ui/build/node_modules
 ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --bundle \\
   --loader:.html=copy \\
