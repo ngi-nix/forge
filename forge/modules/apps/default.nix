@@ -61,6 +61,8 @@
           hasServicesTest = isRunnable test.services;
           hasProgramsTest = isRunnable test.programs;
 
+          browserRuntime = app.programs.runtimes.browser;
+
           tests = lib.mergeAttrsList [
             (lib.optionalAttrs (hasServicesTest && runtimes.container.enable) {
               test-services-container = test.services.result.containerBuild;
@@ -72,6 +74,34 @@
               test-programs = test.programs.derivation {
                 inherit pkgs finalApp;
                 inherit (app.programs) mainPackage;
+              };
+            })
+            (lib.optionalAttrs (browserRuntime.enable && browserRuntime.wasmPackage != null) {
+              # Run the example that the browser shows.
+              test-browser = pkgs.testers.runCommand {
+                name = "${app.name}-test-browser";
+                nativeBuildInputs = [
+                  pkgs.python3
+                  pkgs.wasmtime
+                ];
+                # `args` is an attribute of `derivation`.
+                exampleArgs = browserRuntime.args;
+                exampleStdin = browserRuntime.stdin;
+                passAsFile = [ "exampleStdin" ];
+                # `shlex.split` splits the arguments as the browser does.
+                script = ''
+                  # Wasmtime writes its cache to `$HOME`.
+                  export HOME=$TMPDIR
+                  python3 -c '
+                  import shlex, subprocess, sys
+                  args = ["wasmtime", "run", sys.argv[1]] + shlex.split(sys.argv[2])
+                  sys.exit(subprocess.run(args).returncode)
+                  ' \
+                    ${browserRuntime.wasmPackage}/bin/${browserRuntime.wasmProgram}.wasm \
+                    "$exampleArgs" \
+                    < "$exampleStdinPath"
+                  touch $out
+                '';
               };
             })
           ];
@@ -96,6 +126,9 @@
             modules = app.services.runtimes.nixos.result.modules;
             vm = app.services.runtimes.nixos.result.build;
           };
+        }
+        // lib.optionalAttrs (browserRuntime.enable && browserRuntime.wasmPackage != null) {
+          browser = browserRuntime.wasmPackage;
         }
         // lib.optionalAttrs app.programs.runtimes.program.enable {
           # The `programs.mainPackage` checks are app assertions (see `app.nix`),
@@ -143,6 +176,12 @@
             "apps.${appName}.program" = bundled.program;
           }
           // lib.optionalAttrs app.services.runtimes.nixos.enable { "apps.${appName}.vm" = bundled.vm; }
+          //
+            lib.optionalAttrs
+              (app.programs.runtimes.browser.enable && app.programs.runtimes.browser.wasmPackage != null)
+              {
+                "apps.${appName}.browser" = bundled.browser;
+              }
         ) enabledApps;
     };
 }

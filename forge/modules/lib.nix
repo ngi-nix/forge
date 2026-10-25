@@ -122,6 +122,12 @@
       version = drv.version or "";
       broken = isBroken drv;
       unfree = isUnfree drv;
+      # The `outPath` of a broken, unfree or insecure derivation does not evaluate.
+      outPath =
+        let
+          result = builtins.tryEval drv.outPath;
+        in
+        if result.success then lib.unsafeDiscardStringContext result.value else null;
     };
 
     # Recursively remove Nix context used to track dependencies.

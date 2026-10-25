@@ -61,6 +61,7 @@ init flags =
                     |> Url.fromString
                     |> Maybe.map (\url -> List.member url.host [ "localhost", "127.0.0.1" ])
                     |> Maybe.withDefault False
+            , model_browserRun = emptyBrowserRun
             }
     in
     case flags.href |> Url.fromString of
