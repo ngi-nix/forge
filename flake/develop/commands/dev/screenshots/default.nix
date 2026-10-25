@@ -1,4 +1,5 @@
 {
+  lib,
   writeShellApplication,
   gitMinimal,
   nix,
@@ -13,8 +14,19 @@ writeShellApplication {
     nixfmt
     python3
   ];
-  text = ''
-    exec python3 ${./forge_screenshots.py} "$@"
-  '';
-  meta.description = "update application screenshots from AppStream metainfo and Flathub";
+  text =
+    let
+      # The script reads `eval.nix` from its directory.
+      src = lib.fileset.toSource {
+        root = ./.;
+        fileset = lib.fileset.unions [
+          ./eval.nix
+          ./forge_screenshots.py
+        ];
+      };
+    in
+    ''
+      exec python3 ${src}/forge_screenshots.py "$@"
+    '';
+  meta.description = "update application screenshots from AppStream metainfo, Flathub and URLs";
 }

@@ -3,19 +3,23 @@
 For each application, find screenshot URLs, lock them with a hash, and write
 them to a `screenshots.nix` file next to the recipe. Sources, in order:
 
-1. The `screenshotSources.urls` option of the application.
-2. AppStream metainfo files in the application packages. The packages are
+1. AppStream metainfo files in the application packages. The packages are
    read from the local store or from a binary cache, without a build. If a
    package links desktop files or icons from other store paths (for example,
    a wrapper of an unwrapped package), the metainfo files of these store paths
    are also used.
-3. AppStream metainfo files in the sources of the application packages. The
+2. AppStream metainfo files in the sources of the application packages. The
    sources are read from the local store or from a binary cache, or fetched.
+3. AppStream metainfo files in the default branch of the Git repositories of
+   these sources, for metainfo files that are not in a release yet.
 4. Flathub, for the `screenshotSources.appstreamIds` option of the application,
    for the component IDs in the metainfo files, and for the desktop file IDs
    in reverse-DNS format.
+5. The `screenshotSources.urls` option of the application.
 
 If a source gives no image that can be fetched, the next source is used.
+If a source before `screenshotSources.urls` gives screenshots, the command
+tells you to remove `screenshotSources.urls`.
 """
 
 import argparse
@@ -24,6 +28,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -48,37 +53,8 @@ XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
 FULL_WIDTH = 1600
 USER_AGENT = "forge-screenshots (https://github.com/ngi-nix/forge)"
 
-EVAL_EXPR = """
-apps:
-let
-  isApp = name: builtins.isAttrs apps.${name} && apps.${name} ? config;
-  names = builtins.filter isApp (builtins.attrNames apps);
-  # Only fixed-output sources, so that `forge-screenshots` downloads and does not build.
-  isSource = src: builtins.isAttrs src && src ? drvPath && src ? outputHash;
-  info =
-    config:
-    let
-      packages = config.packages.programs ++ config.packages.services;
-    in
-    {
-      inherit (config) recipePath screenshotSources;
-      packages = map (drv: drv.outPath) packages;
-      # `toJSON` writes an attribute set with `outPath` as a string, so use other names.
-      sources = map (drv: {
-        path = drv.src.outPath;
-        drv = drv.src.drvPath;
-      }) (
-        builtins.filter (drv: isSource (drv.src or null)) packages
-      );
-    };
-in
-builtins.listToAttrs (
-  map (name: {
-    inherit name;
-    value = info apps.${name}.config;
-  }) names
-)
-"""
+# Applied to the `apps` output of the flake.
+EVAL_FILE = Path(__file__).with_name("eval.nix")
 
 
 @dataclass
@@ -91,6 +67,10 @@ class Screenshot:
 
 def warn(message: str) -> None:
     print(f"warning: {message}", file=sys.stderr)
+
+
+def notice(message: str) -> None:
+    print(f"notice: {message}", file=sys.stderr)
 
 
 def nix(*args: str) -> subprocess.CompletedProcess[bytes]:
@@ -297,6 +277,45 @@ def source_metainfo_files(store: Store, source: dict) -> Iterator[tuple[str, byt
                 yield str(path.relative_to(source["path"])), data
 
 
+def git(*args: str) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        ["git", *args],
+        capture_output=True,
+        env={**os.environ, "GIT_TERMINAL_PROMPT": "0"},
+        timeout=300,
+    )
+
+
+def upstream_metainfo_files(repo: str) -> Iterator[tuple[str, bytes]]:
+    """Read the metainfo files in the default branch of the Git repository `repo`."""
+    with tempfile.TemporaryDirectory(prefix="forge-screenshots-") as directory:
+        # Get the file tree only. `git show` gets the contents of the metainfo files.
+        clone = git(
+            "clone",
+            "--quiet",
+            "--depth=1",
+            "--filter=blob:none",
+            "--no-checkout",
+            repo,
+            directory,
+        )
+        if clone.returncode != 0:
+            warn(f"cannot clone {repo}: {clone.stderr.decode().strip()}")
+            return
+        tree = git("-C", directory, "ls-tree", "-r", "-z", "--name-only", "HEAD")
+        for name in tree.stdout.decode().split("\0"):
+            path = PurePosixPath(name)
+            if not path.name.endswith(METAINFO_SUFFIXES) or any(
+                skipped(part) for part in path.parent.parts
+            ):
+                continue
+            show = git("-C", directory, "show", f"HEAD:{name}")
+            if show.returncode == 0:
+                yield name, show.stdout
+            else:
+                warn(f"cannot read `{name}` in {repo}: {show.stderr.decode().strip()}")
+
+
 def text(element: ET.Element | None) -> str:
     return " ".join("".join(element.itertext()).split()) if element is not None else ""
 
@@ -394,14 +413,11 @@ def parse(data: bytes, name: str, root: str) -> tuple[str, list[Screenshot]]:
         return "", []
 
 
+HINTS = "`screenshotSources.urls`"
+
+
 def candidates(app: dict, store: Store) -> Iterator[tuple[str, list[Screenshot]]]:
     sources = app["screenshotSources"]
-    if sources["urls"]:
-        yield "`screenshotSources.urls`", [
-            Screenshot(url=item["url"], caption=item["caption"])
-            for item in sources["urls"]
-        ]
-        return
     component_ids = list(sources["appstreamIds"])
     desktop_component_ids = []
     roots: list[str] = []
@@ -434,12 +450,28 @@ def candidates(app: dict, store: Store) -> Iterator[tuple[str, list[Screenshot]]
                 if component_id and component_id not in component_ids:
                     component_ids.append(component_id)
                 if screenshots:
+                    found = True
                     yield f"AppStream metainfo `{name}` in the package source", screenshots
+    # Use the default branch only if the released sources have no metainfo with screenshots.
+    if not found:
+        for repo in dict.fromkeys(app["repos"]):
+            for name, data in upstream_metainfo_files(repo):
+                component_id, screenshots = parse(data, f"`{name}`", repo)
+                if component_id and component_id not in component_ids:
+                    component_ids.append(component_id)
+                if screenshots:
+                    yield (
+                        f"AppStream metainfo `{name}` in the default branch of {repo}",
+                        screenshots,
+                    )
     # Metainfo IDs often have a `.desktop` suffix that Flathub does not use.
     component_ids = [i.removesuffix(".desktop") for i in component_ids]
     component_ids += [i for i in desktop_component_ids if i not in component_ids]
     for component_id in dict.fromkeys(component_ids):
         yield f"Flathub `{component_id}`", flathub_screenshots(component_id)
+    yield HINTS, [
+        Screenshot(url=item["url"], caption=item["caption"]) for item in sources["urls"]
+    ]
 
 
 def lock(screenshots: list[Screenshot], maximum: int) -> list[Screenshot]:
@@ -487,6 +519,23 @@ def render(name: str, source: str, screenshots: list[Screenshot]) -> str:
     return "\n".join(lines)
 
 
+SOURCE_LINE = re.compile(r"^# Source: .*\n", re.M)
+METAINFO_NAME = re.compile(r"AppStream metainfo `(?:[^`]*/)?([^`/]+)`")
+
+
+def same_metainfo(old: str, source: str) -> bool:
+    """Whether `old` has the same screenshots from the same metainfo file name.
+
+    The package, its source and the default branch of its repository often have
+    the same metainfo file. If the package is not available, the source changes,
+    but the screenshots do not change. Thus, do not change the file.
+    """
+    line = SOURCE_LINE.search(old)
+    old_name = line and METAINFO_NAME.search(line.group())
+    new_name = METAINFO_NAME.search(source)
+    return bool(old_name and new_name and old_name[1] == new_name[1])
+
+
 def update(
     name: str, app: dict, store: Store, root: Path, args: argparse.Namespace
 ) -> str:
@@ -494,10 +543,20 @@ def update(
         locked = lock(screenshots, args.max)
         if not locked:
             continue
+        if source != HINTS and app["screenshotSources"]["urls"]:
+            notice(
+                f"`apps.{name}.screenshotSources.urls` is not used,"
+                f" because {source} has screenshots. Remove it."
+            )
         target = root / Path(app["recipePath"]).parent / "screenshots.nix"
         content = render(name, source, locked)
-        if target.exists() and target.read_text() == content:
-            return f"unchanged ({source})"
+        if target.exists():
+            existing = target.read_text()
+            if existing == content or (
+                SOURCE_LINE.sub("", existing) == SOURCE_LINE.sub("", content)
+                and same_metainfo(existing, source)
+            ):
+                return f"unchanged ({source})"
         if args.dry_run:
             return f"would update ({source})"
         target.write_text(content)
@@ -529,7 +588,9 @@ def main() -> None:
             check=True,
         ).stdout.strip()
     )
-    result = nix("eval", "--json", f"{args.flake}#apps", "--apply", EVAL_EXPR)
+    result = nix(
+        "eval", "--json", f"{args.flake}#apps", "--apply", EVAL_FILE.read_text()
+    )
     if result.returncode != 0:
         sys.exit(result.stderr.decode())
     apps: dict[str, dict] = json.loads(result.stdout)
