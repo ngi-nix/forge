@@ -1,8 +1,8 @@
 module Main.View.Page.App exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h5, h6, hr, img, li, p, small, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target, title)
+import Html exposing (Html, a, button, div, figcaption, figure, h2, h4, h5, h6, hr, img, li, p, small, span, text, ul)
+import Html.Attributes exposing (alt, attribute, class, href, id, rel, src, style, tabindex, target, title, type_)
 import Html.Events exposing (custom, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -223,8 +223,87 @@ viewPageAppDescription model pageApp =
                     |> Markdown.render
                 ]
             ]
+        , viewPageAppScreenshots pageApp
         , viewPageAppUsage model pageApp
         ]
+
+
+viewPageAppScreenshots : PageApp -> Html Update
+viewPageAppScreenshots pageApp =
+    let
+        name =
+            pageApp.pageApp_route.routeApp_name
+
+        screenshots =
+            pageApp.pageApp_app.app_screenshots
+
+        rowId =
+            "screenshots-row"
+
+        -- The row scrolls, thus it gets a button at each end:
+        -- dragging the row or moving along it with the tab key
+        -- is not visible at first look.
+        scrollButton direction label icon =
+            button
+                [ type_ "button"
+                , class "btn btn-outline-secondary btn-sm screenshots-scroll flex-shrink-0"
+                , title label
+                , attribute "aria-label" label
+                , attribute "aria-controls" rowId
+                , onClick (Update_ScrollRow rowId direction)
+                ]
+                [ icon ]
+
+        scrollButtons direction label icon =
+            if List.length screenshots > 1 then
+                [ scrollButton direction label icon ]
+
+            else
+                []
+    in
+    if List.isEmpty screenshots then
+        text ""
+
+    else
+        div [ id "screenshots", class "mt-4" ]
+            [ hr [] []
+            , h4 [ class "mb-3" ] [ text "Screenshots" ]
+            , div [ class "d-flex align-items-center gap-2" ]
+                (scrollButtons -1 "Show the previous screenshots" iconChevronLeft
+                    ++ div
+                        [ id rowId
+                        , class "screenshots d-flex gap-3 overflow-auto pb-2"
+                        , attribute "data-testid" "app-screenshots"
+                        ]
+                        (List.indexedMap
+                            (\index screenshot ->
+                                figure [ class "screenshot flex-shrink-0 mb-0" ]
+                                    [ a
+                                        [ href (getAppScreenshotPath name index)
+                                        , target "_blank"
+                                        , rel "noopener"
+                                        ]
+                                        [ img
+                                            [ src (getAppScreenshotThumbnailPath name index)
+                                            , alt screenshot.appScreenshot_caption
+                                            , attribute "loading" "lazy"
+                                            , class "rounded border"
+                                            ]
+                                            []
+                                        ]
+                                    , if String.isEmpty screenshot.appScreenshot_caption then
+                                        text ""
+
+                                      else
+                                        figcaption [ class "small text-body-secondary mt-1" ]
+                                            [ text screenshot.appScreenshot_caption ]
+                                    ]
+                            )
+                            screenshots
+                        )
+                    :: scrollButtons 1 "Show the next screenshots" iconChevronRight
+                )
+            ]
 
 
 viewPageAppUsage : Model -> PageApp -> Html Update
@@ -604,6 +683,16 @@ viewPageGrantCategory ( grant, subgrants ) =
 getAppIconPath : AppName -> String
 getAppIconPath name =
     "resources/apps/" ++ name ++ "/icon.svg"
+
+
+getAppScreenshotPath : AppName -> Int -> String
+getAppScreenshotPath name index =
+    "resources/apps/" ++ name ++ "/screenshots/" ++ String.fromInt index ++ ".webp"
+
+
+getAppScreenshotThumbnailPath : AppName -> Int -> String
+getAppScreenshotThumbnailPath name index =
+    "resources/apps/" ++ name ++ "/screenshots/" ++ String.fromInt index ++ "-thumb.webp"
 
 
 defaultAppIconPath : String

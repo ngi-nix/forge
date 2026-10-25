@@ -40,6 +40,8 @@ def populate_resources_dir():
         build_dir = root_dir / "ui" / "build"
         resources_dir = build_dir / "resources"
         config_file = build_dir / "forge-config.json"
+        # Built by `nix build _forge.appScreenshots`, if not in mock mode.
+        screenshots_dir = build_dir / "app-screenshots"
 
         apps_dir = resources_dir / "apps"
         apps_dir.mkdir(parents=True, exist_ok=True)
@@ -91,6 +93,16 @@ def populate_resources_dir():
             if icon_copied:
                 icon_perm = stat.S_IMODE(os.lstat(dest_icon).st_mode)
                 os.chmod(dest_icon, icon_perm | stat.S_IWRITE)
+
+            app_screenshots = screenshots_dir / app_name
+            dest_screenshots = app_dir / "screenshots"
+            if app_screenshots.is_dir():
+                shutil.rmtree(dest_screenshots, ignore_errors=True)
+                # Copy the files out of the Nix store, and make them replaceable.
+                _ = shutil.copytree(
+                    app_screenshots, dest_screenshots, copy_function=shutil.copyfile
+                )
+                os.chmod(dest_screenshots, 0o755)
 
             app_count += 1
 
