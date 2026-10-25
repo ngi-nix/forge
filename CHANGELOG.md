@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - *ui:* Position shuffle tooltip above button - ([2db5038](https://github.com/ngi-nix/forge/commit/2db50385ba1c979cbc7df0c9405f7041790c2938))
 - *ui:* Hide pagination visibility to keep consistent ui - ([5235049](https://github.com/ngi-nix/forge/commit/5235049de26a570d44a1ca37141998a0ef2c2640))
 - *ui:* Allow single clicks on app description to trigger card navigation - ([8c62319](https://github.com/ngi-nix/forge/commit/8c62319540ffc5248023e43c627b1f6c830a7a2d))
+- *ui:* Don't show assertions and warnings in options browser - ([9e020b3](https://github.com/ngi-nix/forge/commit/9e020b321e00a5695ac1d125a9ecab090f96435b))
 - Remove redundant container resources options - ([b91f638](https://github.com/ngi-nix/forge/commit/b91f63895ac803acaa298030f7e572f1b17348f2))
 - Update script recipes path - ([866105d](https://github.com/ngi-nix/forge/commit/866105ddefb5108f3a842081453a0205d77f899c))
 - Update script package regex - ([70a0c0a](https://github.com/ngi-nix/forge/commit/70a0c0afd030f9bdcd5e80da01d0c478abb3022f))
@@ -47,6 +48,8 @@ All notable changes to this project will be documented in this file.
 - Update buildElmApplication definition in forge packages - ([144d7e5](https://github.com/ngi-nix/forge/commit/144d7e551c3f0534a6753f36fd5195b784aa3710))
 - Drop custom overrides for elm2nix ([#951](https://github.com/ngi-nix/forge/issues/951)) - ([66804f9](https://github.com/ngi-nix/forge/commit/66804f99c32b2ee0ae35bf796f9a9b9e8aed2099))
 - Make sure package and app test fail if it contains error - ([b0fbcf7](https://github.com/ngi-nix/forge/commit/b0fbcf7636952f70835cfc14a1a00fcbb866e582))
+- Fix default value and description of pkgs and apps enable option - ([1472926](https://github.com/ngi-nix/forge/commit/147292673a64e2230237ab37ef830d87b5ac12b8))
+- Make pkgs.<n>.homePage mandatory - ([daffdeb](https://github.com/ngi-nix/forge/commit/daffdebb0325484e6d998e0bb7421ec9c07360f6))
 
 
 ### CI/CD
@@ -102,6 +105,7 @@ All notable changes to this project will be documented in this file.
 - *ui:* Update NixOS configuration snippet for NixOS app runtime - ([258cbae](https://github.com/ngi-nix/forge/commit/258cbaeb2b79fda646e192a943cc9cd41024aef4))
 - *ui:* Add application deploy instructions ([#1019](https://github.com/ngi-nix/forge/issues/1019)) - ([b291539](https://github.com/ngi-nix/forge/commit/b291539b8d4c4123f0f4681317f908004308b1f3))
 - *ui:* Add offen badge to footer - ([5204a07](https://github.com/ngi-nix/forge/commit/5204a07879fda71f444ba574c0900b53f5dc2129))
+- *ui:* Update website title - ([dcf8a56](https://github.com/ngi-nix/forge/commit/dcf8a5616409cebe1f97595992cf2a31bb666287))
 - Add app prefix to container image - ([e023929](https://github.com/ngi-nix/forge/commit/e0239296387614e0528ab8ae2a3575ae31fdf6b8))
 - Add healthcheck for service components and resources - ([2356724](https://github.com/ngi-nix/forge/commit/2356724b32255c0f54c4f4591cfaefac72b82abc))
 - Add forge labels to podman images - ([7f53d4c](https://github.com/ngi-nix/forge/commit/7f53d4cf0c34ba2ecfb186cadee5507f245aa13c))
@@ -119,6 +123,9 @@ All notable changes to this project will be documented in this file.
 - Added more data types for data. ([#919](https://github.com/ngi-nix/forge/issues/919)) - ([ea3f37a](https://github.com/ngi-nix/forge/commit/ea3f37af35687a9953040f112882b68927c4e317))
 - Init changelog ([#908](https://github.com/ngi-nix/forge/issues/908)) - ([ebc2a0e](https://github.com/ngi-nix/forge/commit/ebc2a0ee855167383cc32854f24a9f27193d969b))
 - Print forge packages' name and version in devshell - ([352b3b1](https://github.com/ngi-nix/forge/commit/352b3b1e75c5e1461ec046d6aed0fff49a48dfae))
+- Add default flake formatter - ([ee169df](https://github.com/ngi-nix/forge/commit/ee169df53b25988c3080982c599cff14496ea90e))
+- Add usage-instruction snippets option - ([3903bf1](https://github.com/ngi-nix/forge/commit/3903bf1b63eab5408b38f48593d7b4407d4d7a03))
+- Add global snippets - ([347edc5](https://github.com/ngi-nix/forge/commit/347edc53513e74fca26b630689b0d0a5222fd0b4))
 
 
 ### Flake
@@ -140,21 +147,31 @@ All notable changes to this project will be documented in this file.
 - Automatic update of nixpkgs input ([#1001](https://github.com/ngi-nix/forge/issues/1001)) - ([b2bc33f](https://github.com/ngi-nix/forge/commit/b2bc33f7f01efbb46549942c5b64ed0f68ade3d4))
 - Weekly nix flake update - ([a181ced](https://github.com/ngi-nix/forge/commit/a181ced9f09ebbe3f41c26ee1daa31bf08925017))
 - Weekly nix flake update - ([0e51442](https://github.com/ngi-nix/forge/commit/0e51442edf33f37ff3f135bdadb5f2d0b0f4b6bb))
+- Weekly nix flake update - ([7b37c11](https://github.com/ngi-nix/forge/commit/7b37c11dab438dbde8403ea1bef519a85330daaa))
+- Update all inputs - ([5f99fb3](https://github.com/ngi-nix/forge/commit/5f99fb39d2e1cb5f212ddb11ff8461e0e3cb5852))
 
 
 ### Miscellaneous Tasks
 
+- *.#checks:* Remove nested duplicate attributes - ([c9f4c1b](https://github.com/ngi-nix/forge/commit/c9f4c1b8776e36dcc72522f9f61fa52a82991393))
+- *flake:* Add `forge.{apps,pkgs}.${name}.enable` options - ([9ad4c47](https://github.com/ngi-nix/forge/commit/9ad4c47603686e30d39db20da1016ea84afbe7c4))
 - *forge:* Enable `imports` in `packages.${package}.build{,.${builder}}` - ([f111ce7](https://github.com/ngi-nix/forge/commit/f111ce7990e3f9a39e092ef5e7c74fdc4dfb63a3))
 - *forge:* Move `scrubConfig` to `lib.scrubNixContext` - ([531768c](https://github.com/ngi-nix/forge/commit/531768cf05c80414da90b8f15c8470746da62884))
 - *forge:* Init `identityBuilder` to provide an external derivation - ([e0267aa](https://github.com/ngi-nix/forge/commit/e0267aacac25e68678ad9d4225d0316b628356d3))
 - *forge:* Init `packages.${package}.build{,.${builder}}.{env,structuredAttrs}` - ([fbff958](https://github.com/ngi-nix/forge/commit/fbff958deeef72e1b28ce8859b3544a45db566d1))
+- *forge.pkgs.${pkg}.result.derivation:* Use `apply` for the checks - ([8561a82](https://github.com/ngi-nix/forge/commit/8561a82da8e8cd7a3a7eca99ab9af8022bf137ec))
 - *ocamlBuilder:* Inherit `previousAttrs.propagatedBuildInputs` - ([e2b3319](https://github.com/ngi-nix/forge/commit/e2b3319b2e35e439fa4d0c15178a259b7afe6825))
 - *ocamlBuilder:* Only `buildDunePackage` is actually used - ([d01f4d0](https://github.com/ngi-nix/forge/commit/d01f4d0d9af47194f1245919faba407eb80dee78))
+- *ui:* Fix missing `formatter` - ([bd45fd8](https://github.com/ngi-nix/forge/commit/bd45fd84c6cf265587f6b8525818594c9ef91b3e))
 - Rename {packages => pkgs} - ([8a3fee3](https://github.com/ngi-nix/forge/commit/8a3fee33701f978e4b003c174d6b858b4d71cfb8))
 - OcamlBuilder.scope -> ocamlBuilder.ocamlPackages - ([cae76d6](https://github.com/ngi-nix/forge/commit/cae76d66d340f4ecf91f5be9977e037161d70e27))
 - Ngi-nix.github.io/forge -> ngi.nixos.org - ([07433b2](https://github.com/ngi-nix/forge/commit/07433b2502a428132682de648655d30aa9aea067))
 - Update CHANGELOG.md - ([739438f](https://github.com/ngi-nix/forge/commit/739438f4950717f0c171ea13b2e0f47fbaa80f93))
 - Update CHANGELOG.md - ([4fcd5a2](https://github.com/ngi-nix/forge/commit/4fcd5a23346628381fa51e600448d702b89cdfbf))
+- Update CHANGELOG.md - ([9e0156e](https://github.com/ngi-nix/forge/commit/9e0156e7997a4b76928f1be6c08bec393f8d4a19))
+- Switch app recipes' user instructions to use snippets - ([d0160cd](https://github.com/ngi-nix/forge/commit/d0160cd1c5fb326be3dd6c8856e40e2b57317d2e))
+- Switch usageSnippets to the global snippets.usage option - ([aeab40d](https://github.com/ngi-nix/forge/commit/aeab40dc19e6a8bccadac0d8a380513027c3231f))
+- Remove dead code file - ([dc2b210](https://github.com/ngi-nix/forge/commit/dc2b2104d7bb54346953e6d750013ed648998378))
 
 
 ### Other
@@ -192,6 +209,7 @@ All notable changes to this project will be documented in this file.
 
 ### Recipes
 
+- *amaranth:* Relax pyvcd dep - ([43c1001](https://github.com/ngi-nix/forge/commit/43c10012eea38f09ad6952d0ce66824f3297079f))
 - *app.superbol-studio:* Init ([#930](https://github.com/ngi-nix/forge/issues/930)) - ([38aba81](https://github.com/ngi-nix/forge/commit/38aba818fb8d59e111cccc4a4158d3bfdaa6f68e))
 - *apps.amaranth:* Init - ([0b67f34](https://github.com/ngi-nix/forge/commit/0b67f345c23c0d657b40c353e57b8a138a39cd3a))
 - *apps.arwen:* Improve usage instructions ([#958](https://github.com/ngi-nix/forge/issues/958)) - ([783eeb2](https://github.com/ngi-nix/forge/commit/783eeb23350b057ee01fd0230cc384a8f76da2d0))
@@ -219,10 +237,17 @@ All notable changes to this project will be documented in this file.
 - *apps.mwoffliner:* Init - ([e0e135e](https://github.com/ngi-nix/forge/commit/e0e135e0314157b3f6861b75e8d7298ee3e95e96))
 - *apps.nyxt:* Remove propagated nixpkgs fix - ([006f2eb](https://github.com/ngi-nix/forge/commit/006f2eb8931f1ddb5bf897d5644204c20e7c519f))
 - *apps.offen:* Fix test - ([d5b1b93](https://github.com/ngi-nix/forge/commit/d5b1b935a7b78ee3a7647c8f8bc5820ea0defc51))
+- *apps.offen:* Add nginx reverse web proxy - ([8de7e57](https://github.com/ngi-nix/forge/commit/8de7e572f759cea2aa28a12604c5021330ff959a))
+- *apps.offen:* Add healthcheck - ([acb0a7b](https://github.com/ngi-nix/forge/commit/acb0a7b5c00b01e2a3e23aa5f62190659d761ae8))
+- *apps.offen:* Fix resource name - ([a4cede8](https://github.com/ngi-nix/forge/commit/a4cede844b2825336c10bcc0c251f80e04aa7ec2))
+- *apps.offen:* Remove read the docs usage instruction - ([34d9b28](https://github.com/ngi-nix/forge/commit/34d9b28119eea83edefff8df5d4d6673c0c3741a))
 - *apps.padne:* Init - ([0e0c10e](https://github.com/ngi-nix/forge/commit/0e0c10e6a17f16be9d3a1f2e96da08e46abd7dfc))
 - *apps.prismafs:* Init - ([7cc919b](https://github.com/ngi-nix/forge/commit/7cc919be04f2324e943be2d7eb879b283a336ee6))
 - *apps.reflection:* Add missing grant ([#984](https://github.com/ngi-nix/forge/issues/984)) - ([e0e0cc8](https://github.com/ngi-nix/forge/commit/e0e0cc8c322f54bb2e53ab9538c0567e09578d0d))
 - *apps.repath-studio:* Fix test - ([eac7a75](https://github.com/ngi-nix/forge/commit/eac7a755e8c177013489a8de74e07f8209fbcf80))
+- *apps.scion:* Init app - ([715fa1a](https://github.com/ngi-nix/forge/commit/715fa1a8ffa3a1650fe06da8c5a65f3717f4569f))
+- *apps.scion:* Override scion package as needed for forge shell env - ([3dbef51](https://github.com/ngi-nix/forge/commit/3dbef5184cd622f266ab036f6e0be68c406b5459))
+- *apps.scion:* Usage instructions cleanup - ([d87415e](https://github.com/ngi-nix/forge/commit/d87415ef5473df43827caedfcc7585b6ebac1573))
 - *apps.sdcc:* Init ([#935](https://github.com/ngi-nix/forge/issues/935)) - ([a802ca1](https://github.com/ngi-nix/forge/commit/a802ca162a5022f0e7adb37764152277e263d908))
 - *apps.servo:* Add additional grants - ([712e8ac](https://github.com/ngi-nix/forge/commit/712e8ac13f253b7ac6988bc54ec98baa07035d68))
 - *apps.signaturepdf:* Init - ([6f5033a](https://github.com/ngi-nix/forge/commit/6f5033aa8f6601d6a7b994e3a8b324c70f9b402c))
@@ -248,10 +273,20 @@ All notable changes to this project will be documented in this file.
 - *bang:* 0-unstable-2026-06-21 -> 0-unstable-2026-08-27 - ([d5e10e0](https://github.com/ngi-nix/forge/commit/d5e10e0312df170d9998415909d5172baef4c015))
 - *bang:* 0-unstable-2026-08-27 -> 0-unstable-2026-09-01 ([#974](https://github.com/ngi-nix/forge/issues/974)) - ([eb7da4b](https://github.com/ngi-nix/forge/commit/eb7da4bf3519b3846ac115be45a8cfbd9d76c62c))
 - *bang:* 0-unstable-2026-09-01 -> 0-unstable-2026-09-25 - ([8176f49](https://github.com/ngi-nix/forge/commit/8176f49c9ce817a58d1ebb85d04487e55c114dd3))
+- *bang:* 0-unstable-2026-09-25 -> 0-unstable-2026-10-01 - ([3322192](https://github.com/ngi-nix/forge/commit/33221926104c5e951a08afcb9d357d35b19f3924))
+- *bang:* 0-unstable-2026-10-01 -> 0-unstable-2026-10-16 - ([d2ac9c0](https://github.com/ngi-nix/forge/commit/d2ac9c0c871e2dc1912ce4c4946dc4d12008c051))
+- *bids:* Disable failing typecode squashfs tests - ([14031f8](https://github.com/ngi-nix/forge/commit/14031f8b7c53ca124feaf02a6b3ad25886c03b96))
+- *bottles:* Mark broken - ([2c9ed72](https://github.com/ngi-nix/forge/commit/2c9ed72952f0b20d5fd2e52cfdf3eabcec1e0329))
+- *deltachat:* Remove tauri from default app recipe - ([749aa41](https://github.com/ngi-nix/forge/commit/749aa4150ae3aff5ae4cb644536f98f2deaaef6c))
+- *deltachat-tauri:* Split from deltachat - ([34a1602](https://github.com/ngi-nix/forge/commit/34a16027e72c79735e77478379b2226b7445c7a9))
+- *docspec:* Fix TryFromIntError assertion message for Rust 1.83+ - ([e5e2d49](https://github.com/ngi-nix/forge/commit/e5e2d49a9314415f476388e0621cc00f607fb6ed))
+- *freecad:* Re-use package from nixpkgs - ([776e315](https://github.com/ngi-nix/forge/commit/776e315e4cc5709fa7cbc3130490e2c4e5012bef))
+- *icestudio:* Re-use package from nixpkgs - ([e011a4b](https://github.com/ngi-nix/forge/commit/e011a4bd339beb9bc8c3e25b4d672529e432c061))
 - *mustang:* 0.9.37 -> 0.9.38 ([#975](https://github.com/ngi-nix/forge/issues/975)) - ([9829661](https://github.com/ngi-nix/forge/commit/98296611f71a16f2611b476b09a7d64c57184953))
 - *mustang:* 0.9.38 -> 0.9.39 ([#1002](https://github.com/ngi-nix/forge/issues/1002)) - ([6cd1cdb](https://github.com/ngi-nix/forge/commit/6cd1cdb84557d2d21faa11f4ebab3c2ab11e1ee5))
 - *ocaml-quic:* Init at 0-unstable-2026-03-16 - ([0a42697](https://github.com/ngi-nix/forge/commit/0a4269783ba242a6600e658f19a6986a36451797))
 - *offen:* Update usage instructions ([#1018](https://github.com/ngi-nix/forge/issues/1018)) - ([92975f1](https://github.com/ngi-nix/forge/commit/92975f1d9d682d6d9541f6d2f955d9ec6cfb8deb))
+- *openocd-esp32:* Preserve 2MB ELF alignment with patchelf - ([95c9728](https://github.com/ngi-nix/forge/commit/95c9728636f76cdbb060d786e04b77155f14ec55))
 - *pagedjs-cli:* 0-unstable-2026-06-11 -> 0-unstable-2026-01-05 - ([a5e1800](https://github.com/ngi-nix/forge/commit/a5e1800e49915d5495b9e0ffd9d514e5663a397b))
 - *pkgs.beacondb:* Init - ([375e0cd](https://github.com/ngi-nix/forge/commit/375e0cd98d7b0a7ed533b5eb8de7a3dde364eacb))
 - *pkgs.bids:* Init at 0.3.1 - ([89a7a8c](https://github.com/ngi-nix/forge/commit/89a7a8c88a542a50138a957f245918f25f55064a))
@@ -259,6 +294,8 @@ All notable changes to this project will be documented in this file.
 - *pkgs.esp-clang:* Init at 21.1.3_20260408 - ([d586800](https://github.com/ngi-nix/forge/commit/d586800e475fa8516cb43747aa2994909e041ce5))
 - *pkgs.esp-clang:* Fix isLinux - ([cd87d51](https://github.com/ngi-nix/forge/commit/cd87d5131d6876b322f64caaf3eb63cf1c2aeea4))
 - *pkgs.esp-openocd:* Init at 0.12.0_20260703 ([#1004](https://github.com/ngi-nix/forge/issues/1004)) - ([9e0b668](https://github.com/ngi-nix/forge/commit/9e0b6685706baec2f9a12577ad30515bf0ce5a6f))
+- *pkgs.esp_idf_monitor:* Init at 1.10.0 - ([68ba2b2](https://github.com/ngi-nix/forge/commit/68ba2b267f3a3b0816352a3591c0b43555e2cc02))
+- *pkgs.esptool:* Init at 5.3.1 - ([75f5dc3](https://github.com/ngi-nix/forge/commit/75f5dc3bf4928ecc0fa6aba9c2fc2fd78c799213))
 - *pkgs.labplot:* Init at 2.12.1 - ([5c08e62](https://github.com/ngi-nix/forge/commit/5c08e62886cf173edbf36af57a18014dd31ffbfc))
 - *pkgs.mustang:* Init - ([8d98848](https://github.com/ngi-nix/forge/commit/8d9884892778d588ca52f58abd8dbb3fe3ddd43b))
 - *pkgs.mwoffliner:* Init at 1.17.5 - ([6e01bfd](https://github.com/ngi-nix/forge/commit/6e01bfd54e58d9ed223a9fb600452a170cce7e99))
@@ -270,6 +307,7 @@ All notable changes to this project will be documented in this file.
 - *pkgs.repath-studio:* Fix build - ([eb44046](https://github.com/ngi-nix/forge/commit/eb4404658f90cafcf2378fdab2fd3be137229f76))
 - *pkgs.ties:* Init at 0.3.0 - ([891b4e9](https://github.com/ngi-nix/forge/commit/891b4e98c9cfd1bbe723e3bbb4c2be1b04bf1911))
 - *pkgs.ties:* Allow localhost usage - ([f85acf0](https://github.com/ngi-nix/forge/commit/f85acf0883707eae1133bfca12b8f494f1de03ce))
+- *pkgs.xtensa-esp32-elf:* Init at 11.2.0-esp-2022r1 - ([666e57f](https://github.com/ngi-nix/forge/commit/666e57f09cffb1183208e61178ff8f6ae597b55f))
 - *pkgs.zenroom:* Init - ([73870c0](https://github.com/ngi-nix/forge/commit/73870c0272da270e5bb9143f68fb1d2eafb24096))
 - *pmtiles-viewer:* 0-unstable-2026-05-26 -> 0-unstable-2026-08-10 - ([c12b104](https://github.com/ngi-nix/forge/commit/c12b1043d925689e19eb944b190d70e85893b748))
 - *pmtiles-viewer:* 0-unstable-2026-08-10 -> 0-unstable-2026-08-19 - ([8077e5d](https://github.com/ngi-nix/forge/commit/8077e5dd728f59608bf0b7627b2614243d744d26))
@@ -279,6 +317,9 @@ All notable changes to this project will be documented in this file.
 - *qlever-ui:* 0-unstable-2026-06-11 -> 0-unstable-2026-04-26 - ([59059be](https://github.com/ngi-nix/forge/commit/59059bea8c170f63fb7cab93b5c84029aa4450b5))
 - *rpki-client:* Use stable release in source - ([acb9d83](https://github.com/ngi-nix/forge/commit/acb9d830ddfd82d06c8ca25842055c69ae3a3b7e))
 - *rpki-client:* 9.8 -> 9.9 ([#916](https://github.com/ngi-nix/forge/issues/916)) - ([d94cf59](https://github.com/ngi-nix/forge/commit/d94cf59761aa724462b1ff0455cab8d39707eabc))
+- *vacask:* Remove custom override - ([f38c0dd](https://github.com/ngi-nix/forge/commit/f38c0dd057f2f35e9b3839285f042ba37b8a9e95))
+- *xtensa-esp32-elf:* Preserve 2MB ELF alignment with patchelf - ([98352c5](https://github.com/ngi-nix/forge/commit/98352c541f74e0e37022d463538c5e85788b215c))
+- *zrythm:* Fix preFixup XDG_DATA_DIRS wrapper error - ([02c5f91](https://github.com/ngi-nix/forge/commit/02c5f9124afa38b1c795b4df7d95f6d25aa6805a))
 - *{pkgs,apps}.cdxgen:* Init ([#956](https://github.com/ngi-nix/forge/issues/956)) - ([1bce371](https://github.com/ngi-nix/forge/commit/1bce371e3143a2fe290631cfd4aca28531161ea0))
 - *{pkgs,apps}.docspec:* Init ([#967](https://github.com/ngi-nix/forge/issues/967)) - ([f795109](https://github.com/ngi-nix/forge/commit/f79510924a01b8f8e47a6efb7301ec2f9898e5c8))
 - *{pkgs,apps}.kaidan:* Init - ([ae6acb7](https://github.com/ngi-nix/forge/commit/ae6acb7857a64bdc2ee124e415b0581c0053a518))
@@ -308,6 +349,9 @@ All notable changes to this project will be documented in this file.
 - Remove dead code - ([8f6e8ff](https://github.com/ngi-nix/forge/commit/8f6e8ff97e43e939d0e21cf61ef18426319ff5b9))
 - Make reading binary files implicit ([#939](https://github.com/ngi-nix/forge/issues/939)) - ([7745adb](https://github.com/ngi-nix/forge/commit/7745adb7f7e421dd34896bd0495900763356722d))
 - Move assertions inside pkg module ([#1006](https://github.com/ngi-nix/forge/issues/1006)) - ([7598179](https://github.com/ngi-nix/forge/commit/7598179cb98c597594e539395d513b7dc90a6493))
+- Remove unused usageSnippets - ([6eefd02](https://github.com/ngi-nix/forge/commit/6eefd02e4dd08bb9d69a9e337ca30a19c09e2e5c))
+- Use assertions for app configuration checks - ([b6926b7](https://github.com/ngi-nix/forge/commit/b6926b7732e1af60bb68002ae13ab6275107ed24))
+- Check pkgs assertions and warnings per package - ([83b403f](https://github.com/ngi-nix/forge/commit/83b403f79a287ba30b12b1e6a40973ec9c35b6a3))
 
 
 ### Styling
