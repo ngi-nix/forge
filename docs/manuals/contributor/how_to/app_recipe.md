@@ -118,6 +118,65 @@ Hexagonal icons for NLnet-supported projects can be found in the [NLnet Hex Gall
 These designs are adaptations of the upstream projects' logos and are [licensed](https://nlnet.nl/officehour/#:~:text=What%20is%20the%20license%20of%20the%20nice%20hexagon%20stickers) the same as the original logo.
 :::
 
+### Screenshots
+
+The application page shows screenshots from the `screenshots` option.
+Usually, you do not set this option by hand.
+The `forge-screenshots` command of the development shell finds the screenshots
+and writes them to a `screenshots.nix` file next to the recipe.
+A weekly workflow runs this command and opens a pull request with the changes.
+
+```bash
+forge-screenshots <app-name>
+```
+
+The command uses the first of these sources that has screenshots:
+
+1. The URLs in `screenshotSources.urls`.
+1. The `<screenshots>` of the AppStream metainfo files in the application
+   packages, in `share/metainfo` or `share/appdata`.
+1. The `<screenshots>` of the AppStream metainfo files in the sources of the
+   application packages.
+1. Flathub, for the IDs in `screenshotSources.appstreamIds`, the component IDs
+   of the metainfo files, and the desktop file IDs in reverse-DNS format.
+
+If the packages have no metainfo file with screenshots, give a source:
+
+```nix
+# The application is on Flathub.
+screenshotSources.appstreamIds = [ "org.example.App" ];
+
+# The application has screenshots in its source repository or website.
+screenshotSources.urls = [
+  "https://raw.githubusercontent.com/example/app/main/docs/screenshot.png"
+  {
+    url = "https://raw.githubusercontent.com/example/app/main/docs/settings.png";
+    caption = "Settings dialog.";
+  }
+];
+```
+
+::: {tip}
+The best source is an AppStream metainfo file with `<screenshots>` in the
+application source repository, installed by the package.
+Other distributions, app stores and Forge can then use the same screenshots.
+:::
+
+To set screenshots by hand, set `screenshots` in the recipe.
+This definition overrides `screenshots.nix`.
+An item is a local image file, or a URL with its hash.
+
+```nix
+screenshots = [
+  ./screenshot.png
+  {
+    url = "https://example.com/screenshot.png";
+    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    caption = "Main window with an open project.";
+  }
+];
+```
+
 ## Programs
 
 Add a `programs` block if the application provides GUI or CLI programs.
