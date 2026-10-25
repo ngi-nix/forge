@@ -132,15 +132,19 @@ forge-screenshots <app-name>
 
 The command uses the first of these sources that has screenshots:
 
-1. The URLs in `screenshotSources.urls`.
 1. The `<screenshots>` of the AppStream metainfo files in the application
    packages, in `share/metainfo` or `share/appdata`.
 1. The `<screenshots>` of the AppStream metainfo files in the sources of the
    application packages.
+1. The `<screenshots>` of the AppStream metainfo files in the default branch
+   of the Git repositories of these sources, for example from
+   `fetchFromGitHub`. Thus a metainfo file that is merged upstream, but is not
+   in a release yet, is used.
 1. Flathub, for the IDs in `screenshotSources.appstreamIds`, the component IDs
    of the metainfo files, and the desktop file IDs in reverse-DNS format.
+1. The URLs in `screenshotSources.urls`.
 
-If the packages have no metainfo file with screenshots, give a source:
+If these sources have no screenshots, give a source:
 
 ```nix
 # The application is on Flathub.
@@ -161,6 +165,11 @@ The best source is an AppStream metainfo file with `<screenshots>` in the
 application source repository, installed by the package.
 Other distributions, app stores and Forge can then use the same screenshots.
 :::
+
+If another source has screenshots, for example after upstream merges a
+metainfo file, `forge-screenshots` tells you to remove
+`screenshotSources.urls`.
+The weekly pull request also lists these applications.
 
 To set screenshots by hand, set `screenshots` in the recipe.
 This definition overrides `screenshots.nix`.

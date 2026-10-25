@@ -123,9 +123,15 @@ let
       let
         src = ./commands;
 
-        files = lib.fileset.toList (
-          lib.fileset.intersection (lib.fileset.gitTracked ../..) (
-            lib.fileset.fileFilter (file: file.hasExt "nix") src
+        # A file next to a `default.nix` file is a part of that command, not a command.
+        isCommand =
+          file: baseNameOf file == "default.nix" || !builtins.pathExists (dirOf file + "/default.nix");
+
+        files = lib.filter isCommand (
+          lib.fileset.toList (
+            lib.fileset.intersection (lib.fileset.gitTracked ../..) (
+              lib.fileset.fileFilter (file: file.hasExt "nix") src
+            )
           )
         );
 
