@@ -18,6 +18,28 @@
       Development
       Office
     ];
+    screenshotSources.urls = [
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/c3e8b8d2-3f94-45a3-a8fd-143077443337";
+        caption = "Signature feature";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/4deeb6fb-caa9-4365-895e-d22177a6ec3b";
+        caption = "Signature feature";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/800c45a4-4c4c-42d5-b09b-c81cfcc0e6e0";
+        caption = "Organizing feature";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/a008d765-3a74-4ab4-b2bc-4af6c81575fe";
+        caption = "Organizing feature";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/1f195bae-4af3-4d7b-9e31-3acd7552c2eb";
+        caption = "Metadata feature";
+      }
+    ];
     usage = ''
       Signature PDF is a web application for signing PDFs, alone or with
       others, as well as organizing pages (merge, sort, rotate, delete,

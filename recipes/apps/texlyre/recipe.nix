@@ -19,6 +19,32 @@
       Office
       P2P
     ];
+    screenshotSources.urls = [
+      {
+        url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/main_showcase_dark.png";
+        caption = "Main editor interface showing split view with LaTeX code on left, compiled PDF on right";
+      }
+      {
+        url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/collab_cursor_zoomed.png";
+        caption = "Multiple users editing simultaneously with different colored cursors";
+      }
+      {
+        url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/chat_zoomed.png";
+        caption = "Collaborators using the chat panel to discuss progress";
+      }
+      {
+        url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/review_comment_panel.png";
+        caption = "TeXlyre editor with tracked edits and the review panel open";
+      }
+      {
+        url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/error_parser_zoomed_latex.png";
+        caption = "LaTeX compilation in progress with error panel and PDF output";
+      }
+      {
+        url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/project_viewer_zoomed.png";
+        caption = "Project dashboard with file explorer and project cards";
+      }
+    ];
     usage = ''
       TeXlyre is a local-first, real-time LaTeX and Typst collaboration platform.
       Documents are stored locally in the browser (IndexedDB) and synchronized
