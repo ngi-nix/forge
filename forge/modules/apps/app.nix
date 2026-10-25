@@ -116,7 +116,8 @@
           AppStream component IDs to look up on Flathub.
 
           `forge-screenshots` uses Flathub only if the AppStream metainfo
-          files of the application packages have no screenshots.
+          files of the application packages, of their sources, and of the
+          default branches of their source repositories have no screenshots.
           It also looks up the IDs found in these metainfo files.
         '';
         example = [ "org.example.App" ];
@@ -143,7 +144,9 @@
         description = ''
           Screenshot image URLs, for applications without AppStream metainfo.
 
-          If set, `forge-screenshots` uses these URLs and no other source.
+          `forge-screenshots` uses these URLs only if no other source has
+          screenshots. If another source has screenshots, it tells you to
+          remove this option.
         '';
         example = lib.literalExpression ''
           [
