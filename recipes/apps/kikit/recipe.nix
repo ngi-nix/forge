@@ -65,6 +65,7 @@ in
         kicadAddons-kikit-library
       ];
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     test.programs.script = ''
