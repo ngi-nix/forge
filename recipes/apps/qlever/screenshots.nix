@@ -5,9 +5,9 @@
 {
   apps.qlever.screenshots = lib.mkDefault [
     {
-      url = "https://raw.githubusercontent.com/ad-freiburg/qlever-ui/master/docs/screenshot.png";
+      url = "https://raw.githubusercontent.com/qlever-dev/qlever-ui/master/docs/screenshot.png";
       hash = "sha256-HQn6jcyijusH5H7hg9NNTi9XhUZW4R6yBeK6Keydhdw=";
-      caption = "QLever UI";
+      caption = "SPARQL query editor with context-sensitive suggestions";
     }
   ];
 }

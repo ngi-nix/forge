@@ -19,8 +19,14 @@ in
         url = "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_index.png";
         caption = "Start page";
       }
-      "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_list.png"
-      "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_bookmark.png"
+      {
+        url = "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_list.png";
+        caption = "A list of bookmarks with its backlinks";
+      }
+      {
+        url = "https://raw.githubusercontent.com/raffomania/ties/main/doc/img/screenshot_bookmark.png";
+        caption = "An archived bookmark with its backlinks";
+      }
     ];
     usage = ''
       Ties is a personal and federated space for keeping track of the web pages you care about. Use it to build collections of interesting pages, browse and search bookmarks, share curated lists with others, and discover pages through people whose taste you trust.

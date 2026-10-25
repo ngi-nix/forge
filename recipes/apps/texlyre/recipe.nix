@@ -26,27 +26,27 @@ in
     screenshotSources.urls = [
       {
         url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/main_showcase_dark.png";
-        caption = "Main editor interface showing split view with LaTeX code on left, compiled PDF on right";
+        caption = "Editor with LaTeX code and the compiled PDF";
       }
       {
         url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/collab_cursor_zoomed.png";
-        caption = "Multiple users editing simultaneously with different colored cursors";
+        caption = "Users editing a document at the same time";
       }
       {
         url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/chat_zoomed.png";
-        caption = "Collaborators using the chat panel to discuss progress";
+        caption = "Chat panel";
       }
       {
         url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/review_comment_panel.png";
-        caption = "TeXlyre editor with tracked edits and the review panel open";
+        caption = "Tracked changes in the review panel";
       }
       {
         url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/error_parser_zoomed_latex.png";
-        caption = "LaTeX compilation in progress with error panel and PDF output";
+        caption = "LaTeX compilation errors";
       }
       {
         url = "https://raw.githubusercontent.com/texlyre/texlyre/main/showcase/project_viewer_zoomed.png";
-        caption = "Project dashboard with file explorer and project cards";
+        caption = "Project dashboard";
       }
     ];
     usage = ''

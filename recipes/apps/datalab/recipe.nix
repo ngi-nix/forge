@@ -29,10 +29,18 @@ in
     description = "Open-source Platform for Scientific and Technical Data Processing and Visualization.";
     categories = with forge-lib.categories; [ Network ];
     screenshotSources.urls = [
-      "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/DataLab-Screenshot-Signal.png"
-      "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/DataLab-Screenshot-Image.png"
-      "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/i_blob_detection_flower.en.png"
-      "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/DataLab-Screenshot-Theme.png"
+      {
+        url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/i_blob_detection_flower.en.png";
+        caption = "Blob detection on an image";
+      }
+      {
+        url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/s_beautiful.en.png";
+        caption = "Signal panel with a chain of processing steps";
+      }
+      {
+        url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/i_beautiful.en.png";
+        caption = "Image panel with a chain of processing steps and the contrast adjustment tool";
+      }
     ];
     usage = ''
       DataLab is an open-source platform for scientific signal and image processing and visualization.

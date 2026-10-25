@@ -7,12 +7,12 @@
     {
       url = "https://raw.githubusercontent.com/mitmproxy/mitmproxy/main/docs/src/static/screenshots/mitmproxy.png";
       hash = "sha256-aU2PQlTj/5F1JJdNt+om8LMVFWRvEGwFC1zzXnMXQBg=";
-      caption = "Interface of mitmproxy";
+      caption = "Console interface of mitmproxy";
     }
     {
       url = "https://raw.githubusercontent.com/mitmproxy/mitmproxy/main/docs/src/static/screenshots/mitmweb.png";
       hash = "sha256-Y4QYSCQXTylivW5pnMIveRtLuwdmKGQD7Au/E4lQU4k=";
-      caption = "Interface of mitmweb";
+      caption = "Web interface of mitmweb";
     }
   ];
 }

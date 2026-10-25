@@ -7,10 +7,12 @@
     {
       url = "https://raw.githubusercontent.com/atx/padne/master/docs/_static/images/gui-demo.webp";
       hash = "sha256-npqtvdC2KZPRJKT+tm3KdS3bfxJa24OCany4ZTdMxso=";
+      caption = "Voltage drop in the interactive GUI";
     }
     {
-      url = "https://github.com/user-attachments/assets/5c27ca8f-dac5-44c1-97ec-30a2e30950d4";
+      url = "https://raw.githubusercontent.com/atx/padne/master/docs/_static/images/banner.png";
       hash = "sha256-IwRfn2Ax6v3fEFulNvHwGG2vCwEsDov04LUyxLBbUeA=";
+      caption = "Voltage, current density and mesh visualizations";
     }
   ];
 }

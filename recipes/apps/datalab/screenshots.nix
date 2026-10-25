@@ -5,20 +5,19 @@
 {
   apps.datalab.screenshots = lib.mkDefault [
     {
-      url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/DataLab-Screenshot-Signal.png";
-      hash = "sha256-rJ70gZrpsaep62/CxVodLLX0y8pc0CKDvxcU21elb0o=";
-    }
-    {
-      url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/DataLab-Screenshot-Image.png";
-      hash = "sha256-eA4LtpdUH3SlN9KN1FDbgvEOtu3uCyn7IMZosCc2o9I=";
-    }
-    {
       url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/i_blob_detection_flower.en.png";
       hash = "sha256-FvZBI4WGrVGdo3UEMDgonOQUOfDkOHNTNOXo+VN3slg=";
+      caption = "Blob detection on an image";
     }
     {
-      url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/DataLab-Screenshot-Theme.png";
-      hash = "sha256-FgtDFCY9s2YE14lDZVDU740qNgwrzQ8k6tI/QV/shps=";
+      url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/s_beautiful.en.png";
+      hash = "sha256-7bTnZHniTYJtI29/temdTH6mi8zC+jbpg/eWglfXGGg=";
+      caption = "Signal panel with a chain of processing steps";
+    }
+    {
+      url = "https://raw.githubusercontent.com/DataLab-Platform/DataLab/main/doc/images/shots/i_beautiful.en.png";
+      hash = "sha256-Qg9RwBS1J0MuSBh1y0mqb1N6G8GM/iZnSy3u2JdsUjI=";
+      caption = "Image panel with a chain of processing steps and the contrast adjustment tool";
     }
   ];
 }

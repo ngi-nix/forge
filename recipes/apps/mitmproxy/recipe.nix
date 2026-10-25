@@ -19,11 +19,11 @@
     screenshotSources.urls = [
       {
         url = "https://raw.githubusercontent.com/mitmproxy/mitmproxy/main/docs/src/static/screenshots/mitmproxy.png";
-        caption = "Interface of mitmproxy";
+        caption = "Console interface of mitmproxy";
       }
       {
         url = "https://raw.githubusercontent.com/mitmproxy/mitmproxy/main/docs/src/static/screenshots/mitmweb.png";
-        caption = "Interface of mitmweb";
+        caption = "Web interface of mitmweb";
       }
     ];
     usage = ''
