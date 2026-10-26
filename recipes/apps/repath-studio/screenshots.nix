@@ -5,22 +5,22 @@
 {
   apps.repath-studio.screenshots = lib.mkDefault [
     {
-      url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/studio.png";
+      url = "https://raw.githubusercontent.com/repath-studio/website/8126927cbb817cef29003d8b9ec4f504535f6688/docs/assets/images/studio.png";
       hash = "sha256-+V16PVN5O6EYXYXEYgl5dQVUC2LkdKEa8pgl8HAeW0Q=";
       caption = "Studio";
     }
     {
-      url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/history.png";
+      url = "https://raw.githubusercontent.com/repath-studio/website/8126927cbb817cef29003d8b9ec4f504535f6688/docs/assets/images/history.png";
       hash = "sha256-1j3ug82r5AVQGwxojD3c+PQzayxGoua+BuQpF2TNuno=";
       caption = "History";
     }
     {
-      url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/repl.png";
+      url = "https://raw.githubusercontent.com/repath-studio/website/8126927cbb817cef29003d8b9ec4f504535f6688/docs/assets/images/repl.png";
       hash = "sha256-Odsz+b9FmtA3MIGMLCCj03ZZ25KdoHcAdO4WZ22q9S0=";
       caption = "Repl";
     }
     {
-      url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/animations.png";
+      url = "https://raw.githubusercontent.com/repath-studio/website/8126927cbb817cef29003d8b9ec4f504535f6688/docs/assets/images/animations.png";
       hash = "sha256-U2n+3FAT8FkchKaXZuMxrCrulmTP37SKxmHnHT82mNg=";
       caption = "Animations";
     }

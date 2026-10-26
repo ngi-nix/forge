@@ -5,27 +5,27 @@
 {
   apps.f3d.screenshots = lib.mkDefault [
     {
-      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/refs/heads/main/static/images/typical.png";
+      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/1f17d9e2649420a4e16d45ef7181bdb3b2db7dc4/static/images/typical.png";
       hash = "sha256-HPhWYUj2HbcH9TtCaE5bbEb3iLY9a/2Y4CRKyGaa/fQ=";
     }
     {
-      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/refs/heads/main/static/images/realisticMask.png";
+      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/1f17d9e2649420a4e16d45ef7181bdb3b2db7dc4/static/images/realisticMask.png";
       hash = "sha256-ys9hNw2fGoEnsS9Y8xAWG+kDmbd/+Zvo9+f0wB6NEOQ=";
     }
     {
-      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/refs/heads/main/static/images/step.png";
+      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/1f17d9e2649420a4e16d45ef7181bdb3b2db7dc4/static/images/step.png";
       hash = "sha256-k9ML74SIqtnGOy4i7I511fT6lsu21yC0Mqr57A2WWNw=";
     }
     {
-      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/refs/heads/main/static/images/realisticHelmet.png";
+      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/1f17d9e2649420a4e16d45ef7181bdb3b2db7dc4/static/images/realisticHelmet.png";
       hash = "sha256-7/HCdUuhOd2DgjIUcY9KrvZM9xmsAvM1B6wyyK+o3iY=";
     }
     {
-      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/refs/heads/main/static/images/directScalars.png";
+      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/1f17d9e2649420a4e16d45ef7181bdb3b2db7dc4/static/images/directScalars.png";
       hash = "sha256-xdRYF2LUQ/vYcG6kuem2cBFzIpr0PpaJ5vFOisI9W1k=";
     }
     {
-      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/refs/heads/main/static/images/cad.png";
+      url = "https://media.githubusercontent.com/media/f3d-app/f3d-website/1f17d9e2649420a4e16d45ef7181bdb3b2db7dc4/static/images/cad.png";
       hash = "sha256-I8tZky5870CwDQx9cLadcQKLVixjLEoE6VD4yzpS86o=";
     }
   ];

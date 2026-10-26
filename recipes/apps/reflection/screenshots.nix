@@ -5,7 +5,7 @@
 {
   apps.reflection.screenshots = lib.mkDefault [
     {
-      url = "https://raw.githubusercontent.com/p2panda/reflection/refs/heads/main/reflection-app/data/screenshots/screenshot.png";
+      url = "https://raw.githubusercontent.com/p2panda/reflection/42bfc9f3dab4afcb819f22a586f38196f5c9db2c/reflection-app/data/screenshots/screenshot.png";
       hash = "sha256-RAHAMcEQgkYhyKNF2P1fzZyfDeE3Zjf35X0Xed7x5vE=";
       caption = "Edit collaboratively in real time";
     }

@@ -5,7 +5,7 @@
 {
   apps.surfer.screenshots = lib.mkDefault [
     {
-      url = "https://gitlab.com/surfer-project/surfer/-/raw/main/snapshots/render_readme_screenshot.png";
+      url = "https://gitlab.com/surfer-project/surfer/-/raw/1cdbaa9514ea15b06a186d23979dbb38ab774ad1/snapshots/render_readme_screenshot.png";
       hash = "sha256-xHpVDzVOj4A9zus88Mz3PrDt9r6gSSOLpS9IMwjduUw=";
     }
   ];
