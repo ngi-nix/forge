@@ -23,6 +23,11 @@ them to a `screenshots.nix` file next to the recipe. Sources, in order:
 If a source gives no image that can be fetched, the next source is used.
 If a source before `screenshotSources.urls` gives screenshots, the command
 tells you to remove `screenshotSources.urls`.
+
+A URL of a file at a branch or a tag of a GitHub, GitLab or Forgejo repository
+is changed to the URL of the file at the commit of the branch or the tag. Thus
+the URL continues to work when the file changes or moves in the branch. If the
+file at a new commit has the same hash, the URL keeps the old commit.
 """
 
 import argparse
@@ -531,6 +536,116 @@ def candidates(
     ]
 
 
+REF = r"(?P<ref>refs/(?:heads|tags)/[^/]+|[^/]+)"
+PATH = r"(?P<path>.+)"
+# The URLs of a file at a branch or a tag: the URL pattern, the URL of the Git
+# repository and the URL of the file at a commit. The first pattern that
+# matches is used.
+FORGE_FILE_URLS = [
+    (
+        re.compile(
+            rf"https://raw\.githubusercontent\.com/(?P<repo>[^/]+/[^/]+)/{REF}/{PATH}"
+        ),
+        "https://github.com/{repo}.git",
+        "https://raw.githubusercontent.com/{repo}/{commit}/{path}",
+    ),
+    # Files in Git LFS.
+    (
+        re.compile(
+            rf"https://media\.githubusercontent\.com/media/(?P<repo>[^/]+/[^/]+)/{REF}/{PATH}"
+        ),
+        "https://github.com/{repo}.git",
+        "https://media.githubusercontent.com/media/{repo}/{commit}/{path}",
+    ),
+    (
+        re.compile(rf"https://github\.com/(?P<repo>[^/]+/[^/]+)/raw/{REF}/{PATH}"),
+        "https://github.com/{repo}.git",
+        "https://github.com/{repo}/raw/{commit}/{path}",
+    ),
+    # Forgejo and Gitea, for example Codeberg.
+    (
+        re.compile(
+            rf"https://(?P<host>[^/]+)/(?P<repo>[^/]+/[^/]+)/raw/(?:branch|tag|commit)/{REF}/{PATH}"
+        ),
+        "https://{host}/{repo}.git",
+        "https://{host}/{repo}/raw/commit/{commit}/{path}",
+    ),
+    (
+        re.compile(rf"https://(?P<host>[^/]+)/(?P<repo>.+?)/-/raw/{REF}/{PATH}"),
+        "https://{host}/{repo}.git",
+        "https://{host}/{repo}/-/raw/{commit}/{path}",
+    ),
+    # Old GitLab URLs, without `-/`.
+    (
+        re.compile(rf"https://(?P<host>gitlab\.[^/]+)/(?P<repo>.+?)/raw/{REF}/{PATH}"),
+        "https://{host}/{repo}.git",
+        "https://{host}/{repo}/-/raw/{commit}/{path}",
+    ),
+]
+COMMIT = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
+
+
+def forge_file(url: str) -> tuple[int, dict[str, str]] | None:
+    """Return the index in `FORGE_FILE_URLS` and the parts of the URL `url`."""
+    for index, (pattern, _, _) in enumerate(FORGE_FILE_URLS):
+        match = pattern.fullmatch(url)
+        if match:
+            return index, match.groupdict()
+    return None
+
+
+@cache
+def commit_of(repo: str, ref: str) -> str | None:
+    """Return the commit of the branch or the tag `ref` in the Git repository `repo`."""
+    if COMMIT.fullmatch(ref):
+        return ref
+    names = (
+        [ref] if ref.startswith("refs/") else [f"refs/heads/{ref}", f"refs/tags/{ref}"]
+    )
+    # `<tag>^{}` gives the commit of an annotated tag.
+    peeled = [f"{name}^{{}}" for name in names if name.startswith("refs/tags/")]
+    result = git("ls-remote", repo, *names, *peeled)
+    if result.returncode != 0:
+        warn(f"cannot read the references of {repo}: {result.stderr.decode().strip()}")
+        return None
+    commits = {
+        name: commit
+        for commit, name in (
+            line.split("\t") for line in result.stdout.decode().splitlines()
+        )
+    }
+    for name in names:
+        commit = commits.get(f"{name}^{{}}") or commits.get(name)
+        if commit:
+            return commit
+    warn(f"cannot find the branch or tag `{ref}` in {repo}")
+    return None
+
+
+def pinned(url: str) -> str:
+    """Return the URL of the file `url` at the commit of its branch or tag."""
+    file = forge_file(url)
+    if not file:
+        return url
+    index, parts = file
+    _, repo, template = FORGE_FILE_URLS[index]
+    commit = commit_of(repo.format(**parts), parts["ref"])
+    return template.format(**parts, commit=commit) if commit else url
+
+
+def same_file(old: str, new: str) -> bool:
+    """Whether the URL `old` is the file of the URL `new` at a commit."""
+    old_file, new_file = forge_file(old), forge_file(new)
+    if not old_file or not new_file or not COMMIT.fullmatch(old_file[1]["ref"]):
+        return False
+
+    def location(file: tuple[int, dict[str, str]]) -> tuple[str, str]:
+        index, parts = file
+        return FORGE_FILE_URLS[index][1].format(**parts), parts["path"]
+
+    return location(old_file) == location(new_file)
+
+
 def lock(screenshots: list[Screenshot], maximum: int) -> list[Screenshot]:
     locked = []
     for screenshot in screenshots:
@@ -539,7 +654,13 @@ def lock(screenshots: list[Screenshot], maximum: int) -> list[Screenshot]:
         if not screenshot.url.startswith("https://"):
             warn(f"not an HTTPS URL: {screenshot.url}")
             continue
-        screenshot.hash = prefetch(screenshot.url) or ""
+        url = pinned(screenshot.url)
+        if url != screenshot.url:
+            screenshot.hash = prefetch(url) or ""
+            if screenshot.hash:
+                screenshot.url = url
+        if not screenshot.hash:
+            screenshot.hash = prefetch(screenshot.url) or ""
         if screenshot.hash:
             locked.append(screenshot)
     return locked
@@ -576,6 +697,22 @@ def render(name: str, source: str, screenshots: list[Screenshot]) -> str:
     return "\n".join(lines)
 
 
+LOCKED_URL = re.compile(r'url = "([^"]*)";\s*hash = "([^"]*)";')
+
+
+def keep_commits(screenshots: list[Screenshot], old: str) -> None:
+    """Keep the URLs in the file `old` of the files that have the same hash.
+
+    Thus a new commit in a branch does not change the file, if the screenshots
+    do not change.
+    """
+    old_urls = {hash: url for url, hash in LOCKED_URL.findall(old)}
+    for screenshot in screenshots:
+        old_url = old_urls.get(screenshot.hash)
+        if old_url and same_file(old_url, screenshot.url):
+            screenshot.url = old_url
+
+
 SOURCE_LINE = re.compile(r"^# Source: .*\n", re.M)
 METAINFO_NAME = re.compile(r"AppStream metainfo `(?:[^`]*/)?([^`/]+)`")
 
@@ -606,9 +743,10 @@ def update(
                 f" because {source} has screenshots. Remove it."
             )
         target = root / Path(app["recipePath"]).parent / "screenshots.nix"
+        existing = target.read_text() if target.exists() else ""
+        keep_commits(locked, existing)
         content = render(name, source, locked)
-        if target.exists():
-            existing = target.read_text()
+        if existing:
             if existing == content or (
                 SOURCE_LINE.sub("", existing) == SOURCE_LINE.sub("", content)
                 and same_metainfo(existing, source)
