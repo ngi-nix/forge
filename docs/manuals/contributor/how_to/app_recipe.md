@@ -171,6 +171,12 @@ application source repository, installed by the package.
 Other distributions, app stores and Forge can then use the same screenshots.
 :::
 
+The command changes a URL of a file at a branch or a tag of a GitHub, GitLab
+or Forgejo repository to the URL of the file at the commit of the branch or the
+tag.
+Thus the URL continues to work when upstream changes or moves the file.
+Other URLs, for example of a website, do not change.
+
 If another source has screenshots, for example after upstream merges a
 metainfo file, `forge-screenshots` tells you to remove
 `screenshotSources.urls`.
