@@ -355,13 +355,7 @@ update upd modelInit =
 
         Update_ScrollRow rowId direction ->
             ( model
-            , Dom.getViewportOf rowId
-                |> Task.andThen
-                    (\{ viewport } ->
-                        -- A step of less than the full width keeps the item at the edge in view.
-                        Dom.setViewportOf rowId (viewport.x + direction * viewport.width * 0.8) 0
-                    )
-                |> Task.attempt (\_ -> Update_NoOp)
+            , scrollRow { id = rowId, direction = direction }
             )
 
         Update_Config res ->
