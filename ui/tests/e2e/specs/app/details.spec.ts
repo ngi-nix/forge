@@ -39,13 +39,25 @@ test.describe("App Details Page", () => {
   });
 
   test("shows buttons that scroll the screenshots", async ({ page }) => {
-    const rowId = await page.getByTestId("app-screenshots").getAttribute("id");
-    for (const name of ["Show the previous screenshots", "Show the next screenshots"]) {
-      const button = page.getByRole("button", { name });
+    const row = page.getByTestId("app-screenshots");
+    const rowId = await row.getAttribute("id");
+    // The mock screenshots are empty files. Make each one as wide as the row, thus the row can scroll.
+    await row.evaluate((element) =>
+      element.querySelectorAll("figure").forEach((figure) => {
+        figure.style.minWidth = `${element.clientWidth}px`;
+      })
+    );
+    const scrollLeft = () => row.evaluate((element) => element.scrollLeft);
+    const next = page.getByRole("button", { name: "Show the next screenshots" });
+    const previous = page.getByRole("button", { name: "Show the previous screenshots" });
+    for (const button of [previous, next]) {
       await expect(button).toBeVisible();
       await expect(button).toHaveAttribute("aria-controls", rowId!);
-      await button.click();
     }
+    await next.click();
+    await expect.poll(scrollLeft).toBeGreaterThan(0);
+    await previous.click();
+    await expect.poll(scrollLeft).toBe(0);
   });
 
   test("shows NGI grants section if available", async ({ page }) => {
