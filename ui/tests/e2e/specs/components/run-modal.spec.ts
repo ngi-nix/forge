@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TEST_APP_NAME } from "../constants";
+import { TEST_APP_NAME, TEST_WASM_APP_NAME } from "../constants";
 
 test.describe("Run Modal and Hash State", () => {
   const targetPage = `./app/${TEST_APP_NAME}`;
@@ -23,6 +23,19 @@ test.describe("Run Modal and Hash State", () => {
 
     const shellTab = page.getByRole("tab", { name: /shell/i });
     await expect(shellTab).toHaveClass(/active/);
+  });
+
+  test("direct visit to #run-browser opens modal with Browser tab active", async ({ page }) => {
+    await page.goto(`${targetPage}#run-browser`);
+    const modal = page.getByTestId("run-modal-container");
+    await expect(modal).toBeVisible();
+
+    const browserTab = page.getByRole("tab", { name: /browser/i });
+    await expect(browserTab).toHaveClass(/active/);
+
+    const vmLink = modal.getByTestId("run-browser-vm");
+    await expect(vmLink).toHaveAttribute("href", /^https:\/\/trynix\.dev\/\?path=%2Fnix%2Fstore%2F/);
+    await expect(vmLink).toHaveAttribute("href", /&cache=https%3A%2F%2Fngi-forge\.cachix\.org%20/);
   });
 
   test("modal closes via Escape, close button, and backdrop click", async ({ page }) => {
@@ -108,5 +121,19 @@ test.describe("Run Modal and Hash State", () => {
       const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
       expect(clipboardText).toMatch("nix shell");
     }).toPass();
+  });
+});
+
+test.describe("Browser runtime", () => {
+  test("runs the example of the WASI program", async ({ page }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(TEST_WASM_APP_NAME === "", "No app with a WASI program");
+    await page.goto(`./app/${TEST_WASM_APP_NAME}#run-browser`);
+    const modal = page.getByTestId("run-modal-container");
+    await expect(modal.getByTestId("run-browser-args")).toBeVisible();
+
+    await modal.getByTestId("run-browser-start").click();
+    await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
+    await expect(modal.getByTestId("run-browser-start")).toBeVisible();
   });
 });

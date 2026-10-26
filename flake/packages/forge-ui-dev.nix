@@ -9,6 +9,7 @@
     out=./ui/build
     mkdir -p $out/js $out/css
     ln -snvf ${_forge.ui.passthru.bootstrapCss} $out/bootstrap
+    ln -snvf ${_forge.ui.passthru.nodeModules} $out/node_modules
     ln -snvf ${_forge.options} $out/forge-options.json
     ln -snvf ${_forge.docs} $out/docs
     ln -snvf ${highlight-js}/highlight.min.js $out/js/highlight.min.js

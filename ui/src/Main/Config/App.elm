@@ -54,9 +54,20 @@ type alias AppProgramsRuntimesShell =
     }
 
 
+type alias AppProgramsRuntimesBrowser =
+    { enable : Bool
+
+    -- Empty if the app has no WASI program.
+    , wasmProgram : String
+    , args : String
+    , stdin : String
+    }
+
+
 type alias AppProgramsRuntimes =
     { appProgramsRuntimes_program : AppProgramsRuntimesProgram
     , appProgramsRuntimes_shell : AppProgramsRuntimesShell
+    , appProgramsRuntimes_browser : AppProgramsRuntimesBrowser
     }
 
 
@@ -79,9 +90,10 @@ decodeAppPrograms =
 
 decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes
 decodeAppProgramsRuntimes =
-    Decode.map2 AppProgramsRuntimes
+    Decode.map3 AppProgramsRuntimes
         (Decode.field "program" decodeAppProgramsRuntimesProgram)
         (Decode.field "shell" decodeAppProgramsRuntimesShell)
+        (Decode.field "browser" decodeAppProgramsRuntimesBrowser)
 
 
 decodeAppProgramsRuntimesProgram : Decoder AppProgramsRuntimesProgram
@@ -94,6 +106,22 @@ decodeAppProgramsRuntimesShell : Decoder AppProgramsRuntimesShell
 decodeAppProgramsRuntimesShell =
     Decode.map AppProgramsRuntimesShell
         (Decode.field "enable" Decode.bool)
+
+
+decodeAppProgramsRuntimesBrowser : Decoder AppProgramsRuntimesBrowser
+decodeAppProgramsRuntimesBrowser =
+    Decode.map4 AppProgramsRuntimesBrowser
+        (Decode.field "enable" Decode.bool)
+        (Decode.field "wasmProgram" Decode.string)
+        (Decode.field "args" Decode.string)
+        (Decode.field "stdin" Decode.string)
+
+
+{-| URL of the WASI program of the browser runtime.
+-}
+appWasmUrl : App -> String
+appWasmUrl app =
+    "resources/apps/" ++ app.app_name ++ "/" ++ app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.wasmProgram ++ ".wasm"
 
 
 type alias AppResource =
@@ -215,6 +243,7 @@ type alias NgiSubgrantName =
 type AppRuntime
     = AppRuntime_Program
     | AppRuntime_Shell
+    | AppRuntime_Browser
     | AppRuntime_Container
     | AppRuntime_NixOS
 
@@ -228,6 +257,9 @@ hasAppRuntime appRuntime app =
         AppRuntime_Shell ->
             app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable
 
+        AppRuntime_Browser ->
+            app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.enable
+
         AppRuntime_Container ->
             app.app_services.appServices_runtimes.appServicesRuntimes_container.enable
 
@@ -239,6 +271,7 @@ listAppRuntime : List AppRuntime
 listAppRuntime =
     [ AppRuntime_Program
     , AppRuntime_Shell
+    , AppRuntime_Browser
     , AppRuntime_Container
     , AppRuntime_NixOS
     ]
@@ -253,6 +286,11 @@ listAppRuntimeAvailable app =
         []
     , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
         [ AppRuntime_Shell ]
+
+      else
+        []
+    , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.enable then
+        [ AppRuntime_Browser ]
 
       else
         []
@@ -279,6 +317,9 @@ showAppRuntime r =
         AppRuntime_Shell ->
             "Shell"
 
+        AppRuntime_Browser ->
+            "Browser"
+
         AppRuntime_Container ->
             "Container"
 
@@ -294,6 +335,9 @@ showAppRuntimeDescription r =
 
         AppRuntime_Shell ->
             "Run application within a shell environment"
+
+        AppRuntime_Browser ->
+            "Try application in the web browser"
 
         AppRuntime_Container ->
             "Run application in an OCI container"

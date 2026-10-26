@@ -64,6 +64,35 @@
       ];
 
       runtimes.shell.enable = true;
+
+      runtimes.browser = {
+        enable = true;
+        # TODO: use `pkgs.pkgsCross.wasi32.pkgsOriginal.jaq` when Nixpkgs has
+        # https://github.com/NixOS/nixpkgs/pull/578407.
+        wasmPackage =
+          let
+            wasi = pkgs.pkgsCross.wasi32.pkgsOriginal;
+          in
+          wasi.jaq.overrideAttrs {
+            # `fd-lock` (file history) and `mimalloc` do not support WASI.
+            # `jaq-play` needs `wasm-bindgen`.
+            postPatch = ''
+              substituteInPlace jaq/Cargo.toml \
+                --replace-fail ', features = ["with-file-history"]' ""
+            '';
+            cargoBuildNoDefaultFeatures = true;
+            # The tests do not run on the build platform.
+            doCheck = false;
+            cargoBuildFlags = [
+              "-p"
+              "jaq"
+            ];
+            # Link with the C compiler of the WASI toolchain, not with `rust-lld`.
+            env.RUSTFLAGS = "-Clinker-flavor=gcc -Clink-self-contained=no -Clink-arg=--target=${wasi.stdenv.targetPlatform.config}";
+          };
+        args = "-c '.a | map(. * 2)'";
+        stdin = ''{"a": [1, 2]}'';
+      };
     };
   };
 }

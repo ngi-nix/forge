@@ -54,6 +54,7 @@
       packages = [ pkgs.prismafs ];
       runtimes.program.enable = true;
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     # Note: An end-to-end test is in the passthru.tests.nixos package

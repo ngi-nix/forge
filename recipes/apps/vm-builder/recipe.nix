@@ -70,6 +70,7 @@ in
       packages = [ pkgs.vm-builder ];
       runtimes.program.enable = true;
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     test.programs.packages = [

@@ -100,6 +100,7 @@ apps."{name}" = {{
   programs = {{
     packages = [ pkgs.hello ];
     runtimes.shell.enable = {shell_en};
+    runtimes.browser.enable = {shell_en};
     {"mainPackage = pkgs.hello;" if program_en == "true" else ""}
     runtimes.program.enable = {program_en};
   }};

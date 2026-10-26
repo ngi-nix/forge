@@ -56,6 +56,7 @@
       mainPackage = pkgs.bids;
       packages = [ pkgs.bids ];
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
       runtimes.program.enable = true;
     };
 

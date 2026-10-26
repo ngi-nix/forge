@@ -23,10 +23,12 @@
               "env"
               "test"
               # All apps passthru attributes
+              "browser"
               "check-programs-main-package"
               "container"
               "program"
               "test"
+              "test-browser"
               "test-programs"
               "test-services-container"
               "test-services-nixos"

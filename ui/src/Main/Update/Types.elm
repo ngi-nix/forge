@@ -2,6 +2,7 @@ module Main.Update.Types exposing (Update(..), Updater)
 
 import Browser.Dom as Dom
 import Http
+import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Nix exposing (..)
@@ -44,6 +45,12 @@ type Update
     | Update_AmbientKeyPress AmbientKeyState
     | Update_Search Search
     | Update_SearchFocus Bool
+    | Update_BrowserRunArgs App String
+    | Update_BrowserRunStdin App String
+    | Update_BrowserRunStart App
+    | Update_BrowserRunStop
+    | -- `Update_BrowserRunEvent value` applies an event of `Main.Ports.Wasi.onWasiEvent`.
+      Update_BrowserRunEvent Decode.Value
     | Update_NoOp
 
 

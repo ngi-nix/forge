@@ -4,6 +4,7 @@ import { initNavigation } from "./Navigation.js";
 import { getPreferences, initPreferences } from "./Preferences.js";
 import { initSmoothScroll } from "./SmoothScroll.js";
 import { initTitle } from "./Title.js";
+import { initWasi } from "./Wasi.js";
 import "./CodeHighlightJS.js";
 
 // Intercept clicks if the user is selecting text, preventing cards from navigating
@@ -54,4 +55,5 @@ initNavigation({
 initPreferences(app);
 initSmoothScroll(app);
 initTitle(app);
+initWasi(app);
 registerIconFallbackonError();

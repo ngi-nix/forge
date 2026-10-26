@@ -190,6 +190,11 @@ viewPageAppsApp _ _ app =
 
                   else
                     []
+                , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.enable then
+                    [ viewRuntimeBadge AppRuntime_Browser ]
+
+                  else
+                    []
                 , if app.app_services.appServices_runtimes.appServicesRuntimes_container.enable then
                     [ viewRuntimeBadge AppRuntime_Container ]
 

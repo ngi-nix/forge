@@ -36,6 +36,7 @@
         pkgs.bang
       ];
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
   };
 }
