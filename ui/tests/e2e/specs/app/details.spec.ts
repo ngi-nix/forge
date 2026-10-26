@@ -60,6 +60,36 @@ test.describe("App Details Page", () => {
     await expect.poll(scrollLeft).toBe(0);
   });
 
+  test("shows a screenshot in full size and the next and previous screenshots", async ({ page }) => {
+    const path = `resources/apps/${TEST_APP_NAME}/screenshots`;
+    const modal = page.getByTestId("screenshot-modal");
+    const position = page.getByTestId("screenshot-modal-position");
+    await page.getByTestId("app-screenshots").locator("a").first().click();
+    await expect(modal).toBeVisible();
+    await expect(page).toHaveURL(/#screenshot-1$/);
+    await expect(position).toHaveText("1 / 2");
+    await expect(modal.locator("img")).toHaveAttribute("src", `${path}/0.webp`);
+    await expect(modal).toContainText("Mock screenshot.");
+
+    await modal.getByRole("button", { name: "Show the next screenshot" }).click();
+    await expect(position).toHaveText("2 / 2");
+    await expect(modal.locator("img")).toHaveAttribute("src", `${path}/1.webp`);
+    await expect(page).toHaveURL(/#screenshot-2$/);
+    // The screenshots wrap around.
+    await page.keyboard.press("ArrowRight");
+    await expect(position).toHaveText("1 / 2");
+    await page.keyboard.press("ArrowLeft");
+    await expect(position).toHaveText("2 / 2");
+
+    await page.keyboard.press("Escape");
+    await expect(modal).toBeHidden();
+
+    await page.goto(`./app/${TEST_APP_NAME}#screenshot-2`);
+    await expect(position).toHaveText("2 / 2");
+    await modal.getByRole("button", { name: "Close" }).click();
+    await expect(modal).toBeHidden();
+  });
+
   test("shows NGI grants section if available", async ({ page }) => {
     // mock-test in mock data has grants
     const grants = page.locator("#grants");

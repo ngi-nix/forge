@@ -294,6 +294,46 @@ highlightjs-code pre {
   object-position: top left;
 }
 
+/* The screenshot modal fills the window, thus the image can be large. */
+.screenshot-modal {
+  background-color: rgba(0, 0, 0, 0.95);
+}
+
+.screenshot-modal-body {
+  position: relative;
+  min-height: 0;
+}
+
+.screenshot-modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* On a narrow window, the buttons are on the image. */
+.screenshot-modal-nav {
+  position: absolute;
+  z-index: 1;
+}
+
+.screenshot-modal-nav:first-child {
+  left: 0;
+}
+
+.screenshot-modal-nav:last-child {
+  right: 0;
+}
+
+@media (min-width: 768px) {
+  .screenshot-modal-image {
+    max-width: calc(100% - 6rem);
+  }
+
+  .screenshot-modal-nav {
+    position: static;
+  }
+}
+
 /* Hide the annoying border around search bar that bootstrap adds */
 .form-control:focus {
   box-shadow: none !important;
