@@ -5,17 +5,17 @@
 {
   apps.fractal.screenshots = lib.mkDefault [
     {
-      url = "https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/main.png";
+      url = "https://gitlab.gnome.org/World/fractal/-/raw/9f9df10cde4f7706ac214c84e85dfe98b10ff4e5/screenshots/main.png";
       hash = "sha256-IMdzmfhPNo7n/1A8s+9xlzKdZzforaKzYBAkd30wIHE=";
       caption = "Fractal’s main window";
     }
     {
-      url = "https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/media-history.png";
+      url = "https://gitlab.gnome.org/World/fractal/-/raw/9f9df10cde4f7706ac214c84e85dfe98b10ff4e5/screenshots/media-history.png";
       hash = "sha256-wcFfeQgvtbbS8jfi+PiVw5ePxdrUkLTqDL68Cx2aLY8=";
       caption = "View the media history of a Matrix room";
     }
     {
-      url = "https://gitlab.gnome.org/World/fractal/raw/fractal-14/screenshots/adaptive.png";
+      url = "https://gitlab.gnome.org/World/fractal/-/raw/9f9df10cde4f7706ac214c84e85dfe98b10ff4e5/screenshots/adaptive.png";
       hash = "sha256-JEVumxCqiS9PiR/HQgZx5YCxclRx/cplX9k2a1y86yE=";
       caption = "Fractal’s interface adapts to small screens";
     }

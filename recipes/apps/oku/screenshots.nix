@@ -5,32 +5,32 @@
 {
   apps.oku.screenshots = lib.mkDefault [
     {
-      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/refs/heads/main/assets/screenshots/light/main.png";
+      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/29ce88deaa2193f4b2791a1eb6526b92d311a702/assets/screenshots/light/main.png";
       hash = "sha256-ixdISnc7c1WbNdNwcqMuDhUOMgNgr45inprOLw6Xd7Q=";
       caption = "Browser window";
     }
     {
-      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/refs/heads/main/assets/screenshots/dark/bookmarks.png";
+      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/29ce88deaa2193f4b2791a1eb6526b92d311a702/assets/screenshots/dark/bookmarks.png";
       hash = "sha256-QWE8wSTL/6qIaABXBo0vOxZOatX8CenOc99ZOrP5tWc=";
       caption = "Library page showing bookmarks";
     }
     {
-      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/refs/heads/main/assets/screenshots/light/history.png";
+      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/29ce88deaa2193f4b2791a1eb6526b92d311a702/assets/screenshots/light/history.png";
       hash = "sha256-0GoNg9G/YTYdy95+DtOPNvtgjiH+UEQ+ZpGvGFbKlCY=";
       caption = "Library page showing browser history";
     }
     {
-      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/refs/heads/main/assets/screenshots/dark/okunet_home.png";
+      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/29ce88deaa2193f4b2791a1eb6526b92d311a702/assets/screenshots/dark/okunet_home.png";
       hash = "sha256-Pa30v13LyFbMbHgWJfOmEFBO2ZMo8bMTIHdoVvBcLnQ=";
       caption = "An OkuNet home feed";
     }
     {
-      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/refs/heads/main/assets/screenshots/light/okunet_me.png";
+      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/29ce88deaa2193f4b2791a1eb6526b92d311a702/assets/screenshots/light/okunet_me.png";
       hash = "sha256-57dpuL4U9JxAOgz9u33umzfBm4fIpJocaDenXFl2Yhk=";
       caption = "An OkuNet profile";
     }
     {
-      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/refs/heads/main/assets/screenshots/dark/page.png";
+      url = "https://raw.githubusercontent.com/OkuBrowser/okubrowser.github.io/29ce88deaa2193f4b2791a1eb6526b92d311a702/assets/screenshots/dark/page.png";
       hash = "sha256-77lMI1c08KT6xNnONIwwzw5DSKPX07jb7Sm5JYg92BQ=";
       caption = "Web page";
     }
