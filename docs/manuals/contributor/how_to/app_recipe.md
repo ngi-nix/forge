@@ -243,6 +243,46 @@ services = {
 };
 ```
 
+Endpoints provided by a service can be described using the `endpoints`
+option. Each endpoint is named and has a `port`, an application-level `protocol`
+(`http` - default, or any other protocol name such as `https`, `websocket` or
+`postgresql`) and a `visibility` (`private` - default, or `public` for endpoints
+meant to be exposed to the users).
+
+```nix
+services = {
+  components.my-service = {
+    ...
+    endpoints = {
+      web = {
+        port = 8080;
+        visibility = "public";
+      };
+      postgresql = {
+        port = 5432;
+        protocol = "postgresql";
+      };
+    };
+    ...
+  };
+};
+```
+
+Endpoints can be referenced by name, for example in the `usage` text:
+
+```nix
+let
+  app = config.apps.my-app;
+in
+{
+  apps.my-app = {
+    usage = ''
+      Web interface: http://localhost:''${toString app.services.components.my-service.endpoints.web.port}
+    '';
+  };
+}
+```
+
 A pre-start script can be configured using the `process.preStart` option. The
 pre-start script runs before service startup, including restarts. This is useful
 for tasks like database migrations.
@@ -328,6 +368,10 @@ services = {
   resources.reverse-proxy = {
     role = "frontend";
     ports = [ "8080:8080" ];
+    endpoints.web = {
+      port = 8080;
+      visibility = "public";
+    };
     nixosConfig = {
       services.nginx.enable = true;
     };
