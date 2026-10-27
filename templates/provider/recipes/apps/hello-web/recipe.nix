@@ -44,6 +44,12 @@
           packages = [ pkgs.hello-web ];
           ports = [ "5000:5000" ];
         };
+        endpoints = {
+          web = {
+            port = 5000;
+            visibility = "public";
+          };
+        };
       };
 
       runtimes = {
