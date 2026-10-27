@@ -36,7 +36,7 @@ in
 
       #### Web Interface
 
-      Open the [web interface](https://localhost:3000) and log in with the
+      Open the [web interface](https://localhost:${toString app.services.components.krill.endpoints.web.port}) and log in with the
       admin token, which by default is set to `${app.data.adminToken}`.
 
       > [!CAUTION]
@@ -102,6 +102,13 @@ in
           SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
         };
         process.ports = [ "3000:3000" ];
+        endpoints = {
+          web = {
+            port = 3000;
+            protocol = "https";
+            visibility = "public";
+          };
+        };
       };
 
       runtimes = {

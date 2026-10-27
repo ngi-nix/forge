@@ -5,7 +5,7 @@
   ...
 }:
 let
-  recipe = config.apps.ties;
+  app = config.apps.ties;
   listenPort = "8080";
 in
 {
@@ -37,7 +37,7 @@ in
 
       Once Ties is running, open the web interface:
 
-      [http://localhost:${listenPort}](http://localhost:${listenPort})
+      [http://localhost:${toString app.services.components.ties.endpoints.web.port}](http://localhost:${toString app.services.components.ties.endpoints.web.port})
 
       Optionally setup the administrator credentials for this instance:
 
@@ -71,7 +71,7 @@ in
 
       Only single-user instances are currently supported. The project also recommends treating all data as publicly available, including bookmarks in private lists.
 
-      For more information, see the [Ties documentation](${recipe.links.docs}).
+      For more information, see the [Ties documentation](${app.links.docs}).
     '';
 
     links = {
@@ -130,10 +130,24 @@ in
             "0.0.0.0:${listenPort}" # accept connections from outside the container
           ];
         };
+        endpoints = {
+          web = {
+            port = lib.toInt listenPort;
+            visibility = "public";
+          };
+        };
       };
 
-      resources.database.nixosConfig = {
-        services.postgresql.enable = true;
+      resources.database = {
+        nixosConfig = {
+          services.postgresql.enable = true;
+        };
+        endpoints = {
+          postgresql = {
+            port = 5432;
+            protocol = "postgresql";
+          };
+        };
       };
 
       runtimes.container = {

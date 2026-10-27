@@ -96,6 +96,12 @@ in
         process.ports = [
           "${app.data.mainPort}:${app.data.mainPort}"
         ];
+        endpoints = {
+          api = {
+            port = lib.toInt (toString app.data.mainPort);
+            visibility = "public";
+          };
+        };
         healthcheck = {
           enable = true;
           test = [

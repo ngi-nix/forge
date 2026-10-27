@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -39,7 +40,7 @@ in
 
       #### Web Interface
 
-      Open the [web interface](http://localhost:8080) and log in as
+      Open the [web interface](http://localhost:${toString app.services.resources.reverse-proxy.endpoints.web.port}) and log in as
       the operator using the account created in the previous step.
     '';
 
@@ -68,12 +69,18 @@ in
           OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
         };
 
+        endpoints = {
+          web = {
+            port = lib.toInt app.services.components.offen.process.environment.OFFEN_SERVER_PORT;
+          };
+        };
+
         healthcheck = {
           enable = true;
           test = [
             "curl"
             "-fs"
-            "http://offen:3000/healthz"
+            "http://offen:${app.services.components.offen.process.environment.OFFEN_SERVER_PORT}/healthz"
           ];
           packages = [ pkgs.curl ];
           interval = "3s";
@@ -98,8 +105,15 @@ in
                   port = 8080;
                 }
               ];
-              locations."/".proxyPass = "http://offen:3000";
+              locations."/".proxyPass =
+                "http://offen:${app.services.components.offen.process.environment.OFFEN_SERVER_PORT}";
             };
+          };
+        };
+        endpoints = {
+          web = {
+            port = 8080;
+            visibility = "public";
           };
         };
       };

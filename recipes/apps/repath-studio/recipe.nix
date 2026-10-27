@@ -1,8 +1,11 @@
 {
+  config,
   pkgs,
   ...
 }:
-
+let
+  app = config.apps.repath-studio;
+in
 {
   pkgs.repath-studio = {
     build.identityBuilder = {
@@ -23,7 +26,7 @@
       #### Web Application & Schema Explorer
 
       The _repath-studio-web_ service serves the browser-based web application and schema explorer at
-      [http://localhost:8080](http://localhost:8080) and [http://localhost:8080/schema-explorer](http://localhost:8080/schema-explorer).
+      [http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.port}](http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.port}) and [http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.port}/schema-explorer](http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.port}/schema-explorer).
     '';
 
     icon = ./icon.svg;
@@ -61,6 +64,12 @@
           "$XDG_CONFIG_HOME/Caddyfile"
         ];
         process.ports = [ "8080:8080" ];
+        endpoints = {
+          web = {
+            port = 8080;
+            visibility = "public";
+          };
+        };
       };
 
       runtimes.container.enable = true;

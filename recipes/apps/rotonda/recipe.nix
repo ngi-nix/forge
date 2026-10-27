@@ -68,6 +68,17 @@
           "8080:8080"
           "11019:11019"
         ];
+        endpoints = {
+          api = {
+            port = 8080;
+            visibility = "public";
+          };
+          bmp = {
+            port = 11019;
+            protocol = "bmp";
+            visibility = "public";
+          };
+        };
       };
 
       runtimes = {

@@ -1,8 +1,11 @@
 {
+  config,
   pkgs,
   ...
 }:
-
+let
+  app = config.apps.alps;
+in
 {
   pkgs.alps = {
     build.identityBuilder = {
@@ -20,7 +23,7 @@
       Update `provider.imap.server` and `smtp.server` in the recipe to point to
       a real IMAP/SMTP server before using it.
 
-      Webmail interface: [http://localhost:1323](http://localhost:1323)
+      Webmail interface: [http://localhost:${toString app.services.components.alps.endpoints.web.port}](http://localhost:${toString app.services.components.alps.endpoints.web.port})
     '';
 
     ngi.grants = {
@@ -58,6 +61,12 @@
             "$XDG_CONFIG_HOME/config.toml"
           ];
           ports = [ "1323:1323" ];
+        };
+        endpoints = {
+          web = {
+            port = 1323;
+            visibility = "public";
+          };
         };
       };
 

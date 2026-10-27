@@ -101,6 +101,21 @@
           "3901:3901"
           "3902:3902"
         ];
+        endpoints = {
+          rpc = {
+            port = 3900;
+            protocol = "garage-rpc";
+            visibility = "public";
+          };
+          s3-api = {
+            port = 3901;
+            visibility = "public";
+          };
+          admin-api = {
+            port = 3902;
+            visibility = "public";
+          };
+        };
       };
 
       runtimes = {
