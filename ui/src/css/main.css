@@ -294,6 +294,12 @@ highlightjs-code pre {
   object-position: top left;
 }
 
+/* The caption does not make the screenshot wider than its image, thus a narrow image has no gap at its side. */
+.screenshots figcaption {
+  width: 0;
+  min-width: 100%;
+}
+
 /* The screenshot modal fills the window, thus the image can be large. */
 .screenshot-modal {
   background-color: rgba(0, 0, 0, 0.95);

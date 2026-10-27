@@ -38,6 +38,19 @@ test.describe("App Details Page", () => {
     await expect(screenshots.locator("img").first()).toHaveAttribute("alt", "Mock screenshot.");
   });
 
+  test("makes each screenshot as wide as its image", async ({ page }) => {
+    const row = page.getByTestId("app-screenshots");
+    // The mock screenshots are empty files. Make each image narrower than its caption.
+    const widths = await row.evaluate((element) =>
+      Array.from(element.querySelectorAll("figure"), (figure) => {
+        figure.querySelector("img")!.style.width = "40px";
+        return [figure.getBoundingClientRect().width, figure.querySelector("img")!.getBoundingClientRect().width];
+      })
+    );
+    expect(widths.length).toBeGreaterThan(0);
+    for (const [figure, image] of widths) expect(figure).toBe(image);
+  });
+
   test("shows buttons that scroll the screenshots", async ({ page }) => {
     const row = page.getByTestId("app-screenshots");
     const rowId = await row.getAttribute("id");
