@@ -1,9 +1,13 @@
 {
   forge-lib,
   lib,
+  config,
   pkgs,
   ...
 }:
+let
+  app = config.apps.signaturepdf;
+in
 {
   pkgs.signaturepdf = {
     build.builders.identity = {
@@ -23,7 +27,7 @@
       others, as well as organizing pages (merge, sort, rotate, delete,
       extract), editing metadata, and compressing PDF files.
 
-      Web interface: [http://localhost:8080](http://localhost:8080)
+      Web interface: [http://localhost:${toString app.services.components.signaturepdf.endpoints.web.port}](http://localhost:${toString app.services.components.signaturepdf.endpoints.web.port})
     '';
 
     links = {
@@ -57,6 +61,12 @@
           ports = [
             "8080:8080"
           ];
+        };
+        endpoints = {
+          web = {
+            port = 8080;
+            visibility = "public";
+          };
         };
       };
 
