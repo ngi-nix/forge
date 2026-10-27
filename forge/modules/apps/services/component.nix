@@ -153,5 +153,19 @@
         [ "foobar-server" ]
       '';
     };
+
+    endpoints = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule ./endpoint.nix);
+      default = { };
+      description = "Endpoints provided by the service, by name.";
+      example = lib.literalExpression ''
+        {
+          web = {
+            port = 8000;
+            visibility = "public";
+          };
+        }
+      '';
+    };
   };
 }

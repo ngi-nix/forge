@@ -214,37 +214,60 @@ viewBulletList items =
         items
 
 
-viewPortList : List String -> Html Update
-viewPortList ports =
-    if List.isEmpty ports then
-        text ""
+viewEndpointUrl : AppEndpoint -> Html Update
+viewEndpointUrl endpoint =
+    let
+        endpointUrl host =
+            endpoint.appEndpoint_protocol ++ "://" ++ host ++ ":" ++ String.fromInt endpoint.appEndpoint_port
+
+        isWeb =
+            List.member endpoint.appEndpoint_protocol [ "http", "https" ]
+    in
+    if isWeb && isAppEndpointPublic endpoint then
+        a
+            [ href (endpointUrl "localhost")
+            , target "_blank"
+            , rel "noopener noreferrer"
+            ]
+            [ text (endpointUrl "host") ]
 
     else
-        ul
-            [ class "ms-3 mb-1"
-            , style "list-style-type" "none"
-            , style "padding" "0px"
-            ]
-            (List.map
-                (\p -> li [] [ small [ class "text-body-secondary" ] [ text (String.replace ":" " → " p) ] ])
-                ports
-            )
+        text (endpointUrl "host")
+
+
+{-| Show a service component or resource name with the ports of its endpoints listed below it.
+-}
+viewServiceEndpoints : String -> List AppEndpoint -> Html Update
+viewServiceEndpoints name endpoints =
+    li []
+        [ small [] [ text name ]
+        , if List.isEmpty endpoints then
+            text ""
+
+          else
+            ul
+                [ class "mb-1"
+                , style "list-style-type" "circle"
+                , style "padding-left" "1.2em"
+                ]
+                (List.map
+                    (\endpoint ->
+                        li []
+                            [ small [ class "text-body-secondary" ] [ viewEndpointUrl endpoint ] ]
+                    )
+                    (List.sortBy .appEndpoint_port endpoints)
+                )
+        ]
 
 
 viewResource : ( String, AppResource ) -> Html Update
 viewResource ( rname, resource ) =
-    li []
-        [ small [] [ text rname ]
-        , viewPortList resource.appResource_ports
-        ]
+    viewServiceEndpoints rname resource.appResource_endpoints
 
 
 viewComponent : ( String, AppComponent ) -> Html Update
 viewComponent ( cname, component ) =
-    li []
-        [ small [] [ text cname ]
-        , viewPortList component.appComponent_ports
-        ]
+    viewServiceEndpoints cname component.appComponent_endpoints
 
 
 viewPageAppConfiguration : Model -> PageApp -> Html Update

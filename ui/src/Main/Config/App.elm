@@ -97,28 +97,76 @@ decodeAppProgramsRuntimesShell =
         (Decode.field "enable" Decode.bool)
 
 
+type AppEndpointVisibility
+    = AppEndpointVisibility_Private
+    | AppEndpointVisibility_Public
+
+
+decodeAppEndpointVisibility : Decoder AppEndpointVisibility
+decodeAppEndpointVisibility =
+    Decode.string
+        |> Decode.andThen
+            (\visibility ->
+                case visibility of
+                    "private" ->
+                        Decode.succeed AppEndpointVisibility_Private
+
+                    "public" ->
+                        Decode.succeed AppEndpointVisibility_Public
+
+                    _ ->
+                        Decode.fail ("Unknown endpoint visibility: " ++ visibility)
+            )
+
+
+type alias AppEndpoint =
+    { appEndpoint_port : Int
+    , appEndpoint_protocol : String
+    , appEndpoint_visibility : AppEndpointVisibility
+    }
+
+
+decodeAppEndpoint : Decoder AppEndpoint
+decodeAppEndpoint =
+    Decode.map3 AppEndpoint
+        (Decode.field "port" Decode.int)
+        (Decode.field "protocol" Decode.string)
+        (Decode.field "visibility" decodeAppEndpointVisibility)
+
+
+{-| Whether the endpoint is meant to be exposed to the users of the app.
+-}
+isAppEndpointPublic : AppEndpoint -> Bool
+isAppEndpointPublic endpoint =
+    endpoint.appEndpoint_visibility == AppEndpointVisibility_Public
+
+
 type alias AppResource =
     { appResource_enable : Bool
     , appResource_ports : List String
+    , appResource_endpoints : List AppEndpoint
     }
 
 
 decodeAppResource : Decoder AppResource
 decodeAppResource =
-    Decode.map2 AppResource
+    Decode.map3 AppResource
         (Decode.field "enable" Decode.bool)
         (Decode.field "ports" (Decode.list Decode.string))
+        (Decode.field "endpoints" (Decode.dict decodeAppEndpoint |> Decode.map Dict.values))
 
 
 type alias AppComponent =
     { appComponent_ports : List String
+    , appComponent_endpoints : List AppEndpoint
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent
+    Decode.map2 AppComponent
         (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
+        (Decode.field "endpoints" (Decode.dict decodeAppEndpoint |> Decode.map Dict.values))
 
 
 type alias AppServices =
