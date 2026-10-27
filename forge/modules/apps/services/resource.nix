@@ -55,5 +55,19 @@
       example = lib.literalExpression ''[ "5432:5432" ]'';
       apply = self: lib.unique self;
     };
+
+    endpoints = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule ./endpoint.nix);
+      default = { };
+      description = "Endpoints provided by the resource, by name.";
+      example = lib.literalExpression ''
+        {
+          postgresql = {
+            port = 5432;
+            protocol = "postgresql";
+          };
+        }
+      '';
+    };
   };
 }
