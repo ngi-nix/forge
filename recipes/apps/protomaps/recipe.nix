@@ -1,10 +1,13 @@
 {
   forge-lib,
   lib,
+  config,
   pkgs,
   ...
 }:
-
+let
+  app = config.apps.protomaps;
+in
 {
   pkgs.pmtiles = {
     build.builders.identity = {
@@ -40,7 +43,7 @@
       ## PMTiles Viewer
 
       The _pmtiles-viewer_ service serves a web-based map viewer at
-      [http://localhost:8080](http://localhost:8080).
+      [http://localhost:${toString app.services.components.pmtiles-viewer.endpoints.web.port}](http://localhost:${toString app.services.components.pmtiles-viewer.endpoints.web.port}).
     '';
 
     icon = ./icon.svg;
@@ -83,6 +86,12 @@
           "$XDG_CONFIG_HOME/Caddyfile"
         ];
         process.ports = [ "8080:8080" ];
+        endpoints = {
+          web = {
+            port = 8080;
+            visibility = "public";
+          };
+        };
       };
 
       runtimes.container.enable = true;

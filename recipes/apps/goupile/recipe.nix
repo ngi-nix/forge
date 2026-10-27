@@ -1,10 +1,13 @@
 {
   forge-lib,
   lib,
+  config,
   pkgs,
   ...
 }:
-
+let
+  app = config.apps.goupile;
+in
 {
   pkgs.goupile = {
     build.builders.identity = {
@@ -19,7 +22,7 @@
     usage = ''
       Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
-      It runs as a web service. It has been configured to run on [http://localhost:8181](http://localhost:8181).
+      It runs as a web service. It has been configured to run on [http://localhost:${toString app.services.components.goupile.endpoints.web.port}](http://localhost:${toString app.services.components.goupile.endpoints.web.port}).
     '';
 
     icon = ./icon.svg;
@@ -43,6 +46,12 @@
             "${./goupile.ini}"
           ];
           process.ports = [ "8181:8181" ];
+          endpoints = {
+            web = {
+              port = 8181;
+              visibility = "public";
+            };
+          };
         };
       };
 
