@@ -103,6 +103,21 @@ test.describe("App Details Page", () => {
     await expect(modal).toBeHidden();
   });
 
+  test("keeps the screenshot modal buttons at the same position for each image width", async ({ page }) => {
+    const modal = page.getByTestId("screenshot-modal");
+    await page.getByTestId("app-screenshots").locator("a").first().click();
+    // The mock screenshots are empty files. Give the image different widths.
+    const positions = await modal.evaluate((element) =>
+      ["100px", "300px"].map((width) => {
+        element.querySelector("img")!.style.width = width;
+        return Array.from(element.querySelectorAll(".screenshot-modal-nav"), (button) =>
+          button.getBoundingClientRect().x);
+      })
+    );
+    expect(positions[0]).toHaveLength(2);
+    expect(positions[1]).toEqual(positions[0]);
+  });
+
   test("shows NGI grants section if available", async ({ page }) => {
     // mock-test in mock data has grants
     const grants = page.locator("#grants");
