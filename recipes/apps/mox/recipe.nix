@@ -1,11 +1,14 @@
 {
+  config,
   pkgs,
   forge-lib,
   lib,
   apps,
   ...
 }:
-
+let
+  app = config.apps.mox;
+in
 {
   pkgs.mox = {
     build.builders.identity = {
@@ -38,9 +41,9 @@
 
       ##### URLs
 
-      * Admin web interface: [http://localhost:8080](http://localhost:8080)
-      * Account web interface: [http://localhost:8081](http://localhost:8081)
-      * Webmail interface: [http://localhost:8082](http://localhost:8082)
+      * Account web interface: [http://localhost:${toString app.services.components.mox.endpoints.account.port}](http://localhost:${toString app.services.components.mox.endpoints.account.port})
+      * Admin web interface: [http://localhost:${toString app.services.components.mox.endpoints.admin.port}/admin](http://localhost:${toString app.services.components.mox.endpoints.admin.port}/admin)
+      * Webmail interface: [http://localhost:${toString app.services.components.mox.endpoints.webmail.port}/webmail](http://localhost:${toString app.services.components.mox.endpoints.webmail.port}/webmail)
 
     '';
     maintainers = with lib.maintainers; [
@@ -89,6 +92,20 @@
           "8081:8081"
           "8082:8082"
         ];
+        endpoints = {
+          account = {
+            port = 8080;
+            visibility = "public";
+          };
+          admin = {
+            port = 8081;
+            visibility = "public";
+          };
+          webmail = {
+            port = 8082;
+            visibility = "public";
+          };
+        };
       };
 
       runtimes = {

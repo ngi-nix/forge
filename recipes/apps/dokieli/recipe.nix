@@ -1,9 +1,13 @@
 {
   forge-lib,
   lib,
+  config,
   pkgs,
   ...
 }:
+let
+  app = config.apps.dokieli;
+in
 {
   pkgs.dokieli = {
     build.builders.identity = {
@@ -20,7 +24,7 @@
       dokieli is a clientside editor for authoring, annotating, and sharing
       articles in a decentralised way.
 
-      Web interface: [http://localhost:3000](http://localhost:3000)
+      Web interface: [http://localhost:${toString app.services.components.web.endpoints.web.port}](http://localhost:${toString app.services.components.web.endpoints.web.port})
 
       Open any HTML document in the interface to start authoring, or open an
       existing dokieli document to annotate or edit it directly in the browser.
@@ -52,6 +56,12 @@
             "tcp://0.0.0.0:3000"
           ];
           ports = [ "3000:3000" ];
+        };
+        endpoints = {
+          web = {
+            port = 3000;
+            visibility = "public";
+          };
         };
       };
       runtimes.container.enable = true;
