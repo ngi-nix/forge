@@ -331,8 +331,10 @@ highlightjs-code pre {
 }
 
 @media (min-width: 768px) {
+  /* The auto margins keep the buttons at the sides of the window, thus the buttons do not move when the image width changes. */
   .screenshot-modal-image {
     max-width: calc(100% - 6rem);
+    margin-inline: auto;
   }
 
   .screenshot-modal-nav {
