@@ -21,14 +21,11 @@
       npmDepsHash = "sha256-JLHIlQKGrNXHyRT/VhQznF8elLl4xAa1XTSfLFfQrLU=";
     };
 
-    build.extraAttrs = {
-      sourceRoot = "source/app";
-
-      installPhase = ''
-        runHook preInstall
+    build.phases = {
+      unpack.sourceRoot = "source/app";
+      install.script.main = ''
         mkdir -p $out/share/pmtiles-app
         cp -r dist/* $out/share/pmtiles-app/
-        runHook postInstall
       '';
     };
 
