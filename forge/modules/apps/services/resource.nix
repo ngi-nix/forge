@@ -3,6 +3,8 @@
   ...
 }:
 {
+  imports = [ ./endpoints.nix ];
+
   options = {
     enable = lib.mkEnableOption "the resource" // {
       default = true;
@@ -41,20 +43,6 @@
           can start.
       '';
       example = lib.literalExpression ''"frontend"'';
-    };
-
-    endpoints = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule ./endpoint.nix);
-      default = { };
-      description = "Endpoints provided by the resource, by name.";
-      example = lib.literalExpression ''
-        {
-          postgresql = {
-            port = 5432;
-            protocol = "postgresql";
-          };
-        }
-      '';
     };
   };
 }
