@@ -220,23 +220,15 @@ viewEndpointUrl endpoint =
         endpointUrl host port_ =
             endpoint.appEndpoint_protocol ++ "://" ++ host ++ ":" ++ String.fromInt port_
 
-        isPublic =
-            isAppEndpointPublic endpoint
-
         isWeb =
             List.member endpoint.appEndpoint_protocol [ "http", "https" ]
 
-        -- Only public endpoints are forwarded to the host.
         label =
-            if isPublic then
-                endpointUrl "host" endpoint.appEndpoint_port
-                    ++ " → "
-                    ++ String.fromInt endpoint.appEndpoint_forwardedPort
-
-            else
-                endpointUrl "host" endpoint.appEndpoint_port
+            endpointUrl "host" endpoint.appEndpoint_port
+                ++ " → "
+                ++ String.fromInt endpoint.appEndpoint_forwardedPort
     in
-    if isWeb && isPublic then
+    if isWeb then
         a
             [ href (endpointUrl "localhost" endpoint.appEndpoint_forwardedPort)
             , target "_blank"

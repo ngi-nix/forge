@@ -97,50 +97,19 @@ decodeAppProgramsRuntimesShell =
         (Decode.field "enable" Decode.bool)
 
 
-type AppEndpointVisibility
-    = AppEndpointVisibility_Private
-    | AppEndpointVisibility_Public
-
-
-decodeAppEndpointVisibility : Decoder AppEndpointVisibility
-decodeAppEndpointVisibility =
-    Decode.string
-        |> Decode.andThen
-            (\visibility ->
-                case visibility of
-                    "private" ->
-                        Decode.succeed AppEndpointVisibility_Private
-
-                    "public" ->
-                        Decode.succeed AppEndpointVisibility_Public
-
-                    _ ->
-                        Decode.fail ("Unknown endpoint visibility: " ++ visibility)
-            )
-
-
 type alias AppEndpoint =
     { appEndpoint_port : Int
     , appEndpoint_forwardedPort : Int
     , appEndpoint_protocol : String
-    , appEndpoint_visibility : AppEndpointVisibility
     }
 
 
 decodeAppEndpoint : Decoder AppEndpoint
 decodeAppEndpoint =
-    Decode.map4 AppEndpoint
+    Decode.map3 AppEndpoint
         (Decode.field "port" Decode.int)
         (Decode.field "forwardedPort" Decode.int)
         (Decode.field "protocol" Decode.string)
-        (Decode.field "visibility" decodeAppEndpointVisibility)
-
-
-{-| Whether the endpoint is meant to be exposed to the users of the app.
--}
-isAppEndpointPublic : AppEndpoint -> Bool
-isAppEndpointPublic endpoint =
-    endpoint.appEndpoint_visibility == AppEndpointVisibility_Public
 
 
 type alias AppResource =
@@ -430,7 +399,6 @@ getAppServicesFirewallPorts : AppServices -> List Int
 getAppServicesFirewallPorts services =
     services
         |> getAppServicesEndpoints
-        |> List.filter isAppEndpointPublic
         |> List.map .appEndpoint_port
         |> Set.fromList
         |> Set.toList
