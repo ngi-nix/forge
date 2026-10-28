@@ -52,10 +52,6 @@
           source = ./config.toml;
           path = "tau/tower.toml";
         };
-        process.ports = [
-          "3001:3001"
-          "3002:3002"
-        ];
         endpoints = {
           source = {
             port = 3001;
