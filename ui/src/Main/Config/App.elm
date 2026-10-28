@@ -392,7 +392,7 @@ getAppServicesEndpoints services =
 
 {-| Ports which need to be open in the firewall of a machine running the services.
 
-Services listen on the ports of their public endpoints on the deployed machine.
+Services listen on the ports of their endpoints on the deployed machine.
 
 -}
 getAppServicesFirewallPorts : AppServices -> List Int
