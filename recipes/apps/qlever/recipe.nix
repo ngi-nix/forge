@@ -69,7 +69,6 @@ in
         endpoints = {
           web = {
             port = 8080;
-            visibility = "public";
           };
         };
         dependsOn = [
@@ -109,7 +108,6 @@ in
         endpoints = {
           api = {
             port = 7019;
-            visibility = "public";
           };
         };
       };

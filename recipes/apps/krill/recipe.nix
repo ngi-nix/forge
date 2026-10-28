@@ -105,7 +105,6 @@ in
           web = {
             port = 3000;
             protocol = "https";
-            visibility = "public";
           };
         };
       };

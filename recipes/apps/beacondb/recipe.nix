@@ -74,23 +74,10 @@ in
             };
           };
         };
-        endpoints = {
-          api = {
-            port = 8080;
-          };
-        };
       };
 
-      resources.database = {
-        nixosConfig = {
-          services.postgresql.enable = true;
-        };
-        endpoints = {
-          postgresql = {
-            port = 5432;
-            protocol = "postgresql";
-          };
-        };
+      resources.database.nixosConfig = {
+        services.postgresql.enable = true;
       };
 
       runtimes.container = {

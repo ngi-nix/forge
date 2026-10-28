@@ -82,7 +82,6 @@
           rpc = {
             port = 1024;
             protocol = "connect-rpc";
-            visibility = "public";
           };
         };
         process.configData."dutagent/config.yaml" = {

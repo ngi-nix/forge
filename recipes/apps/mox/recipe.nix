@@ -88,15 +88,12 @@ in
         endpoints = {
           account = {
             port = 8080;
-            visibility = "public";
           };
           admin = {
             port = 8081;
-            visibility = "public";
           };
           webmail = {
             port = 8082;
-            visibility = "public";
           };
         };
       };

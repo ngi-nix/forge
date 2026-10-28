@@ -132,21 +132,12 @@ in
         endpoints = {
           web = {
             port = lib.toInt listenPort;
-            visibility = "public";
           };
         };
       };
 
-      resources.database = {
-        nixosConfig = {
-          services.postgresql.enable = true;
-        };
-        endpoints = {
-          postgresql = {
-            port = 5432;
-            protocol = "postgresql";
-          };
-        };
+      resources.database.nixosConfig = {
+        services.postgresql.enable = true;
       };
 
       runtimes.container = {

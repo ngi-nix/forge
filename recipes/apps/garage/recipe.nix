@@ -100,15 +100,12 @@
           rpc = {
             port = 3900;
             protocol = "garage-rpc";
-            visibility = "public";
           };
           s3-api = {
             port = 3901;
-            visibility = "public";
           };
           admin-api = {
             port = 3902;
-            visibility = "public";
           };
         };
       };

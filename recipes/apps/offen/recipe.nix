@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   pkgs,
   ...
 }:
@@ -69,12 +68,6 @@ in
           OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
         };
 
-        endpoints = {
-          web = {
-            port = lib.toInt app.services.components.offen.process.environment.OFFEN_SERVER_PORT;
-          };
-        };
-
         healthcheck = {
           enable = true;
           test = [
@@ -112,7 +105,6 @@ in
         endpoints = {
           web = {
             port = 80;
-            visibility = "public";
           };
         };
       };

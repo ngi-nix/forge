@@ -53,11 +53,9 @@
           source = {
             port = 3001;
             protocol = "websocket";
-            visibility = "public";
           };
           broadcast = {
             port = 3002;
-            visibility = "public";
           };
         };
       };
