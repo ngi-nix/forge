@@ -93,9 +93,6 @@ in
           "--port"
           "${app.data.mainPort}"
         ];
-        process.ports = [
-          "${app.data.mainPort}:${app.data.mainPort}"
-        ];
         endpoints = {
           api = {
             port = lib.toInt (toString app.data.mainPort);

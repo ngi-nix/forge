@@ -23,7 +23,7 @@ in
       with collaborators peer-to-peer over WebRTC, so editing keeps working
       offline.
 
-      Web interface: [http://localhost:${toString app.services.components.texlyre.endpoints.web.port}](http://localhost:${toString app.services.components.texlyre.endpoints.web.port})
+      Web interface: [http://localhost:${toString app.services.components.texlyre.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.texlyre.endpoints.web.forwardedPort})
     '';
 
     links = {
@@ -44,7 +44,6 @@ in
       components.texlyre = {
         process = {
           command = pkgs.texlyre;
-          ports = [ "3000:3000" ];
         };
         endpoints = {
           web = {

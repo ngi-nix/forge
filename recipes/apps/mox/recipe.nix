@@ -39,9 +39,9 @@ in
 
       ##### URLs
 
-      * Account web interface: [http://localhost:${toString app.services.components.mox.endpoints.account.port}](http://localhost:${toString app.services.components.mox.endpoints.account.port})
-      * Admin web interface: [http://localhost:${toString app.services.components.mox.endpoints.admin.port}/admin](http://localhost:${toString app.services.components.mox.endpoints.admin.port}/admin)
-      * Webmail interface: [http://localhost:${toString app.services.components.mox.endpoints.webmail.port}/webmail](http://localhost:${toString app.services.components.mox.endpoints.webmail.port}/webmail)
+      * Account web interface: [http://localhost:${toString app.services.components.mox.endpoints.account.forwardedPort}](http://localhost:${toString app.services.components.mox.endpoints.account.forwardedPort})
+      * Admin web interface: [http://localhost:${toString app.services.components.mox.endpoints.admin.forwardedPort}/admin](http://localhost:${toString app.services.components.mox.endpoints.admin.forwardedPort}/admin)
+      * Webmail interface: [http://localhost:${toString app.services.components.mox.endpoints.webmail.forwardedPort}/webmail](http://localhost:${toString app.services.components.mox.endpoints.webmail.forwardedPort}/webmail)
 
     '';
     maintainers = with lib.maintainers; [
@@ -84,11 +84,6 @@ in
           "-config"
           "$XDG_CONFIG_HOME/mox.conf"
           "serve"
-        ];
-        process.ports = [
-          "8080:8080"
-          "8081:8081"
-          "8082:8082"
         ];
         endpoints = {
           account = {

@@ -23,7 +23,7 @@ in
 
       #### Access
 
-      Ironcalc will be available on [http://localhost:${toString app.services.components.ironcalc.endpoints.web.port}](http://localhost:${toString app.services.components.ironcalc.endpoints.web.port}).
+      Ironcalc will be available on [http://localhost:${toString app.services.components.ironcalc.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.ironcalc.endpoints.web.forwardedPort}).
 
       You can specify a different port via `ROCKET_PORT`, and different database path with `IRONCALC_DB_PATH` environment variables.
 
@@ -52,7 +52,6 @@ in
           ROCKET_ADDRESS = "0.0.0.0";
           IRONCALC_DB_PATH = "/var/lib/ironcalc/ironcalc.sqlite";
         };
-        process.ports = [ "8000:8000" ];
         endpoints = {
           web = {
             port = 8000;

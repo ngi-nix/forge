@@ -21,7 +21,7 @@ in
       others, as well as organizing pages (merge, sort, rotate, delete,
       extract), editing metadata, and compressing PDF files.
 
-      Web interface: [http://localhost:${toString app.services.components.signaturepdf.endpoints.web.port}](http://localhost:${toString app.services.components.signaturepdf.endpoints.web.port})
+      Web interface: [http://localhost:${toString app.services.components.signaturepdf.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.signaturepdf.endpoints.web.forwardedPort})
     '';
 
     links = {
@@ -51,9 +51,6 @@ in
           });
           argv = [
             "8080"
-          ];
-          ports = [
-            "8080:8080"
           ];
         };
         endpoints = {

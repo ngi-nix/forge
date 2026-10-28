@@ -96,11 +96,6 @@
           "${./garage.toml}"
           "server"
         ];
-        process.ports = [
-          "3900:3900"
-          "3901:3901"
-          "3902:3902"
-        ];
         endpoints = {
           rpc = {
             port = 3900;

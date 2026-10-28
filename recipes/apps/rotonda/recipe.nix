@@ -64,10 +64,6 @@
           "-c"
           "${./rotonda.conf}"
         ];
-        process.ports = [
-          "8080:8080"
-          "11019:11019"
-        ];
         endpoints = {
           api = {
             port = 8080;
