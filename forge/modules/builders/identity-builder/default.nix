@@ -2,9 +2,18 @@
   packageBuilderModule,
   forge-inputs,
   config,
+  pkgs,
   lib,
   ...
 }:
+let
+  builder = config.build.identityBuilder;
+  resolvedDerivation =
+    if builder.attribute != null then
+      lib.getAttrFromPath (lib.splitString "." builder.attribute) (pkgs.pkgsOriginal or pkgs)
+    else
+      builder.derivation;
+in
 {
   imports = [
     (packageBuilderModule {
@@ -12,11 +21,13 @@
       imports = ./options.nix;
       mkDerivation = mk: (mk { }).derivation;
       attrs = builder: finalAttrs: previousAttrs: {
-        derivation = builder.derivation // {
+        derivation = resolvedDerivation // {
           shellHook =
-            builder.derivation.shellHook or ""
+            resolvedDerivation.shellHook or ""
             + ''
-              echo "ngi-forge: '${builder.derivation.pname}' is available at version '${builder.derivation.version}'."
+              echo "ngi-forge: '${resolvedDerivation.pname or config.pname}' is available at version '${
+                resolvedDerivation.version or config.version
+              }'."
             ''
             + lib.optionalString config.build.debug ''
               source ${forge-inputs.nix-utils}/nix-develop-interactive.bash
@@ -33,12 +44,11 @@
       {
         config =
           let
-            builder = config.build.identityBuilder;
-            drv = builder.derivation;
+            drv = resolvedDerivation;
           in
           lib.mkIf builder.enable {
-            homePage = drv.meta.homepage;
-            description = lib.mkDefault (lib.removeSuffix "." drv.meta.description + ".");
+            homePage = drv.meta.homepage or "";
+            description = lib.mkDefault (lib.removeSuffix "." (drv.meta.description or "") + ".");
             inherit (drv) version;
             inherit (drv.meta)
               license

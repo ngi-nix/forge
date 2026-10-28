@@ -6,6 +6,34 @@
   config,
   ...
 }:
+let
+  effectivePkgs =
+    if config.nixpkgsPin != null then
+      let
+        tree = builtins.fetchTree {
+          type = "github";
+          owner = "NixOS";
+          repo = "nixpkgs";
+          inherit (config.nixpkgsPin) rev narHash;
+        };
+        cleanConfig = builtins.removeAttrs (specialArgs.defaultPkgs.config or { }) [ "replaceStdenv" ];
+        imported = import tree {
+          inherit (specialArgs) system;
+          config = cleanConfig;
+          overlays = [ ];
+        };
+      in
+      imported
+      // {
+        pkgsOriginal = imported;
+      }
+    else
+      specialArgs.defaultPkgs;
+
+  pkgSpecialArgs = specialArgs // {
+    pkgs = effectivePkgs;
+  };
+in
 {
   imports = [
     ../assertions-warnings.nix
@@ -20,7 +48,10 @@
     ../builders/rust-package-builder
     ../recipe-metadata.nix
   ];
-  config._recipeType = "pkgs";
+  config = {
+    _recipeType = "pkgs";
+    _module.args.pkgs = effectivePkgs;
+  };
   options = {
     enable = lib.mkOption {
       type = lib.types.bool;
@@ -106,6 +137,37 @@
       type = lib.types.bool;
       default = false;
       description = "Whether the package is broken.";
+    };
+    nixpkgsPin = lib.mkOption {
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = {
+            rev = lib.mkOption {
+              type = lib.types.str;
+              description = "Nixpkgs git commit revision.";
+            };
+            narHash = lib.mkOption {
+              type = lib.types.str;
+              description = "Nixpkgs NAR hash for pure evaluation.";
+            };
+            date = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Optional human-readable date of the revision.";
+            };
+            reason = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Reason for pinning this package.";
+            };
+          };
+        }
+      );
+      default = null;
+      description = ''
+        Pin this package to a specific Nixpkgs revision using builtins.fetchTree.
+        This does NOT add any inputs to flake.lock.
+      '';
     };
 
     # Source configuration
@@ -197,7 +259,7 @@
     build = lib.mkOption {
       description = "Package build options.";
       type = lib.types.submoduleWith {
-        inherit specialArgs;
+        specialArgs = pkgSpecialArgs;
         modules = [
           pkg/env.nix
           {
@@ -263,7 +325,7 @@
     # Test configuration
     test = lib.mkOption {
       type = lib.types.submoduleWith {
-        inherit specialArgs;
+        specialArgs = pkgSpecialArgs;
         modules = [ ./test.nix ];
       };
       default = { };

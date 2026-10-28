@@ -27,7 +27,8 @@
               '';
               type = lib.types.attrsOf (
                 lib.types.submoduleWith {
-                  specialArgs = specialArgs // {
+                  specialArgs = (builtins.removeAttrs specialArgs [ "pkgs" ]) // {
+                    defaultPkgs = specialArgs.pkgs;
                     enable = forgeArgs.config.enable;
                     forgeOptions = forgeArgs.options;
                     inherit packageBuilderModule;
