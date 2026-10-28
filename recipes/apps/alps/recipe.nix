@@ -26,7 +26,7 @@ in
       Update `provider.imap.server` and `smtp.server` in the recipe to point to
       a real IMAP/SMTP server before using it.
 
-      Webmail interface: [http://localhost:${toString app.services.components.alps.endpoints.web.port}](http://localhost:${toString app.services.components.alps.endpoints.web.port})
+      Webmail interface: [http://localhost:${toString app.services.components.alps.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.alps.endpoints.web.forwardedPort})
     '';
 
     ngi.grants = {
@@ -63,7 +63,6 @@ in
             "-config"
             "$XDG_CONFIG_HOME/config.toml"
           ];
-          ports = [ "1323:1323" ];
         };
         endpoints = {
           web = {
