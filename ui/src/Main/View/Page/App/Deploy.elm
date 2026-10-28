@@ -225,24 +225,19 @@ viewPageAppDeployNixOSAnywhere pageApp =
 
 viewPageAppDeployDone : PageApp -> Html Update
 viewPageAppDeployDone pageApp =
-    let
-        ports =
-            pageApp.pageApp_app.app_services
-                |> getAppServicesFirewallPorts
-                |> List.map String.fromInt
-
-        portLink portNumber =
-            a [ href <| "http://<IP-ADDRESS>:" ++ portNumber, target "_blank" ] [ text portNumber ]
-    in
-    if List.isEmpty ports then
-        text "Deployment is done. Your application is up and running."
-
-    else
-        span []
-            (text "Deployment is done. Your application is up and running on port(s) "
-                :: List.intersperse (text ", ") (List.map portLink ports)
-                ++ [ text "." ]
-            )
+    span []
+        [ text "Deployment is done. Application is listening on "
+        , a
+            [ href
+                ("app/"
+                    ++ pageApp.pageApp_app.app_name
+                    ++ "#"
+                    ++ showRouteAppFocus RouteAppFocus_Configuration
+                )
+            ]
+            [ text "available endpoints" ]
+        , text "."
+        ]
 
 
 viewPageAppDeployHardening : Html Update
