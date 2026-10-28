@@ -118,18 +118,6 @@
                 '';
                 example = lib.literalExpression "[ pkgs.rsync pkgs.jq ]";
               };
-
-              ports = lib.mkOption {
-                type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
-                default = [ ];
-                description = ''
-                  List of ports exposed by the service.
-
-                  Format:
-                    _HOST_PORT:SERVICE_PORT_
-                '';
-                example = lib.literalExpression ''[ "8000:8000" "5432:5432" ]'';
-              };
             };
           }
         ];
