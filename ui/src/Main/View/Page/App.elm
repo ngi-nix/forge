@@ -257,41 +257,6 @@ viewEndpointUrl endpoint =
         text label
 
 
-{-| Show a service component or resource name with the ports of its endpoints listed below it.
--}
-viewServiceEndpoints : String -> List AppEndpoint -> Html Update
-viewServiceEndpoints name endpoints =
-    li []
-        [ small [] [ text name ]
-        , if List.isEmpty endpoints then
-            text ""
-
-          else
-            ul
-                [ class "mb-1"
-                , style "list-style-type" "circle"
-                , style "padding-left" "1.2em"
-                ]
-                (List.map
-                    (\endpoint ->
-                        li []
-                            [ small [ class "text-body-secondary" ] [ viewEndpointUrl endpoint ] ]
-                    )
-                    (List.sortBy .appEndpoint_port endpoints)
-                )
-        ]
-
-
-viewResource : ( String, AppResource ) -> Html Update
-viewResource ( rname, resource ) =
-    viewServiceEndpoints rname resource.appResource_endpoints
-
-
-viewComponent : ( String, AppComponent ) -> Html Update
-viewComponent ( cname, component ) =
-    viewServiceEndpoints cname component.appComponent_endpoints
-
-
 viewPageAppConfiguration : Model -> PageApp -> Html Update
 viewPageAppConfiguration model pageApp =
     let
@@ -306,6 +271,14 @@ viewPageAppConfiguration model pageApp =
 
         resources =
             pageApp.pageApp_app.app_services.appServices_resources
+
+        endpoints =
+            pageApp.pageApp_app.app_services
+                |> getAppServicesEndpoints
+                |> List.sortBy .appEndpoint_port
+
+        viewName name =
+            li [] [ small [] [ text name ] ]
     in
     div
         [ class "box-container target-highlight mb-3"
@@ -344,7 +317,7 @@ viewPageAppConfiguration model pageApp =
                 [ div [ class "ms-2 mb-1" ]
                     [ small [ class "text-body-secondary" ] [ text "Services" ] ]
                 , viewBulletList
-                    (components |> Dict.toList |> List.map viewComponent)
+                    (components |> Dict.keys |> List.map viewName)
                 ]
         , if Dict.isEmpty resources then
             text ""
@@ -354,7 +327,17 @@ viewPageAppConfiguration model pageApp =
                 [ div [ class "ms-2 mb-1" ]
                     [ small [ class "text-body-secondary" ] [ text "Resources" ] ]
                 , viewBulletList
-                    (resources |> Dict.toList |> List.map viewResource)
+                    (resources |> Dict.keys |> List.map viewName)
+                ]
+        , if List.isEmpty endpoints then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Endpoints" ] ]
+                , viewBulletList
+                    (List.map (\endpoint -> li [] [ small [] [ viewEndpointUrl endpoint ] ]) endpoints)
                 ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]
