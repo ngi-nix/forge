@@ -125,6 +125,10 @@ Usually, you do not set this option by hand.
 The `forge-screenshots` command of the development shell finds the screenshots
 and writes them to a `screenshots.nix` file next to the recipe.
 A weekly workflow runs this command and opens a pull request with the changes.
+Another weekly workflow runs `forge-screenshots --check`.
+This command downloads each screenshot URL again, also of the screenshots that
+a recipe sets by hand, and fails if a URL cannot be fetched or has a different
+hash.
 
 ```bash
 forge-screenshots <app-name>
