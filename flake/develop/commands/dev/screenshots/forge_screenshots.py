@@ -28,6 +28,11 @@ A URL of a file at a branch or a tag of a GitHub, GitLab or Forgejo repository
 is changed to the URL of the file at the commit of the branch or the tag. Thus
 the URL continues to work when the file changes or moves in the branch. If the
 file at a new commit has the same hash, the URL keeps the old commit.
+
+With `--check`, the command does not write files. It downloads each screenshot
+URL with a hash in the final configuration of the applications, also the
+screenshots that a recipe sets by hand. It tells you which URLs cannot be
+fetched or have a different hash, and exits with status 1 if there are any.
 """
 
 import argparse
@@ -760,6 +765,25 @@ def update(
     return "no screenshots found"
 
 
+def check(app: dict) -> str:
+    screenshots = app["lockedScreenshots"]
+    broken = 0
+    for screenshot in screenshots:
+        url, expected = screenshot["url"], screenshot["hash"]
+        # Some servers sometimes send other data. Thus, try a second time.
+        for _ in range(2):
+            actual = prefetch(url)
+            if actual == expected:
+                break
+        else:
+            if actual is not None:
+                warn(f"hash mismatch: {url}: expected {expected}, got {actual}")
+            broken += 1
+    if broken:
+        return f"broken ({broken} of {len(screenshots)} screenshots)"
+    return f"ok ({len(screenshots)} screenshots)"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="forge-screenshots", description=__doc__.split("\n")[0]
@@ -773,6 +797,11 @@ def main() -> None:
         "--jobs", type=int, default=8, help="applications to update in parallel"
     )
     parser.add_argument("--dry-run", action="store_true", help="do not write files")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="check that the screenshot URLs can be fetched and have the same hash",
+    )
     args = parser.parse_args()
 
     root = Path(
@@ -796,11 +825,18 @@ def main() -> None:
 
     store = Store()
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
-        results = executor.map(
-            lambda name: update(name, apps[name], store, root, args), names
-        )
+        if args.check:
+            results = executor.map(lambda name: check(apps[name]), names)
+        else:
+            results = executor.map(
+                lambda name: update(name, apps[name], store, root, args), names
+            )
+        broken = False
         for name, outcome in zip(names, results):
             print(f"{name}: {outcome}")
+            broken = broken or outcome.startswith("broken")
+    if broken:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
