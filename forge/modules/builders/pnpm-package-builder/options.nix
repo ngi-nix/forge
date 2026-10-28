@@ -18,18 +18,18 @@
     '';
 
     pnpm = lib.mkOption {
-      type = lib.types.package;
+      type = with lib.types; either package (functionTo package);
       default = pkgs.pnpm_10;
       defaultText = lib.literalExpression "pkgs.pnpm_10";
       description = ''
-        pnpm package used for fetching and building.
+        pnpm package used for fetching and building. Can be a package or a function `pkgs: package`.
 
         Pin pnpm to a specific package to avoid hash mismatch when the
         pnpm version in nixpkgs changes.
 
         Mapped to `pnpm`.
       '';
-      example = lib.literalExpression "pkgs.pnpm_9";
+      example = lib.literalExpression "pkgs: pkgs.pnpm_9";
     };
 
     fetcherVersion = lib.mkOption {

@@ -49,17 +49,20 @@
 
     packages = {
       dependencies = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
+        type = with lib.types; either (listOf package) (functionTo (listOf package));
         default = [ ];
         description = ''
-          List of dependencies that must be propagated to downstream consumers.
+          List of dependencies that must be propagated to downstream consumers. Can be a list or a function `pkgs: [ ... ]`.
+
+          When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
+          effective Nixpkgs (respecting `nixpkgsPin` if specified).
 
           OCaml libraries linked by dependents belong here, so that findlib can
           resolve them transitively.
 
           Mapped to `propagatedBuildInputs`.
         '';
-        example = lib.literalExpression "with pkgs.ocaml-ng.ocamlPackages; [ menhirLib yojson ]";
+        example = lib.literalExpression "pkgs: with pkgs.ocaml-ng.ocamlPackages; [ menhirLib yojson ]";
       };
     };
   };

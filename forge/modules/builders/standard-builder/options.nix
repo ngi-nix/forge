@@ -16,12 +16,12 @@
     '';
 
     stdenv = lib.mkOption {
-      type = lib.types.package;
+      type = with lib.types; either package (functionTo package);
       default = pkgs.stdenv;
       defaultText = lib.literalExpression "pkgs.stdenv";
-      example = lib.literalExpression "pkgs.stdenvNoCC";
+      example = lib.literalExpression "pkgs: pkgs.stdenvNoCC";
       description = ''
-        The stdenv used for the build.
+        The stdenv used for the build. Can be a package or a function `pkgs: package`.
 
         Override to use a different compiler toolchain or to strip down the
         build environment. For example, use `pkgs.stdenvNoCC` for packages

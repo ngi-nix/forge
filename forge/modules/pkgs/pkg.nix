@@ -10,12 +10,26 @@ let
   effectivePkgs =
     if config.nixpkgsPin != null then
       let
-        tree = builtins.fetchTree {
-          type = "github";
-          owner = "NixOS";
-          repo = "nixpkgs";
-          inherit (config.nixpkgsPin) rev narHash;
-        };
+        pin = config.nixpkgsPin;
+        tree =
+          if pin.url != null then
+            builtins.fetchTree {
+              type = "git";
+              url = pin.url;
+              inherit (pin) rev narHash;
+            }
+          else
+            builtins.fetchTree (
+              {
+                type = "github";
+                owner = pin.owner;
+                repo = pin.repo;
+                inherit (pin) rev narHash;
+              }
+              // lib.optionalAttrs (pin.ref != null) {
+                inherit (pin) ref;
+              }
+            );
         cleanConfig = builtins.removeAttrs (specialArgs.defaultPkgs.config or { }) [ "replaceStdenv" ];
         imported = import tree {
           inherit (specialArgs) system;
@@ -136,7 +150,32 @@ in
     broken = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Whether the package is broken.";
+      description = ''
+        Whether the package is marked as broken.
+
+        Broken packages are filtered out from default flake packages and marked with
+        a warning in the web UI.
+
+        > [!TIP]
+        > If the package is broken due to a newer Nixpkgs revision or dependency regression,
+        > consider using `nixpkgsPin` to pin it to its last known working Nixpkgs revision
+        > so the package remains buildable and usable.
+        >
+        > If the package cannot be built at all, mark it `broken = true;` and optionally
+        > provide `lastWorkingVersion` to guide users to the previous working release.
+      '';
+      example = true;
+    };
+    lastWorkingVersion = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Last known working version or commit of this package when it is marked broken.
+
+        Used by the web UI to provide users with instructions for running or referencing
+        the package from its last known working release.
+      '';
+      example = "1.2.0";
     };
     nixpkgsPin = lib.mkOption {
       type = lib.types.nullOr (
@@ -144,29 +183,111 @@ in
           options = {
             rev = lib.mkOption {
               type = lib.types.str;
-              description = "Nixpkgs git commit revision.";
+              description = ''
+                Nixpkgs Git commit revision hash (full 40-character SHA).
+
+                When a package fails to build with the default nixpkgs (e.g. due to
+                a compiler or dependency regression), specify the last known working
+                commit from Nixpkgs here.
+              '';
+              example = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
             };
             narHash = lib.mkOption {
               type = lib.types.str;
-              description = "Nixpkgs NAR hash for pure evaluation.";
+              description = ''
+                NAR hash of the fetched Nixpkgs tree (in SRI format).
+
+                Required for pure evaluation with `builtins.fetchTree`. You can compute
+                the hash for a revision with:
+
+                ```console
+                nix flake prefetch github:NixOS/nixpkgs/<rev>
+                ```
+              '';
+              example = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
+            };
+            owner = lib.mkOption {
+              type = lib.types.str;
+              default = "NixOS";
+              description = ''
+                GitHub organization or user owning the repository. Defaults to `"NixOS"`.
+                Can be set to an alternative fork or organization such as `"ctrl-os"`.
+              '';
+              example = "ctrl-os";
+            };
+            repo = lib.mkOption {
+              type = lib.types.str;
+              default = "nixpkgs";
+              description = ''
+                Repository name. Defaults to `"nixpkgs"`.
+              '';
+              example = "nixpkgs";
+            };
+            ref = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = ''
+                Optional Git branch or tag name (e.g. `"nixos-24.11"` or `"nixos-unstable"`).
+                Recorded for maintainability and documentation.
+              '';
+              example = "nixos-24.11";
+            };
+            url = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = ''
+                Direct Git URL to use instead of GitHub (e.g. for self-hosted instances,
+                Codeberg, or specialized OS distributions like CTRL OS).
+              '';
+              example = "https://git.example.com/custom/nixpkgs.git";
             };
             date = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
               default = null;
-              description = "Optional human-readable date of the revision.";
+              description = ''
+                Date of the pinned revision (format: `YYYY-MM-DD`).
+                Helps maintainers track the age of the pin for future upgrades.
+              '';
+              example = "2025-05-20";
             };
             reason = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
               default = null;
-              description = "Reason for pinning this package.";
+              description = ''
+                Human-readable reason explaining why the package is pinned to this Nixpkgs revision.
+                Provides context for other maintainers and contributors.
+              '';
+              example = "Broken on nixos-unstable due to openssl 3.4 API incompatibility; pinned to last working nixpkgs revision.";
             };
           };
         }
       );
       default = null;
       description = ''
-        Pin this package to a specific Nixpkgs revision using builtins.fetchTree.
-        This does NOT add any inputs to flake.lock.
+        Pin this package to a specific Nixpkgs revision without adding transitive inputs to `flake.lock`.
+
+        When a package breaks in upstream Nixpkgs (or requires a specific stable/unstable
+        channel release), this option fetches and scopes a dedicated Nixpkgs tree using
+        pure `builtins.fetchTree`. All builders (`standardBuilder`, `rustPackageBuilder`,
+        `goPackageBuilder`, `pythonPackageBuilder`, `npmPackageBuilder`, etc.), fetchers,
+        and test runners for this package will automatically use the pinned Nixpkgs set.
+
+        Crucially, this keeps `flake.lock` clean: end users of Forge will **never** see
+        multiple transitive Nixpkgs inputs locked into their projects.
+
+        To calculate the `narHash` for a revision, run:
+        ```console
+        nix flake prefetch github:NixOS/nixpkgs/<rev>
+        ```
+      '';
+      example = lib.literalExpression ''
+        {
+          rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
+          narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
+          ref = "nixos-24.11";
+          date = "2025-05-20";
+          reason = "Build regression in GCC 15 on unstable; pinned to 24.11 channel release.";
+        }
       '';
     };
 
@@ -335,14 +456,14 @@ in
     # Development configuration
     develop = {
       packages = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
+        type = with lib.types; either (listOf package) (functionTo (listOf package));
         default = [ ];
         description = ''
-          List of packages available in the development environment.
+          List of packages available in the development environment. Can be a list or a function `pkgs: [ ... ]`.
 
           All build inputs are automatically included.
         '';
-        example = lib.literalExpression "[ pkgs.git pkgs.vim ]";
+        example = lib.literalExpression "pkgs: [ pkgs.git pkgs.vim ]";
       };
       shellHook = lib.mkOption {
         type = lib.types.str;

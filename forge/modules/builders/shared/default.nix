@@ -41,36 +41,45 @@
                       {
                         options.packages = {
                           build = lib.mkOption {
-                            type = lib.types.listOf lib.types.package;
+                            type = with lib.types; either (listOf package) (functionTo (listOf package));
                             default = [ ];
                             description = ''
                               List of build-time dependencies needed during compilation (native
-                              architecture).
+                              architecture). Can be a list or a function `pkgs: [ ... ]`.
+
+                              When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
+                              effective Nixpkgs (respecting `nixpkgsPin` if specified).
 
                               Mapped to `nativeBuildInputs`.
                             '';
-                            example = lib.literalExpression "[ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
+                            example = lib.literalExpression "pkgs: [ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
                           };
                           run = lib.mkOption {
-                            type = lib.types.listOf lib.types.package;
+                            type = with lib.types; either (listOf package) (functionTo (listOf package));
                             default = [ ];
                             description = ''
                               List of runtime dependencies needed by the package (target
-                              architecture).
+                              architecture). Can be a list or a function `pkgs: [ ... ]`.
+
+                              When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
+                              effective Nixpkgs (respecting `nixpkgsPin` if specified).
 
                               Mapped to `buildInputs`.
                             '';
-                            example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
+                            example = lib.literalExpression "pkgs: [ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
                           };
                           check = lib.mkOption {
-                            type = lib.types.listOf lib.types.package;
+                            type = with lib.types; either (listOf package) (functionTo (listOf package));
                             default = [ ];
                             description = ''
-                              List of test dependencies needed to run the test suite.
+                              List of test dependencies needed to run the test suite. Can be a list or a function `pkgs: [ ... ]`.
+
+                              When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
+                              effective Nixpkgs (respecting `nixpkgsPin` if specified).
 
                               Mapped to `nativeCheckInputs`.
                             '';
-                            example = lib.literalExpression "[ pkgs.cunit ]";
+                            example = lib.literalExpression "pkgs: [ pkgs.cunit ]";
                           };
                         };
                       }
@@ -106,9 +115,18 @@
                   __structuredAttrs = true;
                   inherit (config.build) env;
 
-                  nativeBuildInputs = builder.packages.build;
-                  buildInputs = builder.packages.run;
-                  nativeCheckInputs = builder.packages.check;
+                  nativeBuildInputs =
+                    if lib.isFunction builder.packages.build then
+                      builder.packages.build pkgs
+                    else
+                      builder.packages.build;
+                  buildInputs =
+                    if lib.isFunction builder.packages.run then builder.packages.run pkgs else builder.packages.run;
+                  nativeCheckInputs =
+                    if lib.isFunction builder.packages.check then
+                      builder.packages.check pkgs
+                    else
+                      builder.packages.check;
 
                   passthru = {
                     test = config.test.derivation { inherit pkgs finalAttrs; };
@@ -122,7 +140,11 @@
                       inputsFrom = [
                         finalAttrs.finalPackage
                       ];
-                      packages = config.develop.packages;
+                      packages =
+                        if lib.isFunction config.develop.packages then
+                          config.develop.packages pkgs
+                        else
+                          config.develop.packages;
                       shellHook = config.develop.shellHook;
                     };
 

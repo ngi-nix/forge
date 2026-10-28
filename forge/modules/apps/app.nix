@@ -210,7 +210,30 @@
     broken = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Whether the app is broken.";
+      description = ''
+        Whether the application is marked as broken.
+
+        Broken applications are filtered out from default flake packages and marked with
+        a warning in the web UI.
+
+        > [!TIP]
+        > If the application is broken due to an underlying package regression, consider
+        > pinning the package with `nixpkgsPin` in its recipe. If the application itself
+        > cannot run, set `broken = true;` and specify `lastWorkingVersion`.
+      '';
+      example = true;
+    };
+
+    lastWorkingVersion = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Last known working Forge revision, git commit, or version for this application when broken.
+
+        When set, the web UI displays instructions for running the application from its last
+        known working version.
+      '';
+      example = "v0.1.0";
     };
 
     packages = lib.mkOption {

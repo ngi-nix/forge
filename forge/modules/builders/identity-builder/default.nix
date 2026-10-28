@@ -11,6 +11,8 @@ let
   resolvedDerivation =
     if builder.attribute != null then
       lib.getAttrFromPath (lib.splitString "." builder.attribute) (pkgs.pkgsOriginal or pkgs)
+    else if lib.isFunction builder.derivation then
+      builder.derivation pkgs
     else
       builder.derivation;
 in

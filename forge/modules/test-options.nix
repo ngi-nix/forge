@@ -20,10 +20,10 @@ in
 {
   options = {
     packages = lib.mkOption {
-      type = lib.types.listOf lib.types.package;
+      type = with lib.types; either (listOf package) (functionTo (listOf package));
       default = [ ];
-      description = "List of packages available in the test script.";
-      example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
+      description = "List of packages available in the test script. Can be a list or a function `pkgs: [ ... ]`.";
+      example = lib.literalExpression "pkgs: [ pkgs.curl pkgs.jq ]";
     };
 
     runner = lib.mkOption {
@@ -105,7 +105,7 @@ in
             (args.finalApp or args.finalAttrs.finalPackage)
           ]
           ++ lib.optional (mainPackage != null) mainPackage
-          ++ config.packages;
+          ++ (if lib.isFunction config.packages then config.packages pkgs else config.packages);
         in
         if config.runner == "bash" then
           pkgs.testers.runCommand {

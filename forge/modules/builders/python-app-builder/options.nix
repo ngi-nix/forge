@@ -16,36 +16,36 @@
     '';
     packages = {
       build-system = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
+        type = with lib.types; either (listOf package) (functionTo (listOf package));
         default = [ ];
         description = ''
-          List of PEP-517 build system dependencies (e.g. setuptools, hatchling).
+          List of PEP-517 build system dependencies (e.g. setuptools, hatchling). Can be a list or a function `pkgs: [ ... ]`.
 
           Mapped to `build-system`.
         '';
-        example = lib.literalExpression "[ pkgs.python3Packages.setuptools pkgs.python3Packages.wheel ]";
+        example = lib.literalExpression "pkgs: [ pkgs.python3Packages.setuptools pkgs.python3Packages.wheel ]";
       };
       dependencies = lib.mkOption {
-        type = lib.types.listOf lib.types.package;
+        type = with lib.types; either (listOf package) (functionTo (listOf package));
         default = [ ];
         description = ''
-          List of Python runtime dependencies required at runtime (PEP-621).
+          List of Python runtime dependencies required at runtime (PEP-621). Can be a list or a function `pkgs: [ ... ]`.
 
           Mapped to `dependencies`.
         '';
-        example = lib.literalExpression "[ pkgs.python3Packages.click pkgs.python3Packages.requests ]";
+        example = lib.literalExpression "pkgs: [ pkgs.python3Packages.click pkgs.python3Packages.requests ]";
       };
       optional-dependencies = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.listOf lib.types.package);
+        type = with lib.types; either (attrsOf (listOf package)) (functionTo (attrsOf (listOf package)));
         default = { };
         description = ''
           List of optional Python runtime dependencies grouped by extra name
-          (PEP-621 extras).
+          (PEP-621 extras). Can be an attrset or a function `pkgs: { ... }`.
 
           Mapped to `optional-dependencies`.
         '';
         example = lib.literalExpression ''
-          {
+          pkgs: {
             dev = [ pkgs.python3Packages.pytest ];
             redis = [ pkgs.python3Packages.redis ];
           }
