@@ -46,9 +46,41 @@ let
     )}
   '';
 
+  sanitizeApp =
+    name: app:
+    let
+      clean = builtins.removeAttrs app [
+        "result"
+        "packages"
+        "test"
+      ];
+    in
+    if app.broken then
+      clean
+      // {
+        programs = clean.programs // {
+          packages = [ ];
+          mainPackage = null;
+        };
+        services = clean.services // {
+          components = { };
+        };
+      }
+    else
+      clean;
+
+  sanitizePkg =
+    name: pkg:
+    builtins.removeAttrs pkg [
+      "build"
+      "result"
+      "test"
+      "develop"
+    ];
+
   forgeConfig = config.forge // {
-    pkgs = lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs;
-    apps = lib.filterAttrs (_: app: !app.broken) config.forge.apps;
+    apps = lib.mapAttrs sanitizeApp config.forge.apps;
+    pkgs = lib.mapAttrs sanitizePkg config.forge.pkgs;
   };
 
   _forge = {
