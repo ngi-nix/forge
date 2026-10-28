@@ -217,22 +217,35 @@ viewBulletList items =
 viewEndpointUrl : AppEndpoint -> Html Update
 viewEndpointUrl endpoint =
     let
-        endpointUrl host =
-            endpoint.appEndpoint_protocol ++ "://" ++ host ++ ":" ++ String.fromInt endpoint.appEndpoint_port
+        endpointUrl host port_ =
+            endpoint.appEndpoint_protocol ++ "://" ++ host ++ ":" ++ String.fromInt port_
+
+        isPublic =
+            isAppEndpointPublic endpoint
 
         isWeb =
             List.member endpoint.appEndpoint_protocol [ "http", "https" ]
+
+        -- Only public endpoints are forwarded to the host.
+        label =
+            if isPublic then
+                endpointUrl "host" endpoint.appEndpoint_port
+                    ++ " → "
+                    ++ String.fromInt endpoint.appEndpoint_forwardedPort
+
+            else
+                endpointUrl "host" endpoint.appEndpoint_port
     in
-    if isWeb && isAppEndpointPublic endpoint then
+    if isWeb && isPublic then
         a
-            [ href (endpointUrl "localhost")
+            [ href (endpointUrl "localhost" endpoint.appEndpoint_forwardedPort)
             , target "_blank"
             , rel "noopener noreferrer"
             ]
-            [ text (endpointUrl "host") ]
+            [ text label ]
 
     else
-        text (endpointUrl "host")
+        text label
 
 
 {-| Show a service component or resource name with the ports of its endpoints listed below it.

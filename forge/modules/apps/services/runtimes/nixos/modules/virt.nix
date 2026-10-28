@@ -25,25 +25,18 @@
     # Pass entropy from host to VM to prevent slow service startup due to entropy starvation.
     qemu.options = [ "-device virtio-rng-pci" ];
 
+    # Forward public endpoints to the host.
     forwardPorts =
       let
-        servicePorts = lib.concatMap (service: service.process.ports) (
-          lib.attrValues app.services.components
+        endpoints = lib.concatMap (service: lib.attrValues service.endpoints) (
+          lib.attrValues app.services.components ++ lib.attrValues app.services.result.enabledResources
         );
-        resourcePorts = lib.concatMap (resource: resource.ports) (
-          lib.attrValues app.services.result.enabledResources
-        );
+        publicEndpoints = lib.filter (endpoint: endpoint.visibility == "public") endpoints;
       in
-      map (
-        portRange:
-        let
-          portSplit = lib.splitString ":" portRange;
-        in
-        {
-          from = "host";
-          host.port = lib.toInt (lib.elemAt portSplit 0);
-          guest.port = lib.toInt (lib.elemAt portSplit 1);
-        }
-      ) (servicePorts ++ resourcePorts);
+      map (endpoint: {
+        from = "host";
+        host.port = endpoint.forwardedPort;
+        guest.port = endpoint.port;
+      }) (lib.sort (a: b: a.port < b.port) publicEndpoints);
   };
 }

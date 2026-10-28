@@ -281,6 +281,15 @@ in
         resourceNamesByRole =
           role: lib.attrNames (lib.filterAttrs (_: resource: resource.role == role) enabledResources);
 
+        # Forward public endpoints to the host, in compose `HOST:CONTAINER` format.
+        forwardedPorts =
+          endpoints:
+          map (endpoint: "${toString endpoint.forwardedPort}:${toString endpoint.port}") (
+            lib.sort (a: b: a.port < b.port) (
+              lib.filter (endpoint: endpoint.visibility == "public") (lib.attrValues endpoints)
+            )
+          );
+
         dependsOnCondition =
           depName:
           if lib.hasAttr depName enabledResources then
@@ -294,7 +303,7 @@ in
           name: service:
           {
             image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
-            ports = service.process.ports;
+            ports = forwardedPorts service.endpoints;
             # Backend resources start before components, components depend on them.
             depends_on = lib.genAttrs (service.dependsOn ++ resourceNamesByRole "backend") (depName: {
               condition = dependsOnCondition depName;
@@ -341,7 +350,7 @@ in
 
         resourcesComponents = lib.mapAttrs (name: resource: {
           image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
-          ports = resource.ports;
+          ports = forwardedPorts resource.endpoints;
           # Frontend resources start after all components so that upstream
           # hostnames are registered in the container network DNS before the
           # resource process (e.g. nginx) performs its startup checks.
