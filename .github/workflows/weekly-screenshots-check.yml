@@ -1,0 +1,54 @@
+name: Weekly application screenshots check
+
+on:
+  schedule:
+    - cron: "0 3 * * 3" # Each Wednesday 3am, between two weekly updates
+  workflow_dispatch:
+
+env:
+  NIX_CONFIG: "access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}"
+
+jobs:
+  check:
+    name: Check application screenshot URLs
+    if: github.repository_owner == 'ngi-nix'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
+        with:
+          name: ngi-forge
+
+      # The build uses the binary cache, thus it does not find a URL that is broken.
+      # `forge-screenshots --check` downloads each URL again.
+      - name: Check screenshots
+        shell: bash
+        run: |
+          status=0
+          nix develop --accept-flake-config --command forge-screenshots --check \
+            > "$RUNNER_TEMP/stdout.log" 2> >(tee "$RUNNER_TEMP/stderr.log" >&2) || status=$?
+          cat "$RUNNER_TEMP/stdout.log"
+          if [ "$status" -ne 0 ]; then
+            {
+              echo "## Broken screenshots"
+              echo
+              echo "Run \`forge-screenshots <app-name>\`, or change \`screenshots\` in the recipe."
+              echo
+              grep ': broken ' "$RUNNER_TEMP/stdout.log" | sed 's/^/- /'
+              echo
+              echo '```'
+              grep -E '^warning: (cannot fetch|hash mismatch|not a PNG)' "$RUNNER_TEMP/stderr.log"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$status"
