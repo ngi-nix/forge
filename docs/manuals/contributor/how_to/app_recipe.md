@@ -225,29 +225,17 @@ services = {
 };
 ```
 
-All service ports exposed to the user must be set using the `process.ports` option.
-This list is used to configure port mapping for the _container_ runtime and to
-configure port forwarding when a _nixos_ system is launched in a VM.
-
-```nix
-services = {
-  components.my-service = {
-    ...
-    process.ports = [
-      "8080:8080"
-      "8081:8081"
-      "8082:8082"
-    ];
-    ...
-  };
-};
-```
-
-Endpoints provided by a service can be described using the `endpoints`
+Endpoints provided by a service must be described using the `endpoints`
 option. Each endpoint is named and has a `port`, an application-level `protocol`
 (`http` - default, or any other protocol name such as `https`, `websocket` or
 `postgresql`) and a `visibility` (`private` - default, or `public` for endpoints
 meant to be exposed to the users).
+
+Public endpoints are forwarded to the host by the _container_ runtime and when
+a _nixos_ system is launched in a VM. The host port is the same as the endpoint
+`port`, except for privileged ports (below 1024), which are forwarded to
+`20000 + port`. The host port is available as the read-only `forwardedPort`
+endpoint attribute.
 
 ```nix
 services = {
@@ -277,7 +265,7 @@ in
 {
   apps.my-app = {
     usage = ''
-      Web interface: http://localhost:''${toString app.services.components.my-service.endpoints.web.port}
+      Web interface: http://localhost:''${toString app.services.components.my-service.endpoints.web.forwardedPort}
     '';
   };
 }
@@ -367,7 +355,6 @@ services = {
 
   resources.reverse-proxy = {
     role = "frontend";
-    ports = [ "8080:8080" ];
     endpoints.web = {
       port = 8080;
       visibility = "public";
