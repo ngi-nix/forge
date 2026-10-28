@@ -100,7 +100,6 @@ in
         endpoints = {
           api = {
             port = lib.toInt (toString app.data.mainPort);
-            visibility = "public";
           };
         };
         healthcheck = {

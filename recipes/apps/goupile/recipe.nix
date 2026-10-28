@@ -48,7 +48,6 @@ in
           endpoints = {
             web = {
               port = 8181;
-              visibility = "public";
             };
           };
         };
