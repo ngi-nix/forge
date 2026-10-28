@@ -46,7 +46,6 @@
         endpoints = {
           web = {
             port = 5000;
-            visibility = "public";
           };
         };
       };

@@ -136,11 +136,6 @@
             DB_USER = "postgres";
           };
         };
-        endpoints = {
-          web = {
-            port = 5000;
-          };
-        };
         healthcheck = {
           enable = true;
           test = [
@@ -176,11 +171,6 @@
             postgresql
           ];
         };
-        endpoints = {
-          api = {
-            port = 5001;
-          };
-        };
         healthcheck = {
           enable = true;
           test = [
@@ -201,16 +191,8 @@
 
       # Resources (shared by web and api components)
       resources = {
-        database = {
-          nixosConfig = {
-            services.postgresql.enable = true;
-          };
-          endpoints = {
-            postgresql = {
-              port = 5432;
-              protocol = "postgresql";
-            };
-          };
+        database.nixosConfig = {
+          services.postgresql.enable = true;
         };
 
         reverse-proxy = {
@@ -218,7 +200,6 @@
           endpoints = {
             web = {
               port = 8000;
-              visibility = "public";
             };
           };
           nixosConfig = {
