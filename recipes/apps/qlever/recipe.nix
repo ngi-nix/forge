@@ -31,7 +31,7 @@ in
       By default, the Olympics dataset is downloaded and indexed on startup.
       To use a different dataset, choose one from the [available use cases](https://docs.qlever.dev/use-cases) and update your `./Qleverfile` accordingly.
 
-      Once indexing is complete, open the UI in your browser at [http://localhost:${toString app.services.components.qlever-ui.endpoints.web.port}](http://localhost:${toString app.services.components.qlever-ui.endpoints.web.port}) and run the following query:
+      Once indexing is complete, open the UI in your browser at [http://localhost:${toString app.services.components.qlever-ui.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.qlever-ui.endpoints.web.forwardedPort}) and run the following query:
 
       ```sparql
       SELECT * WHERE { ?s ?p ?o } LIMIT 10
@@ -68,9 +68,6 @@ in
         process.packages = with pkgs; [
           qlever-ui
           subversion
-        ];
-        process.ports = [
-          "8080:8080"
         ];
         endpoints = {
           web = {
@@ -111,9 +108,6 @@ in
           qlever
           qlever-control
           unzip
-        ];
-        process.ports = [
-          "7019:7019"
         ];
         endpoints = {
           api = {

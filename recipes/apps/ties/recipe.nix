@@ -39,7 +39,7 @@ in
 
       Once Ties is running, open the web interface:
 
-      [http://localhost:${toString app.services.components.ties.endpoints.web.port}](http://localhost:${toString app.services.components.ties.endpoints.web.port})
+      [http://localhost:${toString app.services.components.ties.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.ties.endpoints.web.forwardedPort})
 
       Optionally setup the administrator credentials for this instance:
 
@@ -121,7 +121,6 @@ in
             exec ${lib.getExe pkgs.ties} "$@"
           '';
 
-          ports = [ "${listenPort}:${listenPort}" ];
           argv = [
             "start"
             "--database-url"
