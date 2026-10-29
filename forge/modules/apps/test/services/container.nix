@@ -20,6 +20,26 @@
     result.containerBuild = lib.mkIf app.services.runtimes.container.enable (
       let
         containerRuntime = app.services.runtimes.container;
+
+        # Publish endpoints also on their original ports, to reach them on the
+        # same ports as in the NixOS test.
+        originalPorts =
+          service:
+          map (endpoint: "${toString endpoint.port}:${toString endpoint.port}") (
+            lib.sortOn (endpoint: endpoint.port) (
+              lib.filter (endpoint: endpoint.forwardedPort != endpoint.port) (lib.attrValues service.endpoints)
+            )
+          );
+
+        composeOverrideFile = pkgs.writeText "${app.name}-compose-test.yaml" (
+          lib.generators.toYAML { } {
+            services = lib.filterAttrs (_: service: service.ports != [ ]) (
+              lib.mapAttrs (_: service: { ports = originalPorts service; }) (
+                app.services.components // app.services.result.enabledResources
+              )
+            );
+          }
+        );
       in
       (pkgs.testers.runNixOSTest {
         name = "${app.name}-container-test";
@@ -36,7 +56,7 @@
         testScript = ''
           machine.start()
           machine.wait_for_unit("multi-user.target")
-          machine.succeed("${lib.getExe containerRuntime.result.build} --detach")
+          machine.succeed("COMPOSE_OVERRIDE_FILE=${composeOverrideFile} ${lib.getExe containerRuntime.result.build} --detach")
           machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" ''
             set -euo pipefail
             ${config.script}
