@@ -419,6 +419,7 @@ in
 
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
+            ''${COMPOSE_OVERRIDE_FILE:+-f "$COMPOSE_OVERRIDE_FILE"} \
             up --force-recreate --remove-orphans "$@"
         '';
 
