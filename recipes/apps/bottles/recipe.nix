@@ -1,9 +1,18 @@
 {
   config,
+  pkgs,
   ...
 }:
 
 {
+  pkgs.bottles = {
+    nixpkgsPin = config.apps.bottles.nixpkgsPin;
+    build.identityBuilder = {
+      enable = true;
+      derivation = p: p.bottles;
+    };
+  };
+
   apps.bottles = {
     displayName = "Bottles";
     description = "Easy-to-use wineprefix manager.";
@@ -20,7 +29,7 @@
       rev = "c59305bab2065cfecc4944690d9eedbb56f3a9fa";
       narHash = "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=";
       date = "2026-10-04";
-      reason = "Nixpkgs unstable introduced unfree dependency lsfg-vk; pinned to last working open-source revision";
+      reason = "Forge doesn't support handling unfree packages yet, so we are pinning last working version before bottles introduced unfree dependency lsfg-vk";
     };
 
     icon = ./icon.svg;
