@@ -42,6 +42,7 @@
                         options.packages = {
                           build = lib.mkOption {
                             type = with lib.types; either (listOf package) (functionTo (listOf package));
+                            apply = v: if lib.isFunction v then v pkgs else v;
                             default = [ ];
                             description = ''
                               List of build-time dependencies needed during compilation (native
@@ -56,6 +57,7 @@
                           };
                           run = lib.mkOption {
                             type = with lib.types; either (listOf package) (functionTo (listOf package));
+                            apply = v: if lib.isFunction v then v pkgs else v;
                             default = [ ];
                             description = ''
                               List of runtime dependencies needed by the package (target
@@ -70,6 +72,7 @@
                           };
                           check = lib.mkOption {
                             type = with lib.types; either (listOf package) (functionTo (listOf package));
+                            apply = v: if lib.isFunction v then v pkgs else v;
                             default = [ ];
                             description = ''
                               List of test dependencies needed to run the test suite. Can be a list or a function `pkgs: [ ... ]`.
@@ -115,18 +118,9 @@
                   __structuredAttrs = true;
                   inherit (config.build) env;
 
-                  nativeBuildInputs =
-                    if lib.isFunction builder.packages.build then
-                      builder.packages.build pkgs
-                    else
-                      builder.packages.build;
-                  buildInputs =
-                    if lib.isFunction builder.packages.run then builder.packages.run pkgs else builder.packages.run;
-                  nativeCheckInputs =
-                    if lib.isFunction builder.packages.check then
-                      builder.packages.check pkgs
-                    else
-                      builder.packages.check;
+                  nativeBuildInputs = builder.packages.build;
+                  buildInputs = builder.packages.run;
+                  nativeCheckInputs = builder.packages.check;
 
                   passthru = {
                     test = config.test.derivation { inherit pkgs finalAttrs; };
@@ -140,11 +134,7 @@
                       inputsFrom = [
                         finalAttrs.finalPackage
                       ];
-                      packages =
-                        if lib.isFunction config.develop.packages then
-                          config.develop.packages pkgs
-                        else
-                          config.develop.packages;
+                      packages = config.develop.packages;
                       shellHook = config.develop.shellHook;
                     };
 

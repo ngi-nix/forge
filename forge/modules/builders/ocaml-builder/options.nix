@@ -50,6 +50,7 @@
     packages = {
       dependencies = lib.mkOption {
         type = with lib.types; either (listOf package) (functionTo (listOf package));
+        apply = v: if lib.isFunction v then v pkgs else v;
         default = [ ];
         description = ''
           List of dependencies that must be propagated to downstream consumers. Can be a list or a function `pkgs: [ ... ]`.

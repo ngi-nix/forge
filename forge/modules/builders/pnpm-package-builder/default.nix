@@ -12,9 +12,6 @@
       mkDerivation = pkgs.stdenvNoCC.mkDerivation;
       attrs =
         builder: finalAttrs: previousAttrs:
-        let
-          pnpmPkg = if lib.isFunction builder.pnpm then builder.pnpm pkgs else builder.pnpm;
-        in
         {
           pnpmDeps = pkgs.fetchPnpmDeps {
             inherit (finalAttrs)
@@ -23,12 +20,11 @@
               version
               sourceRoot
               ;
-            inherit (builder) fetcherVersion;
-            pnpm = pnpmPkg;
+            inherit (builder) pnpm fetcherVersion;
             hash = builder.pnpmDepsHash;
           };
           nativeBuildInputs = previousAttrs.nativeBuildInputs or [ ] ++ [
-            pnpmPkg
+            builder.pnpm
             pkgs.pnpmConfigHook
             pkgs.nodejs
           ];

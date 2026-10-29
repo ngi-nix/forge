@@ -21,6 +21,7 @@
     };
     derivation = lib.mkOption {
       type = with lib.types; either package (functionTo package);
+      apply = v: if lib.isFunction v then v pkgs else v;
       description = ''
         Resulting package derivation. Can be a derivation or a function `pkgs: derivation`.
 

@@ -17,6 +17,7 @@
 
     stdenv = lib.mkOption {
       type = with lib.types; either package (functionTo package);
+      apply = v: if lib.isFunction v then v pkgs else v;
       default = pkgs.stdenv;
       defaultText = lib.literalExpression "pkgs.stdenv";
       example = lib.literalExpression "pkgs: pkgs.stdenvNoCC";

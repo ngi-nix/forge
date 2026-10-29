@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   lib,
   packageBuilderModule,
   ...
@@ -15,15 +14,8 @@
       mkDerivationProvidesFinalAttrs = false;
       attrs =
         builder: finalAttrs: previousAttrs:
-        let
-          dependencies =
-            if lib.isFunction builder.packages.dependencies then
-              builder.packages.dependencies pkgs
-            else
-              builder.packages.dependencies;
-        in
         {
-          propagatedBuildInputs = previousAttrs.propagatedBuildInputs or [ ] ++ dependencies;
+          propagatedBuildInputs = previousAttrs.propagatedBuildInputs or [ ] ++ builder.packages.dependencies;
 
           env = (previousAttrs.env or { }) // {
             DUNE_CACHE = "disabled";

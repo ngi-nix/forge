@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -17,6 +18,7 @@
     packages = {
       build-system = lib.mkOption {
         type = with lib.types; either (listOf package) (functionTo (listOf package));
+        apply = v: if lib.isFunction v then v pkgs else v;
         default = [ ];
         description = ''
           List of PEP-517 build system dependencies (e.g. setuptools, hatchling). Can be a list or a function `pkgs: [ ... ]`.
@@ -27,6 +29,7 @@
       };
       dependencies = lib.mkOption {
         type = with lib.types; either (listOf package) (functionTo (listOf package));
+        apply = v: if lib.isFunction v then v pkgs else v;
         default = [ ];
         description = ''
           List of Python runtime dependencies required at runtime (PEP-621). Can be a list or a function `pkgs: [ ... ]`.
@@ -37,6 +40,7 @@
       };
       optional-dependencies = lib.mkOption {
         type = with lib.types; either (attrsOf (listOf package)) (functionTo (attrsOf (listOf package)));
+        apply = v: if lib.isFunction v then v pkgs else v;
         default = { };
         description = ''
           List of optional Python runtime dependencies grouped by extra name

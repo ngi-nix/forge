@@ -19,6 +19,7 @@
 
     pnpm = lib.mkOption {
       type = with lib.types; either package (functionTo package);
+      apply = v: if lib.isFunction v then v pkgs else v;
       default = pkgs.pnpm_10;
       defaultText = lib.literalExpression "pkgs.pnpm_10";
       description = ''

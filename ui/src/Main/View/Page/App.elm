@@ -97,17 +97,6 @@ viewPageAppHeader _ pageApp =
                     [ text "Run" ]
                 )
 
-        viewRunButton =
-            if hasWarning then
-                div [ class "has-tooltip d-inline-block" ]
-                    [ runButton
-                    , div [ class "tooltip bs-tooltip-top tooltip-end", attribute "role" "tooltip" ]
-                        [ div [ class "tooltip-inner" ] [ text warningTooltip ] ]
-                    ]
-
-            else
-                runButton
-
         deployButton =
             button
                 [ class "btn btn-success"
@@ -129,16 +118,22 @@ viewPageAppHeader _ pageApp =
                     [ text "Deploy" ]
                 )
 
-        viewDeployButton =
+        wrapWithWarningTooltip btn =
             if hasWarning then
                 div [ class "has-tooltip d-inline-block" ]
-                    [ deployButton
+                    [ btn
                     , div [ class "tooltip bs-tooltip-top tooltip-end", attribute "role" "tooltip" ]
                         [ div [ class "tooltip-inner" ] [ text warningTooltip ] ]
                     ]
 
             else
-                deployButton
+                btn
+
+        viewRunButton =
+            wrapWithWarningTooltip runButton
+
+        viewDeployButton =
+            wrapWithWarningTooltip deployButton
     in
     div
         [ style "display" "flex"
