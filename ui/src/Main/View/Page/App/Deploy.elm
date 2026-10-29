@@ -74,7 +74,8 @@ viewPageAppDeploy model pageApp =
                                 []
                             ]
                         , div [ class "modal-body" ]
-                            [ viewPageAppDeployTargets model pageApp
+                            [ viewPageAppDeployWarning model pageApp
+                            , viewPageAppDeployTargets model pageApp
                             , div [ class "tab-content mb-5 p-3 border rounded" ]
                                 [ viewPageAppDeployInstructions model pageApp pageApp.pageApp_route.routeApp_deployTarget ]
                             ]
@@ -82,6 +83,45 @@ viewPageAppDeploy model pageApp =
                     ]
                 ]
             ]
+
+
+viewPageAppDeployWarning : Model -> PageApp -> Html Update
+viewPageAppDeployWarning _ pageApp =
+    case pageApp.pageApp_app.app_nixpkgsPin of
+        Just pin ->
+            let
+                dateStr =
+                    case pin.pin_date of
+                        Just d ->
+                            " from " ++ d
+
+                        Nothing ->
+                            ""
+
+                reasonStr =
+                    case pin.pin_reason of
+                        Just r ->
+                            ": " ++ r
+
+                        Nothing ->
+                            ""
+            in
+            div [ class "alert alert-warning py-2 px-3 mb-3 small d-flex align-items-center gap-2", attribute "data-testid" "deploy-modal-pin-warning" ]
+                [ iconExclamationTriangle
+                , span []
+                    [ text ("Note: Deploying with pinned Nixpkgs (" ++ String.left 7 pin.pin_rev ++ dateStr ++ ")" ++ reasonStr)
+                    ]
+                ]
+
+        Nothing ->
+            if pageApp.pageApp_app.app_broken then
+                div [ class "alert alert-warning py-2 px-3 mb-3 small d-flex align-items-center gap-2", attribute "data-testid" "deploy-modal-broken-warning" ]
+                    [ iconExclamationTriangle
+                    , span [] [ text "Note: This application is marked broken in the current release." ]
+                    ]
+
+            else
+                text ""
 
 
 viewPageAppDeployTargets : Model -> PageApp -> Html Update

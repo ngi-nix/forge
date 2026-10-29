@@ -224,6 +224,42 @@
               description = "NAR hash of the pinned Nixpkgs tree.";
               example = "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=";
             };
+            owner = lib.mkOption {
+              type = lib.types.str;
+              default = "NixOS";
+              description = "GitHub organization or user owning the repository.";
+              example = "NixOS";
+            };
+            repo = lib.mkOption {
+              type = lib.types.str;
+              default = "nixpkgs";
+              description = "Repository name.";
+              example = "nixpkgs";
+            };
+            ref = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Optional Git branch or tag name.";
+              example = "nixos-unstable";
+            };
+            url = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Direct Git URL to use instead of GitHub.";
+              example = "https://git.example.com/custom/nixpkgs.git";
+            };
+            date = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Date of the pinned revision (format: `YYYY-MM-DD`).";
+              example = "2026-10-04";
+            };
+            reason = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Human-readable reason explaining why the application is pinned to this Nixpkgs revision.";
+              example = "Pinned to last working open-source revision before unfree dependency regression.";
+            };
           };
         }
       );
@@ -245,12 +281,34 @@
       readOnly = true;
       default =
         if config.nixpkgsPin != null then
-          import (builtins.fetchTree {
-            type = "github";
-            owner = "NixOS";
-            repo = "nixpkgs";
-            inherit (config.nixpkgsPin) rev narHash;
-          }) { inherit (pkgs) system; }
+          let
+            pin = config.nixpkgsPin;
+            tree =
+              if pin.url != null then
+                builtins.fetchTree {
+                  type = "git";
+                  url = pin.url;
+                  inherit (pin) rev narHash;
+                }
+              else
+                builtins.fetchTree (
+                  {
+                    type = "github";
+                    owner = pin.owner;
+                    repo = pin.repo;
+                    inherit (pin) rev narHash;
+                  }
+                  // lib.optionalAttrs (pin.ref != null) {
+                    inherit (pin) ref;
+                  }
+                );
+            cleanConfig = builtins.removeAttrs (pkgs.config or { }) [ "replaceStdenv" ];
+          in
+          import tree {
+            inherit (pkgs) system;
+            config = cleanConfig;
+            overlays = [ ];
+          }
         else
           pkgs;
       description = "Effective Nixpkgs package set for this application (pinned or default).";
@@ -409,5 +467,21 @@
           '';
         }
       ];
+
+    warnings =
+      lib.optional (config.nixpkgsPin != null) {
+        condition = true;
+        message = "App '${config.name}' is running using a pinned Nixpkgs revision (${config.nixpkgsPin.rev}${
+          lib.optionalString (config.nixpkgsPin.date != null) " from ${config.nixpkgsPin.date}"
+        })${lib.optionalString (config.nixpkgsPin.reason != null) ": ${config.nixpkgsPin.reason}"}.";
+      }
+      ++ lib.optional config.broken {
+        condition = true;
+        message = "App '${config.name}' is marked broken.${
+          lib.optionalString (
+            config.lastWorkingVersion != null
+          ) " Last working version: ${config.lastWorkingVersion}."
+        }";
+      };
   };
 }

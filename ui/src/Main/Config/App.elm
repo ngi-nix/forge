@@ -22,7 +22,33 @@ type alias App =
     , app_hasIcon : Bool
     , app_broken : Bool
     , app_lastWorkingVersion : Maybe String
+    , app_nixpkgsPin : Maybe NixpkgsPin
     }
+
+
+type alias NixpkgsPin =
+    { pin_rev : String
+    , pin_narHash : String
+    , pin_owner : String
+    , pin_repo : String
+    , pin_ref : Maybe String
+    , pin_url : Maybe String
+    , pin_date : Maybe String
+    , pin_reason : Maybe String
+    }
+
+
+decodeNixpkgsPin : Decoder NixpkgsPin
+decodeNixpkgsPin =
+    Decode.succeed NixpkgsPin
+        |> Decode.andMap (Decode.field "rev" Decode.string)
+        |> Decode.andMap (Decode.field "narHash" Decode.string)
+        |> Decode.andMap (Decode.oneOf [ Decode.field "owner" Decode.string, Decode.succeed "NixOS" ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "repo" Decode.string, Decode.succeed "nixpkgs" ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "ref" (Decode.nullable Decode.string), Decode.succeed Nothing ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "url" (Decode.nullable Decode.string), Decode.succeed Nothing ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "date" (Decode.nullable Decode.string), Decode.succeed Nothing ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "reason" (Decode.nullable Decode.string), Decode.succeed Nothing ])
 
 
 decodeApp : Decoder App
@@ -43,6 +69,7 @@ decodeApp =
         |> Decode.andMap (Decode.field "icon" (Decode.nullable Decode.string |> Decode.map (\icon -> icon /= Nothing)))
         |> Decode.andMap (Decode.oneOf [ Decode.field "broken" Decode.bool, Decode.succeed False ])
         |> Decode.andMap (Decode.oneOf [ Decode.field "lastWorkingVersion" (Decode.nullable Decode.string), Decode.succeed Nothing ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "nixpkgsPin" (Decode.nullable decodeNixpkgsPin), Decode.succeed Nothing ])
 
 
 type alias AppName =

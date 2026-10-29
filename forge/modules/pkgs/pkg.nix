@@ -560,6 +560,20 @@ in
           Package '${config.pname}': license is empty.
         '';
       }
-    ];
+    ]
+    ++ lib.optional (config.nixpkgsPin != null) {
+      condition = true;
+      message = "Package '${config.pname}' is built using a pinned Nixpkgs revision (${config.nixpkgsPin.rev}${
+        lib.optionalString (config.nixpkgsPin.date != null) " from ${config.nixpkgsPin.date}"
+      })${lib.optionalString (config.nixpkgsPin.reason != null) ": ${config.nixpkgsPin.reason}"}.";
+    }
+    ++ lib.optional config.broken {
+      condition = true;
+      message = "Package '${config.pname}' is marked broken.${
+        lib.optionalString (
+          config.lastWorkingVersion != null
+        ) " Last working version: ${config.lastWorkingVersion}."
+      }";
+    };
   };
 }

@@ -19,6 +19,8 @@
     nixpkgsPin = {
       rev = "c59305bab2065cfecc4944690d9eedbb56f3a9fa";
       narHash = "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=";
+      date = "2026-10-04";
+      reason = "Nixpkgs unstable introduced unfree dependency lsfg-vk; pinned to last working open-source revision";
     };
 
     icon = ./icon.svg;

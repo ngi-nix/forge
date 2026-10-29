@@ -20,6 +20,7 @@ type alias Pkg =
     , pkg_maintainers : List Maintainer
     , pkg_broken : Bool
     , pkg_lastWorkingVersion : Maybe String
+    , pkg_nixpkgsPin : Maybe NixpkgsPin
     }
 
 
@@ -39,6 +40,7 @@ decodePkg =
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
         |> Decode.andMap (Decode.oneOf [ Decode.field "broken" Decode.bool, Decode.succeed False ])
         |> Decode.andMap (Decode.oneOf [ Decode.field "lastWorkingVersion" (Decode.nullable Decode.string), Decode.succeed Nothing ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "nixpkgsPin" (Decode.nullable decodeNixpkgsPin), Decode.succeed Nothing ])
 
 
 type alias PkgName =

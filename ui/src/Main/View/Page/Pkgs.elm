@@ -121,17 +121,67 @@ viewPagePkgsItem model pagePkgs pkg =
                         , style "font-style" "italic"
                         ]
                         [ text ("v" ++ pkg.pkg_version) ]
-                    , if pkg.pkg_broken then
-                        span
-                            [ class "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1"
-                            , attribute "data-testid" "pkg-broken-badge"
-                            ]
-                            [ iconExclamationTriangle, text "Broken" ]
+                    , case pkg.pkg_nixpkgsPin of
+                        Just pin ->
+                            span
+                                [ class "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1"
+                                , attribute "data-testid" "pkg-pin-badge"
+                                , title ("Built with pinned Nixpkgs (" ++ String.left 7 pin.pin_rev ++ ")")
+                                ]
+                                [ iconExclamationTriangle, text "Pinned Nixpkgs" ]
 
-                      else
-                        text ""
+                        Nothing ->
+                            if pkg.pkg_broken then
+                                span
+                                    [ class "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1"
+                                    , attribute "data-testid" "pkg-broken-badge"
+                                    ]
+                                    [ iconExclamationTriangle, text "Broken" ]
+
+                            else
+                                text ""
                     ]
                 ]
+            , case pkg.pkg_nixpkgsPin of
+                Just pin ->
+                    let
+                        dateStr =
+                            case pin.pin_date of
+                                Just d ->
+                                    " from " ++ d
+
+                                Nothing ->
+                                    ""
+
+                        reasonStr =
+                            case pin.pin_reason of
+                                Just r ->
+                                    ": " ++ r
+
+                                Nothing ->
+                                    ""
+                    in
+                    div [ class "alert alert-warning py-1 px-2 my-2 small d-flex align-items-center gap-2", attribute "data-testid" "pkg-pinned-alert" ]
+                        [ iconExclamationTriangle
+                        , span []
+                            [ text ("Built using pinned Nixpkgs (" ++ String.left 10 pin.pin_rev ++ dateStr ++ ")" ++ reasonStr)
+                            ]
+                        ]
+
+                Nothing ->
+                    if pkg.pkg_broken then
+                        div [ class "alert alert-warning py-1 px-2 my-2 small d-flex align-items-center gap-2", attribute "data-testid" "pkg-broken-alert" ]
+                            [ iconExclamationTriangle
+                            , case pkg.pkg_lastWorkingVersion of
+                                Just ver ->
+                                    span [] [ text ("Broken in current release. Last working version: " ++ ver) ]
+
+                                Nothing ->
+                                    span [] [ text "Currently marked broken." ]
+                            ]
+
+                    else
+                        text ""
             , pkg.pkg_description |> Markdown.render
             ]
         , div [ class "d-flex flex-wrap gap-3 position-relative z-2" ]

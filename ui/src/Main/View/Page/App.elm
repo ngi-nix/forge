@@ -29,6 +29,7 @@ viewPageApp model pageApp =
                 [ class "col-12 col-lg-9" ]
                 [ viewPageAppFeedback model
                 , viewPageAppHeader model pageApp
+                , viewPageAppWarning model pageApp
                 , viewPageAppDescription model pageApp
                 , viewPageAppRun model pageApp
                 , viewPageAppDeploy model pageApp
@@ -54,13 +55,41 @@ viewPageAppHeader _ pageApp =
         onClickIcon =
             Route_App { routeApp | routeApp_iconShown = True }
 
-        brokenTooltip =
-            case pageApp.pageApp_app.app_lastWorkingVersion of
-                Just version ->
-                    "This application is marked broken. Last working version: " ++ version
+        hasWarning =
+            pageApp.pageApp_app.app_broken || pageApp.pageApp_app.app_nixpkgsPin /= Nothing
+
+        warningTooltip =
+            case pageApp.pageApp_app.app_nixpkgsPin of
+                Just pin ->
+                    "Runs on pinned Nixpkgs ("
+                        ++ String.left 7 pin.pin_rev
+                        ++ (case pin.pin_date of
+                                Just d ->
+                                    " from " ++ d
+
+                                Nothing ->
+                                    ""
+                           )
+                        ++ (case pin.pin_reason of
+                                Just r ->
+                                    ": " ++ r
+
+                                Nothing ->
+                                    ""
+                           )
+                        ++ ")"
 
                 Nothing ->
-                    "This application is marked broken."
+                    if pageApp.pageApp_app.app_broken then
+                        case pageApp.pageApp_app.app_lastWorkingVersion of
+                            Just version ->
+                                "This application is marked broken. Last working version: " ++ version
+
+                            Nothing ->
+                                "This application is marked broken."
+
+                    else
+                        ""
 
         runButton =
             button
@@ -72,8 +101,8 @@ viewPageAppHeader _ pageApp =
 
                     Just _ ->
                         class "btn-success"
-                , if pageApp.pageApp_app.app_broken then
-                    title brokenTooltip
+                , if hasWarning then
+                    title warningTooltip
 
                   else
                     title ""
@@ -83,7 +112,7 @@ viewPageAppHeader _ pageApp =
                   in
                   onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
                 ]
-                (if pageApp.pageApp_app.app_broken then
+                (if hasWarning then
                     [ span [ class "d-inline-flex align-items-center gap-1" ]
                         [ iconExclamationTriangle
                         , text "Run"
@@ -95,11 +124,11 @@ viewPageAppHeader _ pageApp =
                 )
 
         viewRunButton =
-            if pageApp.pageApp_app.app_broken then
+            if hasWarning then
                 div [ class "has-tooltip d-inline-block" ]
                     [ runButton
                     , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
-                        [ div [ class "tooltip-inner" ] [ text brokenTooltip ] ]
+                        [ div [ class "tooltip-inner" ] [ text warningTooltip ] ]
                     ]
 
             else
@@ -109,8 +138,8 @@ viewPageAppHeader _ pageApp =
             button
                 [ class "btn btn-success"
                 , attribute "data-testid" "app-deploy-button"
-                , if pageApp.pageApp_app.app_broken then
-                    title brokenTooltip
+                , if hasWarning then
+                    title warningTooltip
 
                   else
                     title ""
@@ -120,7 +149,7 @@ viewPageAppHeader _ pageApp =
                   in
                   onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
                 ]
-                (if pageApp.pageApp_app.app_broken then
+                (if hasWarning then
                     [ span [ class "d-inline-flex align-items-center gap-1" ]
                         [ iconExclamationTriangle
                         , text "Deploy"
@@ -132,11 +161,11 @@ viewPageAppHeader _ pageApp =
                 )
 
         viewDeployButton =
-            if pageApp.pageApp_app.app_broken then
+            if hasWarning then
                 div [ class "has-tooltip d-inline-block" ]
                     [ deployButton
                     , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
-                        [ div [ class "tooltip-inner" ] [ text brokenTooltip ] ]
+                        [ div [ class "tooltip-inner" ] [ text warningTooltip ] ]
                     ]
 
             else
@@ -192,6 +221,81 @@ viewPageAppHeader _ pageApp =
                    )
             )
         ]
+
+
+viewPageAppWarning : Model -> PageApp -> Html Update
+viewPageAppWarning model pageApp =
+    let
+        app =
+            pageApp.pageApp_app
+    in
+    case app.app_nixpkgsPin of
+        Just pin ->
+            div
+                [ class "alert alert-warning my-3 d-flex align-items-start gap-3"
+                , attribute "data-testid" "app-pinned-warning"
+                ]
+                [ div [ class "mt-1 fs-5 text-warning-emphasis" ] [ iconExclamationTriangle ]
+                , div [ class "flex-grow-1" ]
+                    [ h6 [ class "alert-heading fw-bold mb-1" ] [ text "Running on Pinned Nixpkgs Revision" ]
+                    , p [ class "mb-1 small" ]
+                        [ text "This application runs using a pinned Nixpkgs revision instead of the default flake channel."
+                        ]
+                    , ul [ class "mb-0 small ps-3" ]
+                        ([ li []
+                            [ text "Nixpkgs Revision: "
+                            , a
+                                [ href ("https://github.com/" ++ pin.pin_owner ++ "/" ++ pin.pin_repo ++ "/commit/" ++ pin.pin_rev)
+                                , target "_blank"
+                                , rel "noopener"
+                                , class "font-monospace alert-link"
+                                ]
+                                [ text (String.left 10 pin.pin_rev) ]
+                            , case pin.pin_date of
+                                Just date ->
+                                    text (" (snapshot date: " ++ date ++ ")")
+
+                                Nothing ->
+                                    text ""
+                            ]
+                         ]
+                            ++ (case pin.pin_reason of
+                                    Just reason ->
+                                        [ li [] [ text ("Reason: " ++ reason) ] ]
+
+                                    Nothing ->
+                                        []
+                               )
+                        )
+                    ]
+                ]
+
+        Nothing ->
+            if app.app_broken then
+                div
+                    [ class "alert alert-warning my-3 d-flex align-items-start gap-3"
+                    , attribute "data-testid" "app-broken-warning"
+                    ]
+                    [ div [ class "mt-1 fs-5 text-warning-emphasis" ] [ iconExclamationTriangle ]
+                    , div [ class "flex-grow-1" ]
+                        [ h6 [ class "alert-heading fw-bold mb-1" ] [ text "This application is currently marked broken" ]
+                        , case app.app_lastWorkingVersion of
+                            Just version ->
+                                div []
+                                    [ p [ class "mb-2 small" ]
+                                        [ text "The current version has build or runtime issues. You can run the last known working release with:"
+                                        ]
+                                    , bashCodeBlock ("nix run " ++ model.model_config.config_repository ++ "/" ++ version ++ "#" ++ app.app_outputName ++ ".program")
+                                    ]
+
+                            Nothing ->
+                                p [ class "mb-0 small" ]
+                                    [ text "The current version has build or runtime issues. A fix is in progress. Please check back later." ]
+                        ]
+                    ]
+
+            else
+                text ""
 
 
 viewPageAppFeedback : Model -> Html Update
