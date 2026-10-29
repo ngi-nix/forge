@@ -24,19 +24,15 @@
         # Publish endpoints also on their original ports, to reach them on the
         # same ports as in the NixOS test.
         originalPorts =
-          service:
+          endpoints:
           map (endpoint: "${toString endpoint.port}:${toString endpoint.port}") (
-            lib.sortOn (endpoint: endpoint.port) (
-              lib.filter (endpoint: endpoint.forwardedPort != endpoint.port) (lib.attrValues service.endpoints)
-            )
+            lib.filter (endpoint: endpoint.forwardedPort != endpoint.port) endpoints
           );
 
         composeOverrideFile = pkgs.writeText "${app.name}-compose-test.yaml" (
           lib.generators.toYAML { } {
             services = lib.filterAttrs (_: service: service.ports != [ ]) (
-              lib.mapAttrs (_: service: { ports = originalPorts service; }) (
-                app.services.components // app.services.result.enabledResources
-              )
+              lib.mapAttrs (_: endpoints: { ports = originalPorts endpoints; }) app.services.result.endpoints
             );
           }
         );
