@@ -226,9 +226,10 @@ services = {
 ```
 
 Endpoints exposed to the users of the app must be described using the
-`endpoints` option. Each endpoint is named and has a `port` and an
-application-level `protocol` (`http` - default, or any other protocol name such
-as `https`, `websocket` or `postgresql`). Ports used only between the
+`endpoints` option. Each endpoint is named and has a `port`, a
+transport-level `protocol` (`tcp` - default, or `udp`) and an application-level
+`appProtocol` (`http` - default, or any other protocol name such as `https`,
+`websocket` or `postgresql`). Ports used only between the
 components and resources of the app must not be configured as endpoints.
 
 Endpoints are forwarded to the host by the _container_ runtime and when a
@@ -251,7 +252,7 @@ services = {
       web.port = 8080;
       events = {
         port = 8081;
-        protocol = "websocket";
+        appProtocol = "websocket";
       };
     };
     ...
