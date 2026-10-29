@@ -25,9 +25,11 @@
         # same ports as in the NixOS test.
         originalPorts =
           endpoints:
-          map (endpoint: "${toString endpoint.port}:${toString endpoint.port}") (
-            lib.filter (endpoint: endpoint.forwardedPort != endpoint.port) endpoints
-          );
+          map (
+            endpoint:
+            "${toString endpoint.port}:${toString endpoint.port}"
+            + lib.optionalString (endpoint.protocol == "udp") "/udp"
+          ) (lib.filter (endpoint: endpoint.forwardedPort != endpoint.port) endpoints);
 
         composeOverrideFile = pkgs.writeText "${app.name}-compose-test.yaml" (
           lib.generators.toYAML { } {

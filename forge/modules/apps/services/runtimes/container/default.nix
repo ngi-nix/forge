@@ -281,11 +281,13 @@ in
         resourceNamesByRole =
           role: lib.attrNames (lib.filterAttrs (_: resource: resource.role == role) enabledResources);
 
-        # Forward endpoints to the host, in compose `HOST:CONTAINER` format.
+        # Forward endpoints to the host, in compose `HOST:CONTAINER[/udp]` format.
         forwardedPorts =
           name:
           map (
-            endpoint: "${toString endpoint.forwardedPort}:${toString endpoint.port}"
+            endpoint:
+            "${toString endpoint.forwardedPort}:${toString endpoint.port}"
+            + lib.optionalString (endpoint.protocol == "udp") "/udp"
           ) app.services.result.endpoints.${name};
 
         dependsOnCondition =
