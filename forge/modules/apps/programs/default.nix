@@ -1,14 +1,18 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 {
   options = {
     packages = lib.mkOption {
-      type = lib.types.listOf lib.types.package;
+      type = lib.types.either (lib.types.functionTo (lib.types.listOf lib.types.package)) (
+        lib.types.listOf lib.types.package
+      );
+      apply = v: if lib.isFunction v then v pkgs else v;
       default = [ ];
-      description = "Packages to include in the _shell_ runtime.";
+      description = "Packages to include in the _shell_ runtime. Can be a list of packages or a function taking `pkgs`.";
       example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
     };
 
@@ -21,9 +25,12 @@
     };
 
     mainPackage = lib.mkOption {
-      type = lib.types.nullOr lib.types.package;
+      type = lib.types.nullOr (
+        lib.types.either (lib.types.functionTo lib.types.package) lib.types.package
+      );
+      apply = v: if lib.isFunction v then v pkgs else v;
       default = null;
-      description = "Package launched by the _program_ runtime.";
+      description = "Package launched by the _program_ runtime. Can be a package or a function taking `pkgs`.";
       example = lib.literalExpression "pkgs.hello";
     };
 

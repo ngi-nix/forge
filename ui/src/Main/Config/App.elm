@@ -20,6 +20,8 @@ type alias App =
     , app_recipePath : String
     , app_maintainers : List Maintainer
     , app_hasIcon : Bool
+    , app_broken : Bool
+    , app_lastWorkingVersion : Maybe String
     }
 
 
@@ -39,6 +41,8 @@ decodeApp =
         |> Decode.andMap (Decode.field "recipePath" Decode.string)
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
         |> Decode.andMap (Decode.field "icon" (Decode.nullable Decode.string |> Decode.map (\icon -> icon /= Nothing)))
+        |> Decode.andMap (Decode.oneOf [ Decode.field "broken" Decode.bool, Decode.succeed False ])
+        |> Decode.andMap (Decode.oneOf [ Decode.field "lastWorkingVersion" (Decode.nullable Decode.string), Decode.succeed Nothing ])
 
 
 type alias AppName =

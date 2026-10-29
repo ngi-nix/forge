@@ -1,5 +1,4 @@
 {
-  pkgs,
   config,
   ...
 }:
@@ -15,8 +14,12 @@
 
       For information about the first run see [here](https://usebottles.com/docs/getting-started/first-run), and for more general information see [the bottles website](${config.apps.bottles.links.website}).
     '';
-    # TODO needs unfree packages https://github.com/ngi-nix/forge/pull/1043#issuecomment-6348128062
-    broken = true;
+
+    # Pinned to the last working Nixpkgs revision before lsfg-vk unfree dependency regression
+    nixpkgsPin = {
+      rev = "c59305bab2065cfecc4944690d9eedbb56f3a9fa";
+      narHash = "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=";
+    };
 
     icon = ./icon.svg;
 
@@ -31,7 +34,9 @@
     };
 
     programs = {
-      packages = [ pkgs.bottles ];
+      packages = pkgs: [ pkgs.bottles ];
+      mainPackage = pkgs: pkgs.bottles;
+      runtimes.program.enable = true;
       runtimes.shell.enable = true;
     };
 

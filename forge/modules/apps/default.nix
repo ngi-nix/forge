@@ -40,7 +40,8 @@
       shellBundle =
         app:
         let
-          appDrv = pkgs.symlinkJoin {
+          pkgsToUse = app.effectivePkgs;
+          appDrv = pkgsToUse.symlinkJoin {
             name = "${app.name}";
             paths = app.programs.packages;
           };
@@ -62,7 +63,8 @@
             }
             // lib.optionalAttrs (app.test.programs.script != "") {
               test-programs = app.test.programs.derivation {
-                inherit pkgs finalApp;
+                pkgs = app.effectivePkgs;
+                inherit finalApp;
                 inherit (app.programs) mainPackage;
               };
             };

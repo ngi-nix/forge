@@ -121,6 +121,19 @@ let
               runtimes.shell.enable = true;
             };
           };
+
+          test-pinned-nixpkgs-app = {
+            displayName = "Test Direct Pinned App";
+            description = "Test app using nixpkgsPin directly.";
+            nixpkgsPin = {
+              rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
+              narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
+            };
+            programs = {
+              packages = p: [ p.hello ];
+              runtimes.shell.enable = true;
+            };
+          };
         };
       };
     };
@@ -147,5 +160,7 @@ in
     pythonPackageHasPinnedDep = builtins.elem "wheel" (
       map (d: d.pname or d.name) testPkgs.pkgs."pinned-python".propagatedBuildInputs
     );
+    directPinnedAppHasPinnedHello =
+      (builtins.elemAt testPkgs.apps."test-pinned-nixpkgs-app".paths 0).version == "2.12.1";
   };
 }

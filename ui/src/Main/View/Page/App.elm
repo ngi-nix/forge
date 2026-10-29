@@ -53,6 +53,94 @@ viewPageAppHeader _ pageApp =
 
         onClickIcon =
             Route_App { routeApp | routeApp_iconShown = True }
+
+        brokenTooltip =
+            case pageApp.pageApp_app.app_lastWorkingVersion of
+                Just version ->
+                    "This application is marked broken. Last working version: " ++ version
+
+                Nothing ->
+                    "This application is marked broken."
+
+        runButton =
+            button
+                [ class "btn"
+                , attribute "data-testid" "app-run-button"
+                , case pageApp.pageApp_runtime of
+                    Nothing ->
+                        class "btn-secondary"
+
+                    Just _ ->
+                        class "btn-success"
+                , if pageApp.pageApp_app.app_broken then
+                    title brokenTooltip
+
+                  else
+                    title ""
+                , let
+                    route =
+                        pageApp.pageApp_route
+                  in
+                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
+                ]
+                (if pageApp.pageApp_app.app_broken then
+                    [ span [ class "d-inline-flex align-items-center gap-1" ]
+                        [ iconExclamationTriangle
+                        , text "Run"
+                        ]
+                    ]
+
+                 else
+                    [ text "Run" ]
+                )
+
+        viewRunButton =
+            if pageApp.pageApp_app.app_broken then
+                div [ class "has-tooltip d-inline-block" ]
+                    [ runButton
+                    , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
+                        [ div [ class "tooltip-inner" ] [ text brokenTooltip ] ]
+                    ]
+
+            else
+                runButton
+
+        deployButton =
+            button
+                [ class "btn btn-success"
+                , attribute "data-testid" "app-deploy-button"
+                , if pageApp.pageApp_app.app_broken then
+                    title brokenTooltip
+
+                  else
+                    title ""
+                , let
+                    route =
+                        pageApp.pageApp_route
+                  in
+                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
+                ]
+                (if pageApp.pageApp_app.app_broken then
+                    [ span [ class "d-inline-flex align-items-center gap-1" ]
+                        [ iconExclamationTriangle
+                        , text "Deploy"
+                        ]
+                    ]
+
+                 else
+                    [ text "Deploy" ]
+                )
+
+        viewDeployButton =
+            if pageApp.pageApp_app.app_broken then
+                div [ class "has-tooltip d-inline-block" ]
+                    [ deployButton
+                    , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
+                        [ div [ class "tooltip-inner" ] [ text brokenTooltip ] ]
+                    ]
+
+            else
+                deployButton
     in
     div
         [ style "display" "flex"
@@ -95,35 +183,9 @@ viewPageAppHeader _ pageApp =
                 ]
             ]
         , div [ style "display" "flex", style "gap" "8px" ]
-            ([ button
-                [ class "btn"
-                , attribute "data-testid" "app-run-button"
-                , case pageApp.pageApp_runtime of
-                    Nothing ->
-                        class "btn-secondary"
-
-                    Just _ ->
-                        class "btn-success"
-                , let
-                    route =
-                        pageApp.pageApp_route
-                  in
-                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
-                ]
-                [ text "Run" ]
-             ]
+            ([ viewRunButton ]
                 ++ (if pageApp.pageApp_app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                        [ button
-                            [ class "btn btn-success"
-                            , attribute "data-testid" "app-deploy-button"
-                            , let
-                                route =
-                                    pageApp.pageApp_route
-                              in
-                              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
-                            ]
-                            [ text "Deploy" ]
-                        ]
+                        [ viewDeployButton ]
 
                     else
                         []

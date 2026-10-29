@@ -176,6 +176,7 @@
       type = lib.types.submoduleWith {
         specialArgs = specialArgs // {
           app = config;
+          pkgs = config.effectivePkgs;
         };
         modules = [ ./services ];
       };
@@ -188,6 +189,7 @@
       type = lib.types.submoduleWith {
         specialArgs = specialArgs // {
           app = config;
+          pkgs = config.effectivePkgs;
         };
         modules = [ ./programs ];
       };
@@ -200,11 +202,58 @@
       type = lib.types.submoduleWith {
         specialArgs = specialArgs // {
           app = config;
+          pkgs = config.effectivePkgs;
         };
         modules = [ ./test ];
       };
       default = { };
       description = "Test configuration.";
+    };
+
+    nixpkgsPin = lib.mkOption {
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = {
+            rev = lib.mkOption {
+              type = lib.types.str;
+              description = "Git commit revision from NixOS/nixpkgs.";
+              example = "02c087f3fe673c9e317f206a627cb6b910336dbe";
+            };
+            narHash = lib.mkOption {
+              type = lib.types.str;
+              description = "NAR hash of the pinned Nixpkgs tree.";
+              example = "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=";
+            };
+          };
+        }
+      );
+      default = null;
+      description = ''
+        Pin this application to a specific Nixpkgs revision using `builtins.fetchTree`.
+        Allows using a different or older Nixpkgs version without adding another Nixpkgs input
+        to `flake.lock`.
+      '';
+      example = {
+        rev = "fe13242281a67641c0102cdb1087f0ebe586c7df";
+        narHash = "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=";
+      };
+    };
+
+    effectivePkgs = lib.mkOption {
+      type = lib.types.raw;
+      internal = true;
+      readOnly = true;
+      default =
+        if config.nixpkgsPin != null then
+          import (builtins.fetchTree {
+            type = "github";
+            owner = "NixOS";
+            repo = "nixpkgs";
+            inherit (config.nixpkgsPin) rev narHash;
+          }) { inherit (pkgs) system; }
+        else
+          pkgs;
+      description = "Effective Nixpkgs package set for this application (pinned or default).";
     };
 
     broken = lib.mkOption {

@@ -101,9 +101,9 @@ viewPagePkgsItem model pagePkgs pkg =
         ]
         [ div
             []
-            [ div [ class "d-flex w-100 justify-content-between" ]
+            [ div [ class "d-flex w-100 justify-content-between align-items-center" ]
                 [ h5
-                    [ class "mb-1"
+                    [ class "mb-1 d-inline-flex align-items-center flex-wrap gap-2"
                     ]
                     [ a
                         [ href (onClickRoute |> routeToString)
@@ -119,9 +119,17 @@ viewPagePkgsItem model pagePkgs pkg =
                     , span
                         [ style "font-size" ".8rem"
                         , style "font-style" "italic"
-                        , style "margin-left" "1em"
                         ]
                         [ text ("v" ++ pkg.pkg_version) ]
+                    , if pkg.pkg_broken then
+                        span
+                            [ class "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1"
+                            , attribute "data-testid" "pkg-broken-badge"
+                            ]
+                            [ iconExclamationTriangle, text "Broken" ]
+
+                      else
+                        text ""
                     ]
                 ]
             , pkg.pkg_description |> Markdown.render

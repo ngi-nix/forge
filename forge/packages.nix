@@ -53,6 +53,7 @@ let
         "result"
         "packages"
         "test"
+        "effectivePkgs"
       ];
     in
     if app.broken then
@@ -76,6 +77,7 @@ let
       "result"
       "test"
       "develop"
+      "effectivePkgs"
     ];
 
   forgeConfig = config.forge // {
