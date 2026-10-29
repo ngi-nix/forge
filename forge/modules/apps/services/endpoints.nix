@@ -44,6 +44,16 @@
               };
 
               protocol = lib.mkOption {
+                type = lib.types.enum [
+                  "tcp"
+                  "udp"
+                ];
+                default = "tcp";
+                description = "Transport-level protocol of the endpoint.";
+                example = lib.literalExpression ''"udp"'';
+              };
+
+              appProtocol = lib.mkOption {
                 type = lib.types.str;
                 default = "http";
                 description = ''

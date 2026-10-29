@@ -100,15 +100,17 @@ decodeAppProgramsRuntimesShell =
 type alias AppEndpoint =
     { appEndpoint_port : Int
     , appEndpoint_forwardedPort : Int
+    , appEndpoint_appProtocol : String
     , appEndpoint_protocol : String
     }
 
 
 decodeAppEndpoint : Decoder AppEndpoint
 decodeAppEndpoint =
-    Decode.map3 AppEndpoint
+    Decode.map4 AppEndpoint
         (Decode.field "port" Decode.int)
         (Decode.field "forwardedPort" Decode.int)
+        (Decode.field "appProtocol" Decode.string)
         (Decode.field "protocol" Decode.string)
 
 
@@ -123,7 +125,7 @@ decodeAppEndpoints =
 -}
 isAppEndpointWeb : AppEndpoint -> Bool
 isAppEndpointWeb endpoint =
-    List.member endpoint.appEndpoint_protocol [ "http", "https" ]
+    List.member endpoint.appEndpoint_appProtocol [ "http", "https" ]
 
 
 type alias AppResource =
@@ -407,15 +409,17 @@ getAppServicesEndpoints services =
         |> List.sortBy .appEndpoint_port
 
 
-{-| Ports which need to be open in the firewall of a machine running the services.
+{-| Ports which need to be open in the firewall of a machine running the services,
+for the given transport-level protocol (`tcp` or `udp`).
 
 Services listen on the ports of their endpoints on the deployed machine.
 
 -}
-getAppServicesFirewallPorts : AppServices -> List Int
-getAppServicesFirewallPorts services =
+getAppServicesFirewallPorts : String -> AppServices -> List Int
+getAppServicesFirewallPorts protocol services =
     services
         |> getAppServicesEndpoints
+        |> List.filter (\endpoint -> endpoint.appEndpoint_protocol == protocol)
         |> List.map .appEndpoint_port
         |> Set.fromList
         |> Set.toList

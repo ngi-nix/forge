@@ -218,12 +218,18 @@ viewEndpointUrl : AppEndpoint -> Html Update
 viewEndpointUrl endpoint =
     let
         endpointUrl host port_ =
-            endpoint.appEndpoint_protocol ++ "://" ++ host ++ ":" ++ String.fromInt port_
+            endpoint.appEndpoint_appProtocol ++ "://" ++ host ++ ":" ++ String.fromInt port_
 
         label =
             endpointUrl "host" endpoint.appEndpoint_port
                 ++ " → "
                 ++ String.fromInt endpoint.appEndpoint_forwardedPort
+                ++ (if endpoint.appEndpoint_protocol == "udp" then
+                        " (udp)"
+
+                    else
+                        ""
+                   )
     in
     if isAppEndpointWeb endpoint then
         a

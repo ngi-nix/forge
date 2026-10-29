@@ -28,6 +28,7 @@
     # Forward endpoints to the host.
     forwardPorts = map (endpoint: {
       from = "host";
+      proto = endpoint.protocol;
       host.port = endpoint.forwardedPort;
       guest.port = endpoint.port;
     }) (lib.concatLists (lib.attrValues app.services.result.endpoints));
