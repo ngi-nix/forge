@@ -305,7 +305,7 @@
             cleanConfig = builtins.removeAttrs (pkgs.config or { }) [ "replaceStdenv" ];
           in
           import tree {
-            inherit (pkgs) system;
+            system = pkgs.stdenv.hostPlatform.system;
             config = cleanConfig;
             overlays = [ ];
           }
