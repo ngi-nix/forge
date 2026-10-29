@@ -73,7 +73,7 @@
           };
           bmp = {
             port = 11019;
-            protocol = "bmp";
+            appProtocol = "bmp";
           };
         };
       };
