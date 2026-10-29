@@ -81,7 +81,7 @@
         endpoints = {
           rpc = {
             port = 1024;
-            protocol = "connect-rpc";
+            appProtocol = "connect-rpc";
           };
         };
         process.configData."dutagent/config.yaml" = {

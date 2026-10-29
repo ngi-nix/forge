@@ -104,7 +104,7 @@ in
         endpoints = {
           web = {
             port = 3000;
-            protocol = "https";
+            appProtocol = "https";
           };
         };
       };

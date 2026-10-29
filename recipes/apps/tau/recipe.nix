@@ -52,7 +52,7 @@
         endpoints = {
           source = {
             port = 3001;
-            protocol = "websocket";
+            appProtocol = "websocket";
           };
           broadcast = {
             port = 3002;
