@@ -233,6 +233,43 @@ onClick update =
         (Json.Decode.succeed ( update, True ))
 
 
+{-| `onPlainClick` is like `onClick`, but only for a click of the main button without a modifier key.
+Other clicks keep their default action, for example to open a link in a new tab.
+-}
+onPlainClick : update -> Attribute update
+onPlainClick update =
+    Html.Events.preventDefaultOn "click"
+        (Json.Decode.map5
+            (\mouseButton ctrl meta shift alt -> mouseButton == 0 && not (ctrl || meta || shift || alt))
+            (Json.Decode.field "button" Json.Decode.int)
+            (Json.Decode.field "ctrlKey" Json.Decode.bool)
+            (Json.Decode.field "metaKey" Json.Decode.bool)
+            (Json.Decode.field "shiftKey" Json.Decode.bool)
+            (Json.Decode.field "altKey" Json.Decode.bool)
+            |> Json.Decode.andThen
+                (\plain ->
+                    if plain then
+                        Json.Decode.succeed ( update, True )
+
+                    else
+                        Json.Decode.fail "Not a plain click"
+                )
+        )
+
+
+{-| `onClickOnly` is like `onClick`, but the click does not bubble up to a parent element.
+-}
+onClickOnly : update -> Attribute update
+onClickOnly update =
+    Html.Events.custom "click"
+        (Json.Decode.succeed
+            { message = update
+            , stopPropagation = True
+            , preventDefault = True
+            }
+        )
+
+
 {-| Stop a click event from bubbling up to a parent element.
 Use this on external links nested inside an `onClick` parent.
 -}

@@ -61,6 +61,15 @@ def generate_app_recipe(name, index, is_test_app=False):
     shell_en = "true" if is_test_app else str(fake.boolean()).lower()
     container_en = "true" if is_test_app else str(fake.boolean()).lower()
     nixos_vm_en = "true" if is_test_app else str(fake.boolean()).lower()
+    # Mock mode builds no screenshot images, so the file can be empty.
+    screenshots = (
+        "  screenshots = [\n"
+        '    { file = pkgs.emptyFile; caption = "Mock screenshot."; }\n'
+        '    { file = pkgs.emptyFile; caption = "Second mock screenshot."; }\n'
+        "  ];"
+        if is_test_app
+        else ""
+    )
 
     return f"""{{
   config,
@@ -80,6 +89,8 @@ apps."{name}" = {{
   }};
 
   ngi.grants = {grants_nix};
+
+{screenshots}
 
   services = {{
     components.{name} = {{

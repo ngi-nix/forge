@@ -41,6 +41,8 @@ type Update
     | Update_ToggleAppsSortDropdown
     | Update_DismissFeedback
     | Update_FocusResult (Result Dom.Error ())
+    | -- `Update_ScrollRow id direction` scrolls the element `id` horizontally by most of its width, backward when `direction` is negative.
+      Update_ScrollRow String Float
     | Update_AmbientKeyPress AmbientKeyState
     | Update_Search Search
     | Update_SearchFocus Bool

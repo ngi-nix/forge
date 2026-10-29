@@ -21,6 +21,12 @@
   apps.qlever = {
     displayName = "QLever";
     description = "Web-based user interface for QLever SPARQL engine.";
+    screenshotSources.urls = [
+      {
+        url = "https://raw.githubusercontent.com/qlever-dev/qlever-ui/master/docs/screenshot.png";
+        caption = "SPARQL query editor with context-sensitive suggestions";
+      }
+    ];
     usage = ''
       By default, the Olympics dataset is downloaded and indexed on startup.
       To use a different dataset, choose one from the [available use cases](https://docs.qlever.dev/use-cases) and update your `./Qleverfile` accordingly.

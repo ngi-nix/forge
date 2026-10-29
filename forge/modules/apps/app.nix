@@ -79,6 +79,88 @@
       '';
       example = lib.literalExpression "./icon.svg";
     };
+    screenshots = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.coercedTo lib.types.path (file: { inherit file; }) (
+          lib.types.submoduleWith {
+            modules = [ ./screenshot.nix ];
+            specialArgs = { inherit pkgs; };
+          }
+        )
+      );
+      default = [ ];
+      description = ''
+        Application screenshots, shown in the web interface.
+
+        The `forge-screenshots` command writes a `screenshots.nix` file next
+        to the recipe, which sets this option from `screenshotSources`.
+        A definition in the recipe overrides that file.
+      '';
+      example = lib.literalExpression ''
+        [
+          ./screenshot.png
+          {
+            url = "https://example.com/screenshot.png";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            caption = "Main window with an open project.";
+          }
+        ]
+      '';
+    };
+    screenshotSources = {
+      appstreamIds = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = ''
+          AppStream component IDs to look up on Flathub.
+
+          `forge-screenshots` uses Flathub only if the AppStream metainfo
+          files of the application packages, of their sources, and of the
+          default branches of their source repositories have no screenshots.
+          It also looks up the IDs found in these metainfo files, and the
+          Flathub applications with the same homepage or source repository as
+          the application. Set this option only if these lookups do not find
+          the application.
+        '';
+        example = [ "org.example.App" ];
+      };
+      urls = lib.mkOption {
+        type = lib.types.listOf (
+          lib.types.coercedTo lib.types.str (url: { inherit url; }) (
+            lib.types.submodule {
+              options = {
+                url = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Screenshot image URL.";
+                };
+                caption = lib.mkOption {
+                  type = lib.types.str;
+                  default = "";
+                  description = "Short description of the screenshot.";
+                };
+              };
+            }
+          )
+        );
+        default = [ ];
+        description = ''
+          Screenshot image URLs, for applications without AppStream metainfo.
+
+          `forge-screenshots` uses these URLs only if no other source has
+          screenshots. If another source has screenshots, it tells you to
+          remove this option.
+        '';
+        example = lib.literalExpression ''
+          [
+            "https://raw.githubusercontent.com/example/app/main/docs/screenshot.png"
+            {
+              url = "https://raw.githubusercontent.com/example/app/main/docs/settings.png";
+              caption = "Settings dialog.";
+            }
+          ]
+        '';
+      };
+    };
     links = lib.mkOption {
       type = lib.types.submoduleWith {
         specialArgs = specialArgs // {

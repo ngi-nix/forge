@@ -18,7 +18,7 @@ subscriptions model =
         [ Navigation.onEvent Main.Ports.Navigation.onNavEvent Update_Navigation
         , case model.model_page of
             Page_App pageApp ->
-                if pageApp.pageApp_route.routeApp_runShown || pageApp.pageApp_route.routeApp_deployShown then
+                if pageApp.pageApp_route.routeApp_runShown || pageApp.pageApp_route.routeApp_deployShown || pageApp.pageApp_route.routeApp_screenshotShown /= Nothing then
                     Sub.none
 
                 else
@@ -42,7 +42,12 @@ subscriptions model =
                         )
 
                 else
-                    Sub.none
+                    case pageApp.pageApp_route.routeApp_screenshotShown of
+                        Just index ->
+                            Browser.Events.onKeyDown (decodeScreenshotKey pageApp index)
+
+                        Nothing ->
+                            Sub.none
 
             _ ->
                 Sub.none
@@ -59,6 +64,38 @@ decodeEscapeKey =
 
                 else
                     Decode.fail "Not escape"
+            )
+
+
+{-| The Escape key closes the screenshot modal, and the arrow keys show the previous or the next screenshot.
+-}
+decodeScreenshotKey : PageApp -> Int -> Decode.Decoder Update
+decodeScreenshotKey pageApp index =
+    let
+        route =
+            pageApp.pageApp_route
+
+        count =
+            List.length pageApp.pageApp_app.app_screenshots
+
+        show screenshot =
+            Decode.succeed (Update_RouteWithoutHistory (Route_App { route | routeApp_screenshotShown = screenshot }))
+    in
+    Decode.field "key" Decode.string
+        |> Decode.andThen
+            (\key ->
+                case key of
+                    "Escape" ->
+                        show Nothing
+
+                    "ArrowLeft" ->
+                        show (Just (modBy count (index - 1)))
+
+                    "ArrowRight" ->
+                        show (Just (modBy count (index + 1)))
+
+                    _ ->
+                        Decode.fail "Not a screenshot key"
             )
 
 

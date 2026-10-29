@@ -46,12 +46,38 @@ let
     )}
   '';
 
+  # Convert app screenshots to WebP in two sizes:
+  # `<n>.webp` for the full view and `<n>-thumb.webp` for the gallery.
+  appScreenshots = pkgs.linkFarm "app-screenshots" (
+    map (app: {
+      name = app.name;
+      path = pkgs.symlinkJoin {
+        name = "${app.name}-screenshots";
+        paths = lib.imap0 (
+          index: screenshot:
+          pkgs.runCommand "${app.name}-screenshot-${toString index}"
+            {
+              nativeBuildInputs = [ pkgs.imagemagick ];
+            }
+            ''
+              mkdir -p $out
+              # `[0]` selects the first frame of an animated image.
+              magick '${screenshot.file}[0]' -resize '1600x>' -quality 85 $out/${toString index}.webp
+              magick '${screenshot.file}[0]' -resize '752x>' -quality 80 $out/${toString index}-thumb.webp
+            ''
+        ) app.screenshots;
+      };
+    }) (lib.filter (app: app.screenshots != [ ]) (lib.attrValues forgeApps))
+  );
+
   forgeConfig = config.forge // {
     pkgs = lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs;
     apps = lib.filterAttrs (_: app: !app.broken) config.forge.apps;
   };
 
   _forge = {
+    inherit appScreenshots;
+
     config = pkgs.writeTextFile {
       name = "forge-config.json";
       text = lib.toJSON (forge-lib.scrubNixContext forgeConfig);
@@ -63,7 +89,7 @@ let
 
     ui = pkgs.callPackage ../ui/package.nix {
       inherit (config.packages) _forge;
-      inherit appIcons;
+      inherit appIcons appScreenshots;
       buildElmApplication = (forge-inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
       highlight-js = pkgs.callPackage ../flake/packages/highlight-js.nix { };
     };

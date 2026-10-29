@@ -13,6 +13,28 @@
   apps.goupile = {
     displayName = "Goupile";
     description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";
+    screenshotSources.urls = [
+      {
+        url = "https://codeberg.org/Koromix/rygel/raw/branch/master/web/goupile.org/en/static/screenshots/editor.webp";
+        caption = "Create and test forms with the form editor";
+      }
+      {
+        url = "https://codeberg.org/Koromix/rygel/raw/branch/master/web/goupile.org/en/static/screenshots/data.webp";
+        caption = "Enter and export data from the same screen";
+      }
+      {
+        url = "https://codeberg.org/Koromix/rygel/raw/branch/master/web/goupile.org/en/static/screenshots/overview.webp";
+        caption = "Share forms with colleagues and users to collect data";
+      }
+      {
+        url = "https://codeberg.org/Koromix/rygel/raw/branch/master/web/goupile.org/en/static/screenshots/tablet.webp";
+        caption = "Data entry on a tablet";
+      }
+      {
+        url = "https://codeberg.org/Koromix/rygel/raw/branch/master/web/goupile.org/en/static/screenshots/admin.webp";
+        caption = "Administration module for projects and users";
+      }
+    ];
     usage = ''
       Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 

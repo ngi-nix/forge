@@ -7,6 +7,7 @@
   esbuild,
 
   appIcons,
+  appScreenshots,
 
   _forge,
   highlight-js,
@@ -79,6 +80,11 @@ symlinkJoin {
       mkdir -p "resources/apps/$app"
       if [ -f "${appIcons}/$app/icon.svg" ]; then
         cp "${appIcons}/$app/icon.svg" "resources/apps/$app/icon.svg"
+      fi
+
+      # Copy screenshots if they exist
+      if [ -d "${appScreenshots}/$app" ]; then
+        cp -rL "${appScreenshots}/$app" "resources/apps/$app/screenshots"
       fi
 
       # Create SPA routing for this app (github pages workaround)

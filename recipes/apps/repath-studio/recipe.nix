@@ -15,6 +15,24 @@
   apps.repath-studio = {
     displayName = "Repath Studio";
     description = "SVG editor written in Clojurescript.";
+    screenshotSources.urls = [
+      {
+        url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/studio.png";
+        caption = "Studio";
+      }
+      {
+        url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/history.png";
+        caption = "History";
+      }
+      {
+        url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/repl.png";
+        caption = "Repl";
+      }
+      {
+        url = "https://raw.githubusercontent.com/repath-studio/website/main/docs/assets/images/animations.png";
+        caption = "Animations";
+      }
+    ];
     usage = ''
       Repath Studio is a cross platform vector graphics editor, that combines procedural tooling with traditional design workflows.
 

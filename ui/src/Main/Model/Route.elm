@@ -32,6 +32,9 @@ type alias RouteApp =
     , routeApp_deployShown : Bool
     , routeApp_iconShown : Bool
 
+    -- The index of the screenshot shown in full size.
+    , routeApp_screenshotShown : Maybe Int
+
     -- `Nothing` means to select the first available `AppRuntime`.
     -- The selected `AppRuntime` will then be in `pageApp_runtime`
     , routeApp_runRuntime : Maybe AppRuntime
@@ -46,6 +49,7 @@ defaultRouteApp =
     , routeApp_runShown = False
     , routeApp_deployShown = False
     , routeApp_iconShown = False
+    , routeApp_screenshotShown = Nothing
     , routeApp_runRuntime = Nothing
     , routeApp_deployTarget = DeployTarget_BareMetal
     , routeApp_focus = Nothing
@@ -334,6 +338,7 @@ appUrlToRoute url =
                             { defaultRouteApp
                                 | routeApp_name = appName
                                 , routeApp_runShown = False
+                                , routeApp_screenshotShown = screenshotOfFragment focusId
                                 , routeApp_focus =
                                     case focusId of
                                         "resources" ->
@@ -472,8 +477,13 @@ routeToAppUrl route =
                     Just "icon"
 
                 else
-                    routeApp.routeApp_focus
-                        |> Maybe.map showRouteAppFocus
+                    case routeApp.routeApp_screenshotShown of
+                        Just index ->
+                            Just (screenshotFragmentPrefix ++ String.fromInt (index + 1))
+
+                        Nothing ->
+                            routeApp.routeApp_focus
+                                |> Maybe.map showRouteAppFocus
             }
 
         Route_Apps routeApps ->
@@ -592,3 +602,29 @@ routeToAppUrl route =
 routeToString : Route -> String
 routeToString =
     routeToAppUrl >> AppUrl.toString
+
+
+{-| The fragment of a screenshot URL is `screenshot-1` for the first screenshot.
+-}
+screenshotFragmentPrefix : String
+screenshotFragmentPrefix =
+    "screenshot-"
+
+
+screenshotOfFragment : String -> Maybe Int
+screenshotOfFragment fragment =
+    if String.startsWith screenshotFragmentPrefix fragment then
+        fragment
+            |> String.dropLeft (String.length screenshotFragmentPrefix)
+            |> String.toInt
+            |> Maybe.andThen
+                (\number ->
+                    if number >= 1 then
+                        Just (number - 1)
+
+                    else
+                        Nothing
+                )
+
+    else
+        Nothing

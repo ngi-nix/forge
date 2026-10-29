@@ -12,6 +12,24 @@
   apps.signaturepdf = {
     displayName = "Signature PDF";
     description = "Self-hosted tool to add signature to PDFs.";
+    screenshotSources.urls = [
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/4deeb6fb-caa9-4365-895e-d22177a6ec3b";
+        caption = "Add a signature, initials, a stamp, text or check boxes to a PDF";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/a008d765-3a74-4ab4-b2bc-4af6c81575fe";
+        caption = "Merge, sort, rotate, delete and extract pages";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/1f195bae-4af3-4d7b-9e31-3acd7552c2eb";
+        caption = "Edit the metadata of a PDF";
+      }
+      {
+        url = "https://github.com/24eme/signaturepdf/assets/71143205/7d0e93a3-5567-4545-9c43-033b9028b036";
+        caption = "Compress a PDF to reduce its file size";
+      }
+    ];
     usage = ''
       Signature PDF is a web application for signing PDFs, alone or with
       others, as well as organizing pages (merge, sort, rotate, delete,

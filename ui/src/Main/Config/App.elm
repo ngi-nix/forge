@@ -20,6 +20,7 @@ type alias App =
     , app_recipePath : String
     , app_maintainers : List Maintainer
     , app_hasIcon : Bool
+    , app_screenshots : List AppScreenshot
     }
 
 
@@ -39,6 +40,18 @@ decodeApp =
         |> Decode.andMap (Decode.field "recipePath" Decode.string)
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
         |> Decode.andMap (Decode.field "icon" (Decode.nullable Decode.string |> Decode.map (\icon -> icon /= Nothing)))
+        |> Decode.andMap (Decode.field "screenshots" (Decode.list decodeAppScreenshot))
+
+
+type alias AppScreenshot =
+    { appScreenshot_caption : String
+    }
+
+
+decodeAppScreenshot : Decoder AppScreenshot
+decodeAppScreenshot =
+    Decode.map AppScreenshot
+        (Decode.field "caption" Decode.string)
 
 
 type alias AppName =

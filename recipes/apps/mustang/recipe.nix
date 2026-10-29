@@ -6,6 +6,16 @@
   apps.mustang = {
     displayName = "Mustang";
     description = "Full-featured desktop email, chat, video conference, calendar and contacts client.";
+    screenshotSources.urls = [
+      {
+        url = "https://www.mustang.im/assets/images/screenshots/mail.png";
+        caption = "Mail";
+      }
+      {
+        url = "https://www.mustang.im/assets/images/screenshots/fileShare.png";
+        caption = "File sharing";
+      }
+    ];
     usage = ''
       Mustang is a full desktop client combining email, chat,
       video conferencing, calendar, contacts, and file sharing in one app. Data

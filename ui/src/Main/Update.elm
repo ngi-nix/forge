@@ -169,6 +169,11 @@ update upd modelInit =
             -- We don't need to do anything if they succeed or fail.
             ( model, Cmd.none )
 
+        Update_ScrollRow rowId direction ->
+            ( model
+            , scrollRow { id = rowId, direction = direction }
+            )
+
         Update_Config res ->
             case res of
                 Ok config ->

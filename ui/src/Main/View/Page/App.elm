@@ -1,8 +1,8 @@
 module Main.View.Page.App exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, span, text, ul)
-import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target, title)
+import Html exposing (Html, a, button, div, figcaption, figure, h2, h4, h6, hr, img, li, p, small, span, text, ul)
+import Html.Attributes exposing (alt, attribute, class, href, id, rel, src, style, tabindex, target, title, type_)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -33,6 +33,7 @@ viewPageApp model pageApp =
                 , viewPageAppRun model pageApp
                 , viewPageAppDeploy model pageApp
                 , viewPageAppIconModal model pageApp
+                , viewPageAppScreenshotModal model pageApp
                 ]
             , div
                 [ class "col-12 col-lg-3 order-lg-first" ]
@@ -185,8 +186,182 @@ viewPageAppDescription model pageApp =
                     |> Markdown.render
                 ]
             ]
+        , viewPageAppScreenshots pageApp
         , viewPageAppUsage model pageApp
         ]
+
+
+viewPageAppScreenshots : PageApp -> Html Update
+viewPageAppScreenshots pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+
+        name =
+            routeApp.routeApp_name
+
+        screenshots =
+            pageApp.pageApp_app.app_screenshots
+
+        rowId =
+            "screenshots-row"
+
+        -- The row scrolls, thus it gets a button at each end:
+        -- dragging the row or moving along it with the tab key
+        -- is not visible at first look.
+        scrollButton direction label icon =
+            button
+                [ type_ "button"
+                , class "btn btn-outline-secondary btn-sm screenshots-scroll flex-shrink-0"
+                , title label
+                , attribute "aria-label" label
+                , attribute "aria-controls" rowId
+                , onClick (Update_ScrollRow rowId direction)
+                ]
+                [ icon ]
+
+        scrollButtons direction label icon =
+            if List.length screenshots > 1 then
+                [ scrollButton direction label icon ]
+
+            else
+                []
+    in
+    if List.isEmpty screenshots then
+        text ""
+
+    else
+        div [ id "screenshots", class "mt-4" ]
+            [ hr [] []
+            , h4 [ class "mb-3" ] [ text "Screenshots" ]
+            , div [ class "d-flex align-items-center gap-2" ]
+                (scrollButtons -1 "Show the previous screenshots" iconChevronLeft
+                    ++ div
+                        [ id rowId
+                        , class "screenshots d-flex gap-3 overflow-auto pb-2"
+                        , attribute "data-testid" "app-screenshots"
+                        ]
+                        (List.indexedMap
+                            (\index screenshot ->
+                                figure [ class "screenshot flex-shrink-0 mb-0" ]
+                                    [ a
+                                        [ href (getAppScreenshotPath name index)
+                                        , onPlainClick (Update_RouteWithoutHistory (Route_App { routeApp | routeApp_screenshotShown = Just index }))
+                                        ]
+                                        [ img
+                                            [ src (getAppScreenshotThumbnailPath name index)
+                                            , alt screenshot.appScreenshot_caption
+                                            , attribute "loading" "lazy"
+                                            , class "rounded border"
+                                            ]
+                                            []
+                                        ]
+                                    , if String.isEmpty screenshot.appScreenshot_caption then
+                                        text ""
+
+                                      else
+                                        figcaption [ class "small text-body-secondary mt-1" ]
+                                            [ text screenshot.appScreenshot_caption ]
+                                    ]
+                            )
+                            screenshots
+                        )
+                    :: scrollButtons 1 "Show the next screenshots" iconChevronRight
+                )
+            ]
+
+
+viewPageAppScreenshotModal : Model -> PageApp -> Html Update
+viewPageAppScreenshotModal _ pageApp =
+    let
+        routeApp =
+            pageApp.pageApp_route
+
+        name =
+            routeApp.routeApp_name
+
+        screenshots =
+            pageApp.pageApp_app.app_screenshots
+
+        count =
+            List.length screenshots
+
+        show index =
+            Update_RouteWithoutHistory (Route_App { routeApp | routeApp_screenshotShown = index })
+
+        navButton step label icon =
+            if count > 1 then
+                button
+                    [ type_ "button"
+                    , class "btn btn-dark rounded-circle flex-shrink-0 screenshot-modal-nav"
+                    , title label
+                    , attribute "aria-label" label
+                    , onClickOnly (show (Maybe.map (\index -> modBy count (index + step)) routeApp.routeApp_screenshotShown))
+                    ]
+                    [ icon ]
+
+            else
+                text ""
+    in
+    case
+        routeApp.routeApp_screenshotShown
+            |> Maybe.andThen (\index -> List.drop index screenshots |> List.head |> Maybe.map (Tuple.pair index))
+    of
+        Nothing ->
+            text ""
+
+        Just ( index, screenshot ) ->
+            div
+                [ class "modal show screenshot-modal"
+                , style "display" "block"
+                , attribute "role" "dialog"
+                , attribute "aria-modal" "true"
+                , attribute "aria-label" "Screenshots"
+                , attribute "data-testid" "screenshot-modal"
+                , tabindex -1
+
+                -- A click outside of the image and the buttons closes the modal.
+                , onClick (show Nothing)
+                ]
+                [ div [ class "d-flex flex-column h-100 p-3 gap-2" ]
+                    [ div [ class "d-flex align-items-center gap-3 text-white" ]
+                        [ span [ class "me-auto", attribute "data-testid" "screenshot-modal-position" ]
+                            [ text (String.fromInt (index + 1) ++ " / " ++ String.fromInt count) ]
+                        , a
+                            [ href (getAppScreenshotPath name index)
+                            , target "_blank"
+                            , rel "noopener"
+                            , class "link-light small"
+                            , onClickStopPropagation
+                            ]
+                            [ text "Open the image" ]
+                        , button
+                            [ type_ "button"
+                            , class "btn-close btn-close-white opacity-100"
+                            , attribute "aria-label" "Close"
+                            , onClickOnly (show Nothing)
+                            ]
+                            []
+                        ]
+                    , div [ class "d-flex align-items-center justify-content-center gap-2 flex-grow-1 screenshot-modal-body" ]
+                        [ navButton -1 "Show the previous screenshot" iconChevronLeft
+                        , img
+                            [ src (getAppScreenshotPath name index)
+                            , alt screenshot.appScreenshot_caption
+                            , class "rounded screenshot-modal-image"
+                            , onClickOnly Update_NoOp
+                            ]
+                            []
+                        , navButton 1 "Show the next screenshot" iconChevronRight
+                        ]
+                    , if String.isEmpty screenshot.appScreenshot_caption then
+                        text ""
+
+                      else
+                        p [ class "text-center text-white mb-0" ]
+                            [ text screenshot.appScreenshot_caption ]
+                    ]
+                ]
 
 
 viewPageAppUsage : Model -> PageApp -> Html Update
@@ -516,6 +691,16 @@ viewPageGrantCategory ( grant, subgrants ) =
 getAppIconPath : AppName -> String
 getAppIconPath name =
     "resources/apps/" ++ name ++ "/icon.svg"
+
+
+getAppScreenshotPath : AppName -> Int -> String
+getAppScreenshotPath name index =
+    "resources/apps/" ++ name ++ "/screenshots/" ++ String.fromInt index ++ ".webp"
+
+
+getAppScreenshotThumbnailPath : AppName -> Int -> String
+getAppScreenshotThumbnailPath name index =
+    "resources/apps/" ++ name ++ "/screenshots/" ++ String.fromInt index ++ "-thumb.webp"
 
 
 defaultAppIconPath : String

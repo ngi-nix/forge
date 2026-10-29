@@ -118,6 +118,89 @@ Icons for some NLnet-supported projects can be found
 in [this page](https://nlnet.nl/gallery/hex.html).
 :::
 
+### Screenshots
+
+The application page shows screenshots from the `screenshots` option.
+Usually, you do not set this option by hand.
+The `forge-screenshots` command of the development shell finds the screenshots
+and writes them to a `screenshots.nix` file next to the recipe.
+A weekly workflow runs this command and opens a pull request with the changes.
+Another weekly workflow runs `forge-screenshots --check`.
+This command downloads each screenshot URL again, also of the screenshots that
+a recipe sets by hand, and fails if a URL cannot be fetched or has a different
+hash.
+
+```bash
+forge-screenshots <app-name>
+```
+
+The command uses the first of these sources that has screenshots:
+
+1. The `<screenshots>` of the AppStream metainfo files in the application
+   packages, in `share/metainfo` or `share/appdata`.
+1. The `<screenshots>` of the AppStream metainfo files in the sources of the
+   application packages.
+1. The `<screenshots>` of the AppStream metainfo files in the default branch
+   of the Git repositories of these sources, for example from
+   `fetchFromGitHub`. Thus a metainfo file that is merged upstream, but is not
+   in a release yet, is used.
+1. Flathub, for the IDs in `screenshotSources.appstreamIds`, the component IDs
+   of the metainfo files, and the desktop file IDs in reverse-DNS format.
+1. Flathub, for the applications that a search for the `displayName` or the
+   name of the application finds, if the homepage or the source repository of
+   the Flathub application is the same as the `links.website` or
+   `links.source` of the application, the `meta.homepage` of a package, or
+   the Git repository of a package source.
+1. The URLs in `screenshotSources.urls`.
+
+If these sources have no screenshots, give a source:
+
+```nix
+# The application is on Flathub, but has other links.
+screenshotSources.appstreamIds = [ "org.example.App" ];
+
+# The application has screenshots in its source repository or website.
+screenshotSources.urls = [
+  "https://raw.githubusercontent.com/example/app/main/docs/screenshot.png"
+  {
+    url = "https://raw.githubusercontent.com/example/app/main/docs/settings.png";
+    caption = "Settings dialog.";
+  }
+];
+```
+
+::: {tip}
+The best source is an AppStream metainfo file with `<screenshots>` in the
+application source repository, installed by the package.
+Other distributions, app stores and Forge can then use the same screenshots.
+:::
+
+The command changes a URL of a file at a branch or a tag of a GitHub, GitLab
+or Forgejo repository to the URL of the file at the commit of the branch or the
+tag.
+Thus the URL continues to work when upstream changes or moves the file.
+Other URLs, for example of a website, do not change.
+
+If another source has screenshots, for example after upstream merges a
+metainfo file, `forge-screenshots` tells you to remove
+`screenshotSources.urls`.
+The weekly pull request also lists these applications.
+
+To set screenshots by hand, set `screenshots` in the recipe.
+This definition overrides `screenshots.nix`.
+An item is a local image file, or a URL with its hash.
+
+```nix
+screenshots = [
+  ./screenshot.png
+  {
+    url = "https://example.com/screenshot.png";
+    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    caption = "Main window with an open project.";
+  }
+];
+```
+
 ## Programs
 
 Add a `programs` block if the application provides GUI or CLI programs.

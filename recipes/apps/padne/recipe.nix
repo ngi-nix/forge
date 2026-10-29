@@ -17,6 +17,16 @@
   apps.padne = {
     displayName = "Padne";
     description = "KiCad-focused Power Delivery Network Simulator.";
+    screenshotSources.urls = [
+      {
+        url = "https://raw.githubusercontent.com/atx/padne/master/docs/_static/images/gui-demo.webp";
+        caption = "Voltage drop in the interactive GUI";
+      }
+      {
+        url = "https://raw.githubusercontent.com/atx/padne/master/docs/_static/images/banner.png";
+        caption = "Voltage, current density and mesh visualizations";
+      }
+    ];
     usage = ''
       Padne is a KiCad-native power delivery network analysis tool.
 
