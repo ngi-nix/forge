@@ -74,5 +74,15 @@
       default = lib.filterAttrs (_: resource: resource.enable) config.resources;
       description = "Enabled resources, by name.";
     };
+
+    result.endpoints = lib.mkOption {
+      internal = true;
+      readOnly = true;
+      type = lib.types.raw;
+      default = lib.mapAttrs (
+        _: service: lib.sortOn (endpoint: endpoint.port) (lib.attrValues service.endpoints)
+      ) (config.components // config.result.enabledResources);
+      description = "Endpoints of the service components and enabled resources, by name, sorted by port.";
+    };
   };
 }

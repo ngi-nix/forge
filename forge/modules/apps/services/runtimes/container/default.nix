@@ -283,10 +283,10 @@ in
 
         # Forward endpoints to the host, in compose `HOST:CONTAINER` format.
         forwardedPorts =
-          service:
-          map (endpoint: "${toString endpoint.forwardedPort}:${toString endpoint.port}") (
-            lib.sortOn (endpoint: endpoint.port) (lib.attrValues service.endpoints)
-          );
+          name:
+          map (
+            endpoint: "${toString endpoint.forwardedPort}:${toString endpoint.port}"
+          ) app.services.result.endpoints.${name};
 
         dependsOnCondition =
           depName:
@@ -301,7 +301,7 @@ in
           name: service:
           {
             image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
-            ports = forwardedPorts service;
+            ports = forwardedPorts name;
             # Backend resources start before components, components depend on them.
             depends_on = lib.genAttrs (service.dependsOn ++ resourceNamesByRole "backend") (depName: {
               condition = dependsOnCondition depName;
@@ -348,7 +348,7 @@ in
 
         resourcesComponents = lib.mapAttrs (name: resource: {
           image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
-          ports = forwardedPorts resource;
+          ports = forwardedPorts name;
           # Frontend resources start after all components so that upstream
           # hostnames are registered in the container network DNS before the
           # resource process (e.g. nginx) performs its startup checks.
