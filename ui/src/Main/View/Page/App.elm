@@ -220,15 +220,12 @@ viewEndpointUrl endpoint =
         endpointUrl host port_ =
             endpoint.appEndpoint_protocol ++ "://" ++ host ++ ":" ++ String.fromInt port_
 
-        isWeb =
-            List.member endpoint.appEndpoint_protocol [ "http", "https" ]
-
         label =
             endpointUrl "host" endpoint.appEndpoint_port
                 ++ " → "
                 ++ String.fromInt endpoint.appEndpoint_forwardedPort
     in
-    if isWeb then
+    if isAppEndpointWeb endpoint then
         a
             [ href (endpointUrl "localhost" endpoint.appEndpoint_forwardedPort)
             , target "_blank"
@@ -256,9 +253,7 @@ viewPageAppConfiguration _ pageApp =
             pageApp.pageApp_app.app_services.appServices_resources
 
         endpoints =
-            pageApp.pageApp_app.app_services
-                |> getAppServicesEndpoints
-                |> List.sortBy .appEndpoint_port
+            getAppServicesEndpoints pageApp.pageApp_app.app_services
 
         viewName name =
             li [] [ small [] [ text name ] ]

@@ -112,6 +112,20 @@ decodeAppEndpoint =
         (Decode.field "protocol" Decode.string)
 
 
+{-| Decode named endpoints of a service component or resource.
+-}
+decodeAppEndpoints : Decoder (List AppEndpoint)
+decodeAppEndpoints =
+    Decode.field "endpoints" (Decode.dict decodeAppEndpoint |> Decode.map Dict.values)
+
+
+{-| Whether the endpoint can be opened in a web browser.
+-}
+isAppEndpointWeb : AppEndpoint -> Bool
+isAppEndpointWeb endpoint =
+    List.member endpoint.appEndpoint_protocol [ "http", "https" ]
+
+
 type alias AppResource =
     { appResource_enable : Bool
     , appResource_endpoints : List AppEndpoint
@@ -122,7 +136,7 @@ decodeAppResource : Decoder AppResource
 decodeAppResource =
     Decode.map2 AppResource
         (Decode.field "enable" Decode.bool)
-        (Decode.field "endpoints" (Decode.dict decodeAppEndpoint |> Decode.map Dict.values))
+        decodeAppEndpoints
 
 
 type alias AppComponent =
@@ -132,8 +146,7 @@ type alias AppComponent =
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent
-        (Decode.field "endpoints" (Decode.dict decodeAppEndpoint |> Decode.map Dict.values))
+    Decode.map AppComponent decodeAppEndpoints
 
 
 type alias AppServices =
@@ -378,16 +391,20 @@ deduplicate =
         []
 
 
+{-| Endpoints of all service components and resources, sorted by port.
+-}
 getAppServicesEndpoints : AppServices -> List AppEndpoint
 getAppServicesEndpoints services =
-    (services.appServices_components
+    ((services.appServices_components
         |> Dict.values
         |> List.concatMap .appComponent_endpoints
-    )
+     )
         ++ (services.appServices_resources
                 |> Dict.values
                 |> List.concatMap .appResource_endpoints
            )
+    )
+        |> List.sortBy .appEndpoint_port
 
 
 {-| Ports which need to be open in the firewall of a machine running the services.
