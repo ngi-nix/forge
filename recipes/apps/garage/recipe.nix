@@ -102,7 +102,7 @@
         endpoints = {
           rpc = {
             port = 3900;
-            protocol = "garage-rpc";
+            appProtocol = "garage-rpc";
           };
           s3-api = {
             port = 3901;
