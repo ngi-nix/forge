@@ -1,7 +1,7 @@
 module Main.View.Page.App exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, h2, h4, h6, hr, img, li, p, small, span, text, ul)
+import Html exposing (Html, a, button, code, div, h2, h4, h6, hr, img, li, p, small, span, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, rel, src, style, tabindex, target, title)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
@@ -60,33 +60,12 @@ viewPageAppHeader _ pageApp =
 
         warningTooltip =
             case pageApp.pageApp_app.app_nixpkgsPin of
-                Just pin ->
-                    "Runs on pinned Nixpkgs ("
-                        ++ String.left 7 pin.pin_rev
-                        ++ (case pin.pin_date of
-                                Just d ->
-                                    " from " ++ d
-
-                                Nothing ->
-                                    ""
-                           )
-                        ++ (case pin.pin_reason of
-                                Just r ->
-                                    ": " ++ r
-
-                                Nothing ->
-                                    ""
-                           )
-                        ++ ")"
+                Just _ ->
+                    "Uses a previous working version"
 
                 Nothing ->
                     if pageApp.pageApp_app.app_broken then
-                        case pageApp.pageApp_app.app_lastWorkingVersion of
-                            Just version ->
-                                "This application is marked broken. Last working version: " ++ version
-
-                            Nothing ->
-                                "This application is marked broken."
+                        "This app currently has known issues"
 
                     else
                         ""
@@ -101,11 +80,6 @@ viewPageAppHeader _ pageApp =
 
                     Just _ ->
                         class "btn-success"
-                , if hasWarning then
-                    title warningTooltip
-
-                  else
-                    title ""
                 , let
                     route =
                         pageApp.pageApp_route
@@ -114,8 +88,8 @@ viewPageAppHeader _ pageApp =
                 ]
                 (if hasWarning then
                     [ span [ class "d-inline-flex align-items-center gap-1" ]
-                        [ iconExclamationTriangle
-                        , text "Run"
+                        [ text "Run"
+                        , iconExclamationTriangle
                         ]
                     ]
 
@@ -127,7 +101,7 @@ viewPageAppHeader _ pageApp =
             if hasWarning then
                 div [ class "has-tooltip d-inline-block" ]
                     [ runButton
-                    , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
+                    , div [ class "tooltip bs-tooltip-top tooltip-end", attribute "role" "tooltip" ]
                         [ div [ class "tooltip-inner" ] [ text warningTooltip ] ]
                     ]
 
@@ -138,11 +112,6 @@ viewPageAppHeader _ pageApp =
             button
                 [ class "btn btn-success"
                 , attribute "data-testid" "app-deploy-button"
-                , if hasWarning then
-                    title warningTooltip
-
-                  else
-                    title ""
                 , let
                     route =
                         pageApp.pageApp_route
@@ -151,8 +120,8 @@ viewPageAppHeader _ pageApp =
                 ]
                 (if hasWarning then
                     [ span [ class "d-inline-flex align-items-center gap-1" ]
-                        [ iconExclamationTriangle
-                        , text "Deploy"
+                        [ text "Deploy"
+                        , iconExclamationTriangle
                         ]
                     ]
 
@@ -164,7 +133,7 @@ viewPageAppHeader _ pageApp =
             if hasWarning then
                 div [ class "has-tooltip d-inline-block" ]
                     [ deployButton
-                    , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
+                    , div [ class "tooltip bs-tooltip-top tooltip-end", attribute "role" "tooltip" ]
                         [ div [ class "tooltip-inner" ] [ text warningTooltip ] ]
                     ]
 
@@ -224,7 +193,7 @@ viewPageAppHeader _ pageApp =
 
 
 viewPageAppWarning : Model -> PageApp -> Html Update
-viewPageAppWarning model pageApp =
+viewPageAppWarning _ pageApp =
     let
         app =
             pageApp.pageApp_app
@@ -232,65 +201,59 @@ viewPageAppWarning model pageApp =
     case app.app_nixpkgsPin of
         Just pin ->
             div
-                [ class "alert alert-warning my-3 d-flex align-items-start gap-3"
+                [ class "alert alert-secondary border border-warning my-3 d-flex align-items-start gap-3"
                 , attribute "data-testid" "app-pinned-warning"
                 ]
-                [ div [ class "mt-1 fs-5 text-warning-emphasis" ] [ iconExclamationTriangle ]
+                [ div [ class "mt-1 fs-5 text-warning" ] [ iconExclamationTriangle ]
                 , div [ class "flex-grow-1" ]
-                    [ h6 [ class "alert-heading fw-bold mb-1" ] [ text "Running on Pinned Nixpkgs Revision" ]
-                    , p [ class "mb-1 small" ]
-                        [ text "This application runs using a pinned Nixpkgs revision instead of the default flake channel."
-                        ]
-                    , ul [ class "mb-0 small ps-3" ]
-                        ([ li []
-                            [ text "Nixpkgs Revision: "
-                            , a
-                                [ href ("https://github.com/" ++ pin.pin_owner ++ "/" ++ pin.pin_repo ++ "/commit/" ++ pin.pin_rev)
-                                , target "_blank"
-                                , rel "noopener"
-                                , class "font-monospace alert-link"
-                                ]
-                                [ text (String.left 10 pin.pin_rev) ]
-                            , case pin.pin_date of
-                                Just date ->
-                                    text (" (snapshot date: " ++ date ++ ")")
+                    [ div [ class "fw-semibold mb-1" ]
+                        [ text "Uses a previous working version" ]
+                    , case pin.pin_reason of
+                        Just reason ->
+                            p [ class "mb-1 small" ] [ text reason ]
 
-                                Nothing ->
-                                    text ""
+                        Nothing ->
+                            text ""
+                    , div [ class "small" ]
+                        [ text "Nixpkgs revision: "
+                        , a
+                            [ href ("https://github.com/" ++ pin.pin_owner ++ "/" ++ pin.pin_repo ++ "/commit/" ++ pin.pin_rev)
+                            , target "_blank"
+                            , rel "noopener"
+                            , class "font-monospace alert-link"
                             ]
-                         ]
-                            ++ (case pin.pin_reason of
-                                    Just reason ->
-                                        [ li [] [ text ("Reason: " ++ reason) ] ]
+                            [ text (String.left 10 pin.pin_rev) ]
+                        , case pin.pin_date of
+                            Just date ->
+                                text (" (snapshot date: " ++ date ++ ")")
 
-                                    Nothing ->
-                                        []
-                               )
-                        )
+                            Nothing ->
+                                text ""
+                        ]
                     ]
                 ]
 
         Nothing ->
             if app.app_broken then
                 div
-                    [ class "alert alert-warning my-3 d-flex align-items-start gap-3"
+                    [ class "alert alert-secondary border border-warning my-3 d-flex align-items-start gap-3"
                     , attribute "data-testid" "app-broken-warning"
                     ]
-                    [ div [ class "mt-1 fs-5 text-warning-emphasis" ] [ iconExclamationTriangle ]
+                    [ div [ class "mt-1 fs-5 text-warning" ] [ iconExclamationTriangle ]
                     , div [ class "flex-grow-1" ]
-                        [ h6 [ class "alert-heading fw-bold mb-1" ] [ text "This application is currently marked broken" ]
-                        , case app.app_lastWorkingVersion of
-                            Just version ->
-                                div []
-                                    [ p [ class "mb-2 small" ]
-                                        [ text "The current version has build or runtime issues. You can run the last known working release with:"
+                        [ div [ class "fw-semibold mb-1" ]
+                            [ text "This app currently has known issues" ]
+                        , div [ class "small" ]
+                            [ case app.app_lastWorkingVersion of
+                                Just version ->
+                                    span []
+                                        [ text "The current version has build or runtime issues. Last known working version: "
+                                        , code [] [ text version ]
                                         ]
-                                    , bashCodeBlock ("nix run " ++ model.model_config.config_repository ++ "/" ++ version ++ "#" ++ app.app_outputName ++ ".program")
-                                    ]
 
-                            Nothing ->
-                                p [ class "mb-0 small" ]
-                                    [ text "The current version has build or runtime issues. A fix is in progress. Please check back later." ]
+                                Nothing ->
+                                    text "The current version has build or runtime issues. A fix is in progress."
+                            ]
                         ]
                     ]
 

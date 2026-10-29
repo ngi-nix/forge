@@ -180,28 +180,7 @@ viewPageAppsApp _ _ app =
             [ class "d-flex flex-wrap justify-content-center align-items-center gap-1 w-100 mt-auto"
             ]
             (List.concat
-                [ case app.app_nixpkgsPin of
-                    Just pin ->
-                        [ span
-                            [ class "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1"
-                            , attribute "data-testid" "app-pin-badge"
-                            , title ("Runs on pinned Nixpkgs (" ++ String.left 7 pin.pin_rev ++ ")")
-                            ]
-                            [ iconExclamationTriangle, text "Pinned Nixpkgs" ]
-                        ]
-
-                    Nothing ->
-                        if app.app_broken then
-                            [ span
-                                [ class "badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1"
-                                , attribute "data-testid" "app-broken-badge"
-                                ]
-                                [ iconExclamationTriangle, text "Broken" ]
-                            ]
-
-                        else
-                            []
-                , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+                [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
                     [ viewRuntimeBadge AppRuntime_Program ]
 
                   else

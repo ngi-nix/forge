@@ -54,8 +54,7 @@ viewPageAppRun model pageApp =
                                 []
                             ]
                         , div [ class "modal-body" ]
-                            [ viewPageAppRunWarning model pageApp
-                            , viewPageAppRunRuntimes model pageApp
+                            [ viewPageAppRunRuntimes model pageApp
                             , div [ class "tab-content mb-5 p-3 border rounded" ]
                                 [ viewPageAppRunInstructions model pageApp ]
                             ]
@@ -63,45 +62,6 @@ viewPageAppRun model pageApp =
                     ]
                 ]
             ]
-
-
-viewPageAppRunWarning : Model -> PageApp -> Html Update
-viewPageAppRunWarning _ pageApp =
-    case pageApp.pageApp_app.app_nixpkgsPin of
-        Just pin ->
-            let
-                dateStr =
-                    case pin.pin_date of
-                        Just d ->
-                            " from " ++ d
-
-                        Nothing ->
-                            ""
-
-                reasonStr =
-                    case pin.pin_reason of
-                        Just r ->
-                            ": " ++ r
-
-                        Nothing ->
-                            ""
-            in
-            div [ class "alert alert-warning py-2 px-3 mb-3 small d-flex align-items-center gap-2", attribute "data-testid" "run-modal-pin-warning" ]
-                [ iconExclamationTriangle
-                , span []
-                    [ text ("Note: Running on pinned Nixpkgs (" ++ String.left 7 pin.pin_rev ++ dateStr ++ ")" ++ reasonStr)
-                    ]
-                ]
-
-        Nothing ->
-            if pageApp.pageApp_app.app_broken then
-                div [ class "alert alert-warning py-2 px-3 mb-3 small d-flex align-items-center gap-2", attribute "data-testid" "run-modal-broken-warning" ]
-                    [ iconExclamationTriangle
-                    , span [] [ text "Note: This application is marked broken in the current release." ]
-                    ]
-
-            else
-                text ""
 
 
 viewPageAppRunRuntimes : Model -> PageApp -> Html Update

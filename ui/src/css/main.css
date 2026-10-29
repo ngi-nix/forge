@@ -668,6 +668,12 @@ pre code.hljs {
   }
 }
 
+.has-tooltip .tooltip.tooltip-end {
+  left: auto;
+  right: 0;
+  transform: translate(0, -100%);
+}
+
 /* File code blocks (collapsible) */
 details.markdown-content {
   font-weight: 300;
