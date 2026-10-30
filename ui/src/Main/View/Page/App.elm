@@ -94,34 +94,52 @@ viewPageAppHeader _ pageApp =
                 ]
             ]
         , div [ class "d-flex gap-2" ]
-            ([ button
-                [ class "btn"
-                , attribute "data-testid" "app-run-button"
-                , case pageApp.pageApp_runtime of
-                    Nothing ->
-                        class "btn-secondary"
+            ([ div [ class "has-tooltip d-inline-block" ]
+                [ button
+                    [ class "btn"
+                    , attribute "data-testid" "app-run-button"
+                    , case pageApp.pageApp_runtime of
+                        Nothing ->
+                            class "btn-secondary"
 
-                    Just _ ->
-                        class "btn-success"
-                , let
-                    route =
-                        pageApp.pageApp_route
-                  in
-                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
+                        Just _ ->
+                            class "btn-success"
+                    , let
+                        route =
+                            pageApp.pageApp_route
+                      in
+                      onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
+                    ]
+                    [ text "Run" ]
+                , div
+                    [ class "tooltip bs-tooltip-top app-btn-tooltip"
+                    , attribute "role" "tooltip"
+                    , attribute "data-testid" "app-run-tooltip"
+                    ]
+                    [ div [ class "tooltip-inner" ] [ text "Instructions to run/try the app without installation" ]
+                    ]
                 ]
-                [ text "Run" ]
              ]
                 ++ (if pageApp.pageApp_app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable then
-                        [ button
-                            [ class "btn btn-success"
-                            , attribute "data-testid" "app-deploy-button"
-                            , let
-                                route =
-                                    pageApp.pageApp_route
-                              in
-                              onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
+                        [ div [ class "has-tooltip d-inline-block" ]
+                            [ button
+                                [ class "btn btn-success"
+                                , attribute "data-testid" "app-deploy-button"
+                                , let
+                                    route =
+                                        pageApp.pageApp_route
+                                  in
+                                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
+                                ]
+                                [ text "Deploy" ]
+                            , div
+                                [ class "tooltip bs-tooltip-top app-btn-tooltip"
+                                , attribute "role" "tooltip"
+                                , attribute "data-testid" "app-deploy-tooltip"
+                                ]
+                                [ div [ class "tooltip-inner" ] [ text "Instructions to install the app in a machine" ]
+                                ]
                             ]
-                            [ text "Deploy" ]
                         ]
 
                     else
