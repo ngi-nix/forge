@@ -319,11 +319,11 @@ in
         apply = v: if lib.isFunction v then v effectivePkgs else v;
         default = [ ];
         description = ''
-          List of packages available in the development environment. Can be a list or a function `pkgs: [ ... ]`.
+          List of packages available in the development environment.
 
           All build inputs are automatically included.
         '';
-        example = lib.literalExpression "pkgs: [ pkgs.git pkgs.vim ]";
+        example = lib.literalExpression "[ pkgs.git pkgs.vim ]";
       };
       shellHook = lib.mkOption {
         type = lib.types.str;

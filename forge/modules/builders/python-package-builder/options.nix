@@ -21,22 +21,22 @@
         apply = v: if lib.isFunction v then v pkgs else v;
         default = [ ];
         description = ''
-          List of PEP-517 build system dependencies (e.g. setuptools, hatchling). Can be a list or a function `pkgs: [ ... ]`.
+          List of PEP-517 build system dependencies (e.g. setuptools, hatchling).
 
           Mapped to `build-system`.
         '';
-        example = lib.literalExpression "pkgs: [ pkgs.python3Packages.setuptools pkgs.python3Packages.wheel ]";
+        example = lib.literalExpression "[ pkgs.python3Packages.setuptools pkgs.python3Packages.wheel ]";
       };
       dependencies = lib.mkOption {
         type = with lib.types; either (listOf package) (functionTo (listOf package));
         apply = v: if lib.isFunction v then v pkgs else v;
         default = [ ];
         description = ''
-          List of Python runtime dependencies required at runtime (PEP-621). Can be a list or a function `pkgs: [ ... ]`.
+          List of Python runtime dependencies required at runtime (PEP-621).
 
           Mapped to `dependencies`.
         '';
-        example = lib.literalExpression "pkgs: [ pkgs.python3Packages.numpy pkgs.python3Packages.attrs ]";
+        example = lib.literalExpression "[ pkgs.python3Packages.numpy pkgs.python3Packages.attrs ]";
       };
       optional-dependencies = lib.mkOption {
         type = with lib.types; either (attrsOf (listOf package)) (functionTo (attrsOf (listOf package)));
@@ -44,12 +44,12 @@
         default = { };
         description = ''
           List of optional Python runtime dependencies grouped by extra name
-          (PEP-621 extras). Can be an attrset or a function `pkgs: { ... }`.
+          (PEP-621 extras).
 
           Mapped to `optional-dependencies`.
         '';
         example = lib.literalExpression ''
-          pkgs: {
+          {
             dev = [ pkgs.python3Packages.pytest ];
             redis = [ pkgs.python3Packages.redis ];
           }

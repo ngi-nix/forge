@@ -53,17 +53,14 @@
         apply = v: if lib.isFunction v then v pkgs else v;
         default = [ ];
         description = ''
-          List of dependencies that must be propagated to downstream consumers. Can be a list or a function `pkgs: [ ... ]`.
-
-          When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
-          effective Nixpkgs (respecting `nixpkgsPin` if specified).
+          List of dependencies that must be propagated to downstream consumers.
 
           OCaml libraries linked by dependents belong here, so that findlib can
           resolve them transitively.
 
           Mapped to `propagatedBuildInputs`.
         '';
-        example = lib.literalExpression "pkgs: with pkgs.ocaml-ng.ocamlPackages; [ menhirLib yojson ]";
+        example = lib.literalExpression "with pkgs.ocaml-ng.ocamlPackages; [ menhirLib yojson ]";
       };
     };
   };

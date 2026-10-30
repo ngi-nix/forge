@@ -22,8 +22,8 @@ in
     packages = lib.mkOption {
       type = with lib.types; either (listOf package) (functionTo (listOf package));
       default = [ ];
-      description = "List of packages available in the test script. Can be a list or a function `pkgs: [ ... ]`.";
-      example = lib.literalExpression "pkgs: [ pkgs.curl pkgs.jq ]";
+      description = "List of packages available in the test script.";
+      example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
     };
 
     runner = lib.mkOption {

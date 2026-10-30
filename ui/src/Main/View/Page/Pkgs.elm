@@ -91,6 +91,14 @@ viewPagePkgsItem model pagePkgs pkg =
                 { routePkgs
                     | routePkgs_focus = Just <| RoutePkgsFocus_Pkg itemId
                 }
+
+        viewWarningBadge testId titleText label =
+            span
+                [ class "badge bg-secondary-subtle text-secondary-emphasis border border-warning d-inline-flex align-items-center gap-1"
+                , attribute "data-testid" testId
+                , title titleText
+                ]
+                [ iconExclamationTriangle, text label ]
     in
     div
         [ class "list-item list-group-item list-group-item-action flex-column align-items-start position-relative"
@@ -123,35 +131,21 @@ viewPagePkgsItem model pagePkgs pkg =
                         [ text ("v" ++ pkg.pkg_version) ]
                     , case pkg.pkg_nixpkgsPin of
                         Just pin ->
-                            span
-                                [ class "badge bg-secondary-subtle text-secondary-emphasis border border-warning d-inline-flex align-items-center gap-1"
-                                , attribute "data-testid" "pkg-pin-badge"
-                                , title
-                                    ("Uses a previous working version"
-                                        ++ (case pin.pin_reason of
-                                                Just r ->
-                                                    ": " ++ r
-
-                                                Nothing ->
-                                                    case pin.pin_date of
-                                                        Just d ->
-                                                            " (" ++ d ++ ")"
-
-                                                        Nothing ->
-                                                            ""
-                                           )
-                                    )
-                                ]
-                                [ iconExclamationTriangle, text "Previous version" ]
+                            let
+                                info =
+                                    pin.pin_reason
+                                        |> Maybe.map (\r -> ": " ++ r)
+                                        |> Maybe.withDefault
+                                            (pin.pin_date
+                                                |> Maybe.map (\d -> " (" ++ d ++ ")")
+                                                |> Maybe.withDefault ""
+                                            )
+                            in
+                            viewWarningBadge "pkg-pin-badge" ("Uses a previous working version" ++ info) "Previous version"
 
                         Nothing ->
                             if pkg.pkg_broken then
-                                span
-                                    [ class "badge bg-secondary-subtle text-secondary-emphasis border border-warning d-inline-flex align-items-center gap-1"
-                                    , attribute "data-testid" "pkg-broken-badge"
-                                    , title "This package has known issues"
-                                    ]
-                                    [ iconExclamationTriangle, text "Known issues" ]
+                                viewWarningBadge "pkg-broken-badge" "This package has known issues" "Known issues"
 
                             else
                                 text ""

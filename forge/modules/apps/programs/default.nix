@@ -12,7 +12,7 @@
       );
       apply = v: if lib.isFunction v then v pkgs else v;
       default = [ ];
-      description = "Packages to include in the _shell_ runtime. Can be a list of packages or a function taking `pkgs`.";
+      description = "Packages to include in the _shell_ runtime.";
       example = lib.literalExpression "[ pkgs.curl pkgs.jq ]";
     };
 
@@ -30,7 +30,7 @@
       );
       apply = v: if lib.isFunction v then v pkgs else v;
       default = null;
-      description = "Package launched by the _program_ runtime. Can be a package or a function taking `pkgs`.";
+      description = "Package launched by the _program_ runtime.";
       example = lib.literalExpression "pkgs.hello";
     };
 

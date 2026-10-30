@@ -46,14 +46,11 @@
                             default = [ ];
                             description = ''
                               List of build-time dependencies needed during compilation (native
-                              architecture). Can be a list or a function `pkgs: [ ... ]`.
-
-                              When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
-                              effective Nixpkgs (respecting `nixpkgsPin` if specified).
+                              architecture).
 
                               Mapped to `nativeBuildInputs`.
                             '';
-                            example = lib.literalExpression "pkgs: [ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
+                            example = lib.literalExpression "[ pkgs.cmake pkgs.pkg-config pkgs.ninja ]";
                           };
                           run = lib.mkOption {
                             type = with lib.types; either (listOf package) (functionTo (listOf package));
@@ -61,28 +58,22 @@
                             default = [ ];
                             description = ''
                               List of runtime dependencies needed by the package (target
-                              architecture). Can be a list or a function `pkgs: [ ... ]`.
-
-                              When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
-                              effective Nixpkgs (respecting `nixpkgsPin` if specified).
+                              architecture).
 
                               Mapped to `buildInputs`.
                             '';
-                            example = lib.literalExpression "pkgs: [ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
+                            example = lib.literalExpression "[ pkgs.openssl pkgs.sqlite pkgs.zlib ]";
                           };
                           check = lib.mkOption {
                             type = with lib.types; either (listOf package) (functionTo (listOf package));
                             apply = v: if lib.isFunction v then v pkgs else v;
                             default = [ ];
                             description = ''
-                              List of test dependencies needed to run the test suite. Can be a list or a function `pkgs: [ ... ]`.
-
-                              When defined as a function `pkgs: [ ... ]`, `pkgs` is the package's
-                              effective Nixpkgs (respecting `nixpkgsPin` if specified).
+                              List of test dependencies needed to run the test suite.
 
                               Mapped to `nativeCheckInputs`.
                             '';
-                            example = lib.literalExpression "pkgs: [ pkgs.cunit ]";
+                            example = lib.literalExpression "[ pkgs.cunit ]";
                           };
                         };
                       }

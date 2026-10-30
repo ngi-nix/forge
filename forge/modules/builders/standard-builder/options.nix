@@ -20,9 +20,9 @@
       apply = v: if lib.isFunction v then v pkgs else v;
       default = pkgs.stdenv;
       defaultText = lib.literalExpression "pkgs.stdenv";
-      example = lib.literalExpression "pkgs: pkgs.stdenvNoCC";
+      example = lib.literalExpression "pkgs.stdenvNoCC";
       description = ''
-        The stdenv used for the build. Can be a package or a function `pkgs: package`.
+        The stdenv used for the build.
 
         Override to use a different compiler toolchain or to strip down the
         build environment. For example, use `pkgs.stdenvNoCC` for packages
