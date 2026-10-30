@@ -64,3 +64,20 @@ decodeConfig =
         (Decode.field "apps" (Decode.dict Config.decodeApp))
         (Decode.field "pkgs" (Decode.dict Config.decodePkg))
         (Decode.field "categories" (Decode.dict decodeCategory))
+
+
+categoryMatchesSearch : String -> Dict String Category -> String -> Bool
+categoryMatchesSearch search categories catName =
+    let
+        query =
+            String.toLower search
+
+        nameMatches =
+            String.contains query (String.toLower catName)
+
+        descMatches =
+            Dict.get catName categories
+                |> Maybe.map (.category_description >> String.toLower >> String.contains query)
+                |> Maybe.withDefault False
+    in
+    nameMatches || descMatches

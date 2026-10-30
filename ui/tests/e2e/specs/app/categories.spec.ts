@@ -240,4 +240,20 @@ test.describe("App Categories Filtering", () => {
     // Verify clear button is now hidden
     await expect(clearButton).toBeHidden();
   });
+
+  test("category dropdown search matches category descriptions", async ({ page }) => {
+    const dropdownButton = page.getByTestId("category-dropdown-button");
+    await dropdownButton.click();
+
+    const categorySearchInput = page.locator("#category-search-input");
+    await expect(categorySearchInput).toBeVisible();
+
+    // Type "viewer" (from System's description: '...log viewer...')
+    await categorySearchInput.fill("viewer");
+    await page.waitForTimeout(200);
+
+    // System should match via description, but Office should not
+    await expect(page.getByTestId("category-filter-System")).toBeVisible();
+    await expect(page.getByTestId("category-filter-Office")).not.toBeVisible();
+  });
 });

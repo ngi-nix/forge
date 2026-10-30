@@ -388,7 +388,7 @@ viewCategoryDropdown model pageApps =
                 allCategories
 
             else
-                allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
+                allCategories |> List.filter (categoryMatchesSearch model.model_appsCategorySearch model.model_config.config_categories)
 
         currentCat =
             pageApps.pageApps_route.routeApps_category |> Maybe.withDefault "All"
@@ -463,7 +463,8 @@ viewCategoryDropdown model pageApps =
                         else
                             ""
                        )
-            , style "min-width" "240px"
+            , style "min-width" "280px"
+            , style "max-width" "340px"
             , style "border-radius" "0.5rem"
             , style "overflow" "hidden"
             , style "z-index" "1050"
@@ -534,6 +535,16 @@ viewCategoryDropdown model pageApps =
                                                     Just c ->
                                                         c
 
+                                            catDesc =
+                                                case catMaybe of
+                                                    Nothing ->
+                                                        "All applications without category filter"
+
+                                                    Just c ->
+                                                        Dict.get c model.model_config.config_categories
+                                                            |> Maybe.map .category_description
+                                                            |> Maybe.withDefault ""
+
                                             testId =
                                                 case catMaybe of
                                                     Nothing ->
@@ -546,7 +557,7 @@ viewCategoryDropdown model pageApps =
                                             [ Html.button
                                                 [ Html.Attributes.id testId
                                                 , attribute "data-testid" testId
-                                                , class ("dropdown-item d-flex justify-content-between align-items-center" ++ activeClass ++ highlightClass)
+                                                , class ("dropdown-item text-start py-2" ++ activeClass ++ highlightClass)
                                                 , onClick
                                                     (Update_Chain
                                                         [ Update_CategoryFilter catMaybe
@@ -555,7 +566,21 @@ viewCategoryDropdown model pageApps =
                                                         ]
                                                     )
                                                 ]
-                                                [ Html.text catText ]
+                                                [ div [ class "d-flex flex-column" ]
+                                                    [ div [ class "fw-medium" ] [ Html.text catText ]
+                                                    , if catDesc /= "" then
+                                                        div
+                                                            [ class "text-wrap"
+                                                            , style "font-size" "0.75rem"
+                                                            , style "line-height" "1.25"
+                                                            , style "opacity" "0.75"
+                                                            ]
+                                                            [ Html.text catDesc ]
+
+                                                      else
+                                                        Html.text ""
+                                                    ]
+                                                ]
                                             ]
                                     )
                  in

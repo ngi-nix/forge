@@ -113,7 +113,7 @@ update upd modelInit =
                         allCategories
 
                     else
-                        allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
+                        allCategories |> List.filter (categoryMatchesSearch model.model_appsCategorySearch model.model_config.config_categories)
 
                 filteredCount =
                     List.length filteredCategories + 1
@@ -160,7 +160,7 @@ update upd modelInit =
                         allCategories
 
                     else
-                        allCategories |> List.filter (\c -> String.contains (String.toLower model.model_appsCategorySearch) (String.toLower c))
+                        allCategories |> List.filter (categoryMatchesSearch model.model_appsCategorySearch model.model_config.config_categories)
 
                 -- Recreate the view's list order to find the selected item
                 finalList =
