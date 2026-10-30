@@ -37,4 +37,70 @@ test.describe("App Details Page", () => {
     await resourcesAnchor.click();
     await expect(page).toHaveURL(new RegExp(`#resources$`));
   });
+
+  test("shows tooltips for Run and Deploy buttons on hover", async ({ page }) => {
+    const runBtn = page.getByTestId("app-run-button");
+    await expect(runBtn).toBeVisible();
+
+    const runTooltip = page.getByTestId("app-run-tooltip");
+    await expect(runTooltip).toBeHidden();
+
+    await runBtn.hover();
+    await expect(runTooltip).toBeVisible();
+    await expect(runTooltip).toHaveText("Instructions to run/try the app without installation");
+
+    const deployBtn = page.getByTestId("app-deploy-button");
+    if (await deployBtn.isVisible()) {
+      const deployTooltip = page.getByTestId("app-deploy-tooltip");
+      await expect(deployTooltip).toBeHidden();
+
+      await deployBtn.hover();
+      await expect(deployTooltip).toBeVisible();
+      await expect(deployTooltip).toHaveText("Instructions to install the app in a machine");
+    }
+  });
+
+  test("tooltips are positioned correctly above buttons and within viewport bounds", async ({ page }) => {
+    const runBtn = page.getByTestId("app-run-button");
+    await expect(runBtn).toBeVisible();
+
+    await runBtn.hover();
+    const runTooltip = page.getByTestId("app-run-tooltip");
+    await expect(runTooltip).toBeVisible();
+
+    const runBox = await runTooltip.boundingBox();
+    const runBtnBox = await runBtn.boundingBox();
+    const viewport = page.viewportSize();
+
+    expect(runBox).not.toBeNull();
+    expect(runBtnBox).not.toBeNull();
+    expect(viewport).not.toBeNull();
+
+    // Check it is above the button
+    expect(runBox!.y + runBox!.height).toBeLessThanOrEqual(runBtnBox!.y);
+    expect(runBox!.y).toBeGreaterThanOrEqual(0);
+
+    // Check horizontal bounds
+    expect(runBox!.x).toBeGreaterThanOrEqual(0);
+    expect(runBox!.x + runBox!.width).toBeLessThanOrEqual(viewport!.width);
+
+    const deployBtn = page.getByTestId("app-deploy-button");
+    if (await deployBtn.isVisible()) {
+      await deployBtn.hover();
+      const deployTooltip = page.getByTestId("app-deploy-tooltip");
+      await expect(deployTooltip).toBeVisible();
+
+      const deployBox = await deployTooltip.boundingBox();
+      const deployBtnBox = await deployBtn.boundingBox();
+
+      expect(deployBox).not.toBeNull();
+      expect(deployBtnBox).not.toBeNull();
+
+      expect(deployBox!.y + deployBox!.height).toBeLessThanOrEqual(deployBtnBox!.y);
+      expect(deployBox!.y).toBeGreaterThanOrEqual(0);
+
+      expect(deployBox!.x).toBeGreaterThanOrEqual(0);
+      expect(deployBox!.x + deployBox!.width).toBeLessThanOrEqual(viewport!.width);
+    }
+  });
 });

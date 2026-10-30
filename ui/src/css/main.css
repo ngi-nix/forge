@@ -676,6 +676,28 @@ pre code.hljs {
   }
 }
 
+/* Tooltips for app header action buttons (Run, Deploy) */
+.has-tooltip .tooltip.app-btn-tooltip .tooltip-inner {
+  white-space: nowrap;
+  max-width: none;
+}
+
+@media (min-width: 576px) {
+  .has-tooltip .tooltip.app-btn-tooltip {
+    left: auto;
+    right: 0;
+    transform: translate(0, -100%);
+  }
+}
+
+@media (max-width: 575px) {
+  .has-tooltip .tooltip.app-btn-tooltip .tooltip-inner {
+    white-space: normal;
+    max-width: 220px;
+    text-align: center;
+  }
+}
+
 /* File code blocks (collapsible) */
 details.markdown-content {
   font-weight: 300;
