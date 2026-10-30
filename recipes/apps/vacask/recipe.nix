@@ -26,6 +26,10 @@ in
       VACASK (Verilog-A Circuit Analysis Kernel) is an analog circuit
       simulator with a device library built from Verilog-A modules.
     '';
+    categories = with lib.categories; [
+      Development
+      Electronics
+    ];
 
     data = {
       testOp = ./tests/test_op.sim;

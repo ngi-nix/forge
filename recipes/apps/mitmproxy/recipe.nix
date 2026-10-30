@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -13,6 +14,7 @@
   apps.mitmproxy = {
     displayName = "mitmproxy";
     description = "Interactive TLS-capable intercepting HTTP proxy.";
+    categories = with lib.categories; [ Network ];
     usage = ''
       mitmproxy is a free and open source interactive HTTPS proxy for intercepting,
       inspecting, modifying and replaying HTTP and HTTPS traffic.

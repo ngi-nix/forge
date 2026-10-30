@@ -38,6 +38,12 @@
           maintainers =
             (import "${forge-inputs.nixpkgs}/maintainers/maintainer-list.nix")
             // lib.foldl' (acc: path: acc // import path) { } config.forge.maintainerLists;
+          categories = builtins.listToAttrs (
+            map (c: {
+              name = c.name;
+              value = c;
+            }) (import ../categories-list.nix)
+          );
         };
         getTestOptions =
           config: type:
@@ -84,6 +90,33 @@
               type = lib.types.submodule ./snippets.nix;
               default = { };
               description = "Re-usable snippets in Markdown format.";
+            };
+
+            categories = lib.mkOption {
+              type = lib.types.attrsOf (
+                lib.types.submodule {
+                  options = {
+                    name = lib.mkOption {
+                      type = lib.types.str;
+                      visible = false;
+                      internal = true;
+                    };
+                    description = lib.mkOption {
+                      type = lib.types.str;
+                      visible = false;
+                      internal = true;
+                    };
+                  };
+                }
+              );
+              default = builtins.listToAttrs (
+                map (c: {
+                  name = c.name;
+                  value = c;
+                }) (import ../categories-list.nix)
+              );
+              description = "List of application categories.";
+              internal = true;
             };
           };
         }

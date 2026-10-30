@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -11,6 +12,7 @@ in
   apps.offen = {
     displayName = "Offen";
     description = "Fair and privacy-focused web analytics.";
+    categories = with lib.categories; [ Analytics ];
     longDescription = ''
       Offen is a self-hosted web analytics server that gives operators insight
       into usage while allowing users to access, review, and delete their own

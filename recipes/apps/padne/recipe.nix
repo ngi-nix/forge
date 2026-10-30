@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   pkgs,
   ...
@@ -17,6 +18,7 @@
   apps.padne = {
     displayName = "Padne";
     description = "KiCad-focused Power Delivery Network Simulator.";
+    categories = with lib.categories; [ Network ];
     usage = ''
       Padne is a KiCad-native power delivery network analysis tool.
 
