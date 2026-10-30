@@ -44,9 +44,9 @@ viewPageApps model pageApps =
                     [ class "d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start align-items-center gap-2 flex-grow-1 w-100"
                     , style "flex-basis" "0"
                     ]
-                    [ viewAppsCount model pageApps
-                    , viewCategoryDropdown model pageApps
+                    [ viewCategoryDropdown model pageApps
                     , viewSortDropdown model pageApps
+                    , viewAppsCount model pageApps
                     ]
                 , div [ class "flex-shrink-0" ]
                     [ viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute ]
