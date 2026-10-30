@@ -107,14 +107,43 @@ viewPageAppsApp _ _ app =
     let
         onClickRoute =
             Route_App { defaultRouteApp | routeApp_name = app.app_name }
+
+        viewWarningIcon =
+            let
+                warningInfo =
+                    case app.app_nixpkgsPin of
+                        Just _ ->
+                            Just "Pinned to an earlier stable release"
+
+                        Nothing ->
+                            if app.app_broken then
+                                Just "This app currently has known issues"
+
+                            else
+                                Nothing
+            in
+            case warningInfo of
+                Just info ->
+                    div
+                        [ class "has-tooltip position-absolute top-0 end-0 m-2 m-sm-3 z-1"
+                        , attribute "data-testid" "app-warning-icon"
+                        ]
+                        [ span [ class "text-warning fs-6" ] [ iconExclamationTriangle ]
+                        , div [ class "tooltip bs-tooltip-top tooltip-end", attribute "role" "tooltip" ]
+                            [ div [ class "tooltip-inner" ] [ text info ] ]
+                        ]
+
+                Nothing ->
+                    text ""
     in
     div
-        [ class "card m-item-card shadow-sm p-2 p-sm-3 h-100 d-flex flex-column"
+        [ class "card m-item-card shadow-sm p-2 p-sm-3 h-100 d-flex flex-column position-relative"
         , attribute "data-testid" "app-result"
         , onClick (Update_Route onClickRoute)
         , style "cursor" "pointer"
         ]
-        [ div
+        [ viewWarningIcon
+        , div
             [ class "d-flex flex-column align-items-center w-100"
             ]
             [ (if app.app_hasIcon then

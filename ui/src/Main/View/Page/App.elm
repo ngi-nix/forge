@@ -61,7 +61,7 @@ viewPageAppHeader _ pageApp =
         warningTooltip =
             case pageApp.pageApp_app.app_nixpkgsPin of
                 Just _ ->
-                    "Uses a previous working version"
+                    "Pinned to an earlier stable release"
 
                 Nothing ->
                     if pageApp.pageApp_app.app_broken then
@@ -185,7 +185,7 @@ viewPageAppWarning _ pageApp =
     case app.app_nixpkgsPin of
         Just pin ->
             renderAlert "app-pinned-warning"
-                "Uses a previous working version"
+                "Pinned to an earlier stable release"
                 [ case pin.pin_reason of
                     Just reason ->
                         p [ class "mb-1 small" ] [ text reason ]

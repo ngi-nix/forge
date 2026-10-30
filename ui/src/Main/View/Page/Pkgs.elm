@@ -141,7 +141,7 @@ viewPagePkgsItem model pagePkgs pkg =
                                                 |> Maybe.withDefault ""
                                             )
                             in
-                            viewWarningBadge "pkg-pin-badge" ("Uses a previous working version" ++ info) "Previous version"
+                            viewWarningBadge "pkg-pin-badge" ("Pinned to an earlier stable release" ++ info) "Pinned release"
 
                         Nothing ->
                             if pkg.pkg_broken then
