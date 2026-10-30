@@ -8,7 +8,7 @@
 {
   pkgs.bottles = {
     # TODO needs unfree packages https://github.com/ngi-nix/forge/pull/1043#issuecomment-6348128062
-    broken = true;
+    unfree = true;
     build.builders.identity = {
       enable = true;
       derivation = pkgs.pkgsOriginal.bottles;
@@ -27,7 +27,7 @@
       For information about the first run see [here](https://usebottles.com/docs/getting-started/first-run), and for more general information see [the bottles website](${config.apps.bottles.links.website}).
     '';
     # TODO needs unfree packages https://github.com/ngi-nix/forge/pull/1043#issuecomment-6348128062
-    broken = true;
+    unfree = true;
 
     icon = ./icon.svg;
 

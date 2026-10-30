@@ -134,6 +134,9 @@
     isBroken =
       x: lib.attrByPath [ "forge" "broken" ] false x || lib.attrByPath [ "meta" "broken" ] false x;
 
+    isUnfree =
+      x: lib.attrByPath [ "forge" "unfree" ] false x || lib.attrByPath [ "meta" "unfree" ] false x;
+
     # Helper to convert a flake URL shorthand (e.g. "github:owner/repo")
     # into a standard HTTP/HTTPS web URL.
     showNixUrl =

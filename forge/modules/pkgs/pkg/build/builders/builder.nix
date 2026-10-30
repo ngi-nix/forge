@@ -90,6 +90,7 @@ in
 
               forge = {
                 broken = config.broken;
+                unfree = config.unfree;
               };
             }
             // lib.optionalAttrs (!config.test.broken) {
