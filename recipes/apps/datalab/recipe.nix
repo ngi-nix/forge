@@ -104,22 +104,22 @@ in
       runtimes.program.enable = true;
     };
 
-    # TODO:
-    # test.programs = {
-    #   script = ''
-    #     xvfb-run datalab &
-    #     DATALAB_PID=$!
-    #
-    #     # wait for port to be open
-    #     sleep 20
-    #
-    #     python ${./test.py}
-    #
-    #     kill $DATALAB_PID 2>/dev/null || true
-    #   '';
-    #   packages = with pkgs; [
-    #     xvfb-run
-    #   ];
-    # };
+    test.programs = {
+      broken = true; # TODO:
+      script = ''
+        xvfb-run datalab &
+        DATALAB_PID=$!
+
+        # wait for port to be open
+        sleep 20
+
+        python ${./test.py}
+
+        kill $DATALAB_PID 2>/dev/null || true
+      '';
+      packages = with pkgs; [
+        xvfb-run
+      ];
+    };
   };
 }

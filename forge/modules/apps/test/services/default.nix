@@ -20,6 +20,7 @@ in
       nixosConfig
       packages
       sandbox
+      broken
       ;
 
     script = lib.mkOption {

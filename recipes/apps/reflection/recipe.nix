@@ -66,15 +66,17 @@ in
       runtimes.shell.enable = true;
     };
 
-    # FIX: flaky test
-    # https://github.com/ngi-nix/forge/pull/1048#issuecomment-6268320926
-    #
-    # test.programs.packages = [
-    #   pkgs.writableTmpDirAsHomeHook
-    #   pkgs.xvfb-run
-    # ];
-    # test.programs.script = ''
-    #   xvfb-run reflection --help | grep -iq reflection
-    # '';
+    test.programs = {
+      # FIX: flaky test
+      # https://github.com/ngi-nix/forge/pull/1048#issuecomment-6268320926
+      broken = true;
+      packages = [
+        pkgs.writableTmpDirAsHomeHook
+        pkgs.xvfb-run
+      ];
+      script = ''
+        xvfb-run reflection --help | grep -iq reflection
+      '';
+    };
   };
 }
