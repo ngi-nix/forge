@@ -20,6 +20,7 @@
             + lib.optionalString config.build.debug ''
               source ${forge-inputs.nix-utils}/nix-develop-interactive.bash
             '';
+          forge = previousAttrs.passthru.forge;
         };
       };
       parentImports = [
@@ -42,6 +43,8 @@
                 inherit (drv.meta)
                   license
                   ;
+                broken = lib.mkDefault drv.meta.broken;
+                unfree = lib.mkDefault drv.meta.unfree;
               };
           }
         )

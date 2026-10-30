@@ -38,6 +38,32 @@ viewRuntimeBadge runtime =
         ]
 
 
+viewBrokenBadge : Html msg
+viewBrokenBadge =
+    viewStatusBadge
+        "bg-danger-subtle text-danger-emphasis border-danger-subtle"
+        "broken"
+        "This package or application is broken."
+
+
+viewUnfreeBadge : Html msg
+viewUnfreeBadge =
+    viewStatusBadge
+        "bg-warning-subtle text-warning-emphasis border-warning-subtle"
+        "unfree"
+        "This package or application is unfree."
+
+
+viewStatusBadge : String -> String -> String -> Html msg
+viewStatusBadge colorClasses label description =
+    Html.span
+        [ class ("badge rounded-pill border " ++ colorClasses)
+        , attribute "title" description
+        , attribute "aria-label" description
+        ]
+        [ Html.text label ]
+
+
 mdResolveLangCodeAlias : String -> String
 mdResolveLangCodeAlias lang =
     case lang of

@@ -46,10 +46,7 @@ let
     )}
   '';
 
-  forgeConfig = config.forge // {
-    pkgs = lib.filterAttrs (_: pkg: !pkg.broken) config.forge.pkgs;
-    apps = lib.filterAttrs (_: app: !app.broken) config.forge.apps;
-  };
+  forgeConfig = config.forge;
 
   _forge = {
     config = pkgs.writeTextFile {

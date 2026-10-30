@@ -115,13 +115,24 @@
     # (eg. `/nix/store/<hash>-name` -> `<hash>`).
     nixStoreHash = drv: lib.unsafeDiscardStringContext (lib.substring 0 32 (baseNameOf drv.outPath));
 
+    # Convert derivations to a schema that will be consumed by the UI
+    toDrvSchema = drv: {
+      name = drv.name or "";
+      pname = drv.pname or "";
+      version = drv.version or "";
+      broken = isBroken drv;
+      unfree = isUnfree drv;
+    };
+
     # Recursively remove Nix context used to track dependencies.
     # Useful to avoid building the derivations contained in a `config`
     # when serializing it (eg. with `builtins.toJSON`).
     scrubNixContext =
       x:
-      if lib.isString x || lib.isDerivation x then
+      if lib.isString x then
         lib.unsafeDiscardStringContext x
+      else if lib.isDerivation x then
+        toDrvSchema x
       else if lib.isFunction x then
         null
       else if lib.isList x then
@@ -130,5 +141,11 @@
         lib.mapAttrs (n: v: if n == "__toString" then v else scrubNixContext v) x
       else
         x;
+
+    isBroken =
+      x: lib.attrByPath [ "forge" "broken" ] false x || lib.attrByPath [ "meta" "broken" ] false x;
+
+    isUnfree =
+      x: lib.attrByPath [ "forge" "unfree" ] false x || lib.attrByPath [ "meta" "unfree" ] false x;
   };
 }

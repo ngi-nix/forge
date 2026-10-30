@@ -92,6 +92,7 @@ in
 
               forge = {
                 broken = config.broken;
+                unfree = config.unfree;
               };
             };
 

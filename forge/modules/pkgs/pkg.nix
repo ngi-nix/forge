@@ -99,6 +99,11 @@
       default = false;
       description = "Whether the package is broken.";
     };
+    unfree = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether the package is unfree.";
+    };
 
     # Source configuration
     source = {

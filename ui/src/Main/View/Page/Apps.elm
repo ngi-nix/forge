@@ -200,6 +200,16 @@ viewPageAppsApp _ _ app =
 
                   else
                     []
+                , if app.app_broken then
+                    [ viewBrokenBadge ]
+
+                  else
+                    []
+                , if app.app_unfree then
+                    [ viewUnfreeBadge ]
+
+                  else
+                    []
                 ]
             )
         ]

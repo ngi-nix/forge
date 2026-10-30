@@ -122,6 +122,20 @@ viewPagePkgsItem model pagePkgs pkg =
                         , style "margin-left" "1em"
                         ]
                         [ text ("v" ++ pkg.pkg_version) ]
+                    , span [ style "margin-left" ".75em" ]
+                        (List.filterMap identity
+                            [ if pkg.pkg_broken then
+                                Just viewBrokenBadge
+
+                              else
+                                Nothing
+                            , if pkg.pkg_unfree then
+                                Just viewUnfreeBadge
+
+                              else
+                                Nothing
+                            ]
+                        )
                     ]
                 ]
             , pkg.pkg_description |> Markdown.render

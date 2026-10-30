@@ -85,12 +85,32 @@ viewPageAppHeader _ pageApp =
                        )
                 )
                 []
-            , h2
-                [ class "mb-0 fw-bold"
-                , style "margin" "0"
-                , attribute "data-testid" "app-title"
-                ]
-                [ text pageApp.pageApp_app.app_displayName
+            , div
+                [ class "d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start gap-2" ]
+                [ h2
+                    [ class "mb-0 fw-bold"
+                    , style "margin" "0"
+                    , attribute "data-testid" "app-title"
+                    ]
+                    [ text pageApp.pageApp_app.app_displayName
+                    ]
+                , div
+                    [ class "d-flex gap-1"
+                    , attribute "data-testid" "app-status-badges"
+                    ]
+                    (List.filterMap identity
+                        [ if pageApp.pageApp_app.app_broken then
+                            Just viewBrokenBadge
+
+                          else
+                            Nothing
+                        , if pageApp.pageApp_app.app_unfree then
+                            Just viewUnfreeBadge
+
+                          else
+                            Nothing
+                        ]
+                    )
                 ]
             ]
         , div [ class "d-flex gap-2" ]
