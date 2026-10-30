@@ -78,9 +78,12 @@
           "-c" # path to config
           "$XDG_CONFIG_HOME/dutagent/config.yaml"
         ];
-        process.ports = [
-          "1024:1024"
-        ];
+        endpoints = {
+          rpc = {
+            port = 1024;
+            appProtocol = "connect-rpc";
+          };
+        };
         process.configData."dutagent/config.yaml" = {
           source = ./dutagent-cfg-example.yaml;
           path = "dutagent/config.yaml";

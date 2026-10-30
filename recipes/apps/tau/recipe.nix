@@ -14,11 +14,6 @@
       #### Tau Tower
       Service for broadcasting audio to clients.
 
-      Ports
-      - Listen: 3001
-      - Broadcast: 3002
-
-
       #### Tau Radio
       Client CLI for capturing audio from your device and streaming it to _tau-tower_.
 
@@ -54,10 +49,15 @@
           source = ./config.toml;
           path = "tau/tower.toml";
         };
-        process.ports = [
-          "3001:3001"
-          "3002:3002"
-        ];
+        endpoints = {
+          source = {
+            port = 3001;
+            appProtocol = "websocket";
+          };
+          broadcast = {
+            port = 3002;
+          };
+        };
       };
 
       runtimes = {

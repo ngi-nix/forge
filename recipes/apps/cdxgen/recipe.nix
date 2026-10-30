@@ -172,9 +172,11 @@ in
           # https://github.com/cdxgen/cdxgen/blob/v13.0.1/README.md#resolving-licenses
           FETCH_LICENSE = "false";
         };
-        process.ports = [
-          "${app.data.mainPort}:${app.data.mainPort}"
-        ];
+        endpoints = {
+          api = {
+            port = lib.toInt (toString app.data.mainPort);
+          };
+        };
         healthcheck = {
           enable = true;
           test = [

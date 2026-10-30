@@ -225,22 +225,54 @@ services = {
 };
 ```
 
-All service ports exposed to the user must be set using the `process.ports` option.
-This list is used to configure port mapping for the _container_ runtime and to
-configure port forwarding when a _nixos_ system is launched in a VM.
+Endpoints exposed to the users of the app must be described using the
+`endpoints` option. Each endpoint is named and has a `port`, a
+transport-level `protocol` (`tcp` - default, or `udp`) and an application-level
+`appProtocol` (`http` - default, or any other protocol name such as `https`,
+`websocket` or `postgresql`). Ports used only between the
+components and resources of the app must not be configured as endpoints.
+
+Endpoints are forwarded to the host by the _container_ runtime and when a
+_nixos_ system is launched in a VM, and they are opened in the firewall of
+deployed machines. The host port is the same as the endpoint `port`, except for
+privileged ports (below 1024), which are forwarded to `20000 + port` (for
+example `80` is forwarded to `20080`). Privileged ports can't be bound on the
+host without root permissions, and the `20000` offset keeps the forwarded ports
+clear of the ports
+[blocked by the web browsers](https://fetch.spec.whatwg.org/#port-blocking)
+and of the
+[ephemeral port range](https://www.rfc-editor.org/rfc/rfc6335#section-6). The
+host port is available as the read-only `forwardedPort` endpoint attribute.
 
 ```nix
 services = {
   components.my-service = {
     ...
-    process.ports = [
-      "8080:8080"
-      "8081:8081"
-      "8082:8082"
-    ];
+    endpoints = {
+      web.port = 8080;
+      events = {
+        port = 8081;
+        appProtocol = "websocket";
+      };
+    };
     ...
   };
 };
+```
+
+Endpoints can be referenced by name, for example in the `usage` text:
+
+```nix
+let
+  app = config.apps.my-app;
+in
+{
+  apps.my-app = {
+    usage = ''
+      Web interface: http://localhost:''${toString app.services.components.my-service.endpoints.web.forwardedPort}
+    '';
+  };
+}
 ```
 
 A pre-start script can be configured using the `process.preStart` option. The
@@ -327,7 +359,7 @@ services = {
 
   resources.reverse-proxy = {
     role = "frontend";
-    ports = [ "8080:8080" ];
+    endpoints.web.port = 8080;
     nixosConfig = {
       services.nginx.enable = true;
     };

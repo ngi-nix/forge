@@ -213,37 +213,33 @@ viewBulletList items =
         items
 
 
-viewPortList : List String -> Html Update
-viewPortList ports =
-    if List.isEmpty ports then
-        text ""
+viewEndpointUrl : AppEndpoint -> Html Update
+viewEndpointUrl endpoint =
+    let
+        endpointUrl host port_ =
+            endpoint.appEndpoint_appProtocol ++ "://" ++ host ++ ":" ++ String.fromInt port_
+
+        label =
+            endpointUrl "host" endpoint.appEndpoint_port
+                ++ " → "
+                ++ String.fromInt endpoint.appEndpoint_forwardedPort
+                ++ (if endpoint.appEndpoint_protocol == "udp" then
+                        " (udp)"
+
+                    else
+                        ""
+                   )
+    in
+    if isAppEndpointWeb endpoint then
+        a
+            [ href (endpointUrl "localhost" endpoint.appEndpoint_forwardedPort)
+            , target "_blank"
+            , rel "noopener noreferrer"
+            ]
+            [ text label ]
 
     else
-        ul
-            [ class "ms-3 mb-1"
-            , style "list-style-type" "none"
-            , style "padding" "0px"
-            ]
-            (List.map
-                (\p -> li [] [ small [ class "text-body-secondary" ] [ text (String.replace ":" " → " p) ] ])
-                ports
-            )
-
-
-viewResource : ( String, AppResource ) -> Html Update
-viewResource ( rname, resource ) =
-    li []
-        [ small [] [ text rname ]
-        , viewPortList resource.appResource_ports
-        ]
-
-
-viewComponent : ( String, AppComponent ) -> Html Update
-viewComponent ( cname, component ) =
-    li []
-        [ small [] [ text cname ]
-        , viewPortList component.appComponent_ports
-        ]
+        text label
 
 
 viewPageAppConfiguration : Model -> PageApp -> Html Update
@@ -260,6 +256,12 @@ viewPageAppConfiguration _ pageApp =
 
         resources =
             pageApp.pageApp_app.app_services.appServices_resources
+
+        endpoints =
+            getAppServicesEndpoints pageApp.pageApp_app.app_services
+
+        viewName name =
+            li [] [ small [] [ text name ] ]
     in
     div
         [ class "box-container target-highlight mb-3"
@@ -298,7 +300,7 @@ viewPageAppConfiguration _ pageApp =
                 [ div [ class "ms-2 mb-1" ]
                     [ small [ class "text-body-secondary" ] [ text "Services" ] ]
                 , viewBulletList
-                    (components |> Dict.toList |> List.map viewComponent)
+                    (components |> Dict.keys |> List.map viewName)
                 ]
         , if Dict.isEmpty resources then
             text ""
@@ -308,7 +310,17 @@ viewPageAppConfiguration _ pageApp =
                 [ div [ class "ms-2 mb-1" ]
                     [ small [ class "text-body-secondary" ] [ text "Resources" ] ]
                 , viewBulletList
-                    (resources |> Dict.toList |> List.map viewResource)
+                    (resources |> Dict.keys |> List.map viewName)
+                ]
+        , if List.isEmpty endpoints then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Endpoints" ] ]
+                , viewBulletList
+                    (List.map (\endpoint -> li [] [ small [] [ viewEndpointUrl endpoint ] ]) endpoints)
                 ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]

@@ -97,9 +97,40 @@ decodeAppProgramsRuntimesShell =
         (Decode.field "enable" Decode.bool)
 
 
+type alias AppEndpoint =
+    { appEndpoint_port : Int
+    , appEndpoint_forwardedPort : Int
+    , appEndpoint_appProtocol : String
+    , appEndpoint_protocol : String
+    }
+
+
+decodeAppEndpoint : Decoder AppEndpoint
+decodeAppEndpoint =
+    Decode.map4 AppEndpoint
+        (Decode.field "port" Decode.int)
+        (Decode.field "forwardedPort" Decode.int)
+        (Decode.field "appProtocol" Decode.string)
+        (Decode.field "protocol" Decode.string)
+
+
+{-| Decode named endpoints of a service component or resource.
+-}
+decodeAppEndpoints : Decoder (List AppEndpoint)
+decodeAppEndpoints =
+    Decode.field "endpoints" (Decode.dict decodeAppEndpoint |> Decode.map Dict.values)
+
+
+{-| Whether the endpoint can be opened in a web browser.
+-}
+isAppEndpointWeb : AppEndpoint -> Bool
+isAppEndpointWeb endpoint =
+    List.member endpoint.appEndpoint_appProtocol [ "http", "https" ]
+
+
 type alias AppResource =
     { appResource_enable : Bool
-    , appResource_ports : List String
+    , appResource_endpoints : List AppEndpoint
     }
 
 
@@ -107,18 +138,17 @@ decodeAppResource : Decoder AppResource
 decodeAppResource =
     Decode.map2 AppResource
         (Decode.field "enable" Decode.bool)
-        (Decode.field "ports" (Decode.list Decode.string))
+        decodeAppEndpoints
 
 
 type alias AppComponent =
-    { appComponent_ports : List String
+    { appComponent_endpoints : List AppEndpoint
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent
-        (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
+    Decode.map AppComponent decodeAppEndpoints
 
 
 type alias AppServices =
@@ -363,29 +393,34 @@ deduplicate =
         []
 
 
-getAppServicesPorts : AppServices -> List String
-getAppServicesPorts services =
-    (services.appServices_components
+{-| Endpoints of all service components and resources, sorted by port.
+-}
+getAppServicesEndpoints : AppServices -> List AppEndpoint
+getAppServicesEndpoints services =
+    ((services.appServices_components
         |> Dict.values
-        |> List.concatMap .appComponent_ports
-    )
+        |> List.concatMap .appComponent_endpoints
+     )
         ++ (services.appServices_resources
                 |> Dict.values
-                |> List.concatMap .appResource_ports
+                |> List.concatMap .appResource_endpoints
            )
+    )
+        |> List.sortBy .appEndpoint_port
 
 
-{-| Ports which need to be open in the firewall of a machine running the services.
+{-| Ports which need to be open in the firewall of a machine running the services,
+for the given transport-level protocol (`tcp` or `udp`).
 
-Ports are in format HOST\_PORT:SERVICE\_PORT,
-services listen on SERVICE\_PORT on the deployed machine.
+Services listen on the ports of their endpoints on the deployed machine.
 
 -}
-getAppServicesFirewallPorts : AppServices -> List Int
-getAppServicesFirewallPorts services =
+getAppServicesFirewallPorts : String -> AppServices -> List Int
+getAppServicesFirewallPorts protocol services =
     services
-        |> getAppServicesPorts
-        |> List.filterMap (String.split ":" >> List.drop 1 >> List.head >> Maybe.andThen String.toInt)
+        |> getAppServicesEndpoints
+        |> List.filter (\endpoint -> endpoint.appEndpoint_protocol == protocol)
+        |> List.map .appEndpoint_port
         |> Set.fromList
         |> Set.toList
 

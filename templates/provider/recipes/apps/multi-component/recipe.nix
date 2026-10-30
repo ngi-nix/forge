@@ -197,7 +197,11 @@
 
         reverse-proxy = {
           role = "frontend";
-          ports = [ "8000:8000" ];
+          endpoints = {
+            web = {
+              port = 8000;
+            };
+          };
           nixosConfig = {
             services.nginx = {
               enable = true;

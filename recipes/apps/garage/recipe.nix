@@ -96,11 +96,18 @@
           "${./garage.toml}"
           "server"
         ];
-        process.ports = [
-          "3900:3900"
-          "3901:3901"
-          "3902:3902"
-        ];
+        endpoints = {
+          rpc = {
+            port = 3900;
+            appProtocol = "garage-rpc";
+          };
+          s3-api = {
+            port = 3901;
+          };
+          admin-api = {
+            port = 3902;
+          };
+        };
       };
 
       runtimes = {
