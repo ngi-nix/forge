@@ -47,7 +47,7 @@ let
   '';
 
   sanitizeApp =
-    name: app:
+    _: app:
     let
       clean = builtins.removeAttrs app [
         "result"
@@ -71,7 +71,7 @@ let
       clean;
 
   sanitizePkg =
-    name: pkg:
+    _: pkg:
     builtins.removeAttrs pkg [
       "build"
       "result"

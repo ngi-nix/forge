@@ -70,55 +70,23 @@ viewPageAppHeader _ pageApp =
                     else
                         ""
 
-        runButton =
-            button
-                [ class "btn"
-                , attribute "data-testid" "app-run-button"
-                , case pageApp.pageApp_runtime of
-                    Nothing ->
-                        class "btn-secondary"
-
-                    Just _ ->
-                        class "btn-success"
-                , let
-                    route =
-                        pageApp.pageApp_route
-                  in
-                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_runShown = True }))
-                ]
-                (if hasWarning then
-                    [ span [ class "d-inline-flex align-items-center gap-1" ]
-                        [ text "Run"
-                        , iconExclamationTriangle
+        actionButton testId btnClass label updateRoute =
+            let
+                btn =
+                    button
+                        [ class ("btn " ++ btnClass)
+                        , attribute "data-testid" testId
+                        , onClick (Update_RouteWithoutHistory (Route_App (updateRoute pageApp.pageApp_route)))
                         ]
-                    ]
+                        (if hasWarning then
+                            [ span [ class "d-inline-flex align-items-center gap-1" ]
+                                [ text label, iconExclamationTriangle ]
+                            ]
 
-                 else
-                    [ text "Run" ]
-                )
-
-        deployButton =
-            button
-                [ class "btn btn-success"
-                , attribute "data-testid" "app-deploy-button"
-                , let
-                    route =
-                        pageApp.pageApp_route
-                  in
-                  onClick (Update_RouteWithoutHistory (Route_App { route | routeApp_deployShown = True }))
-                ]
-                (if hasWarning then
-                    [ span [ class "d-inline-flex align-items-center gap-1" ]
-                        [ text "Deploy"
-                        , iconExclamationTriangle
-                        ]
-                    ]
-
-                 else
-                    [ text "Deploy" ]
-                )
-
-        wrapWithWarningTooltip btn =
+                         else
+                            [ text label ]
+                        )
+            in
             if hasWarning then
                 div [ class "has-tooltip d-inline-block" ]
                     [ btn
@@ -130,10 +98,21 @@ viewPageAppHeader _ pageApp =
                 btn
 
         viewRunButton =
-            wrapWithWarningTooltip runButton
+            actionButton "app-run-button"
+                (if pageApp.pageApp_runtime == Nothing then
+                    "btn-secondary"
+
+                 else
+                    "btn-success"
+                )
+                "Run"
+                (\r -> { r | routeApp_runShown = True })
 
         viewDeployButton =
-            wrapWithWarningTooltip deployButton
+            actionButton "app-deploy-button"
+                "btn-success"
+                "Deploy"
+                (\r -> { r | routeApp_deployShown = True })
     in
     div
         [ style "display" "flex"
@@ -192,63 +171,59 @@ viewPageAppWarning _ pageApp =
     let
         app =
             pageApp.pageApp_app
-    in
-    case app.app_nixpkgsPin of
-        Just pin ->
+
+        renderAlert testId title content =
             div
                 [ class "alert alert-secondary border border-warning my-3 d-flex align-items-start gap-3"
-                , attribute "data-testid" "app-pinned-warning"
+                , attribute "data-testid" testId
                 ]
                 [ div [ class "mt-1 fs-5 text-warning" ] [ iconExclamationTriangle ]
                 , div [ class "flex-grow-1" ]
-                    [ div [ class "fw-semibold mb-1" ]
-                        [ text "Uses a previous working version" ]
-                    , case pin.pin_reason of
-                        Just reason ->
-                            p [ class "mb-1 small" ] [ text reason ]
+                    (div [ class "fw-semibold mb-1" ] [ text title ] :: content)
+                ]
+    in
+    case app.app_nixpkgsPin of
+        Just pin ->
+            renderAlert "app-pinned-warning"
+                "Uses a previous working version"
+                [ case pin.pin_reason of
+                    Just reason ->
+                        p [ class "mb-1 small" ] [ text reason ]
+
+                    Nothing ->
+                        text ""
+                , div [ class "small" ]
+                    [ text "Nixpkgs revision: "
+                    , a
+                        [ href ("https://github.com/" ++ pin.pin_owner ++ "/" ++ pin.pin_repo ++ "/commit/" ++ pin.pin_rev)
+                        , target "_blank"
+                        , rel "noopener"
+                        , class "font-monospace alert-link"
+                        ]
+                        [ text (String.left 10 pin.pin_rev) ]
+                    , case pin.pin_date of
+                        Just date ->
+                            text (" (snapshot date: " ++ date ++ ")")
 
                         Nothing ->
                             text ""
-                    , div [ class "small" ]
-                        [ text "Nixpkgs revision: "
-                        , a
-                            [ href ("https://github.com/" ++ pin.pin_owner ++ "/" ++ pin.pin_repo ++ "/commit/" ++ pin.pin_rev)
-                            , target "_blank"
-                            , rel "noopener"
-                            , class "font-monospace alert-link"
-                            ]
-                            [ text (String.left 10 pin.pin_rev) ]
-                        , case pin.pin_date of
-                            Just date ->
-                                text (" (snapshot date: " ++ date ++ ")")
-
-                            Nothing ->
-                                text ""
-                        ]
                     ]
                 ]
 
         Nothing ->
             if app.app_broken then
-                div
-                    [ class "alert alert-secondary border border-warning my-3 d-flex align-items-start gap-3"
-                    , attribute "data-testid" "app-broken-warning"
-                    ]
-                    [ div [ class "mt-1 fs-5 text-warning" ] [ iconExclamationTriangle ]
-                    , div [ class "flex-grow-1" ]
-                        [ div [ class "fw-semibold mb-1" ]
-                            [ text "This app currently has known issues" ]
-                        , div [ class "small" ]
-                            [ case app.app_lastWorkingVersion of
-                                Just version ->
-                                    span []
-                                        [ text "The current version has build or runtime issues. Last known working version: "
-                                        , code [] [ text version ]
-                                        ]
+                renderAlert "app-broken-warning"
+                    "This app currently has known issues"
+                    [ div [ class "small" ]
+                        [ case app.app_lastWorkingVersion of
+                            Just version ->
+                                span []
+                                    [ text "The current version has build or runtime issues. Last known working version: "
+                                    , code [] [ text version ]
+                                    ]
 
-                                Nothing ->
-                                    text "The current version has build or runtime issues. A fix is in progress."
-                            ]
+                            Nothing ->
+                                text "The current version has build or runtime issues. A fix is in progress."
                         ]
                     ]
 

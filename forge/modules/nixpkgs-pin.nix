@@ -5,48 +5,40 @@ rec {
       rev = lib.mkOption {
         type = lib.types.str;
         description = "Git commit revision from NixOS/nixpkgs.";
-        example = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
       };
       narHash = lib.mkOption {
         type = lib.types.str;
         description = "NAR hash of the pinned Nixpkgs tree.";
-        example = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
       };
       owner = lib.mkOption {
         type = lib.types.str;
         default = "NixOS";
         description = "GitHub organization or user owning the repository.";
-        example = "NixOS";
       };
       repo = lib.mkOption {
         type = lib.types.str;
         default = "nixpkgs";
         description = "Repository name.";
-        example = "nixpkgs";
       };
       ref = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Optional Git branch or tag name.";
-        example = "nixos-unstable";
       };
       url = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Direct Git URL to use instead of GitHub.";
-        example = "https://git.example.com/custom/nixpkgs.git";
       };
       date = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Date of the pinned revision (format: `YYYY-MM-DD`).";
-        example = "2026-10-04";
       };
       reason = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         description = "Human-readable reason explaining why this is pinned to this Nixpkgs revision.";
-        example = "Pinned to last working revision before upstream regression.";
       };
     };
   };

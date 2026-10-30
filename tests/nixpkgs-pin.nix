@@ -16,6 +16,14 @@ let
       flake-parts-lib = flake-parts.lib;
     }).flake.flakeModules;
 
+  # Pinned Nixpkgs revision (2025-05-20) with hello 2.12.1 (vs current 2.12.3)
+  testPin = reason: {
+    rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
+    narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
+    date = "2025-05-20";
+    inherit reason;
+  };
+
   # Evaluate Forge module system with test package and app definitions
   eval = flake-parts.lib.mkFlake { inherit inputs; } {
     systems = [ system ];
@@ -29,12 +37,7 @@ let
           # Scenario 1: Identity builder pointing to an older Nixpkgs revision
           # Current Nixpkgs has hello 2.12.3. Pinned revision (2025-05-20) has 2.12.1.
           pinned-hello = {
-            nixpkgsPin = {
-              rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
-              narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
-              date = "2025-05-20";
-              reason = "Test identityBuilder with pinned Nixpkgs";
-            };
+            nixpkgsPin = testPin "Test identityBuilder with pinned Nixpkgs";
             build.identityBuilder = {
               enable = true;
               attribute = "hello";
@@ -43,12 +46,7 @@ let
 
           # Scenario 1b: Identity builder using function for derivation
           pinned-hello-fn = {
-            nixpkgsPin = {
-              rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
-              narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
-              date = "2025-05-20";
-              reason = "Test identityBuilder with function derivation";
-            };
+            nixpkgsPin = testPin "Test identityBuilder with function derivation";
             build.identityBuilder = {
               enable = true;
               derivation = p: p.hello;
@@ -61,12 +59,7 @@ let
             description = "Test package built with pinned toolchain.";
             license = lib.licenses.mit;
             source.path = ./.;
-            nixpkgsPin = {
-              rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
-              narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
-              date = "2025-05-20";
-              reason = "Test standardBuilder with pinned Nixpkgs";
-            };
+            nixpkgsPin = testPin "Test standardBuilder with pinned Nixpkgs";
             build = {
               standardBuilder = {
                 enable = true;
@@ -90,12 +83,7 @@ let
             description = "Test python package with pinned dependencies.";
             license = lib.licenses.mit;
             source.path = ./.;
-            nixpkgsPin = {
-              rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
-              narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
-              date = "2025-05-20";
-              reason = "Test pythonPackageBuilder with pinned Nixpkgs";
-            };
+            nixpkgsPin = testPin "Test pythonPackageBuilder with pinned Nixpkgs";
             build = {
               pythonPackageBuilder = {
                 enable = true;
@@ -125,10 +113,7 @@ let
           test-pinned-nixpkgs-app = {
             displayName = "Test Direct Pinned App";
             description = "Test app using nixpkgsPin directly.";
-            nixpkgsPin = {
-              rev = "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f";
-              narHash = "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=";
-            };
+            nixpkgsPin = testPin "Test app direct pin";
             programs = {
               packages = p: [ p.hello ];
               runtimes.shell.enable = true;
