@@ -13,6 +13,11 @@
   apps.dokieli = {
     displayName = "Dokieli";
     description = "Clientside editor for decentralised article publishing, annotations, and social interactions.";
+    categories = [
+      "documents"
+      "collaboration"
+      "web"
+    ];
     usage = ''
       dokieli is a clientside editor for authoring, annotating, and sharing
       articles in a decentralised way.

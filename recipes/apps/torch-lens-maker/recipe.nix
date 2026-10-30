@@ -19,6 +19,11 @@ in
   apps.torch-lens-maker = {
     displayName = "Torch Lens Maker";
     description = "Python library for modeling and designing optical systems.";
+    categories = [
+      "engineering"
+      "science"
+    ];
+    library = true;
     usage = ''
       First, [launch the shell environment](app/${app.name}#run-shell) containing the `${app.name}` library.
 

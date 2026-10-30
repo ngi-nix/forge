@@ -12,6 +12,8 @@ type alias App =
     , app_displayName : String
     , app_description : String
     , app_longDescription : String
+    , app_categories : List String
+    , app_library : Bool
     , app_usage : String
     , app_programs : AppPrograms
     , app_services : AppServices
@@ -31,6 +33,8 @@ decodeApp =
         |> Decode.andMap (Decode.field "displayName" Decode.string)
         |> Decode.andMap (Decode.field "description" Decode.string)
         |> Decode.andMap (Decode.field "longDescription" Decode.string)
+        |> Decode.andMap (Decode.field "categories" (Decode.list Decode.string))
+        |> Decode.andMap (Decode.field "library" Decode.bool)
         |> Decode.andMap (Decode.field "usage" Decode.string)
         |> Decode.andMap (Decode.field "programs" decodeAppPrograms)
         |> Decode.andMap (Decode.field "services" decodeAppServices)
@@ -43,6 +47,88 @@ decodeApp =
 
 type alias AppName =
     String
+
+
+{-| How users run an application.
+-}
+type AppForm
+    = AppForm_Desktop
+    | AppForm_CommandLine
+    | AppForm_Service
+    | AppForm_Library
+
+
+allAppForms : List AppForm
+allAppForms =
+    [ AppForm_Desktop, AppForm_CommandLine, AppForm_Service, AppForm_Library ]
+
+
+showAppForm : AppForm -> String
+showAppForm form =
+    case form of
+        AppForm_Desktop ->
+            "desktop"
+
+        AppForm_CommandLine ->
+            "cli"
+
+        AppForm_Service ->
+            "service"
+
+        AppForm_Library ->
+            "library"
+
+
+parseAppForm : String -> Maybe AppForm
+parseAppForm s =
+    allAppForms |> List.filter (\form -> showAppForm form == s) |> List.head
+
+
+appFormLabel : AppForm -> String
+appFormLabel form =
+    case form of
+        AppForm_Desktop ->
+            "Desktop app"
+
+        AppForm_CommandLine ->
+            "Command line"
+
+        AppForm_Service ->
+            "Self-hosted service"
+
+        AppForm_Library ->
+            "Library"
+
+
+{-| The forms of an application, derived from its runtimes.
+A library is only shown as a library, even if it also has a shell runtime.
+-}
+appForms : App -> List AppForm
+appForms app =
+    if app.app_library then
+        [ AppForm_Library ]
+
+    else
+        List.concat
+            [ if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_program.enable then
+                [ AppForm_Desktop ]
+
+              else
+                []
+            , if app.app_programs.appPrograms_runtimes.appProgramsRuntimes_shell.enable then
+                [ AppForm_CommandLine ]
+
+              else
+                []
+            , if
+                app.app_services.appServices_runtimes.appServicesRuntimes_container.enable
+                    || app.app_services.appServices_runtimes.appServicesRuntimes_nixos.enable
+              then
+                [ AppForm_Service ]
+
+              else
+                []
+            ]
 
 
 type alias AppProgramsRuntimesProgram =

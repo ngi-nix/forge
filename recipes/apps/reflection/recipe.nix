@@ -19,6 +19,10 @@ in
   apps.reflection = {
     displayName = "Reflection";
     description = "Collaborative, p2p, local-first GTK text editor.";
+    categories = [
+      "collaboration"
+      "documents"
+    ];
     usage = ''
       Reflection is a collaborative, local-first GTK text editor based on [p2panda](https://p2panda.org/).
 

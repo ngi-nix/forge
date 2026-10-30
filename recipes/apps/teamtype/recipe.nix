@@ -21,6 +21,7 @@
   apps.teamtype = {
     displayName = "Teamtype";
     description = "Real-time co-editing of local text files.";
+    categories = [ "collaboration" ];
     usage = ''
       Teamtype (previously Ethersync) enables real-time collaborative editing of local text files.
 

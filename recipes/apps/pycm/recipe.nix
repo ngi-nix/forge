@@ -12,6 +12,8 @@
   apps.pycm = {
     displayName = "PyCM";
     description = "Machine learning post-processing and analysis library to evaluate algorithm performance.";
+    categories = [ "science" ];
+    library = true;
     usage = ''
       PyCM is an open-source Python library designed to systematically evaluate, quantify, and report the performance of machine learning algorithms.
 

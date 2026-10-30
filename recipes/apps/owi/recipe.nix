@@ -13,6 +13,7 @@
   apps.owi = {
     displayName = "owi";
     description = "Cross-language symbolic execution for C, C++, Rust, Zig, and Wasm.";
+    categories = [ "code-analysis" ];
     usage = ''
       owi is a symbolic execution tool for WebAssembly and C, C++, Rust and Zig
       programs compiled to Wasm. It can find bugs and verify program properties.

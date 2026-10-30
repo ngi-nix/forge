@@ -57,6 +57,29 @@
       default = "";
       description = "Long application description. Maximum 420 characters.";
     };
+    categories = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.enum (lib.attrNames specialArgs.forgeConfig.forge.appCategories)
+      );
+      default = [ ];
+      description = ''
+        Categories that help users find the application by topic.
+        An application can be in more than one category.
+        The available categories are the attribute names of `forge.appCategories`.
+      '';
+      example = [
+        "chat"
+        "security"
+      ];
+    };
+    library = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Whether the application is mainly a library for software developers,
+        and not a program for end users.
+      '';
+    };
     usage = lib.mkOption {
       type = lib.types.str;
       default = "";

@@ -7,6 +7,7 @@
   apps.tau = {
     displayName = "Tau";
     description = "Web radio streaming system.";
+    categories = [ "multimedia" ];
 
     usage = ''
       This app provides both the _tau-tower_ server and the _tau-radio_ client.

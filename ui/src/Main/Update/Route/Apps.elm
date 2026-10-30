@@ -49,13 +49,36 @@ updateRouteApps route =
                             name_matches || desc_matches
                         )
 
+                -- An app matches when it has any of the selected categories,
+                -- and any of the selected forms.
+                filterFacets =
+                    List.filter
+                        (\app ->
+                            (List.isEmpty route.routeApps_categories
+                                || List.any (\category -> List.member category route.routeApps_categories) app.app_categories
+                            )
+                                && (List.isEmpty route.routeApps_forms
+                                        || List.any (\form -> List.member form route.routeApps_forms) (appForms app)
+                                   )
+                        )
+
                 availableItems =
                     getSearchItemsAvailable
                         model.model_page
                         (\page ->
                             case page of
                                 Page_Apps pageApps ->
-                                    Just ( pageApps.pageApps_route.routeApps_search, pageApps.pageApps_pagination.pagePagination_list )
+                                    -- Only re-use the previous results when the facets did not change.
+                                    if
+                                        pageApps.pageApps_route.routeApps_categories
+                                            == route.routeApps_categories
+                                            && pageApps.pageApps_route.routeApps_forms
+                                            == route.routeApps_forms
+                                    then
+                                        Just ( pageApps.pageApps_route.routeApps_search, pageApps.pageApps_pagination.pagePagination_list )
+
+                                    else
+                                        Nothing
 
                                 _ ->
                                     Nothing
@@ -93,6 +116,7 @@ updateRouteApps route =
                 filteredItems =
                     availableItems
                         |> filterMatches
+                        |> filterFacets
                         |> sortApps
               in
               { model

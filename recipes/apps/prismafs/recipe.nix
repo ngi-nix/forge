@@ -6,6 +6,7 @@
   apps.prismafs = {
     displayName = "PrismaFS";
     description = "Lightweight, portable userspace filesystem with isolated session layer.";
+    categories = [ "system" ];
     usage = ''
       #### Running PrismaFS
 

@@ -21,6 +21,7 @@ in
   apps.zenroom = {
     displayName = "Zenroom";
     description = "No-code cryptographic virtual machine.";
+    categories = [ "security" ];
 
     data = {
       arrayGenerator = ./test/arrayGenerator.zen;

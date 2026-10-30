@@ -13,6 +13,7 @@
   apps.cpdf = {
     displayName = "cpdf";
     description = "Command-line PDF manipulation tool.";
+    categories = [ "documents" ];
     usage = ''
       The `cpdf` toolkit is able to merge, split, encrypt, decrypt, and manipulate PDF files.
 

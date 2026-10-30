@@ -10,6 +10,7 @@ in
   apps.beacondb = {
     displayName = "BeaconDB";
     description = "A privacy focused assisted GPS service written in Rust.";
+    categories = [ "maps" ];
     usage = ''
       This is a privacy focused assisted GPS service written in Rust.
 

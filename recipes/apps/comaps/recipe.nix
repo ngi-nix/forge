@@ -14,6 +14,7 @@
   apps.comaps = {
     displayName = "CoMaps";
     description = "A community-led fork of Organic Maps focused on free and open navigation with privacy.";
+    categories = [ "maps" ];
 
     usage = ''
       CoMaps is a navigation app focused on speed, privacy, battery efficiency and minimization of network utilization.

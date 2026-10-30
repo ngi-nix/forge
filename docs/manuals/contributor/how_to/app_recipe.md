@@ -78,6 +78,24 @@ links = {
 };
 ```
 
+### Categories
+
+Add one or more
+[`categories`](https://ngi.nixos.org/recipe/options?p=apps&p=pkgs&s=apps.%3Cname%3E.categories)
+that tell users what the app is for. The UI uses them to filter the list of apps.
+The available categories are defined in
+[`forge.appCategories`](https://ngi.nixos.org/recipe/options?s=appCategories).
+
+```nix
+categories = [
+  "chat"
+  "security"
+];
+```
+
+If the app is mainly a library for software developers, and not a program for
+end users, also set `library = true;`.
+
 ### NGI grants
 
 If the project is

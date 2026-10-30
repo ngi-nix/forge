@@ -13,6 +13,7 @@
   apps.weasyprint = {
     displayName = "WeasyPrint";
     description = "Print rendering engine for HTML and CSS.";
+    categories = [ "documents" ];
     usage = ''
       WeasyPrint converts HTML and CSS documents into PDF files.
 

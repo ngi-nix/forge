@@ -7,5 +7,6 @@ export const TEST_APP_NAME = process.env.TEST_APP_NAME || (isProd ? "emerge" : "
 export const TEST_PKG_NAME = process.env.TEST_PKG_NAME || (isProd ? "emerge" : "mock-test-pkg");
 export const TEST_APP_SEARCH = process.env.TEST_APP_SEARCH || (isProd ? "emerge" : "mock-test");
 export const TEST_PKG_SEARCH = process.env.TEST_PKG_SEARCH || (isProd ? "emerge" : "mock-test");
+export const TEST_APP_CATEGORY = process.env.TEST_APP_CATEGORY || (isProd ? "science" : "chat");
 
 export const TEST_RECIPE_OPTION = process.env.TEST_RECIPE_OPTION || "apps.<name>.description";

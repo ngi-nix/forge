@@ -31,6 +31,7 @@ type alias Config =
     { config_repository : NixUrl
     , config_apps : Dict AppName App
     , config_pkgs : Dict PkgName Pkg
+    , config_appCategories : Dict String String
     }
 
 
@@ -39,12 +40,14 @@ initConfig =
     { config_repository = "github:ngi-nix/forge"
     , config_apps = Dict.empty
     , config_pkgs = Dict.empty
+    , config_appCategories = Dict.empty
     }
 
 
 decodeConfig : Decoder Config
 decodeConfig =
-    Decode.map3 Config
+    Decode.map4 Config
         (Decode.field "repositoryUrl" Decode.string)
         (Decode.field "apps" (Decode.dict Config.decodeApp))
         (Decode.field "pkgs" (Decode.dict Config.decodePkg))
+        (Decode.field "appCategories" (Decode.dict Decode.string))

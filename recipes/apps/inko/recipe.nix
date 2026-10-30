@@ -13,6 +13,7 @@
   apps.inko = {
     displayName = "Inko";
     description = "Programming language with deterministic automatic memory management.";
+    categories = [ "development" ];
     usage = ''
       Inko is a statically typed, safe programming language for building concurrent
       software. It uses deterministic automatic memory management without a garbage

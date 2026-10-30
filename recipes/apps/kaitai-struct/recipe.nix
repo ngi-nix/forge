@@ -31,6 +31,10 @@ in
   apps.kaitai-struct = {
     displayName = "Kaitai Struct";
     description = "A new way to develop parsers for binary structures.";
+    categories = [
+      "development"
+      "code-analysis"
+    ];
     data = {
       exampleKsy = ./gif_header.ksy;
       testInstructions = ''

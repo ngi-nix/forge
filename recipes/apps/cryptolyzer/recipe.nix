@@ -13,6 +13,10 @@
   apps.cryptolyzer = {
     displayName = "CryptoLyzer";
     description = "Cybersecurity tool that can analyse cryptographic settings of clients and servers for different protocols.";
+    categories = [
+      "security"
+      "networking"
+    ];
     usage = ''
       CryptoLyzer analyses the cryptographic settings of TLS, SSH, and other
       protocol servers and clients, and tests endpoints against known vulnerabilities.

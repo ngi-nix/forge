@@ -13,6 +13,7 @@
   apps.nyxt = {
     displayName = "Nyxt";
     description = "Infinitely extensible web browser with Lisp-based customization.";
+    categories = [ "web" ];
     usage = ''
       Nyxt is a keyboard-driven web browser designed to be customized and extended
       using Common Lisp. It emphasizes privacy, efficiency, and user control.

@@ -62,6 +62,21 @@ def generate_app_recipe(name, index, is_test_app=False):
     container_en = "true" if is_test_app else str(fake.boolean()).lower()
     nixos_vm_en = "true" if is_test_app else str(fake.boolean()).lower()
 
+    # Some of the default `forge.appCategories`
+    categories = (
+        ["chat", "security"]
+        if is_test_app
+        else fake.random_elements(
+            elements=["chat", "documents", "science", "security", "system"],
+            length=fake.random_int(min=1, max=2),
+            unique=True,
+        )
+    )
+    categories_nix = " ".join(f'"{c}"' for c in categories)
+    library = (
+        "false" if is_test_app else str(fake.boolean(chance_of_getting_true=10)).lower()
+    )
+
     return f"""{{
   config,
   lib,
@@ -71,6 +86,8 @@ def generate_app_recipe(name, index, is_test_app=False):
 {{
 apps."{name}" = {{
   description = "{fake.sentence()}";
+  categories = [ {categories_nix} ];
+  library = {library};
   usage = "{fake.text()}\n\n[project documentation](https://example.com)\n\n[enter the Nix shell](app/mock-test#run-shell)";
 
   links = {{

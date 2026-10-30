@@ -14,6 +14,7 @@
   apps.kaidan = {
     displayName = "Kaidan";
     description = "User-friendly and modern chat app, using XMPP.";
+    categories = [ "chat" ];
     usage = ''
       Kaidan is a user-friendly and modern chat app for every device.
 

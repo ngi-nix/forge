@@ -13,6 +13,10 @@
   apps.collabora-desktop = {
     displayName = "Collabora Office";
     description = "Collaborative Office for desktop, based on LibreOffice technology.";
+    categories = [
+      "documents"
+      "collaboration"
+    ];
     usage = ''
       Collabora Office is a powerful LibreOffice-based office suite that supports all major document, spreadsheet, presentation, and drawing file formats. It is an initial version of [Collabora Online](https://www.collaboraonline.com/collabora-online/) ported to desktop, sharing the same underlying code.
 

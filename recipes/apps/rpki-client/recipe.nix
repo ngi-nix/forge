@@ -7,6 +7,10 @@
   apps.rpki-client = {
     displayName = "RPKI Client";
     description = "RPKI relying party software for validating internet routing security data.";
+    categories = [
+      "networking"
+      "security"
+    ];
     usage = ''
       rpki-client validates Resource Public Key Infrastructure (RPKI) data,
       helping Internet providers make correct and secure BGP routing decisions.

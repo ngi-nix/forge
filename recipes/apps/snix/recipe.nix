@@ -10,6 +10,10 @@ in
   apps.snix = {
     displayName = "Snix";
     description = "Modern Rust re-implementation of the components of the Nix package manager.";
+    categories = [
+      "system"
+      "development"
+    ];
     usage = ''
       Snix is a modular, early-stage reimplementation of Nix's components in
       Rust. It is not a full-featured drop-in replacement for Nix, and none of

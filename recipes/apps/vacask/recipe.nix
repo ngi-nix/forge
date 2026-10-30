@@ -22,6 +22,7 @@ in
   apps.vacask = {
     displayName = "VACASK";
     description = "Analog circuit simulator.";
+    categories = [ "electronics" ];
     longDescription = ''
       VACASK (Verilog-A Circuit Analysis Kernel) is an analog circuit
       simulator with a device library built from Verilog-A modules.

@@ -12,6 +12,7 @@
   apps.lychee = {
     displayName = "Lychee";
     description = "Reliable and fast link checker to combat linkrot.";
+    categories = [ "web" ];
     usage = ''
       Recursively checks all links in all supported files.
 

@@ -36,7 +36,8 @@ viewPageApps model pageApps =
                     }
     in
     div []
-        [ div
+        [ viewAppsFilters model pageApps
+        , div
             [ style "display" "grid"
             , style "grid-template-columns" "1fr auto 1fr"
             , class "align-items-center my-2"
@@ -81,6 +82,119 @@ viewPageApps model pageApps =
                 )
                 nextPageApps
             )
+        ]
+
+
+{-| Toggle buttons to filter applications by form and by category.
+-}
+viewAppsFilters : Model -> PageApps -> Html Update
+viewAppsFilters model pageApps =
+    let
+        route =
+            pageApps.pageApps_route
+
+        apps =
+            Dict.values model.model_config.config_apps
+
+        toggle : a -> List a -> List a
+        toggle item items =
+            if List.member item items then
+                List.filter ((/=) item) items
+
+            else
+                items ++ [ item ]
+
+        -- Go back to the first page when the filters change.
+        reRoute : RouteApps -> Update
+        reRoute newRoute =
+            Update_Route (Route_Apps { newRoute | routeApps_pagination = defaultRoutePagination })
+
+        viewChip : { testId : String, label : String, count : Int, active : Bool, update : Update } -> Html Update
+        viewChip chip =
+            Html.button
+                [ class <|
+                    "btn btn-sm rounded-pill "
+                        ++ (if chip.active then
+                                "btn-primary"
+
+                            else
+                                "border text-body"
+                           )
+                , attribute "type" "button"
+                , attribute "aria-pressed"
+                    (if chip.active then
+                        "true"
+
+                     else
+                        "false"
+                    )
+                , attribute "data-testid" chip.testId
+                , onClick chip.update
+                ]
+                [ text chip.label
+                , span [ class "ms-1" ] [ text ("(" ++ String.fromInt chip.count ++ ")") ]
+                ]
+
+        viewRow : String -> List (Html Update) -> Html Update
+        viewRow label chips =
+            div [ class "d-flex flex-wrap align-items-center gap-1 mb-1" ]
+                (small [ class "text-body-secondary me-1" ] [ text label ] :: chips)
+
+        formChips =
+            allAppForms
+                |> List.map
+                    (\form ->
+                        viewChip
+                            { testId = "apps-filter-form-" ++ showAppForm form
+                            , label = appFormLabel form
+                            , count = apps |> List.filter (\app -> List.member form (appForms app)) |> List.length
+                            , active = List.member form route.routeApps_forms
+                            , update = reRoute { route | routeApps_forms = toggle form route.routeApps_forms }
+                            }
+                    )
+
+        categoryChips =
+            model.model_config.config_appCategories
+                |> Dict.toList
+                |> List.sortBy (\( _, label ) -> String.toLower label)
+                |> List.map
+                    (\( category, label ) ->
+                        viewChip
+                            { testId = "apps-filter-category-" ++ category
+                            , label = label
+                            , count = apps |> List.filter (\app -> List.member category app.app_categories) |> List.length
+                            , active = List.member category route.routeApps_categories
+                            , update =
+                                -- Only one category is selected at a time.
+                                reRoute
+                                    { route
+                                        | routeApps_categories =
+                                            if List.member category route.routeApps_categories then
+                                                []
+
+                                            else
+                                                [ category ]
+                                    }
+                            }
+                    )
+
+        clearButton =
+            if List.isEmpty route.routeApps_categories && List.isEmpty route.routeApps_forms then
+                []
+
+            else
+                [ Html.button
+                    [ class "btn btn-sm btn-link"
+                    , attribute "type" "button"
+                    , attribute "data-testid" "apps-filter-clear"
+                    , onClick (reRoute { route | routeApps_categories = [], routeApps_forms = [] })
+                    ]
+                    [ text "Clear filters" ]
+                ]
+    in
+    div [ class "mt-2", attribute "data-testid" "apps-filters" ]
+        [ viewRow "Type:" formChips
+        , viewRow "Topic:" (categoryChips ++ clearButton)
         ]
 
 

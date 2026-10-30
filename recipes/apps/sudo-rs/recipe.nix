@@ -13,6 +13,10 @@
   apps.sudo-rs = {
     displayName = "sudo-rs";
     description = "Memory-safe implementation of sudo and su.";
+    categories = [
+      "security"
+      "system"
+    ];
     usage = ''
       sudo-rs is a memory-safe Rust reimplementation of the sudo and su utilities.
 

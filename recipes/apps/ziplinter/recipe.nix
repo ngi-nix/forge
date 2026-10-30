@@ -7,6 +7,7 @@
   apps.ziplinter = {
     displayName = "Ziplinter";
     description = "ZIP file analyzer that outputs detailed archive metadata as JSON.";
+    categories = [ "code-analysis" ];
     usage = ''
       Ziplinter reads a ZIP archive and outputs detailed metadata about its contents as JSON.
 

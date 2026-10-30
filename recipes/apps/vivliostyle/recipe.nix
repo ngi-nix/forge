@@ -21,6 +21,7 @@ in
   apps.vivliostyle = {
     displayName = "Vivliostyle";
     description = "CSS typesetting ecosystem for creating beautifully formatted documents using web technologies.";
+    categories = [ "documents" ];
     usage = ''
       Vivliostyle is a CSS typesetting ecosystem for creating beautifully formatted documents.
 

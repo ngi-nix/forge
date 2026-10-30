@@ -58,6 +58,7 @@ in
   apps.scion = {
     displayName = "SCION";
     description = "SCION: a next-generation inter-domain routing architecture.";
+    categories = [ "networking" ];
     usage = ''
       > [!CAUTION]
       > This is a complex project, and the example below is only for testing purposes.

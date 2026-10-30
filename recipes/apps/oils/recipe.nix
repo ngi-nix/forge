@@ -14,6 +14,10 @@
   apps.oils = {
     displayName = "Oils";
     description = "Bringing shell environments into the 21st century.";
+    categories = [
+      "system"
+      "development"
+    ];
     usage = ''
       Oil is a new Unix shell.
 

@@ -14,6 +14,8 @@
   apps.lib25519 = {
     displayName = "lib25519";
     description = "Microlibrary for X25519/Ed25519 cryptography.";
+    categories = [ "security" ];
+    library = true;
     usage = ''
       #### Intro
 

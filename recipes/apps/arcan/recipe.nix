@@ -13,6 +13,10 @@
   apps.arcan = {
     displayName = "Arcan";
     description = "Explorative p2p protocol for fast and secure remote desktops.";
+    categories = [
+      "networking"
+      "system"
+    ];
     usage = ''
       Arcan is a combined display server, multimedia framework and game engine that
       also includes an explorative p2p protocol for fast and secure remote desktops.

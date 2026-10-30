@@ -79,6 +79,33 @@
               description = "URL of the Forge repository.";
             };
 
+            appCategories = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = {
+                chat = "Chat & email";
+                documents = "Documents, office & publishing";
+                collaboration = "Collaboration";
+                multimedia = "Graphics, video & audio";
+                web = "Web & browsing";
+                maps = "Maps & location";
+                science = "Science & data analysis";
+                electronics = "Electronics & hardware design";
+                engineering = "Engineering & CAD";
+                security = "Security, privacy & cryptography";
+                networking = "Networking & internet infrastructure";
+                development = "Programming languages & dev tools";
+                code-analysis = "Code & binary analysis";
+                system = "System, files & storage";
+              };
+              description = ''
+                Categories that applications can use in `apps.<name>.categories`.
+                Each attribute name is a category identifier and each value is the label that the UI shows.
+              '';
+              example = {
+                games = "Games";
+              };
+            };
+
             snippets = lib.mkOption {
               readOnly = true;
               type = lib.types.submodule ./snippets.nix;

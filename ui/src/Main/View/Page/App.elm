@@ -185,8 +185,63 @@ viewPageAppDescription model pageApp =
                     |> Markdown.render
                 ]
             ]
+        , viewPageAppTags model pageApp
         , viewPageAppUsage model pageApp
         ]
+
+
+{-| Links to the list of applications that have the same form or category.
+-}
+viewPageAppTags : Model -> PageApp -> Html Update
+viewPageAppTags model pageApp =
+    let
+        app =
+            pageApp.pageApp_app
+
+        viewTag : { testId : String, label : String, route : Route } -> Html Update
+        viewTag tag =
+            a
+                [ class "badge rounded-pill border text-body text-decoration-none fw-normal"
+                , href (tag.route |> routeToString)
+                , onClick (Update_Route tag.route)
+                , attribute "data-testid" tag.testId
+                ]
+                [ text tag.label ]
+
+        formTags =
+            appForms app
+                |> List.map
+                    (\form ->
+                        viewTag
+                            { testId = "app-tag-form-" ++ showAppForm form
+                            , label = appFormLabel form
+                            , route = Route_Apps { defaultRouteApps | routeApps_forms = [ form ] }
+                            }
+                    )
+
+        categoryTags =
+            app.app_categories
+                |> List.map
+                    (\category ->
+                        viewTag
+                            { testId = "app-tag-category-" ++ category
+                            , label =
+                                model.model_config.config_appCategories
+                                    |> Dict.get category
+                                    |> Maybe.withDefault category
+                            , route = Route_Apps { defaultRouteApps | routeApps_categories = [ category ] }
+                            }
+                    )
+    in
+    if List.isEmpty formTags && List.isEmpty categoryTags then
+        text ""
+
+    else
+        div
+            [ class "d-flex flex-wrap gap-1 mb-3"
+            , attribute "data-testid" "app-tags"
+            ]
+            (formTags ++ categoryTags)
 
 
 viewPageAppUsage : Model -> PageApp -> Html Update

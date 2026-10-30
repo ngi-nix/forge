@@ -14,6 +14,7 @@
   apps.badkeys = {
     displayName = "Badkeys";
     description = "Checking cryptographic public keys for known vulnerabilities.";
+    categories = [ "security" ];
     usage = ''
       Download blocklist metadata.
 

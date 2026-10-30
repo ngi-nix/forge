@@ -21,6 +21,7 @@ in
   apps.vg = {
     displayName = "Variation Graphs";
     description = "Tools for working with genome variation graphs.";
+    categories = [ "science" ];
     longDescription = ''
       VG is a toolkit for working with genome variation graphs.
 

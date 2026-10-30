@@ -10,6 +10,7 @@ in
   apps.labplot = {
     displayName = "LabPlot";
     description = "Free, open-source, cross-platform data visualization and analysis software.";
+    categories = [ "science" ];
     usage = ''
       LabPlot is a data visualization and analysis application, offering
       plotting, statistics, interactive notebooks, and data extraction from

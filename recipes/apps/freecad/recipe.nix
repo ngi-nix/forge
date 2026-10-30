@@ -17,6 +17,7 @@ in
   apps.freecad = {
     displayName = "FreeCAD";
     description = "General purpose Open Source 3D CAD/MCAD/CAx/CAE/PLM modeler.";
+    categories = [ "engineering" ];
     longDescription = ''
       FreeCAD is a free and open-source parametric 3D CAD modeler for mechanical
       design, product design, architecture (BIM), and more. Models are built from

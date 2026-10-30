@@ -13,6 +13,7 @@
   apps.goupile = {
     displayName = "Goupile";
     description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";
+    categories = [ "science" ];
     usage = ''
       Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 

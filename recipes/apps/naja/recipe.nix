@@ -13,6 +13,7 @@
   apps.naja = {
     displayName = "Naja";
     description = "EDA tool focused on post logic synthesis.";
+    categories = [ "electronics" ];
     usage = ''
       Naja provides a structural netlist API and tools for EDA post-synthesis flows,
       including netlist editing, optimization, and analysis.
