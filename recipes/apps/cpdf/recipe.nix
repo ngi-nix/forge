@@ -82,7 +82,7 @@
     icon = ./icon.svg;
 
     links = {
-      website = "https://coherentpdf.com/cpdf";
+      website = "https://coherentpdf.com/cpdf/";
       source = "https://github.com/johnwhitington/cpdf-source";
       docs = "https://www.coherentpdf.com/cpdfmanual.pdf";
     };
