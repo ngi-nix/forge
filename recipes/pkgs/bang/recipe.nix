@@ -13,15 +13,15 @@ let
 in
 {
   pkgs.bang = {
-    version = "0-unstable-2026-10-16";
+    version = "0-unstable-2026-10-26";
     description = "Binary Analysis Next Generation framework for recursive unpacking and analysis of binary files.";
     homePage = "https://github.com/armijnhemel/binaryanalysis-ng";
     mainProgram = "bang";
     license = lib.licenses.gpl3Only;
 
     source = {
-      git = "github:armijnhemel/binaryanalysis-ng/9b660c6640fe7fcb38b6272df5261b6320015dae";
-      hash = "sha256-obuQotYTCqTr9UE1bPm9xovsUjk6T3pxQ3E0ABeouQo=";
+      git = "github:armijnhemel/binaryanalysis-ng/f2c89431f3ae97fa0c4122ab9dd0269067a098b4";
+      hash = "sha256-P2NVgfxJSVaxyKu8ykOBh9hw8eU5UQzyz/Z3aabiCpM=";
     };
 
     build.builders.python = {
