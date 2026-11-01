@@ -9,7 +9,7 @@ let
 in
 {
   pkgs.prismafs = {
-    version = "1.7.1";
+    version = "1.8.0";
     description = "Lightweight, portable userspace filesystem with isolated session layer.";
     homePage = "https://github.com/goranb131/prismaFS";
     mainProgram = "prismafs";
@@ -17,7 +17,7 @@ in
 
     source = {
       git = "github:goranb131/prismaFS/v${recipe.version}";
-      hash = "sha256-eP1z7+r+vzS1Tg7EYYUtNzjhHKwL1/Z9WWfxRelhEIo=";
+      hash = "sha256-DoBEZxkJW4/cS0FdmDZiMSyhK8P3Zu+lxtHAMFUD1xY=";
     };
 
     build.builders.standard = {
