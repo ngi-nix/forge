@@ -6,10 +6,10 @@ requires the following tools to be installed.
 ## Nix
 
 The most important requirement of NGI Forge is [Nix](https://nixos.org/).
-NGI Forge can be used with or without the new
-[Nix CLI and Flakes](https://nix.dev/concepts/flakes) - both modes are supported.
+We recommend using the new [Nix CLI and Flakes](https://nix.dev/concepts/flakes).
+For traditional Nix setup without Flakes, see the [traditional-nix](traditional-nix.md) section.
 
-### Install Nix with Flakes included (recommended)
+### Install Nix with Flakes included
 
 1. Install Nix with new CLI and Flakes enabled:
 
@@ -21,21 +21,6 @@ curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable
 
 ```bash
 export NIX_CONFIG="accept-flake-config = true"
-```
-
-### Install Nix with traditional CLI
-
-1. Install Nix without Flakes:
-
-```bash
-curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install
-```
-
-2. Configure substituters (optional, highly recommended):
-
-```bash
-export NIX_CONFIG='substituters = https://cache.nixos.org https://ngi-forge.cachix.org
-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0='
 ```
 
 ### Uninstall
