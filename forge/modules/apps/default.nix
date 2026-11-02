@@ -175,9 +175,15 @@
         );
 
       bundledApps = lib.mapAttrs (_: bundle) enabledApps;
+
+      scopedApps = forge-lib.scopeAttrs {
+        type = "apps";
+        values = bundledApps;
+      };
+
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
-        derivations = bundledApps;
+        derivations = scopedApps;
       }) { };
     in
     {
