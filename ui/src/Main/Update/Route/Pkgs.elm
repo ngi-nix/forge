@@ -31,14 +31,14 @@ updateRoutePkgs route =
                         (\pkg ->
                             let
                                 -- Case Insensitive search
-                                pkg_pname =
-                                    String.toLower pkg.pkg_pname
+                                pkg_name =
+                                    String.toLower pkg.pkg_name
 
                                 pkg_description =
                                     String.toLower pkg.pkg_description
 
                                 name_matches =
-                                    String.contains search pkg_pname
+                                    String.contains search pkg_name
 
                                 desc_matches =
                                     String.contains search pkg_description

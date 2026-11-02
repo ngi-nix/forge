@@ -84,7 +84,7 @@ viewPagePkgsItem model pagePkgs pkg =
             pagePkgs.pagePkgs_route
 
         itemId =
-            pkg.pkg_pname
+            pkg.pkg_name
 
         onClickRoute =
             Route_Pkgs
@@ -113,7 +113,7 @@ viewPagePkgsItem model pagePkgs pkg =
                         , attribute "draggable" "false"
                         ]
                         [ code []
-                            [ text pkg.pkg_pname
+                            [ text pkg.pkg_name
                             ]
                         ]
                     , span

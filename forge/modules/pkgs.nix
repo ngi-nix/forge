@@ -15,7 +15,7 @@
             options.pkgs = lib.mkOption {
               default = { };
               description = ''
-                Packages indexed by their `pname`.
+                Packages indexed by their attribute names.
 
                 Each package uses one of the available builders.
                 Only one builder can be enabled per package by setting build.<builder>.enable = true.
