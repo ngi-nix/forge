@@ -45,49 +45,34 @@ test.describe("Run Modal and Hash State", () => {
     await expect(modal).toBeHidden();
   });
 
-  test("installation preferences are flakes by default", async ({ page }) => {
+  test("shows flake commands and no traditional switcher", async ({ page }) => {
     await page.goto(`${targetPage}#run-shell`);
     const modal = page.getByTestId("run-modal-container");
     await expect(modal).toBeVisible();
 
-    const flakesBtn = modal.getByRole("button", { name: /flakes/i });
-    await expect(flakesBtn).toHaveClass(/active/);
+    // Verify Flakes command is shown
     await expect(modal.locator("pre").last()).toContainText("nix shell");
+
+    // Verify there is no Flakes/Traditional switcher
+    await expect(modal.getByRole("button", { name: /flakes/i })).toHaveCount(0);
+    await expect(modal.getByRole("button", { name: /traditional/i })).toHaveCount(0);
   });
 
-  test("can switch installation preferences between flakes and traditional", async ({ page }) => {
+  test("handles existing preferences with install key in localStorage without crashing", async ({ page }) => {
+    // Seed localStorage with legacy preferences before navigation
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "preferences",
+        JSON.stringify({ install: "nix_traditional", theme: "dark", sort: "random" }),
+      );
+    });
+
     await page.goto(`${targetPage}#run-shell`);
     const modal = page.getByTestId("run-modal-container");
     await expect(modal).toBeVisible();
 
-    const flakesBtn = modal.getByRole("button", { name: /flakes/i });
-    const traditionalBtn = modal.getByRole("button", { name: /traditional/i });
-
-    await traditionalBtn.click();
-    await expect(traditionalBtn).toHaveClass(/active/);
-    await expect(modal.locator("pre").last()).toContainText("nix-shell");
-
-    await flakesBtn.click();
-    await expect(flakesBtn).toHaveClass(/active/);
+    // Verify app runs, decodes preferences without crash, and shows flake commands
     await expect(modal.locator("pre").last()).toContainText("nix shell");
-  });
-
-  test("installation preferences are remembered on page reload", async ({ page }) => {
-    await page.goto(`${targetPage}#run-shell`);
-    const modal = page.getByTestId("run-modal-container");
-    await expect(modal).toBeVisible();
-
-    const traditionalBtn = modal.getByRole("button", { name: /traditional/i });
-
-    await traditionalBtn.click();
-    await expect(traditionalBtn).toHaveClass(/active/);
-    await expect(modal.locator("pre").last()).toContainText("nix-shell");
-
-    await page.reload();
-
-    await expect(modal).toBeVisible();
-    await expect(traditionalBtn).toHaveClass(/active/);
-    await expect(modal.locator("pre").last()).toContainText("nix-shell");
   });
 
   test("copy button works and copies the command", async ({ context, page, browserName }) => {

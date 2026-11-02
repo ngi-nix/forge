@@ -112,14 +112,8 @@ viewPageAppRunInstructions model pageApp =
             Just appRuntime ->
                 [ viewPageAppRunNixInstall model pageApp
                 , hr [] []
-                , div [ class "d-flex justify-content-between align-items-center mb-2" ]
-                    [ ul
-                        [ class "nav nav-underline"
-                        ]
-                        (listPreferencesInstall
-                            |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
-                        )
-                    , a
+                , div [ class "d-flex justify-content-end align-items-center mb-2" ]
+                    [ a
                         [ href ("docs/manuals/contributor/how_to/app_recipe.html#" ++ (showAppRuntime appRuntime |> String.toLower) ++ "-runtime")
                         , class "d-flex align-items-center gap-1 text-decoration-none"
                         , target "_blank"
@@ -161,112 +155,26 @@ viewPageAppRunInstructions model pageApp =
 
 
 viewPageAppRunNixInstall : Model -> PageApp -> Html Update
-viewPageAppRunNixInstall model pageApp =
+viewPageAppRunNixInstall _ _ =
     div [ class "accordion" ]
         [ details [ class "accordion-item" ]
             [ summary [ class "accordion-button accordion-header fw-bold" ]
                 [ text "Install Nix" ]
             , div [ class "accordion-body" ]
-                ([ ul
-                    [ class "nav nav-underline mb-1"
-                    ]
-                    (listPreferencesInstall
-                        |> List.map (viewPageAppRunNixInstallPreferences model pageApp)
-                    )
-                 , p [ class "mb-1" ]
+                [ p [ class "mb-1" ]
                     [ text "1. Install Nix "
                     , a [ href "https://github.com/NixOS/nix-installer#nix-installer", target "_blank" ]
                         [ text "(learn more about this installer)." ]
                     ]
-                 , case model.model_preferences.preferences_install of
-                    PreferencesInstall_NixFlakes ->
-                        bashCodeBlock <|
-                            String.join "\n"
-                                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable-flakes" ]
-
-                    PreferencesInstall_NixTraditional ->
-                        bashCodeBlock <|
-                            String.join "\n"
-                                [ "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install" ]
-                 , small [ class "mb-1" ]
+                , bashCodeBlock "curl -sSfL https://artifacts.nixos.org/nix-installer | sh -s -- install --enable-flakes"
+                , small [ class "mb-1" ]
                     [ text "to uninstall, run:" ]
-                 , bashCodeBlock <|
-                    "/nix/nix-installer uninstall"
-                 ]
-                    ++ (case model.model_preferences.preferences_install of
-                            PreferencesInstall_NixFlakes ->
-                                [ p [ class "mt-3 mb-1" ]
-                                    [ text "2. Accept binaries pre-built by NGI Forge (optional, highly recommended) " ]
-                                , bashCodeBlock <|
-                                    "export NIX_CONFIG=\"accept-flake-config = true\""
-                                ]
-
-                            PreferencesInstall_NixTraditional ->
-                                [ p [ class "mt-3 mb-1" ]
-                                    [ text "2. Configure substitutors (optional, highly recommended)" ]
-                                , bashCodeBlock <|
-                                    String.join "\n"
-                                        [ "export NIX_CONFIG='substituters = https://cache.nixos.org https://ngi-forge.cachix.org"
-                                        , "trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0='"
-                                        ]
-                                ]
-                       )
-                )
+                , bashCodeBlock "/nix/nix-installer uninstall"
+                , p [ class "mt-3 mb-1" ]
+                    [ text "2. Accept binaries pre-built by NGI Forge (optional, highly recommended) " ]
+                , bashCodeBlock "export NIX_CONFIG=\"accept-flake-config = true\""
+                ]
             ]
-        ]
-
-
-viewPageAppRunNixInstallPreferences : Model -> PageApp -> PreferencesInstall -> Html Update
-viewPageAppRunNixInstallPreferences model _ preferencesInstall =
-    let
-        preferences =
-            model.model_preferences
-
-        isActive =
-            model.model_preferences.preferences_install == preferencesInstall
-
-        btnClasses =
-            [ "nav-link"
-            , if isActive then
-                "active"
-
-              else
-                ""
-            , case preferencesInstall of
-                PreferencesInstall_NixFlakes ->
-                    "text-primary-emphasis"
-
-                PreferencesInstall_NixTraditional ->
-                    "text-secondary-emphasis"
-            ]
-                |> String.join " "
-
-        badgeClasses =
-            "badge rounded-pill "
-                ++ (case preferencesInstall of
-                        PreferencesInstall_NixFlakes ->
-                            "text-bg-primary"
-
-                        PreferencesInstall_NixTraditional ->
-                            "text-bg-secondary"
-                   )
-    in
-    li [ class "nav-item" ]
-        [ button
-            [ class btnClasses
-            , style "cursor" "pointer"
-            , onClick (Update_SetPreferences { preferences | preferences_install = preferencesInstall })
-            ]
-            (case preferencesInstall of
-                PreferencesInstall_NixFlakes ->
-                    [ text "Flakes "
-                    , small [ class badgeClasses ] [ text "Recommended" ]
-                    ]
-
-                PreferencesInstall_NixTraditional ->
-                    [ text "Traditional"
-                    ]
-            )
         ]
 
 
@@ -278,35 +186,12 @@ viewPageAppRunProgram model pageApp =
         , br [] []
         , bashCodeBlock <|
             String.concat
-                (case model.model_preferences.preferences_install of
-                    PreferencesInstall_NixFlakes ->
-                        [ "nix run "
-                        , showForgeInputFlakes model
-                        , "#"
-                        , pageApp.pageApp_app.app_outputName
-                        , ".program"
-                        ]
-
-                    PreferencesInstall_NixTraditional ->
-                        [ "nix-shell \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                        , "  -p '(import <forge> {})"
-                        , "."
-                        , pageApp.pageApp_app.app_outputName
-                        , ".program"
-                        , "'"
-                        , case pageApp.pageApp_app.app_programs.appPrograms_runProgram of
-                            "" ->
-                                ""
-
-                            exec ->
-                                String.concat
-                                    [ " \\\n"
-                                    , "--command "
-                                    , exec
-                                    ]
-                        ]
-                )
+                [ "nix run "
+                , showForgeInputFlakes model
+                , "#"
+                , pageApp.pageApp_app.app_outputName
+                , ".program"
+                ]
         ]
 
 
@@ -318,23 +203,11 @@ viewPageAppRunShell model pageApp =
         , br [] []
         , bashCodeBlock <|
             String.concat
-                (case model.model_preferences.preferences_install of
-                    PreferencesInstall_NixFlakes ->
-                        [ "nix shell "
-                        , showForgeInputFlakes model
-                        , "#"
-                        , pageApp.pageApp_app.app_outputName
-                        ]
-
-                    PreferencesInstall_NixTraditional ->
-                        [ "nix-shell \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                        , "  -p '(import <forge> {})"
-                        , "."
-                        , pageApp.pageApp_app.app_outputName
-                        , "' "
-                        ]
-                )
+                [ "nix shell "
+                , showForgeInputFlakes model
+                , "#"
+                , pageApp.pageApp_app.app_outputName
+                ]
         ]
 
 
@@ -344,29 +217,12 @@ viewPageAppRunContainer model pageApp =
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI containers" ]
         , br [] []
         , bashCodeBlock <|
-            String.join "\n"
-                [ case model.model_preferences.preferences_install of
-                    PreferencesInstall_NixFlakes ->
-                        String.concat
-                            [ "nix run "
-                            , showForgeInputFlakes model
-                            , "#"
-                            , pageApp.pageApp_app.app_outputName
-                            , ".container"
-                            ]
-
-                    PreferencesInstall_NixTraditional ->
-                        String.concat
-                            [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                            , "  -E '(import <forge> {})"
-                            , "."
-                            , pageApp.pageApp_app.app_outputName
-                            , ".container"
-                            , "' \n"
-                            , "\n"
-                            , "./result/bin/run-container"
-                            ]
+            String.concat
+                [ "nix run "
+                , showForgeInputFlakes model
+                , "#"
+                , pageApp.pageApp_app.app_outputName
+                , ".container"
                 ]
         , hr [] []
         , viewPageAppRunContainerBuildOCI model pageApp
@@ -379,32 +235,17 @@ viewPageAppRunContainerBuildOCI model pageApp =
         [ summary [] [ text "Build container images manually" ]
         , br [] []
         , bashCodeBlock <|
-            case model.model_preferences.preferences_install of
-                PreferencesInstall_NixFlakes ->
-                    String.join "\n"
-                        [ String.concat
-                            [ "nix build "
-                            , showForgeInputFlakes model
-                            , "#"
-                            , pageApp.pageApp_app.app_outputName
-                            , ".container"
-                            ]
-                        , ""
-                        , "./result/bin/build-oci-images"
-                        ]
-
-                PreferencesInstall_NixTraditional ->
-                    String.concat
-                        [ "nix-build \\\n"
-                        , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                        , "  -E '(import <forge> {})"
-                        , "."
-                        , pageApp.pageApp_app.app_outputName
-                        , ".container"
-                        , "' \n"
-                        , "\n"
-                        , "./result/bin/build-oci-images"
-                        ]
+            String.join "\n"
+                [ String.concat
+                    [ "nix build "
+                    , showForgeInputFlakes model
+                    , "#"
+                    , pageApp.pageApp_app.app_outputName
+                    , ".container"
+                    ]
+                , ""
+                , "./result/bin/build-oci-images"
+                ]
         ]
 
 
@@ -414,44 +255,13 @@ viewPageAppRunNixOS model pageApp =
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in a NixOS VM" ]
         , br [] []
         , bashCodeBlock <|
-            case model.model_preferences.preferences_install of
-                PreferencesInstall_NixFlakes ->
-                    String.concat
-                        [ "nix run "
-                        , showForgeInputFlakes model
-                        , "#"
-                        , pageApp.pageApp_app.app_outputName
-                        , ".vm"
-                        ]
-
-                PreferencesInstall_NixTraditional ->
-                    String.join "\n"
-                        [ String.concat
-                            [ "nix-build \\\n"
-                            , "  -I forge=\"" ++ showForgeInputTraditional model ++ " \\\n"
-                            , "  -E '(import <forge> {})"
-                            , "."
-                            , pageApp.pageApp_app.app_outputName
-                            , ".vm"
-                            , "' "
-                            ]
-                        , ""
-
-                        -- `nixos:system.name` is used in the executable name of `nixos:system.build.vm`,
-                        -- and it defaults to `nixos:networking.hostName` which is set to `app.name` by the forge,
-                        -- hence use `app_name` not `app_outputName` here.
-                        , "./result/bin/run-" ++ pageApp.pageApp_app.app_name ++ "-vm"
-                        ]
-        ]
-
-
-showForgeInputTraditional : Model -> String
-showForgeInputTraditional model =
-    String.concat
-        [ model.model_config.config_repository |> showNixUrl
-        , "/archive/"
-        , shortCommit
-        , ".tar.gz\""
+            String.concat
+                [ "nix run "
+                , showForgeInputFlakes model
+                , "#"
+                , pageApp.pageApp_app.app_outputName
+                , ".vm"
+                ]
         ]
 
 

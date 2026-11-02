@@ -5,29 +5,22 @@ import Json.Encode as Encode exposing (Value)
 
 
 type alias Preferences =
-    { preferences_install : PreferencesInstall
-    , preferences_theme : PreferencesTheme
+    { preferences_theme : PreferencesTheme
     , preferences_sort : PreferencesSort
     }
 
 
 defaultPreferences : Preferences
 defaultPreferences =
-    { preferences_install = PreferencesInstall_NixFlakes
-    , preferences_theme = PreferencesTheme_Light
+    { preferences_theme = PreferencesTheme_Light
     , preferences_sort = PreferencesSort_Random
     }
 
 
 decodePreferences : Decoder Preferences
 decodePreferences =
-    Decode.map3
+    Decode.map2
         Preferences
-        (Decode.oneOf
-            [ Decode.field "install" decodePreferencesInstall
-            , Decode.succeed defaultPreferences.preferences_install
-            ]
-        )
         (Decode.oneOf
             [ Decode.field "theme" decodePreferencesTheme
             , Decode.succeed defaultPreferences.preferences_theme
@@ -43,8 +36,7 @@ decodePreferences =
 encodePreferences : Preferences -> Value
 encodePreferences preferences =
     Encode.object
-        [ ( "install", preferences.preferences_install |> encodePreferencesInstall )
-        , ( "theme", preferences.preferences_theme |> encodePreferencesTheme )
+        [ ( "theme", preferences.preferences_theme |> encodePreferencesTheme )
         , ( "sort", preferences.preferences_sort |> encodePreferencesSort )
         ]
 
@@ -55,46 +47,6 @@ setPreferences prefs =
 
 
 port setPreferencesJson : Value -> Cmd update
-
-
-type PreferencesInstall
-    = PreferencesInstall_NixFlakes
-    | PreferencesInstall_NixTraditional
-
-
-decodePreferencesInstall : Decoder PreferencesInstall
-decodePreferencesInstall =
-    Decode.string
-        |> Decode.andThen
-            (\s ->
-                case s of
-                    "nix_flake" ->
-                        Decode.succeed PreferencesInstall_NixFlakes
-
-                    "nix_traditional" ->
-                        Decode.succeed PreferencesInstall_NixTraditional
-
-                    _ ->
-                        Decode.fail <| "Invalid PreferencesInstall: " ++ s
-            )
-
-
-encodePreferencesInstall : PreferencesInstall -> Value
-encodePreferencesInstall pref =
-    Encode.string <|
-        case pref of
-            PreferencesInstall_NixFlakes ->
-                "nix_flake"
-
-            PreferencesInstall_NixTraditional ->
-                "nix_traditional"
-
-
-listPreferencesInstall : List PreferencesInstall
-listPreferencesInstall =
-    [ PreferencesInstall_NixFlakes
-    , PreferencesInstall_NixTraditional
-    ]
 
 
 type PreferencesTheme

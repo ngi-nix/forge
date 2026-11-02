@@ -9,11 +9,6 @@ const initDefaultPreferences = () => {
     localStorage.setItem("preferences", JSON.stringify(preferences));
   }
 
-  if (preferences.install === undefined) {
-    preferences.install = "nix_flake";
-    localStorage.setItem("preferences", JSON.stringify(preferences));
-  }
-
   if (preferences.sort === undefined) {
     preferences.sort = "random";
     localStorage.setItem("preferences", JSON.stringify(preferences));
