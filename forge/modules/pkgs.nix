@@ -41,11 +41,16 @@
   # Config section is now provided by builder modules
   config =
     let
+      enabledPkgs = lib.filterAttrs (_: pkg: !pkg.broken && pkg.enable) config.forge.pkgs;
+
+      packages = forge-lib.scopeAttrs {
+        type = "pkgs";
+        values = lib.mapAttrs (_: package: package.result.derivation) enabledPkgs;
+      };
+
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "pkgs";
-        derivations = lib.mapAttrs (packageName: package: package.result.derivation) (
-          lib.filterAttrs (_: pkg: !pkg.broken && pkg.enable) config.forge.pkgs
-        );
+        derivations = packages;
       }) { };
     in
     {

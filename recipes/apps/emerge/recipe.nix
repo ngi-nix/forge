@@ -9,17 +9,22 @@
 let
   app = config.apps.emerge;
   usageSnippets = forgeConfig.forge.snippets.usage app;
-  pyEnv = pkgs.python3.withPackages (ps: [ pkgs.python3-emerge ]);
+  pyEnv = pkgs.python3.withPackages (ps: [ pkgs."python3.emerge" ]);
 in
 
 {
-  pkgs.python3-emerge.build.builders.identity = {
-    enable = true;
-    derivation = pkgs.python3Packages.emerge;
+  pkgs."python3.emerge" = {
+    build.builders.identity = {
+      enable = true;
+      derivation = pkgs.python3Packages.emerge;
+    };
   };
-  pkgs.emerge.build.builders.identity = {
-    enable = true;
-    derivation = pkgs.python3Packages.toPythonApplication pkgs.python3-emerge;
+
+  pkgs.emerge = {
+    build.builders.identity = {
+      enable = true;
+      derivation = pkgs.python3Packages.toPythonApplication pkgs."python3.emerge";
+    };
   };
 
   apps.emerge = {

@@ -22,7 +22,9 @@
     };
     pname = lib.mkOption {
       type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
-      default = name;
+      # The attribute name can be namespaced (e.g. `python3.emerge`), while the
+      # `pname` itself only uses the last path component.
+      default = lib.last (lib.splitString "." name);
       description = "Package name. Only letters, numbers and hyphens are allowed.";
       example = "pkgs.hello";
       readOnly = true;

@@ -4,6 +4,69 @@
 }:
 {
   flake.lib = rec {
+    # Take an attrset of arbitrary nesting and make it flat
+    # by concatenating the nested names with the given separator.
+    flattenAttrs =
+      separator:
+      let
+        f = path: lib.concatMapAttrs (flatten path);
+        flatten =
+          path: name: value:
+          if (lib.isAttrs value) && (!lib.isDerivation value) then
+            f (path + name + separator) value
+          else
+            { ${path + name} = value; };
+      in
+      f "";
+
+    # Compose scopes from dot-separated attribute names:
+    #
+    # `python3.emerge` -> `{ python3 = { emerge = ...; }; }`
+    #
+    # Throws if a value already sits at or above a target path, as a name
+    # cannot also be used as a scope.
+    scopeAttrs =
+      {
+        type,
+        values,
+      }:
+
+      assert lib.elem type [
+        "apps"
+        "pkgs"
+      ];
+
+      lib.attrsets.foldlAttrs (
+        acc: name: value:
+        let
+          path = lib.splitString "." name;
+
+          # Recursively check that `path` is available in `tree`, i.e. that no
+          # derivation already sits at or above the target location.
+          pathIsAvailable =
+            path: tree:
+            let
+              nodeIsAvailable = parts: node: !(lib.hasAttr (lib.head parts) node);
+
+              walk =
+                parts: node:
+                if lib.isDerivation node then
+                  false
+                else if parts == [ ] || nodeIsAvailable parts node then
+                  true
+                else
+                  walk (lib.tail parts) node.${lib.head parts};
+            in
+            walk path tree;
+
+          throwOverlap = throw "Can not evaluate \"${type}.${name}\" as that path is already contained in ${type}. This is likely due to a name overlapping with the name of a scope.";
+
+          scopedValue = lib.attrsets.setAttrByPath path value;
+        in
+        assert (pathIsAvailable path acc) || throwOverlap;
+        lib.attrsets.recursiveUpdate acc scopedValue
+      ) { } values;
+
     # Helper to support namespacing with dot (`.`) in `flake.packages`
     # (eg. `nix build .#pkgs.${packageName}`).
     # This relies on the Nix completion not quoting attrset keys containing
@@ -12,11 +75,12 @@
       { namespace, derivations }:
       { linkFarm, stdenv }:
       let
-        bundle = linkFarm namespace (
-          lib.mapAttrsToList (name: path: {
-            inherit name path;
-          }) derivations
-        );
+        # Flakes don't accept attribute sets, so here we recursively collect
+        # derivation leaves along with their dotted names, so that nested
+        # scopes (e.g. `pkgs.python3.emerge`) can be exported.
+        leaves = flattenAttrs "." derivations;
+
+        bundle = linkFarm namespace leaves;
       in
       {
         packages = {
@@ -27,7 +91,7 @@
             inherit (stdenv.hostPlatform) system;
           };
         }
-        // lib.mapAttrs' (name: lib.nameValuePair "${namespace}.${name}") derivations;
+        // lib.mapAttrs' (name: lib.nameValuePair "${namespace}.${name}") leaves;
 
         legacyPackages = {
           # Tip(debugging): use this when not using the Flake setup (`nix repl -f.`)
