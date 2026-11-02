@@ -1,4 +1,5 @@
 {
+  bombon,
   lib,
   pkgs,
   ...
@@ -9,6 +10,13 @@
       name = "pnpm";
       imports = pnpm/options.nix;
       mkDerivation = pkgs.stdenvNoCC.mkDerivation;
+      # `pnpm sbom` exists only from pnpm 11.
+      passthruVendoredSbom =
+        builder: drv:
+        if lib.versionAtLeast builder.pnpm.version "11" then
+          bombon.passthruVendoredSbom.pnpm drv { inherit pkgs; }
+        else
+          drv;
       attrs = builder: finalAttrs: previousAttrs: {
         pnpmDeps = pkgs.fetchPnpmDeps {
           inherit (finalAttrs)

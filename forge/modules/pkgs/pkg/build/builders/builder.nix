@@ -5,9 +5,13 @@
   imports ? { },
   parentImports ? [ ],
   attrs,
+  # Adds a `bombonVendoredSbom` passthru to the derivation,
+  # so that its SBOM also lists the vendored dependencies.
+  passthruVendoredSbom ? builder: drv: drv,
 }@builderArgs:
 {
   config,
+  bombon,
   forge-inputs,
   forge-lib,
   lib,
@@ -75,6 +79,8 @@ in
             inherit (config.build) env;
 
             passthru = {
+              sbom = bombon.buildBom finalAttrs.finalPackage { };
+
               env = pkgs.mkShell {
                 dontBuild = true;
                 phases = [ "installPhase" ];
@@ -135,16 +141,18 @@ in
           in
           sharedAttrs // builderAttrs;
       in
-      if mkDerivationProvidesFinalAttrs then
-        builderArgs.mkDerivation mkDrvAttrs
-      else
-        let
-          # Approximation for builder not yet providing `finalAttrs`
-          # (eg. with `lib.extendMkDerivation`)
-          finalAttrs = mkSharedAttrs finalAttrs // {
-            finalPackage = config.result.derivation;
-          };
-        in
-        builderArgs.mkDerivation (mkDrvAttrs finalAttrs);
+      passthruVendoredSbom builder (
+        if mkDerivationProvidesFinalAttrs then
+          builderArgs.mkDerivation mkDrvAttrs
+        else
+          let
+            # Approximation for builder not yet providing `finalAttrs`
+            # (eg. with `lib.extendMkDerivation`)
+            finalAttrs = mkSharedAttrs finalAttrs // {
+              finalPackage = config.result.derivation;
+            };
+          in
+          builderArgs.mkDerivation (mkDrvAttrs finalAttrs)
+      );
   };
 }
