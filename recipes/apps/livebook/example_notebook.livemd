@@ -1,0 +1,31 @@
+<!-- livebook:{"default_language":"python"} -->
+
+# Multi-Language Example Notebook
+
+```elixir
+Mix.install([
+  {:pythonx, "~> 0.4.9"}
+])
+```
+
+```pyproject.toml
+[project]
+name = "example"
+version = "0.0.0"
+requires-python = "==3.13.*"
+dependencies = []
+```
+
+## Calculations
+
+```elixir
+10 + 20
+```
+
+```erlang
+30 + 40.
+```
+
+```python
+50 + 60
+```
