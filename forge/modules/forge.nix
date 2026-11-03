@@ -44,6 +44,7 @@
               value = c;
             }) (import ../../maintainers/categories-list.nix)
           );
+          snippets = import ../../maintainers/snippets-list.nix { inherit lib; };
         };
         getTestOptions =
           config: type:
@@ -83,13 +84,6 @@
               default = "github:ngi-nix/forge";
               example = "github:ngi-nix/forge";
               description = "URL of the Forge repository.";
-            };
-
-            snippets = lib.mkOption {
-              readOnly = true;
-              type = lib.types.submodule ./snippets.nix;
-              default = { };
-              description = "Re-usable snippets in Markdown format.";
             };
 
             categories = lib.mkOption {
