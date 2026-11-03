@@ -66,15 +66,15 @@
             };
             maintainerLists = lib.mkOption {
               type = lib.types.listOf lib.types.path;
-              default = [ forge-inputs.self.maintainerList ];
-              defaultText = lib.literalExpression "[ inputs.ngi-forge.maintainerList ]";
+              default = [ forge-inputs.self.maintainersList ];
+              defaultText = lib.literalExpression "[ inputs.ngi-forge.maintainersList ]";
               description = ''
                 Paths to files containing a list of Forge maintainers.
                 Each file must follow the format of the
                 [Nixpkgs maintainer-list.nix file](https://github.com/NixOS/nixpkgs/blob/master/maintainers/maintainer-list.nix).'';
               example = lib.literalExpression ''
-                [ inputs.ngi-forge.maintainerList
-                ./maintainers/maintainer-list.nix ]
+                [ inputs.ngi-forge.maintainersList
+                ./maintainers/maintainers-list.nix ]
               '';
             };
 

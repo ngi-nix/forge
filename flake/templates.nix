@@ -18,7 +18,7 @@
 
         - `flake.nix`: main configuration file
         - `recipes`: example packages and apps
-        - `maintainers/maintainer-list.nix`: maintainers list
+        - `maintainers/maintainers-list.nix`: maintainers list
 
         ## Quick Start
 
