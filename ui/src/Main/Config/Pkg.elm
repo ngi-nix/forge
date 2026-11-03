@@ -7,7 +7,7 @@ import Main.Helpers.String exposing (..)
 
 
 type alias Pkg =
-    { pkg_pname : PkgName
+    { pkg_name : PkgName
     , pkg_outputName : PkgName
     , pkg_description : String
     , pkg_longDescription : String
@@ -24,7 +24,7 @@ type alias Pkg =
 decodePkg : Decoder Pkg
 decodePkg =
     Pkg
-        |> Decode.flipMap (Decode.field "pname" Decode.string)
+        |> Decode.flipMap (Decode.field "name" Decode.string)
         |> Decode.andMap (Decode.field "outputName" Decode.string)
         |> Decode.andMap (Decode.field "description" Decode.string)
         |> Decode.andMap (Decode.field "longDescription" Decode.string)

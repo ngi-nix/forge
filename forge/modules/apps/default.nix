@@ -106,10 +106,16 @@
 
       # App warnings and assertions are checked only when the app is evaluated,
       # to not slow down evaluation of other flake outputs.
-      bundledApps = lib.mapAttrs (
+      checkedApps = lib.mapAttrs (
         appName: app:
         forge-lib.checkAssertionsWarnings { inherit (app) assertions warnings; } (shellBundle app)
       ) enabledApps;
+
+      bundledApps = forge-lib.scopeAttrs {
+        type = "apps";
+        values = checkedApps;
+      };
+
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
         derivations = bundledApps;

@@ -20,17 +20,27 @@
       defaultText = lib.literalExpression "config.forge.enable";
       description = "Whether to publish the package in Forge repository in Flake output.";
     };
+    name = lib.mkOption {
+      default = name;
+      type = lib.types.str;
+      description = "Package name, including its scope.";
+      example = "python3.emerge";
+      readOnly = true;
+      internal = true;
+    };
     pname = lib.mkOption {
       type = lib.types.strMatching "^[a-zA-Z0-9-]+$";
-      default = name;
+      # The attribute name can be namespaced (e.g. `python3.emerge`), while the
+      # `pname` itself only uses the last path component.
+      default = lib.last (lib.splitString "." config.name);
       description = "Package name. Only letters, numbers and hyphens are allowed.";
-      example = "pkgs.hello";
+      example = "hello";
       readOnly = true;
       internal = true;
     };
     outputName = lib.mkOption {
       type = lib.types.str;
-      default = "pkgs.${name}";
+      default = "pkgs.${config.name}";
       description = "Output name.";
       example = "pkgs.hello";
       readOnly = true;
