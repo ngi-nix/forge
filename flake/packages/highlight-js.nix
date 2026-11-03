@@ -11,6 +11,7 @@
     "python"
     "sql"
     "yaml"
+    "markdown"
   ],
   # https://highlightjs.org/examples
   # https://highlightjs.org/demo
@@ -19,16 +20,16 @@
 buildNpmPackage (finalAttrs: {
   pname = "highlight.js";
   # TODO: updateScript
-  version = "11.11.1";
+  version = "11.12.0";
 
   src = fetchFromGitHub {
     owner = "highlightjs";
     repo = "highlight.js";
     rev = finalAttrs.version;
-    hash = "sha256-f+yC6SHkFKoY2ecP5EUENzewq+4PFC3Yy+8VRKY/+NY=";
+    hash = "sha256-Vg3yHy/aU7GG3rePaMr4625PgwUkCkazxGxGxQ4Fw/Q=";
   };
 
-  npmDepsHash = "sha256-hMci5DCdcxh9RoPB2HUAsSa25FffyatZ4NXeoutIjHI=";
+  npmDepsHash = "sha256-3PmhXZlBMJjNDxhqq1DR559mEwPqt/tkdD1JUtp3nUk=";
 
   # Remove impurity: highlight.js build script tries to run git to get the version hash.
   postPatch = ''
