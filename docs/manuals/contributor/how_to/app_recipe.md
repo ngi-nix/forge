@@ -114,8 +114,8 @@ icon = ./icon.svg;
 ```
 
 ::: {note}
-Icons for some NLnet-supported projects can be found
-in [this page](https://nlnet.nl/gallery/hex.html).
+Hexagonal icons for NLnet-supported projects can be found in the [NLnet Hex Gallery](https://nlnet.nl/gallery/hex.html) (designed by NLnet and Gust).
+These designs are adaptations of the upstream projects' logos and are [licensed](https://nlnet.nl/officehour/#:~:text=What%20is%20the%20license%20of%20the%20nice%20hexagon%20stickers) the same as the original logo.
 :::
 
 ## Programs
