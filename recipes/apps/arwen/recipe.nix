@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   forgeConfig,
   pkgs,
@@ -28,6 +29,10 @@ in
   apps.arwen = {
     displayName = "Arwen";
     description = "Cross-platform patching of shared libraries (ELF and Mach-O).";
+    categories = with lib.categories; [
+      BinaryAnalysis
+      Development
+    ];
     longDescription = ''
       Arwen is a command-line utility for patching ELF files (Linux, BSD) and
       Mach-O files (macOS, iOS).

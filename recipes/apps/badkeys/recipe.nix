@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -14,6 +15,10 @@
   apps.badkeys = {
     displayName = "Badkeys";
     description = "Checking cryptographic public keys for known vulnerabilities.";
+    categories = with lib.categories; [
+      Development
+      Security
+    ];
     usage = ''
       Download blocklist metadata.
 

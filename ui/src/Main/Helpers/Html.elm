@@ -23,6 +23,7 @@ viewCountWidget { total, filtered, noun, testId } =
         [ class "btn btn-sm border d-inline-flex align-items-center flex-shrink-0"
         , style "color" "var(--bs-body-color)"
         , style "white-space" "nowrap"
+        , style "font-variant-numeric" "tabular-nums"
         , attribute "data-testid" testId
         ]
         [ Html.text label ]
