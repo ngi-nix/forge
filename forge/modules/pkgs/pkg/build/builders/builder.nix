@@ -75,8 +75,6 @@ in
             inherit (config.build) env;
 
             passthru = {
-              test = config.test.derivation { inherit pkgs finalAttrs; };
-
               env = pkgs.mkShell {
                 dontBuild = true;
                 phases = [ "installPhase" ];
@@ -93,6 +91,9 @@ in
               forge = {
                 broken = config.broken;
               };
+            }
+            // lib.optionalAttrs (!config.test.broken) {
+              test = config.test.derivation { inherit pkgs finalAttrs; };
             };
 
             meta = {

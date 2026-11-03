@@ -53,19 +53,28 @@
       mkPassthru =
         app: finalApp:
         let
-          tests =
-            lib.optionalAttrs (app.services.runtimes.container.enable && app.test.services.script != "") {
-              test-services-container = app.test.services.result.containerBuild;
-            }
-            // lib.optionalAttrs (app.services.runtimes.nixos.enable && app.test.services.script != "") {
-              test-services-nixos = app.test.services.result.build;
-            }
-            // lib.optionalAttrs (app.test.programs.script != "") {
-              test-programs = app.test.programs.derivation {
+          inherit (app) test;
+          inherit (app.services) runtimes;
+
+          isRunnable = t: t.script != "" && !t.broken;
+
+          hasServicesTest = isRunnable test.services;
+          hasProgramsTest = isRunnable test.programs;
+
+          tests = lib.mergeAttrsList [
+            (lib.optionalAttrs (hasServicesTest && runtimes.container.enable) {
+              test-services-container = test.services.result.containerBuild;
+            })
+            (lib.optionalAttrs (hasServicesTest && runtimes.nixos.enable) {
+              test-services-nixos = test.services.result.build;
+            })
+            (lib.optionalAttrs hasProgramsTest {
+              test-programs = test.programs.derivation {
                 inherit pkgs finalApp;
                 inherit (app.programs) mainPackage;
               };
-            };
+            })
+          ];
         in
         lib.fix (self: {
           config = app;

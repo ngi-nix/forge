@@ -89,6 +89,12 @@ in
       '';
     };
 
+    broken = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether the test is broken.";
+    };
+
     derivation = lib.mkOption {
       internal = true;
       description = "Function that builds the test derivation according to runner.";
@@ -112,6 +118,7 @@ in
             inherit name;
             buildInputs = packages;
             script = config.script + "\ntouch $out";
+            meta.broken = config.broken;
           }
         else if config.runner == "nixos" then
           (pkgs.testers.runNixOSTest {
@@ -129,6 +136,7 @@ in
                 ${config.script}
               ''}")
             '';
+            meta.broken = config.broken;
           }).overrideTestDerivation
             (_: lib.optionalAttrs (!config.sandbox) { __noChroot = true; })
         else
