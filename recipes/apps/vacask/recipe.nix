@@ -1,6 +1,5 @@
 {
   config,
-  forgeConfig,
   pkgs,
   lib,
   ...
@@ -8,7 +7,7 @@
 
 let
   app = config.apps.vacask;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = lib.snippets.usage app;
 in
 
 {

@@ -1,14 +1,13 @@
 {
   lib,
   config,
-  forgeConfig,
   pkgs,
   ...
 }:
 
 let
   app = config.apps.arwen;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = lib.snippets.usage app;
 in
 
 {

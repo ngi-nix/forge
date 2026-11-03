@@ -1,6 +1,5 @@
 {
   config,
-  forgeConfig,
   pkgs,
   lib,
   ...
@@ -8,7 +7,7 @@
 
 let
   app = config.apps.emerge;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = lib.snippets.usage app;
   pyEnv = pkgs.python3.withPackages (ps: [ pkgs.python3-emerge ]);
 in
 

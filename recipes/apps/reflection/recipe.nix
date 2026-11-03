@@ -2,13 +2,12 @@
   lib,
   pkgs,
   config,
-  forgeConfig,
   ...
 }:
 
 let
   app = config.apps.reflection;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = lib.snippets.usage app;
 in
 
 {

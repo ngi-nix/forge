@@ -1,6 +1,5 @@
 {
   config,
-  forgeConfig,
   lib,
   pkgs,
   ...
@@ -8,7 +7,7 @@
 
 let
   app = config.apps.vivliostyle;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = lib.snippets.usage app;
 in
 
 {
