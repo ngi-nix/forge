@@ -105,5 +105,6 @@ nix eval --json -f maintainers/list-nixpkgs.nix packages
 
 ## Credits
 
-This software was originally started as a fork of
-[imincik/nix-forge](https://github.com/imincik/nix-forge).
+- This software was originally started as a fork of [imincik/nix-forge](https://github.com/imincik/nix-forge).
+- Application hexagonal icons are adapted from the [NLnet Hex Gallery](https://nlnet.nl/gallery/hex.html), designed by the [NLnet Foundation](https://nlnet.nl/) and [Gust (@hex@lnrs.org)](https://social.lnrs.org/@hex) for NGI Zero-funded projects.
+  Individual project logos and trademarks remain the property of their respective upstream projects.

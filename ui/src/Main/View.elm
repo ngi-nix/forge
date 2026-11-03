@@ -255,6 +255,16 @@ viewPoweredBy model =
                     , text "."
                     ]
                 ]
+            , span [ class "d-flex align-items-center gap-2" ]
+                [ iconHexagonFill
+                , span []
+                    [ text "Hex icons by "
+                    , a [ href "https://nlnet.nl/gallery/hex.html", target "_blank" ] [ text "NLnet" ]
+                    , text " & "
+                    , a [ href "https://social.lnrs.org/@hex", target "_blank" ] [ text "Gust" ]
+                    , text "."
+                    ]
+                ]
             ]
         , div [ class "d-flex flex-column gap-1" ]
             [ span [ class "d-flex align-items-center gap-2" ]
