@@ -137,7 +137,7 @@ viewPageAppHeader _ pageApp =
                                 , attribute "role" "tooltip"
                                 , attribute "data-testid" "app-deploy-tooltip"
                                 ]
-                                [ div [ class "tooltip-inner" ] [ text "Instructions to install the app in a machine" ]
+                                [ div [ class "tooltip-inner" ] [ text "Instructions to deploy the app in a machine" ]
                                 ]
                             ]
                         ]
