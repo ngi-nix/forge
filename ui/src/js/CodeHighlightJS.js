@@ -1,3 +1,20 @@
+// TODO revert the commit which introduces this when highlight.js version with https://github.com/highlightjs/highlight.js/pull/4576
+// is available
+function ensureMarkdownComments() {
+  if (typeof hljs !== "undefined" && hljs.getLanguage && hljs.getLanguage("markdown")) {
+    const mdLang = hljs.getLanguage("markdown");
+    if (!mdLang._hasHtmlComment && mdLang.rawDefinition && hljs.COMMENT) {
+      const rawDef = mdLang.rawDefinition;
+      hljs.registerLanguage("markdown", (inst) => {
+        const def = rawDef(inst);
+        def.contains.unshift(inst.COMMENT("<!--", "-->"));
+        return def;
+      });
+      hljs.getLanguage("markdown")._hasHtmlComment = true;
+    }
+  }
+}
+
 customElements.define(
   "highlightjs-code",
   class extends HTMLElement {
@@ -17,6 +34,9 @@ customElements.define(
     setTextContent() {
       const lang = this.getAttribute("language") || "plaintext";
       const code = this.getAttribute("body") || "";
+      if (lang === "markdown") {
+        ensureMarkdownComments();
+      }
       const validLang = (typeof hljs !== "undefined" && hljs.getLanguage && hljs.getLanguage(lang))
         ? lang
         : "plaintext";
