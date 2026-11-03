@@ -520,10 +520,6 @@ a:link {
   transition: filter 0.4s ease-out, border-color 0.4s ease-out, color 0.4s ease-out;
 }
 
-#category-dropdown-button:hover {
-  filter: brightness(1.2);
-}
-
 .category-clear-wrapper {
   display: inline-flex;
 }
