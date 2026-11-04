@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -13,7 +14,7 @@
 
   apps.bluetuith = {
     description = "bluetuith is a TUI-based bluetooth connection manager, which can interact with bluetooth adapters and devices.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
     ];
     usage = ''

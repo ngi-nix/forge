@@ -116,10 +116,10 @@
           };
         }
       );
-      default = [ lib.categories.Uncategorised ];
-      defaultText = lib.literalExpression "[ lib.categories.Uncategorised ]";
+      default = [ specialArgs.forge-lib.categories.Uncategorised ];
+      defaultText = lib.literalExpression "[ forge-lib.categories.Uncategorised ]";
       example = lib.literalExpression ''
-        with lib.categories; [ Office Science ];
+        with forge-lib.categories; [ Office Science ];
       '';
       apply = cats: map (c: c.name) cats;
       description =

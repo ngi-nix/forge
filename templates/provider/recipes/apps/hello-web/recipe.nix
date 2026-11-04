@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   apps.hello-web = {
     displayName = "Service Example";
     description = "Simple service configuration.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
 
     usage = ''
       This application demonstrates the _hello-web_ package running as a

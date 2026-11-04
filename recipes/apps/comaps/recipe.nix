@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -15,7 +16,7 @@
   apps.comaps = {
     displayName = "CoMaps";
     description = "A community-led fork of Organic Maps focused on free and open navigation with privacy.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Geography
       Network
     ];

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -16,7 +17,7 @@
   apps.repath-studio = {
     displayName = "Repath Studio";
     description = "SVG editor written in Clojurescript.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       VectorGraphics
     ];

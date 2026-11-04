@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -11,7 +12,7 @@ in
   apps.beacondb = {
     displayName = "BeaconDB";
     description = "A privacy focused assisted GPS service written in Rust.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
     ];
     usage = ''

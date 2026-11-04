@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.texlyre = {
     displayName = "Texlyre";
     description = "Local-first real-time LaTeX and Typst collaboration platform with offline editing capabilities.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Office
       P2P
     ];

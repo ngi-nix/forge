@@ -1,14 +1,14 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
-  forgeConfig,
   ...
 }:
 
 let
   app = config.apps.reflection;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -20,7 +20,7 @@ in
   apps.reflection = {
     displayName = "Reflection";
     description = "Collaborative, p2p, local-first GTK text editor.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
       P2P
     ];

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -21,7 +22,7 @@
   apps.py3dtiles = {
     displayName = "Py3DTiles";
     description = "Python module and CLI to create 3DTiles from various 3D geo-referenced data types and formats.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Geography
     ];

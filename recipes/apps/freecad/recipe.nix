@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -18,7 +19,7 @@ in
   apps.freecad = {
     displayName = "FreeCAD";
     description = "General purpose Open Source 3D CAD/MCAD/CAx/CAE/PLM modeler.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Engineering
       Graphics3D
     ];

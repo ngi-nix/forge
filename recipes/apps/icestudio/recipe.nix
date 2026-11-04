@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.icestudio = {
     displayName = "Icestudio";
     description = "Visual developer tool for development of FPGAs.";
-    categories = with lib.categories; [ Electronics ];
+    categories = with forge-lib.categories; [ Electronics ];
     usage = ''
       Icestudio is a visual editor for open FPGA boards that lets you design
       digital circuits using a block-based graphical interface.

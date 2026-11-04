@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   config,
   pkgs,
@@ -12,7 +13,7 @@ in
   apps.ties = {
     displayName = "Ties";
     description = "A federated network to bookmark, organize, share and discover good web pages.";
-    categories = with lib.categories; [ Uncategorised ];
+    categories = with forge-lib.categories; [ Uncategorised ];
     usage = ''
       Ties is a personal and federated space for keeping track of the web pages you care about. Use it to build collections of interesting pages, browse and search bookmarks, share curated lists with others, and discover pages through people whose taste you trust.
 

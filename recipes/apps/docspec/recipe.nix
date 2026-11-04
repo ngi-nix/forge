@@ -1,21 +1,21 @@
 {
   config,
-  forgeConfig,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.docspec;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
   apps.docspec = {
     displayName = "DocSpec";
     description = "Document conversion SDK for rich text formats.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Office
     ];

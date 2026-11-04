@@ -1,14 +1,14 @@
 {
   config,
-  forgeConfig,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.datalab;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -27,7 +27,7 @@ in
   apps.datalab = {
     displayName = "DataLab";
     description = "Open-source Platform for Scientific and Technical Data Processing and Visualization.";
-    categories = with lib.categories; [ Network ];
+    categories = with forge-lib.categories; [ Network ];
     usage = ''
       DataLab is an open-source platform for scientific signal and image processing and visualization.
       It can be used as a standalone application, embedded in your own software, or remote-controlled via its XML-RPC API.

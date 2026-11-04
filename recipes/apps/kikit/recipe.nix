@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -26,7 +27,7 @@
   apps.kikit = {
     displayName = "KiKit";
     description = "Tooling for automation of production of PCB designed in KiCAD.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];

@@ -1,14 +1,14 @@
 {
   config,
-  forgeConfig,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.emerge;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
   pyEnv = pkgs.python3.withPackages (ps: [ pkgs.python3-emerge ]);
 in
 
@@ -25,7 +25,7 @@ in
   apps.emerge = {
     displayName = "EMerge";
     description = "Electromagnetic field computation program.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     longDescription = ''
       EMerge is a python based FEM EM library for the time harmonic helmholtz formulation.
 

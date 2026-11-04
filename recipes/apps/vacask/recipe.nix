@@ -1,14 +1,14 @@
 {
   config,
-  forgeConfig,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.vacask;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -26,7 +26,7 @@ in
       VACASK (Verilog-A Circuit Analysis Kernel) is an analog circuit
       simulator with a device library built from Verilog-A modules.
     '';
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];

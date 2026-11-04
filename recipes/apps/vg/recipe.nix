@@ -1,14 +1,14 @@
 {
+  forge-lib,
   lib,
   config,
-  forgeConfig,
   pkgs,
   ...
 }:
 
 let
   app = config.apps.vg;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -22,7 +22,7 @@ in
   apps.vg = {
     displayName = "Variation Graphs";
     description = "Tools for working with genome variation graphs.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Biology
       Development
     ];

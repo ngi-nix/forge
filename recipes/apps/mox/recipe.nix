@@ -1,5 +1,6 @@
 {
   pkgs,
+  forge-lib,
   lib,
   apps,
   ...
@@ -15,7 +16,7 @@
   apps.mox = {
     displayName = "Mox";
     description = "Modern full-featured open source secure mail server for low-maintenance self-hosted email.";
-    categories = with lib.categories; [ Email ];
+    categories = with forge-lib.categories; [ Email ];
     usage = ''
       Mox is a modern, full-featured, open source secure mail server providing
       SMTP, IMAP4, webmail, SPF/DKIM/DMARC, and more.

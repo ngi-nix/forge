@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -7,7 +8,7 @@
   apps.sockstrace = {
     displayName = "SocksTrace";
     description = "Ptrace-based proxy leak detector that identifies network connections bypassing configured proxies.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
       Security
     ];

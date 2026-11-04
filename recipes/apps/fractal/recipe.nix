@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.fractal = {
     displayName = "Fractal";
     description = "Native client for the Matrix protocol.";
-    categories = with lib.categories; [ Chat ];
+    categories = with forge-lib.categories; [ Chat ];
     usage = ''
       Fractal is a Matrix messaging app for GNOME written in Rust. Its interface is optimized for collaboration in large groups, such as free software projects, and will fit all screens, big or small.
 

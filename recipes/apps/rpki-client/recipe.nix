@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   apps.rpki-client = {
     displayName = "RPKI Client";
     description = "RPKI relying party software for validating internet routing security data.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
       Security
     ];

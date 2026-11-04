@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -14,7 +15,7 @@
   apps.f3d = {
     displayName = "F3D";
     description = "Fast and minimalist 3D viewer.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Graphics3D
       Viewer
     ];

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   apps.sequoia-pgp = {
     displayName = "Sequoia PGP";
     description = "Command-line OpenPGP tool with post-quantum cryptography support.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Security
     ];
     usage = ''

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -22,7 +23,7 @@
   apps.deltachat = {
     displayName = "Delta Chat";
     description = "Decentralized secure messenger using chatmail relays for Desktop.";
-    categories = with lib.categories; [ Chat ];
+    categories = with forge-lib.categories; [ Chat ];
     usage = ''
       Delta Chat is a reliable, decentralized, and secure instant messaging app. It provides instant creation of private chat profiles using secure and interoperable chatmail relays, offering fast message delivery across multiple devices.
 

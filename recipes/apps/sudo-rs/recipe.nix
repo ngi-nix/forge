@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.sudo-rs = {
     displayName = "sudo-rs";
     description = "Memory-safe implementation of sudo and su.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Security
       System

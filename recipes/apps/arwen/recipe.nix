@@ -1,14 +1,14 @@
 {
+  forge-lib,
   lib,
   config,
-  forgeConfig,
   pkgs,
   ...
 }:
 
 let
   app = config.apps.arwen;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -29,7 +29,7 @@ in
   apps.arwen = {
     displayName = "Arwen";
     description = "Cross-platform patching of shared libraries (ELF and Mach-O).";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       BinaryAnalysis
       Development
     ];

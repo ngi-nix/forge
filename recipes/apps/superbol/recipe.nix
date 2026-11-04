@@ -1,14 +1,14 @@
 {
+  forge-lib,
   lib,
   config,
-  forgeConfig,
   pkgs,
   ...
 }:
 
 let
   app = config.apps.superbol-studio;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -37,7 +37,7 @@ in
   apps.superbol-studio = {
     displayName = "Superbol Studio";
     description = "Modern development environment for COBOL in VSCode.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     longDescription = ''
       SuperBOL Studio is a modern development environment for COBOL in VSCode.
 

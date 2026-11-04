@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.alive2 = {
     displayName = "Alive2";
     description = "Automatic verification of LLVM optimizations.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
     ];
     usage = ''

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -16,7 +17,7 @@
   apps.lix = {
     displayName = "Lix";
     description = "A modern and fast implementation of the Nix package manager.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
     ];
     usage = ''

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -15,7 +16,7 @@
   apps.lib25519 = {
     displayName = "lib25519";
     description = "Microlibrary for X25519/Ed25519 cryptography.";
-    categories = with lib.categories; [ Security ];
+    categories = with forge-lib.categories; [ Security ];
     usage = ''
       #### Intro
 

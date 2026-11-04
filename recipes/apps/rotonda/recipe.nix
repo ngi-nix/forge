@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.rotonda = {
     displayName = "Rotonda";
     description = "Composable and programmable BGP routing engine.";
-    categories = with lib.categories; [ Network ];
+    categories = with forge-lib.categories; [ Network ];
     usage = ''
       Rotonda collects routing information from BGP and BMP sessions into an
       in-memory Routing Information Base (RIB), queryable via an HTTP/JSON API.

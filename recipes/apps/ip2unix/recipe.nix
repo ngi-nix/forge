@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.ip2unix = {
     displayName = "ip2unix";
     description = "Turn IP sockets into Unix domain sockets.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Security
     ];

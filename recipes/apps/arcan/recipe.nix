@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.arcan = {
     displayName = "Arcan";
     description = "Explorative p2p protocol for fast and secure remote desktops.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
       P2P
     ];

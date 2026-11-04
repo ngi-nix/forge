@@ -1,6 +1,6 @@
 {
   config,
-  forgeConfig,
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +8,7 @@
 
 let
   app = config.apps.vivliostyle;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -22,7 +22,7 @@ in
   apps.vivliostyle = {
     displayName = "Vivliostyle";
     description = "CSS typesetting ecosystem for creating beautifully formatted documents using web technologies.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     usage = ''
       Vivliostyle is a CSS typesetting ecosystem for creating beautifully formatted documents.
 

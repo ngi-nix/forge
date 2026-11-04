@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.cryptolyzer = {
     displayName = "CryptoLyzer";
     description = "Cybersecurity tool that can analyse cryptographic settings of clients and servers for different protocols.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Security
     ];
     usage = ''

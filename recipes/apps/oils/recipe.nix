@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   config,
   pkgs,
@@ -15,7 +16,7 @@
   apps.oils = {
     displayName = "Oils";
     description = "Bringing shell environments into the 21st century.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
     ];
     usage = ''

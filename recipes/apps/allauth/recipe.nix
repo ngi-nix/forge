@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -15,7 +16,7 @@
   apps.allauth = {
     displayName = "Django Allauth";
     description = "Django library for authentication, account management as well as 3rd party (social) account authentication.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Authentication
       Development
     ];

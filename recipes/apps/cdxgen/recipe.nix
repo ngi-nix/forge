@@ -1,14 +1,14 @@
 {
   config,
-  forgeConfig,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.cdxgen;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -22,7 +22,7 @@ in
   apps.cdxgen = {
     displayName = "cdxgen";
     description = "Tool to create CycloneDX Software Bill-of-Materials (SBOM) for projects from source and container images.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Security
     ];

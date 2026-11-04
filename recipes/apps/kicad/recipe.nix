@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -13,7 +14,7 @@
   apps.kicad = {
     displayName = "KiCAD";
     description = "KiCAD is a free software suite for electronic design automation (EDA).";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];

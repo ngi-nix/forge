@@ -38,12 +38,6 @@
           maintainers =
             (import "${forge-inputs.nixpkgs}/maintainers/maintainer-list.nix")
             // lib.foldl' (acc: path: acc // import path) { } config.forge.maintainers;
-          categories = builtins.listToAttrs (
-            map (c: {
-              name = c.name;
-              value = c;
-            }) (import ../../maintainers/categories-list.nix)
-          );
         };
         getTestOptions =
           config: type:
@@ -85,13 +79,6 @@
               description = "URL of the Forge repository.";
             };
 
-            snippets = lib.mkOption {
-              readOnly = true;
-              type = lib.types.submodule ./snippets.nix;
-              default = { };
-              description = "Re-usable snippets in Markdown format.";
-            };
-
             categories = lib.mkOption {
               type = lib.types.attrsOf (
                 lib.types.submodule {
@@ -109,12 +96,7 @@
                   };
                 }
               );
-              default = builtins.listToAttrs (
-                map (c: {
-                  name = c.name;
-                  value = c;
-                }) (import ../../maintainers/categories-list.nix)
-              );
+              default = (import ./lib.nix { inherit lib; }).flake.lib.categories;
               description = "List of application categories.";
               internal = true;
             };

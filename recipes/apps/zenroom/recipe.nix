@@ -1,14 +1,14 @@
 {
   config,
-  forgeConfig,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.zenroom;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
@@ -21,7 +21,7 @@ in
   apps.zenroom = {
     displayName = "Zenroom";
     description = "No-code cryptographic virtual machine.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
 
     data = {
       arrayGenerator = ./test/arrayGenerator.zen;

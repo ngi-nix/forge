@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.cpdf = {
     displayName = "cpdf";
     description = "Command-line PDF manipulation tool.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Office
     ];
     usage = ''

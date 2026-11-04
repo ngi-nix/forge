@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -7,7 +8,7 @@
   apps.pnut = {
     displayName = "Pnut";
     description = "C to POSIX shell transpiler for reproducible and auditable bootstrapping of GCC from a minimal seed.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Security
     ];
     usage = ''

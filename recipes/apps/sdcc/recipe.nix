@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  forge-lib,
   lib,
   ...
 }:
@@ -18,7 +19,7 @@ in
   apps.sdcc = {
     displayName = "SDCC";
     description = "Retargettable, optimizing Standard C compiler suite for embedded microcontrollers.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     usage = ''
       SDCC is a retargettable, optimizing C compiler suite (supporting C89,
       C99, C11, and C23) targeting embedded microcontrollers, including Intel

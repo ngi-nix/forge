@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -13,7 +14,7 @@
   apps.jaq = {
     displayName = "jaq";
     description = "Data wrangling tool focusing on correctness, speed, and simplicity.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
     ];
     usage = ''

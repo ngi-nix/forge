@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -11,7 +12,7 @@ in
   apps.labplot = {
     displayName = "LabPlot";
     description = "Free, open-source, cross-platform data visualization and analysis software.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     usage = ''
       LabPlot is a data visualization and analysis application, offering
       plotting, statistics, interactive notebooks, and data extraction from

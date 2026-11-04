@@ -1,6 +1,6 @@
 {
   config,
-  forgeConfig,
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -11,7 +11,7 @@ let
 
   unixSocket = "/var/lib/krill/krill.sock";
 
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 {
   pkgs.krill = {
