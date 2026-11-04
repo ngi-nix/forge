@@ -143,5 +143,8 @@
         "https://codeberg.org/" + lib.removePrefix "codeberg:" url
       else
         url;
+
+    # Re-usable snippets in Markdown format (eg. `forge-lib.snippets.usage app`).
+    snippets = import ../../maintainers/snippets-list.nix { inherit lib; };
   };
 }

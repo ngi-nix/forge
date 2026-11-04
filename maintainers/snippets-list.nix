@@ -9,7 +9,7 @@
   #
   #   let
   #     app = config.apps.my-app;
-  #     usageSnippets = lib.snippets.usage app;
+  #     usageSnippets = forge-lib.snippets.usage app;
   #   in
   #   {
   #     apps.my-app.usage = ''

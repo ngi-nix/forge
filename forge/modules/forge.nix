@@ -44,7 +44,6 @@
               value = c;
             }) (import ../../maintainers/categories-list.nix)
           );
-          snippets = import ../../maintainers/snippets-list.nix { inherit lib; };
         };
         getTestOptions =
           config: type:
