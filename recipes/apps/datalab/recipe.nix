@@ -1,13 +1,14 @@
 {
   config,
   pkgs,
+  forge-lib,
   lib,
   ...
 }:
 
 let
   app = config.apps.datalab;
-  usageSnippets = lib.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {

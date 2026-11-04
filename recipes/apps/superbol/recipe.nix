@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   config,
   pkgs,
@@ -7,7 +8,7 @@
 
 let
   app = config.apps.superbol-studio;
-  usageSnippets = lib.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {

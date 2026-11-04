@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -7,7 +8,7 @@
 
 let
   app = config.apps.reflection;
-  usageSnippets = lib.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 
 {
