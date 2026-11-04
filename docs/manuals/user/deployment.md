@@ -14,7 +14,7 @@ runtimes from the [NGI Forge web UI](https://ngi.nixos.org) and click the
 **Deploy** button in the top right.
 
 ```{note}
-Deployment requires [Nix with Flakes](prerequisites.md#install-nix-with-flakes-included-recommended).
+Deployment requires [Nix with Flakes](prerequisites.md#install-nix-with-flakes-included).
 ```
 
 ## Configuration

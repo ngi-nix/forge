@@ -315,8 +315,7 @@ viewSortDropdown model pageApps =
                         , onClick
                             (Update_Chain
                                 [ Update_SetPreferences
-                                    { preferences_install = model.model_preferences.preferences_install
-                                    , preferences_theme = model.model_preferences.preferences_theme
+                                    { preferences_theme = model.model_preferences.preferences_theme
                                     , preferences_sort = PreferencesSort_Random
                                     }
                                 , Update_ToggleAppsSortDropdown
@@ -333,8 +332,7 @@ viewSortDropdown model pageApps =
                         , onClick
                             (Update_Chain
                                 [ Update_SetPreferences
-                                    { preferences_install = model.model_preferences.preferences_install
-                                    , preferences_theme = model.model_preferences.preferences_theme
+                                    { preferences_theme = model.model_preferences.preferences_theme
                                     , preferences_sort = PreferencesSort_Alphabetical
                                     }
                                 , Update_ToggleAppsSortDropdown
