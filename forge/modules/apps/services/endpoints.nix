@@ -17,8 +17,6 @@
               };
 
               forwardedPort = lib.mkOption {
-                internal = true;
-                readOnly = true;
                 type = lib.types.port;
                 # Privileged ports (below 1024) can't be bound on the host by rootless
                 # podman or QEMU user networking, so they are shifted by 20000:
@@ -39,8 +37,9 @@
                 defaultText = lib.literalExpression "if port < 1024 then 20000 + port else port";
                 description = ''
                   Host port forwarded to the endpoint `port` by the container and NixOS VM
-                  runtimes. Privileged ports (below 1024) are shifted by 20000.
+                  runtimes. Privileged ports (below 1024) are shifted by 20000 by default.
                 '';
+                example = 8080;
               };
 
               protocol = lib.mkOption {
