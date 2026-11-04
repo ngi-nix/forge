@@ -76,6 +76,7 @@ def generate_app_recipe(name, index, is_test_app=False):
 
     return f"""{{
   config,
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -92,7 +93,7 @@ apps."{name}" = {{
   }};
 
   ngi.grants = {grants_nix};
-  categories = with lib.categories; {cats};
+  categories = with forge-lib.categories; {cats};
 
   services = {{
     components.{name} = {{

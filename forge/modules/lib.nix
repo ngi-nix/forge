@@ -144,6 +144,11 @@
       else
         url;
 
+    # Application categories (eg. `forge-lib.categories.Development`).
+    categories = lib.listToAttrs (
+      map (c: lib.nameValuePair c.name c) (import ../../maintainers/categories-list.nix)
+    );
+
     # Re-usable snippets in Markdown format (eg. `forge-lib.snippets.usage app`).
     snippets = import ../../maintainers/snippets-list.nix { inherit lib; };
   };
