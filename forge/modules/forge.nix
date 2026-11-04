@@ -37,7 +37,7 @@
         lib = lib // {
           maintainers =
             (import "${forge-inputs.nixpkgs}/maintainers/maintainer-list.nix")
-            // lib.foldl' (acc: path: acc // import path) { } config.forge.maintainerLists;
+            // lib.foldl' (acc: path: acc // import path) { } config.forge.maintainers;
           categories = builtins.listToAttrs (
             map (c: {
               name = c.name;
@@ -64,17 +64,17 @@
                 If set it also expose internal packages within `_forge` in `packages`.
               '';
             };
-            maintainerLists = lib.mkOption {
+            maintainers = lib.mkOption {
               type = lib.types.listOf lib.types.path;
-              default = [ forge-inputs.self.maintainerList ];
-              defaultText = lib.literalExpression "[ inputs.ngi-forge.maintainerList ]";
+              default = [ forge-inputs.self.maintainers ];
+              defaultText = lib.literalExpression "[ inputs.ngi-forge.maintainers ]";
               description = ''
                 Paths to files containing a list of Forge maintainers.
                 Each file must follow the format of the
                 [Nixpkgs maintainer-list.nix file](https://github.com/NixOS/nixpkgs/blob/master/maintainers/maintainer-list.nix).'';
               example = lib.literalExpression ''
-                [ inputs.ngi-forge.maintainerList
-                ./maintainers/maintainer-list.nix ]
+                [ inputs.ngi-forge.maintainers
+                ./maintainers/maintainers-list.nix ]
               '';
             };
 

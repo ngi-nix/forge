@@ -90,7 +90,7 @@
         A list of the maintainers of this package.
 
         Maintainers needs to be either a Nixpkgs maintainer or a NGI Forge
-        maintainer defined in `maintainers/maintainer-list.nix` file.
+        maintainer defined in `maintainers/maintainers-list.nix` file.
       '';
       example = lib.literalExpression "with lib.maintainers; [ ngi-nix ]";
     };
