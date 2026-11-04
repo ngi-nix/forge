@@ -102,7 +102,7 @@
     unfree = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Whether the package is unfree.";
+      description = "Whether the package released under unfree software license.";
     };
 
     # Source configuration
