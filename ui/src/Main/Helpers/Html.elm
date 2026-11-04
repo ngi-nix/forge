@@ -9,15 +9,29 @@ import Main.Icons exposing (iconCopy, iconDownload)
 import Main.Update.Types exposing (..)
 
 
-viewCountWidget : { total : Int, filtered : Int, noun : String, testId : String } -> Html Update
-viewCountWidget { total, filtered, noun, testId } =
+viewCountWidget :
+    { total : Int
+    , filtered : Int
+    , noun : String
+    , testId : String
+    , suffix : String
+    }
+    -> Html Update
+viewCountWidget { total, filtered, noun, testId, suffix } =
     let
-        label =
-            if filtered == total then
-                String.fromInt total ++ " " ++ noun
+        finalNoun =
+            if total == 1 then
+                noun
 
             else
-                String.fromInt filtered ++ " of " ++ String.fromInt total ++ " " ++ noun
+                noun ++ "s"
+
+        label =
+            if filtered == total then
+                String.join " " [ String.fromInt total, finalNoun, suffix ]
+
+            else
+                String.join " " [ String.fromInt filtered, "of", String.fromInt total, finalNoun, suffix ]
     in
     Html.span
         [ class "btn btn-sm border d-inline-flex align-items-center flex-shrink-0"

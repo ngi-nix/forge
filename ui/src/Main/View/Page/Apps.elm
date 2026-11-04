@@ -120,19 +120,18 @@ viewAppsCount model pageApps =
 
                 Nothing ->
                     globalTotal
-
-        noun =
-            if hasSearch then
-                "applications matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\""
-
-            else
-                "applications"
     in
     viewCountWidget
         { total = activeTotal
         , filtered = filtered
-        , noun = noun
+        , noun = "application"
         , testId = "apps-count-badge"
+        , suffix =
+            if hasSearch then
+                "matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\""
+
+            else
+                ""
         }
 
 
