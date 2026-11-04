@@ -235,13 +235,15 @@ must not be configured as endpoints.
 Endpoints are forwarded to the host by the _container_ runtime and when a
 _nixos_ system is launched in a VM, and they are opened in the firewall of
 deployed machines. The host port is the same as the endpoint `port`, except
-for privileged ports (below 1024), which are forwarded to `20000 + port` (for
-example `80` is forwarded to `20080`). Privileged ports can't be bound on the
-host without root permissions, and the `20000` offset keeps the forwarded ports
-clear of the ports
-[blocked by the web browsers](https://fetch.spec.whatwg.org/#port-blocking)
-and of the
+for privileged ports (below 1024), which are forwarded to `10000 + port` (for
+example `443` is forwarded to `10443`). Privileged ports can't be bound on the
+host without root permissions, and the `10000` offset keeps the forwarded ports
+clear of the
 [ephemeral port range](https://www.rfc-editor.org/rfc/rfc6335#section-6).
+Forwarded ports which are
+[blocked by the web browsers](https://fetch.spec.whatwg.org/#port-blocking)
+are moved to the next unblocked port (for example `80` is forwarded to `10081`,
+because `10080` is blocked).
 The host port can be changed using the endpoint `forwardedPort` option.
 
 ```nix
