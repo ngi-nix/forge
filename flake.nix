@@ -77,7 +77,7 @@
             # Issue: https://github.com/NixOS/nix/issues/6381
             flake.flakeConfig = flakeArgs.config;
             flake.flakeOptions = flakeArgs.options;
-            flake.maintainersList = ./maintainers/maintainers-list.nix;
+            flake.maintainers = ./maintainers/maintainers-list.nix;
 
             perSystem =
               { system, ... }:

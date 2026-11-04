@@ -143,7 +143,7 @@ nixModuleOptionsToTrees options =
                     )
                 )
             )
-        -- Root level forge options (eg. `maintainerLists`, `repositoryUrl`) are
+        -- Root level forge options (eg. `maintainers`, `repositoryUrl`) are
         -- showing after `apps` and `pkgs`.
         |> List.map
             (Tree.mapChildren

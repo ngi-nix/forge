@@ -34,7 +34,7 @@
             repositoryUrl = "github:ngi-nix/forge";
 
             # Set maintainers
-            maintainerLists = [ ./maintainers/maintainers-list.nix ];
+            maintainers = [ ./maintainers/maintainers-list.nix ];
 
             # Import recipe files
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
