@@ -254,7 +254,7 @@
     unfree = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Whether the app is unfree.";
+      description = "Whether the app is released under unfree software license.";
       # apps that use unfree package should also be marked unfree
       apply = self: self || lib.any forge-lib.isUnfree (lib.concatLists (lib.attrValues config.packages));
     };
