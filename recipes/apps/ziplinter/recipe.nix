@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   apps.ziplinter = {
     displayName = "Ziplinter";
     description = "ZIP file analyzer that outputs detailed archive metadata as JSON.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       BinaryAnalysis
     ];
     usage = ''

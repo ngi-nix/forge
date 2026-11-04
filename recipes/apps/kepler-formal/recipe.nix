@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   apps.kepler-formal = {
     displayName = "Kepler Formal";
     description = "Formal verification tool for Verilog and Naja interchange format.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];

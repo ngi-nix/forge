@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.garage = {
     displayName = "Garage";
     description = "Lightweight geo-distributed data store compatible with Amazon S3.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     usage = ''
       Garage is a self-hostable S3-compatible object storage service designed for
       geo-distributed clusters on commodity hardware.

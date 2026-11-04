@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -15,7 +16,7 @@
   apps.dolphin = {
     displayName = "Dolphin File Manager";
     description = "File Manager by KDE.";
-    categories = with lib.categories; [ FileManager ];
+    categories = with forge-lib.categories; [ FileManager ];
     usage = ''
       Dolphin is KDE's file manager that lets you navigate and browse the contents of your hard drives, USB sticks, SD cards, and more.
       Creating, moving, or deleting files and folders is simple and fast.

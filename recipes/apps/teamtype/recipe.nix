@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -22,7 +23,7 @@
   apps.teamtype = {
     displayName = "Teamtype";
     description = "Real-time co-editing of local text files.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
       P2P
     ];

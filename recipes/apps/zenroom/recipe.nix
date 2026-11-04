@@ -21,7 +21,7 @@ in
   apps.zenroom = {
     displayName = "Zenroom";
     description = "No-code cryptographic virtual machine.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
 
     data = {
       arrayGenerator = ./test/arrayGenerator.zen;

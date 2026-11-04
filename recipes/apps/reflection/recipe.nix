@@ -20,7 +20,7 @@ in
   apps.reflection = {
     displayName = "Reflection";
     description = "Collaborative, p2p, local-first GTK text editor.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
       P2P
     ];

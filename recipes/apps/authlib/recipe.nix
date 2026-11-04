@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -18,7 +19,7 @@ in
   apps.authlib = {
     displayName = "Authlib";
     description = "The ultimate Python library in building OAuth and OpenID Connect servers. JWS, JWK, JWA, JWT are included.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Authentication
       Development
     ];

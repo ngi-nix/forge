@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -7,7 +8,7 @@
   apps.prismafs = {
     displayName = "PrismaFS";
     description = "Lightweight, portable userspace filesystem with isolated session layer.";
-    categories = with lib.categories; [ Filesystem ];
+    categories = with forge-lib.categories; [ Filesystem ];
     usage = ''
       #### Running PrismaFS
 

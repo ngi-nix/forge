@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.protomaps = {
     displayName = "Protomaps";
     description = "Toolchain for creating and serving PMTiles map archives.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Geography
     ];

@@ -15,7 +15,7 @@ in
   apps.docspec = {
     displayName = "DocSpec";
     description = "Document conversion SDK for rich text formats.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Office
     ];

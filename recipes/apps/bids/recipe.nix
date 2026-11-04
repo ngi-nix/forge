@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -7,7 +8,7 @@
   apps.bids = {
     displayName = "BIDS";
     description = "Analyse ELF binaries and search dependency information.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       BinaryAnalysis
       Development
     ];

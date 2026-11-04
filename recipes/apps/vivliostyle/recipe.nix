@@ -22,7 +22,7 @@ in
   apps.vivliostyle = {
     displayName = "Vivliostyle";
     description = "CSS typesetting ecosystem for creating beautifully formatted documents using web technologies.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     usage = ''
       Vivliostyle is a CSS typesetting ecosystem for creating beautifully formatted documents.
 

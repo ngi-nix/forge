@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -8,7 +9,7 @@
   apps.bang = {
     displayName = "BANG";
     description = "Binary Analysis Next Generation framework for recursive unpacking and analysis of binary files.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       BinaryAnalysis
       Development
     ];

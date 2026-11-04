@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.slipshow = {
     displayName = "Slipshow";
     description = "Innovative presentation tool that moves away from the traditional slide-based approach.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Publishing
     ];

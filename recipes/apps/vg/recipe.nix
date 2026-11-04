@@ -22,7 +22,7 @@ in
   apps.vg = {
     displayName = "Variation Graphs";
     description = "Tools for working with genome variation graphs.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Biology
       Development
     ];

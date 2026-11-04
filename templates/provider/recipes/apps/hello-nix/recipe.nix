@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -9,7 +10,7 @@
     displayName = "Program Example";
     description = "Simple program configuration.";
     maintainers = with lib.maintainers; [ provider-team ];
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
 
     programs = {
       packages = [ pkgs.hello-nix ];

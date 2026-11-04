@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.inko = {
     displayName = "Inko";
     description = "Programming language with deterministic automatic memory management.";
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
     usage = ''
       Inko is a statically typed, safe programming language for building concurrent
       software. It uses deterministic automatic memory management without a garbage

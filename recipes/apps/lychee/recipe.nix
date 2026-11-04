@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -13,7 +14,7 @@
   apps.lychee = {
     displayName = "Lychee";
     description = "Reliable and fast link checker to combat linkrot.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Network
     ];
     usage = ''

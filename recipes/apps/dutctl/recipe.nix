@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.dutctl = {
     displayName = "DUT Control";
     description = "Unified device management for open firmware development.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       CI-CD
       Development
       Firmware

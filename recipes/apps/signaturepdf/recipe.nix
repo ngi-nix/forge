@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -13,7 +14,7 @@
   apps.signaturepdf = {
     displayName = "Signature PDF";
     description = "Self-hosted tool to add signature to PDFs.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Office
     ];

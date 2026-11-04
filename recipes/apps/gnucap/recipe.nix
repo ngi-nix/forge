@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.gnucap = {
     displayName = "Gnucap";
     description = "GNU Circuit Analysis Package.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];

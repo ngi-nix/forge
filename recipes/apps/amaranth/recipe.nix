@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   config,
@@ -20,7 +21,7 @@ in
   apps.amaranth = {
     displayName = "Amaranth HDL";
     description = "Amaranth is a hardware definition langauge for synchronous digital logic embedded within Python.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];

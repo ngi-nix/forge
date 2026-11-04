@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.weasyprint = {
     displayName = "WeasyPrint";
     description = "Print rendering engine for HTML and CSS.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Printing
     ];

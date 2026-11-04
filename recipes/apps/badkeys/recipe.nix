@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -15,7 +16,7 @@
   apps.badkeys = {
     displayName = "Badkeys";
     description = "Checking cryptographic public keys for known vulnerabilities.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Security
     ];

@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.ironcalc = {
     displayName = "IronCalc";
     description = "Open source selfhosted spreadsheet engine.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Office
       Development
     ];

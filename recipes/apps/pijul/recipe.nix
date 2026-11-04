@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -14,7 +15,7 @@
   apps.pijul = {
     displayName = "Pijul";
     description = "Modern patch-based distributed version control system.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
     ];
     usage = ''

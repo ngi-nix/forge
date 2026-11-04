@@ -1,4 +1,5 @@
 {
+  forge-lib,
   lib,
   pkgs,
   ...
@@ -21,7 +22,7 @@
   apps.spade = {
     displayName = "Spade";
     description = "Standalone hardware description language.";
-    categories = with lib.categories; [
+    categories = with forge-lib.categories; [
       Development
       Electronics
     ];
