@@ -265,17 +265,27 @@ viewPageAppRunNixOS model pageApp =
         ]
 
 
+{-| Flake reference of the Forge repository.
+
+When the UI is served from localhost (eg. by the development server),
+the commands are run from the local repository checkout.
+
+-}
 showForgeInputFlakes : Model -> String
 showForgeInputFlakes model =
-    String.concat
-        [ model.model_config.config_repository
-        , case commit of
-            "master" ->
-                ""
+    if model.model_isLocalhost then
+        "."
 
-            _ ->
-                "/" ++ shortCommit
-        ]
+    else
+        String.concat
+            [ model.model_config.config_repository
+            , case commit of
+                "master" ->
+                    ""
+
+                _ ->
+                    "/" ++ shortCommit
+            ]
 
 
 showForgeInputFlakesLatest : Model -> String
