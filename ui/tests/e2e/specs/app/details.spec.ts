@@ -56,7 +56,7 @@ test.describe("App Details Page", () => {
 
       await deployBtn.hover();
       await expect(deployTooltip).toBeVisible();
-      await expect(deployTooltip).toHaveText("Instructions to install the app in a machine");
+      await expect(deployTooltip).toHaveText("Instructions to deploy the app in a machine");
     }
   });
 
