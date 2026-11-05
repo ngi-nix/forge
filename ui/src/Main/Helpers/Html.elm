@@ -298,27 +298,14 @@ onPlainClick update =
         )
 
 
-{-| `onClickOnly` is like `onClick`, but the click does not bubble up to a parent element.
+{-| Send `update` on a click, and stop the click event from bubbling up to a parent element.
+Use this on elements nested inside an `onClick` parent, for example external links with `Update_NoOp`.
 -}
-onClickOnly : update -> Attribute update
-onClickOnly update =
+onClickStopPropagation : update -> Attribute update
+onClickStopPropagation update =
     Html.Events.custom "click"
         (Json.Decode.succeed
             { message = update
-            , stopPropagation = True
-            , preventDefault = True
-            }
-        )
-
-
-{-| Stop a click event from bubbling up to a parent element.
-Use this on external links nested inside an `onClick` parent.
--}
-onClickStopPropagation : Attribute Update
-onClickStopPropagation =
-    Html.Events.custom "click"
-        (Json.Decode.succeed
-            { message = Update_NoOp
             , stopPropagation = True
             , preventDefault = False
             }

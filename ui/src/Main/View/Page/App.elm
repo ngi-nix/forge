@@ -334,7 +334,7 @@ viewPageAppScreenshotModal _ pageApp =
                     , class "btn btn-dark rounded-circle flex-shrink-0 screenshot-modal-nav"
                     , title label
                     , attribute "aria-label" label
-                    , onClickOnly (show (Maybe.map (\index -> modBy count (index + step)) routeApp.routeApp_screenshotShown))
+                    , onClickStopPropagation (show (Maybe.map (\index -> modBy count (index + step)) routeApp.routeApp_screenshotShown))
                     ]
                     [ icon ]
 
@@ -370,14 +370,14 @@ viewPageAppScreenshotModal _ pageApp =
                             , target "_blank"
                             , rel "noopener"
                             , class "link-light small"
-                            , onClickStopPropagation
+                            , onClickStopPropagation Update_NoOp
                             ]
                             [ text "Open the image" ]
                         , button
                             [ type_ "button"
                             , class "btn-close btn-close-white opacity-100"
                             , attribute "aria-label" "Close"
-                            , onClickOnly (show Nothing)
+                            , onClickStopPropagation (show Nothing)
                             ]
                             []
                         ]
@@ -387,7 +387,7 @@ viewPageAppScreenshotModal _ pageApp =
                             [ src (getAppScreenshotPath name index)
                             , alt screenshot.appScreenshot_caption
                             , class "rounded screenshot-modal-image"
-                            , onClickOnly Update_NoOp
+                            , onClickStopPropagation Update_NoOp
                             ]
                             []
                         , navButton 1 "Show the next screenshot" iconChevronRight

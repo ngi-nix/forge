@@ -104,7 +104,7 @@ renderer =
 
                     linkAttrs =
                         Html.Attributes.href link.destination
-                            :: onClickStopPropagation
+                            :: onClickStopPropagation Update_NoOp
                             :: baseAttrs
                 in
                 case link.title of
