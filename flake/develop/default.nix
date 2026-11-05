@@ -19,6 +19,7 @@
       sphinxEnv = pkgs.python3.withPackages (pyPkgs: [
         pyPkgs.linkify-it-py
         pyPkgs.sphinx
+        pyPkgs.sphinx-autobuild
         pyPkgs.myst-parser
         pyPkgs.sphinx-book-theme
         pyPkgs.sphinx-copybutton
