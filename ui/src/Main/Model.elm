@@ -27,6 +27,7 @@ type alias Model =
     , model_appsCategorySearch : String
     , model_appsCategoryDropdownOpen : Bool
     , model_appsCategorySearchIndex : Int
+    , model_isLocalhost : Bool
     }
 
 

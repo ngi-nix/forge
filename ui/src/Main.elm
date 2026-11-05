@@ -56,6 +56,11 @@ init flags =
             , model_appsCategorySearch = ""
             , model_appsCategorySearchIndex = 0
             , model_appsCategoryDropdownOpen = False
+            , model_isLocalhost =
+                flags.href
+                    |> Url.fromString
+                    |> Maybe.map (\url -> List.member url.host [ "localhost", "127.0.0.1" ])
+                    |> Maybe.withDefault False
             }
     in
     case flags.href |> Url.fromString of
