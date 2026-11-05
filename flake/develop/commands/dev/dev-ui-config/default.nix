@@ -25,5 +25,5 @@ writeShellApplication {
   text = ''
     ${lib.getExe script} "$@"
   '';
-  meta.description = "configure Forge content for dev-ui";
+  meta.description = "configure content for Forge development server";
 }

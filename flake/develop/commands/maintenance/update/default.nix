@@ -1,5 +1,4 @@
 {
-  lib,
   writeShellApplication,
   gitMinimal,
   nix-prefetch-git,
@@ -24,5 +23,5 @@ writeShellApplication {
     export PYTHONPATH="${srcDir}:''${PYTHONPATH-}"
     exec python3 -m forge_update "$@"
   '';
-  meta.description = "update forge package recipes to latest upstream versions";
+  meta.description = "update Forge packages to the latest upstream version";
 }

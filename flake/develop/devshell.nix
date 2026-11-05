@@ -15,12 +15,12 @@ let
 
     motd = ''
 
-      {33}❄️ Welcome to NGI Forge{reset}
-
-      {85}📖 Website: https://ngi.nixos.org 💬 Chat: #ngi-forge:matrix.org (Matrix){reset}
+      {33}❄️ NGI Forge development environment {reset}
       $(type -p menu &>/dev/null && menu)
 
       {123}Tip:{reset} DEVSHELL_NO_MOTD=1 will disable this welcome message
+
+      {85}📖 Website: https://ngi.nixos.org 💬 Chat: #ngi-forge:matrix.org (Matrix){reset}
     '';
 
     generalCategory = "[general commands]";
