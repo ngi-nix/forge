@@ -6,12 +6,12 @@
   apps.mustang.screenshots = lib.mkDefault [
     {
       url = "https://www.mustang.im/assets/images/screenshots/mail.png";
-      hash = "sha256-KEPvrNRruBHSAsULi6/RK4EdeBhePkuJTKVkv6rRUis=";
+      hash = "sha256-vHyT/RoYDLOqw++w4qOfkTeDBPQ7SgfGcZ8jssdSv4o=";
       caption = "Mail";
     }
     {
       url = "https://www.mustang.im/assets/images/screenshots/fileShare.png";
-      hash = "sha256-TmJJRSq636C1WlFxkC3We8m6+7QWodyvUVD2UYQYUiQ=";
+      hash = "sha256-JtNSU39SSEcAyXgB+hmHF7XEeZ6HN845BgvB/y+3uGM=";
       caption = "File sharing";
     }
   ];
