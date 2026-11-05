@@ -6,22 +6,22 @@
   apps.freecad.screenshots = lib.mkDefault [
     {
       url = "https://dl.flathub.org/media/org/freecad/FreeCAD/147bb7390e51b88c0e4e7c461019b230/screenshots/image-1_orig.png";
-      hash = "sha256-3fegUqD0XfI4bexxpoE6+4Fcoil55xTTxSUiE1MtHPk=";
+      hash = "sha256-pkIbDwrqy2pZYYDu7PKRB+0lSy6LHt9Fl5OWtjaXXaw=";
       caption = "Part Design";
     }
     {
       url = "https://dl.flathub.org/media/org/freecad/FreeCAD/147bb7390e51b88c0e4e7c461019b230/screenshots/image-2_orig.png";
-      hash = "sha256-Dg8IQrwiT+0sgiT6a7LSkosx6hMMVsmqxr2uRoPl9As=";
+      hash = "sha256-Yk4EStov95GcCwPwUtIC08edtrsLgpXQ+yFfsJywTpw=";
       caption = "Assembly";
     }
     {
       url = "https://dl.flathub.org/media/org/freecad/FreeCAD/147bb7390e51b88c0e4e7c461019b230/screenshots/image-3_orig.png";
-      hash = "sha256-yzsJpjpBCrfZJ51ajqHYdoGLrkHdMbSSl/EkgMkW1Ho=";
+      hash = "sha256-7T52oh7EfEjwbobZm0XmnIAjw9rCoDfwOCI/7wlBSYQ=";
       caption = "BIM";
     }
     {
       url = "https://dl.flathub.org/media/org/freecad/FreeCAD/147bb7390e51b88c0e4e7c461019b230/screenshots/image-4_orig.png";
-      hash = "sha256-Bay9Owmx5Es+4FhPi4/mYdAcBqsGWFN8O2msbezONwY=";
+      hash = "sha256-EB87hY8DLMzRdJenfNrqpoY1VE3xk2MSQU5PuM9Ie68=";
       caption = "FEM";
     }
   ];

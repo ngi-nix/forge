@@ -6,17 +6,17 @@
   apps.kicad.screenshots = lib.mkDefault [
     {
       url = "https://www.kicad.org/img/screenshots/appstream/eeschema_9.png";
-      hash = "sha256-TAMmr0kYg1J/fHdhLYtt+V65hNuEaCJIPFhH04eGBJc=";
+      hash = "sha256-2Nuoa0hLzsvnUWm7lbvnhJZz2l5Z4vH2rVkcxr987gs=";
       caption = "KiCad Schematic Editor";
     }
     {
       url = "https://www.kicad.org/img/screenshots/appstream/pcbnew_9.png";
-      hash = "sha256-15SD0eOJ93d4redOEcj/yEiiPGyyh3m6Vayo/QNz6/0=";
+      hash = "sha256-mVRpQR4jGLU8HJNR3jahyeIRZ5K43jrLJwt3u1Cpuq0=";
       caption = "KiCad PCB Layout Editor";
     }
     {
       url = "https://www.kicad.org/img/screenshots/appstream/3dviewer_9.png";
-      hash = "sha256-6jV7HtqvapwrNG5rSkfNda8vrIQ9OBPiNkpYT20sYlo=";
+      hash = "sha256-Twj5UDLmeiRj7QuvAvx96LcaIt5ZiPycLdD5/19SmB8=";
       caption = "KiCad 3D Viewer";
     }
   ];
