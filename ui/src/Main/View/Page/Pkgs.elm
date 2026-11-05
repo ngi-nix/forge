@@ -80,6 +80,7 @@ viewPkgsCount model pagePkgs =
         , filtered = pagePkgs.pagePkgs_pagination.pagePagination_list |> List.concat |> List.length
         , noun = "packages"
         , testId = "pkgs-count-badge"
+        , suffix = ""
         }
 
 
