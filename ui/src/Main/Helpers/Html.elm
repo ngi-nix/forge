@@ -69,6 +69,11 @@ viewUnfreeBadge =
         "Package, application, or one of their dependencies are unfree."
 
 
+-- TODO
+-- - Unfree badge should go down on mobile below displayName
+-- - Clicking on Unfree should give clear information
+-- - Tooltips variable width without gaps and should be in viewport
+
 viewStatusBadge : String -> String -> String -> Html Update
 viewStatusBadge colorClasses label description =
     Html.span [ class "has-tooltip d-inline-block me-1", stopPropagationOn "click" (Json.Decode.succeed ( Update_NoOp, True )) ]
