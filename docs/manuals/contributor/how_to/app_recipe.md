@@ -243,8 +243,9 @@ clear of the
 Forwarded ports which are
 [blocked by the web browsers](https://fetch.spec.whatwg.org/#port-blocking)
 are moved to the next unblocked port (for example `80` is forwarded to `10081`,
-because `10080` is blocked).
-The host port can be changed using the endpoint `forwardedPort` option.
+because `10080` is blocked, and `6000` is forwarded to `6001`).
+The host port can be changed using the endpoint `forwardedPort` option, which
+doesn't accept the ports blocked by the web browsers.
 
 ```nix
 services = {
