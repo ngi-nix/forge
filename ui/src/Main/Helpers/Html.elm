@@ -58,7 +58,7 @@ viewBrokenBadge =
     viewStatusBadge
         "bg-danger-subtle text-danger-emphasis border-danger-subtle"
         "broken"
-        "This package or application is broken."
+        "Package, application, or one of their dependencies are broken."
 
 
 viewUnfreeBadge : Html msg
@@ -66,7 +66,7 @@ viewUnfreeBadge =
     viewStatusBadge
         "bg-warning-subtle text-warning-emphasis border-warning-subtle"
         "unfree"
-        "This package or application is unfree."
+        "Package, application, or one of their dependencies are unfree."
 
 
 viewStatusBadge : String -> String -> String -> Html msg
