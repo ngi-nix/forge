@@ -79,6 +79,7 @@
         lib.fix (self: {
           config = app;
           forge.broken = app.broken;
+          forge.unfree = app.unfree;
           packages = app.packages;
         })
         // lib.optionalAttrs app.programs.runtimes.program.enable {
@@ -111,7 +112,8 @@
           );
         };
 
-      enabledApps = lib.filterAttrs (_: app: !app.broken && app.enable) config.forge.apps;
+      # TODO: collect disabled apps and print warnings?
+      enabledApps = lib.filterAttrs (_: app: !app.broken && !app.unfree && app.enable) config.forge.apps;
 
       # App warnings and assertions are checked only when the app is evaluated,
       # to not slow down evaluation of other flake outputs.

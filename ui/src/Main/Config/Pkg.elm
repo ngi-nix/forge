@@ -18,6 +18,8 @@ type alias Pkg =
     , pkg_source : PkgSource
     , pkg_recipePath : String
     , pkg_maintainers : List Maintainer
+    , pkg_broken : Bool
+    , pkg_unfree : Bool
     }
 
 
@@ -35,6 +37,8 @@ decodePkg =
         |> Decode.andMap (Decode.field "source" decodeSource)
         |> Decode.andMap (Decode.field "recipePath" Decode.string)
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
+        |> Decode.andMap (Decode.field "broken" Decode.bool)
+        |> Decode.andMap (Decode.field "unfree" Decode.bool)
 
 
 type alias PkgName =

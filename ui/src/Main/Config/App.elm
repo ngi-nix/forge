@@ -21,6 +21,8 @@ type alias App =
     , app_maintainers : List Maintainer
     , app_hasIcon : Bool
     , app_categories : List String
+    , app_broken : Bool
+    , app_unfree : Bool
     }
 
 
@@ -41,10 +43,31 @@ decodeApp =
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
         |> Decode.andMap (Decode.field "icon" (Decode.nullable Decode.string |> Decode.map (\icon -> icon /= Nothing)))
         |> Decode.andMap (Decode.field "categories" (Decode.list Decode.string))
+        |> Decode.andMap (Decode.field "broken" Decode.bool)
+        |> Decode.andMap (Decode.field "unfree" Decode.bool)
 
 
 type alias AppName =
     String
+
+
+type alias Drv =
+    { drv_name : String
+    , drv_pname : String
+    , drv_version : String
+    , drv_broken : Bool
+    , drv_unfree : Bool
+    }
+
+
+decodeDrv : Decoder Drv
+decodeDrv =
+    Decode.map5 Drv
+        (Decode.field "name" Decode.string)
+        (Decode.field "pname" Decode.string)
+        (Decode.field "version" Decode.string)
+        (Decode.field "broken" Decode.bool)
+        (Decode.field "unfree" Decode.bool)
 
 
 type alias AppProgramsRuntimesProgram =
@@ -66,8 +89,8 @@ type alias AppProgramsRuntimes =
 type alias AppPrograms =
     { appPrograms_runtimes : AppProgramsRuntimes
     , appPrograms_runProgram : String
-    , appPrograms_packages : List String
-    , appPrograms_mainPackage : Maybe String
+    , appPrograms_packages : List Drv
+    , appPrograms_mainPackage : Maybe Drv
     }
 
 
@@ -76,8 +99,8 @@ decodeAppPrograms =
     Decode.map4 AppPrograms
         (Decode.field "runtimes" decodeAppProgramsRuntimes)
         (Decode.field "runProgram" Decode.string)
-        (Decode.field "packages" (Decode.list Decode.string))
-        (Decode.field "mainPackage" (Decode.nullable Decode.string))
+        (Decode.field "packages" (Decode.list decodeDrv))
+        (Decode.field "mainPackage" (Decode.nullable decodeDrv))
 
 
 decodeAppProgramsRuntimes : Decoder AppProgramsRuntimes
@@ -327,19 +350,6 @@ decodeAppLinks =
         (Decode.maybe (Decode.field "website" Decode.string))
 
 
-storePathToName : String -> String
-storePathToName path =
-    let
-        basename =
-            path |> String.split "/" |> List.reverse |> List.head |> Maybe.withDefault path
-
-        -- Nix store basenames are "<32-char-hash>-<name>", drop hash and separator
-        hashLength =
-            33
-    in
-    String.dropLeft hashLength basename
-
-
 getAppProgramPackageNames : AppPrograms -> List String
 getAppProgramPackageNames programs =
     let
@@ -347,7 +357,7 @@ getAppProgramPackageNames programs =
             programs.appPrograms_mainPackage |> Maybe.map List.singleton |> Maybe.withDefault []
     in
     (main ++ programs.appPrograms_packages)
-        |> List.map storePathToName
+        |> List.map .drv_name
         |> List.sort
         |> deduplicate
 
