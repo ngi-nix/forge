@@ -3,73 +3,9 @@
   ...
 }:
 let
-  # Ports blocked by the web browsers
+  # List of ports above 1024 blocked by the web browsers
   # (https://fetch.spec.whatwg.org/#port-blocking).
   browserBlockedPorts = [
-    0
-    1
-    7
-    9
-    11
-    13
-    15
-    17
-    19
-    20
-    21
-    22
-    23
-    25
-    37
-    42
-    43
-    53
-    69
-    77
-    79
-    87
-    95
-    101
-    102
-    103
-    104
-    109
-    110
-    111
-    113
-    115
-    117
-    119
-    123
-    135
-    137
-    139
-    143
-    161
-    179
-    389
-    427
-    465
-    512
-    513
-    514
-    515
-    526
-    530
-    531
-    532
-    540
-    548
-    554
-    556
-    563
-    587
-    601
-    636
-    989
-    990
-    993
-    995
     1719
     1720
     1723
@@ -110,13 +46,15 @@ in
               };
 
               forwardedPort = lib.mkOption {
-                type = lib.types.port;
+                type = lib.types.addCheck lib.types.port (port: !lib.elem port browserBlockedPorts) // {
+                  description = "16 bit unsigned integer, not blocked by the web browsers";
+                };
+                # Ports blocked by the browsers (eg. 6000, or 80 -> 10080 when shifted)
+                # are moved to the next unblocked port (eg. 6001 or 10081),
+                # so they can be opened in a browser.
+                #
                 # Privileged ports (below 1024) can't be bound on the host by rootless
                 # podman or QEMU user networking, so they are shifted by 10000:
-                #
-                # - shifted ports blocked by the browsers (eg. 80 -> 10080) are moved
-                #   to the next unblocked port (eg. 10081), so they can be opened in
-                #   a browser
                 #
                 # - shifted ports stay below the ephemeral port ranges used for outgoing
                 #   connections, 32768-60999 on Linux
@@ -126,19 +64,16 @@ in
                 #
                 # - shifted ports are rarely used by applications, unlike for example
                 #   8000 offset (80 -> 8080) which collides with common application ports
-                default = if config.port < 1024 then nextUnblockedPort (10000 + config.port) else config.port;
+                default = nextUnblockedPort (if config.port < 1024 then 10000 + config.port else config.port);
                 defaultText = lib.literalExpression ''
-                  if port < 1024 then
-                    # Next port not blocked by the browsers, starting from 10000 + port
-                    nextUnblockedPort (10000 + port)
-                  else
-                    port
+                  # Next port not blocked by the browsers, starting from:
+                  nextUnblockedPort (if port < 1024 then 10000 + port else port)
                 '';
                 description = ''
                   Host port forwarded to the endpoint `port` by the container and NixOS VM
-                  runtimes. Privileged ports (below 1024) are shifted by 10000 by default,
-                  skipping the ports blocked by the web browsers (eg. `80` is forwarded to
-                  `10081`, because `10080` is blocked).
+                  runtimes. Privileged ports (below 1024) are shifted by 10000 by default.
+                  Ports blocked by the web browsers can't be used and are skipped by default
+                  (eg. `80` is forwarded to `10081`, because `10080` is blocked).
                 '';
                 example = 8080;
               };
