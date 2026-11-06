@@ -120,75 +120,38 @@ These designs are adaptations of the upstream projects' logos and are [licensed]
 
 ### Screenshots
 
-The application page shows screenshots from the `screenshots` option.
-Usually, you do not set this option by hand.
-The `forge-screenshots` command of the development shell finds the screenshots
-and writes them to a `screenshots.nix` file next to the recipe.
-A weekly workflow runs this command and opens a pull request with the changes.
-Another weekly workflow runs `forge-screenshots --check`.
-This command downloads each screenshot URL again, also of the screenshots that
-a recipe sets by hand, and fails if a URL cannot be fetched or has a different
-hash.
+The application page shows the images from the `screenshots` option.
+
+If upstream has an [AppStream metainfo file](https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html) with `<screenshots>`, run this command in the development shell:
 
 ```bash
 forge-screenshots <app-name>
 ```
 
-The command uses the first of these sources that has screenshots:
+The command writes the screenshots to a `screenshots.nix` file next to the recipe.
+A weekly workflow runs this command for all applications.
 
-1. The `<screenshots>` of the AppStream metainfo files in the application
-   packages, in `share/metainfo` or `share/appdata`.
-1. The `<screenshots>` of the AppStream metainfo files in the sources of the
-   application packages.
-1. The `<screenshots>` of the AppStream metainfo files in the default branch
-   of the Git repositories of these sources, for example from
-   `fetchFromGitHub`. Thus a metainfo file that is merged upstream, but is not
-   in a release yet, is used.
-1. The URLs in `screenshotSources.urls`.
-
-If these sources have no screenshots, give a source:
-
-```nix
-screenshotSources.urls = [
-  "https://raw.githubusercontent.com/example/app/main/docs/screenshot.png"
-  {
-    url = "https://raw.githubusercontent.com/example/app/main/docs/settings.png";
-    caption = "Settings dialog.";
-  }
-];
-```
-
-::: {tip}
-The best source is an AppStream metainfo file with `<screenshots>` in the
-application source repository, installed by the package.
-Other distributions, app stores and Forge can then use the same screenshots.
-:::
-
-The command changes a URL of a file at a branch or a tag of a GitHub, GitLab
-or Forgejo repository to the URL of the file at the commit of the branch or the
-tag.
-Thus the URL continues to work when upstream changes or moves the file.
-Other URLs, for example of a website, do not change.
-
-If another source has screenshots, for example after upstream merges a
-metainfo file, `forge-screenshots` tells you to remove
-`screenshotSources.urls`.
-The weekly pull request also lists these applications.
-
-To set screenshots by hand, set `screenshots` in the recipe.
-This definition overrides `screenshots.nix`.
+Otherwise, set `screenshots` in the recipe, with images from official upstream sources only.
 An item is a local image file, or a URL with its hash.
+Get the hash with `nix store prefetch-file <url>`.
+Use a URL that does not change, for example of a file at a Git commit.
 
 ```nix
 screenshots = [
   ./screenshot.png
   {
-    url = "https://example.com/screenshot.png";
+    url = "https://raw.githubusercontent.com/example/app/<commit>/docs/screenshot.png";
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     caption = "Main window with an open project.";
   }
 ];
 ```
+
+::: {tip}
+The best source is an AppStream metainfo file with `<screenshots>` in the upstream source repository.
+Other distributions and app stores can then use the same screenshots.
+If upstream adds such a file, remove `screenshots` from the recipe.
+:::
 
 ## Programs
 
