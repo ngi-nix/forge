@@ -13,7 +13,7 @@ let
       sources = builtins.filter isSource (map (drv: drv.src or null) packages);
     in
     {
-      inherit (config) recipePath screenshotSources;
+      inherit (config) recipePath;
       # The screenshots with a URL and a hash, for `--check`.
       lockedScreenshots = map (screenshot: { inherit (screenshot) url hash; }) (
         builtins.filter (screenshot: screenshot.url != null && screenshot.hash != null) config.screenshots
