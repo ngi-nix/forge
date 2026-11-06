@@ -14,7 +14,9 @@
           pkgs.nodejs
         ];
         inherit (builder)
+          dontNpmBuild
           npmDepsHash
+          npmFlags
           npmInstallFlags
           ;
       };

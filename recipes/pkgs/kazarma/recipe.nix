@@ -75,14 +75,14 @@
       builders.npm = {
         enable = true;
         npmDepsHash = "sha256-ygMFzDkl83cDh+72xuf/PyOBxIax2d58OSP+eeG+Na0=";
+        npmFlags = [ "--include=dev" ];
+        dontNpmBuild = true;
         packages.build = [
         ];
       };
     };
     build.extraAttrs = {
-      dontNpmBuild = true;
       dontCheckForBrokenSymlinks = true;
-      npmFlags = [ "--include=dev" ];
     };
   };
 }

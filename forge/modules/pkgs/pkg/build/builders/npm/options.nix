@@ -15,6 +15,16 @@
       [Nixpkgs Node.js documentation](https://nixos.org/manual/nixpkgs/unstable/#language-javascript)
     '';
 
+    dontNpmBuild = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Whether to disable the `npm` build script.
+
+        Mapped to `dontNpmBuild`.
+      '';
+    };
+
     npmDepsHash = lib.mkOption {
       type = lib.types.str;
       default = "";
@@ -26,6 +36,16 @@
         Mapped to `npmDepsHash`.
       '';
       example = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
+
+    npmFlags = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = ''
+        Additional flags passed to all `npm` commands.
+
+        Mapped to `npmFlags`.
+      '';
     };
 
     npmInstallFlags = lib.mkOption {
