@@ -3,6 +3,8 @@
   ...
 }:
 {
+  imports = [ ./endpoints.nix ];
+
   options = {
     enable = lib.mkEnableOption "the resource" // {
       default = true;
@@ -41,19 +43,6 @@
           can start.
       '';
       example = lib.literalExpression ''"frontend"'';
-    };
-
-    ports = lib.mkOption {
-      type = lib.types.listOf (lib.types.strMatching "^[0-9]+:[0-9]+$");
-      default = [ ];
-      description = ''
-        List of ports exposed by the resource.
-
-        Format:
-          _HOST_PORT:RESOURCE_PORT_
-      '';
-      example = lib.literalExpression ''[ "5432:5432" ]'';
-      apply = self: lib.unique self;
     };
   };
 }

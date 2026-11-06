@@ -281,6 +281,15 @@ in
         resourceNamesByRole =
           role: lib.attrNames (lib.filterAttrs (_: resource: resource.role == role) enabledResources);
 
+        # Forward endpoints to the host, in compose `HOST:CONTAINER[/udp]` format.
+        forwardedPorts =
+          name:
+          map (
+            endpoint:
+            "${toString endpoint.forwardedPort}:${toString endpoint.port}"
+            + lib.optionalString (endpoint.protocol == "udp") "/udp"
+          ) app.services.result.endpoints.${name};
+
         dependsOnCondition =
           depName:
           if lib.hasAttr depName enabledResources then
@@ -294,7 +303,7 @@ in
           name: service:
           {
             image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
-            ports = service.process.ports;
+            ports = forwardedPorts name;
             # Backend resources start before components, components depend on them.
             depends_on = lib.genAttrs (service.dependsOn ++ resourceNamesByRole "backend") (depName: {
               condition = dependsOnCondition depName;
@@ -341,7 +350,7 @@ in
 
         resourcesComponents = lib.mapAttrs (name: resource: {
           image = "localhost/${app.name}-${name}:${config.result.images.${name}.tag}";
-          ports = resource.ports;
+          ports = forwardedPorts name;
           # Frontend resources start after all components so that upstream
           # hostnames are registered in the container network DNS before the
           # resource process (e.g. nginx) performs its startup checks.
@@ -412,6 +421,7 @@ in
 
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
+            ''${COMPOSE_OVERRIDE_FILE:+-f "$COMPOSE_OVERRIDE_FILE"} \
             up --force-recreate --remove-orphans "$@"
         '';
 

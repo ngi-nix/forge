@@ -1,9 +1,13 @@
 {
   forge-lib,
   lib,
+  config,
   pkgs,
   ...
 }:
+let
+  app = config.apps.texlyre;
+in
 {
   pkgs.texlyre = {
     build.builders.identity = {
@@ -25,7 +29,7 @@
       with collaborators peer-to-peer over WebRTC, so editing keeps working
       offline.
 
-      Web interface: [http://localhost:3000](http://localhost:3000)
+      Web interface: [http://localhost:${toString app.services.components.texlyre.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.texlyre.endpoints.web.forwardedPort})
     '';
 
     links = {
@@ -46,7 +50,11 @@
       components.texlyre = {
         process = {
           command = pkgs.texlyre;
-          ports = [ "3000:3000" ];
+        };
+        endpoints = {
+          web = {
+            port = 3000;
+          };
         };
       };
       runtimes.container.enable = true;

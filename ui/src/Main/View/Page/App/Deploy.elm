@@ -225,24 +225,19 @@ viewPageAppDeployNixOSAnywhere pageApp =
 
 viewPageAppDeployDone : PageApp -> Html Update
 viewPageAppDeployDone pageApp =
-    let
-        ports =
-            pageApp.pageApp_app.app_services
-                |> getAppServicesFirewallPorts
-                |> List.map String.fromInt
-
-        portLink portNumber =
-            a [ href <| "http://<IP-ADDRESS>:" ++ portNumber, target "_blank" ] [ text portNumber ]
-    in
-    if List.isEmpty ports then
-        text "Deployment is done. Your application is up and running."
-
-    else
-        span []
-            (text "Deployment is done. Your application is up and running on port(s) "
-                :: List.intersperse (text ", ") (List.map portLink ports)
-                ++ [ text "." ]
-            )
+    span []
+        [ text "Deployment is done. Application is listening on "
+        , a
+            [ href
+                ("app/"
+                    ++ pageApp.pageApp_app.app_name
+                    ++ "#"
+                    ++ showRouteAppFocus RouteAppFocus_Configuration
+                )
+            ]
+            [ text "available endpoints" ]
+        , text "."
+        ]
 
 
 viewPageAppDeployHardening : Html Update
@@ -301,10 +296,33 @@ viewPageAppDeployFlake model pageApp deployTarget =
                     , "          (inputs.forge.inputs.nixpkgs + \"/nixos/modules/profiles/qemu-guest.nix\")"
                     ]
 
-        firewallPorts =
-            pageApp.pageApp_app.app_services
-                |> getAppServicesFirewallPorts
-                |> List.map String.fromInt
+        -- Open the ports of the app endpoints, by transport-level protocol.
+        firewallOptions =
+            [ ( "tcp", "allowedTCPPorts" ), ( "udp", "allowedUDPPorts" ) ]
+                |> List.filterMap
+                    (\( protocol, option ) ->
+                        case getAppServicesFirewallPorts protocol pageApp.pageApp_app.app_services of
+                            [] ->
+                                Nothing
+
+                            ports ->
+                                Just
+                                    ("            networking.firewall."
+                                        ++ option
+                                        ++ " = [ "
+                                        ++ String.join " " (List.map String.fromInt ports)
+                                        ++ " ];"
+                                    )
+                    )
+
+        firewallConfig =
+            if List.isEmpty firewallOptions then
+                []
+
+            else
+                ""
+                    :: "            # Firewall configuration"
+                    :: firewallOptions
 
         devShellTargetPackages =
             case deployTarget of
@@ -368,10 +386,10 @@ viewPageAppDeployFlake model pageApp deployTarget =
             , "              # \"ssh-ed25519 AAAA... user@host\""
             , "              (throw \"SSH key is not set in users.users.root.openssh.authorizedKeys.keys in flake.nix\")"
             , "            ];"
-            , ""
-            , "            # Firewall configuration"
-            , "            networking.firewall.allowedTCPPorts = " ++ String.join " " ("[" :: firewallPorts ++ [ "]" ]) ++ ";"
-            , "          }"
+            ]
+
+        flakeAppModule =
+            [ "          }"
             , ""
             , "          # Application module"
             , "          self.packages.x86_64-linux.apps." ++ pageApp.pageApp_app.app_name ++ ".nixosModules.default"
@@ -410,7 +428,7 @@ viewPageAppDeployFlake model pageApp deployTarget =
         , style "resize" "vertical"
         ]
         [ nixCodeBlock <|
-            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ devShellTargetPackages ++ flakeEnd)
+            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ firewallConfig ++ flakeAppModule ++ devShellTargetPackages ++ flakeEnd)
         ]
 
 
