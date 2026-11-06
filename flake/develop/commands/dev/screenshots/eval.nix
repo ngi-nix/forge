@@ -13,7 +13,7 @@ let
       sources = builtins.filter isSource (map (drv: drv.src or null) packages);
     in
     {
-      inherit (config) displayName recipePath screenshotSources;
+      inherit (config) recipePath screenshotSources;
       # The screenshots with a URL and a hash, for `--check`.
       lockedScreenshots = map (screenshot: { inherit (screenshot) url hash; }) (
         builtins.filter (screenshot: screenshot.url != null && screenshot.hash != null) config.screenshots
@@ -26,14 +26,6 @@ let
       }) sources;
       # Git repositories of the sources, for example from `fetchFromGitHub`.
       repos = builtins.filter builtins.isString (map (src: src.gitRepoUrl or null) sources);
-      # Web pages of the application, to find it on Flathub.
-      links = builtins.filter builtins.isString (
-        [
-          config.links.website
-          config.links.source
-        ]
-        ++ map (drv: drv.meta.homepage or null) packages
-      );
     };
 in
 builtins.listToAttrs (
