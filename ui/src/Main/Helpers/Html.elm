@@ -93,6 +93,12 @@ mdResolveLangCodeAlias lang =
         "sparql" ->
             "sql"
 
+        "livemd" ->
+            "markdown"
+
+        "md" ->
+            "markdown"
+
         any ->
             any
 
