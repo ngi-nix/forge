@@ -34,10 +34,6 @@ let
       default # recurse scope
       ;
 
-    nimi-def = import inputs.nimi { pkgs = nixpkgs; };
-    nimi = def.nimi-def.nimi;
-    nimiLib = def.nimi.passthru;
-
     # requires debug to be enabled in flake
     debug = flake.outputs.flakeConfig.allSystems.${system};
 

@@ -33,11 +33,6 @@
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nimi = {
-      url = "github:ngi-nix/nimi/ngi-patches";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
