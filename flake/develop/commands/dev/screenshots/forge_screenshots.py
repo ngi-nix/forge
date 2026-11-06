@@ -12,11 +12,8 @@ them to a `screenshots.nix` file next to the recipe. Sources, in order:
    sources are read from the local store or from a binary cache, or fetched.
 3. AppStream metainfo files in the default branch of the Git repositories of
    these sources, for metainfo files that are not in a release yet.
-4. The `screenshotSources.urls` option of the application.
 
 If a source gives no image that can be fetched, the next source is used.
-If a source before `screenshotSources.urls` gives screenshots, the command
-tells you to remove `screenshotSources.urls`.
 
 A URL of a file at a branch or a tag of a GitHub, GitLab or Forgejo repository
 is changed to the URL of the file at the commit of the branch or the tag. Thus
@@ -68,10 +65,6 @@ class Screenshot:
 
 def warn(message: str) -> None:
     print(f"warning: {message}", file=sys.stderr)
-
-
-def notice(message: str) -> None:
-    print(f"notice: {message}", file=sys.stderr)
 
 
 def nix(*args: str) -> subprocess.CompletedProcess[bytes]:
@@ -367,9 +360,6 @@ def parse(data: bytes, name: str, root: str) -> list[Screenshot]:
         return []
 
 
-HINTS = "`screenshotSources.urls`"
-
-
 def candidates(
     name: str, app: dict, store: Store
 ) -> Iterator[tuple[str, list[Screenshot]]]:
@@ -408,10 +398,6 @@ def candidates(
                         f"AppStream metainfo `{name}` in the default branch of {repo}",
                         screenshots,
                     )
-    yield HINTS, [
-        Screenshot(url=item["url"], caption=item["caption"])
-        for item in app["screenshotSources"]["urls"]
-    ]
 
 
 REF = r"(?P<ref>refs/(?:heads|tags)/[^/]+|[^/]+)"
@@ -615,11 +601,6 @@ def update(
         locked = lock(screenshots, args.max)
         if not locked:
             continue
-        if source != HINTS and app["screenshotSources"]["urls"]:
-            notice(
-                f"`apps.{name}.screenshotSources.urls` is not used,"
-                f" because {source} has screenshots. Remove it."
-            )
         target = root / Path(app["recipePath"]).parent / "screenshots.nix"
         existing = target.read_text() if target.exists() else ""
         keep_commits(locked, existing)
