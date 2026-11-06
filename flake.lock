@@ -92,28 +92,6 @@
         "type": "github"
       }
     },
-    "nimi": {
-      "inputs": {
-        "nix2container": "nix2container",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788769789,
-        "narHash": "sha256-mhgghNI9qSjBQ3ZMvvgwKD2nUSxGmVtpIPaypvRByZw=",
-        "owner": "ngi-nix",
-        "repo": "nimi",
-        "rev": "50eac13e725be1b18e1c5aff4ebcabff32c56a3f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ngi-nix",
-        "ref": "ngi-patches",
-        "repo": "nimi",
-        "type": "github"
-      }
-    },
     "nix-utils": {
       "flake": false,
       "locked": {
@@ -127,27 +105,6 @@
       "original": {
         "owner": "imincik",
         "repo": "nix-utils",
-        "type": "github"
-      }
-    },
-    "nix2container": {
-      "inputs": {
-        "nixpkgs": [
-          "nimi",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788758950,
-        "narHash": "sha256-b3zONUcYXZHeoeYwDZdSDCzMj0s6ubmD6NT3D7sS+jU=",
-        "owner": "nlewo",
-        "repo": "nix2container",
-        "rev": "b6ac40ef110c12ab1651fce5ea563f7837236439",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nlewo",
-        "repo": "nix2container",
         "type": "github"
       }
     },
@@ -188,7 +145,6 @@
         "elm2nix": "elm2nix",
         "flake-parts": "flake-parts",
         "import-tree": "import-tree",
-        "nimi": "nimi",
         "nix-utils": "nix-utils",
         "nixpkgs": "nixpkgs",
         "treefmt-nix": "treefmt-nix"

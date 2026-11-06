@@ -12,6 +12,16 @@
 }@args:
 let
   enabledResources = app.services.result.enabledResources;
+
+  runners = lib.mapAttrs (
+    serviceName: service:
+    import ../mkServiceRunner.nix {
+      inherit lib pkgs service;
+      name = "${app.name}-${serviceName}";
+      setup = config.components.${serviceName}.setup or "";
+      supervise = true;
+    }
+  ) app.services.components;
 in
 {
   options = {
@@ -87,19 +97,6 @@ in
     };
 
     result = {
-      modules = lib.mkOption {
-        internal = true;
-        type = with lib.types; lazyAttrsOf (either attrs anything);
-        description = "Nimi configuration.";
-      };
-
-      evals = lib.mkOption {
-        internal = true;
-        readOnly = true;
-        type = with lib.types; lazyAttrsOf (either attrs anything);
-        description = "Nimi module evaluation.";
-      };
-
       nixosImages = lib.mkOption {
         internal = true;
         readOnly = true;
@@ -147,60 +144,108 @@ in
   };
 
   config = {
-    result.modules = lib.mapAttrs (serviceName: service: {
-      settings = import ./modules/settings.nix (
-        {
-          inherit service serviceName;
-        }
-        // args
-        // lib.optionalAttrs (config.components ? ${serviceName}) {
-          runtimeConfig = config.components.${serviceName};
-        }
-      );
-      services = import ../mkNimiImports.nix { inherit lib service serviceName; };
-    }) app.services.components;
-
-    result.evals = lib.mapAttrs (
-      name: _:
-      forge-inputs.nimi.packages.${system}.nimi.passthru.evalNimiModule {
-        config = config.result.modules.${name};
-      }
-    ) app.services.components;
-
     result.processImages = lib.mapAttrs (
-      name: _:
+      name: service:
       let
-        image = forge-inputs.nimi.packages.${system}.nimi.mkContainerImage {
-          config = config.result.modules.${name};
-        };
-        tag = forge-lib.nixStoreHash image;
+        stream = pkgs.dockerTools.streamLayeredImage (
+          import ./modules/image.nix (
+            {
+              inherit service;
+              serviceName = name;
+              runner = runners.${name};
+            }
+            // args
+            // lib.optionalAttrs (config.components ? ${name}) {
+              runtimeConfig = config.components.${name};
+            }
+          )
+        );
       in
       {
-        inherit tag;
-        copyToArchive =
-          tar: "${image.copyTo}/bin/copy-to oci-archive:${tar}:${app.name}-${name}:${tag} >/dev/null";
+        inherit stream;
+        tag = stream.imageTag;
+        copyToArchive = tar: "${stream} 2>/dev/null > ${tar}";
       }
     ) app.services.components;
 
     result.shellRunner = lib.mapAttrs (
       serviceName: service:
       let
+        inherit (service.process) stateDir;
         componentPackages = service.process.packages;
         runtimeComponentPackages = config.components.${serviceName}.packages or [ ];
         binPaths = lib.makeBinPath ([ pkgs.coreutils ] ++ componentPackages ++ runtimeComponentPackages);
-      in
-      forge-inputs.nimi.packages.${system}.nimi.mkBwrap {
-        settings.bubblewrap.environment = service.process.environment // {
+        environment = service.process.environment // {
           PATH = binPaths;
         };
-        settings.bubblewrap.prependFlags = [ "--clearenv" ];
-        settings.bubblewrap.chdir = service.process.stateDir;
-        settings.bubblewrap.unshare.user = false;
-        settings.bubblewrap.appendFlags = [
+        runner = runners.${serviceName};
+        flags = [
+          # Give the service only the environment of the component.
+          "--clearenv"
+        ]
+        ++ lib.concatLists (
+          lib.mapAttrsToList (name: value: [
+            "--setenv"
+            name
+            value
+          ]) environment
+        )
+        # Hide the files of the host. Each directory is an empty `tmpfs`.
+        ++
+          lib.concatMap
+            (path: [
+              "--tmpfs"
+              path
+            ])
+            [
+              "/nix"
+              "/tmp"
+              "/run"
+              "/var"
+              "/etc"
+            ]
+        ++ [
+          # Make new `/dev` and `/proc` file systems for the sandbox.
+          "--dev"
+          "/dev"
+          "--proc"
+          "/proc"
+          # Give read-only access to the store paths and to `/sys`.
+          "--ro-bind"
+          "/nix/store"
+          "/nix/store"
+          "--ro-bind"
+          "/sys"
+          "/sys"
+          # Name resolution of the host. Skipped if the file does not exist.
+          "--ro-bind-try"
+          "/etc/resolv.conf"
+          "/etc/resolv.conf"
+          # Isolate the processes, the host name, the IPC objects and the
+          # cgroups from the host. The network stays shared, thus the service
+          # is available on the ports of the host.
+          "--unshare-pid"
+          "--unshare-uts"
+          "--unshare-ipc"
+          "--unshare-cgroup"
+          # Stop the sandbox when the calling process stops.
+          "--die-with-parent"
+          # Make the state directory and start the service in it.
           "--dir"
-          service.process.stateDir
+          stateDir
+          "--chdir"
+          stateDir
         ];
-        imports = [ { inherit (config.result.modules.${serviceName}) services settings; } ];
+      in
+      pkgs.writeShellApplication {
+        name = "${runner.name}-sandbox";
+        runtimeInputs = [ pkgs.bubblewrap ];
+        text = ''
+          exec bwrap \
+            ${lib.escapeShellArgs flags} \
+            -- ${lib.getExe runner} "$@"
+        '';
+        meta.badPlatforms = lib.platforms.darwin; # bubblewrap is not available on macOS
       }
     ) app.services.components;
 
