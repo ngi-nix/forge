@@ -1,6 +1,6 @@
 {
   config,
-  forgeConfig,
+  forge-lib,
   pkgs,
   lib,
   ...
@@ -8,7 +8,7 @@
 
 let
   app = config.apps.livebook;
-  usageSnippets = forgeConfig.forge.snippets.usage app;
+  usageSnippets = forge-lib.snippets.usage app;
 
   port = "8080";
   caCertFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
@@ -81,7 +81,7 @@ in
       See [learn](http://localhost:${port}/learn) to see Livebook's full tutorial.
     '';
 
-    categories = with lib.categories; [ Development ];
+    categories = with forge-lib.categories; [ Development ];
 
     links = {
       website = "https://livebook.dev";
