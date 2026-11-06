@@ -580,6 +580,20 @@ nix build .#apps.<app-name>.test-services-container --print-build-logs
 nix build .#apps.<app-name>.test-services-nixos --print-build-logs
 ```
 
+## SBOM
+
+Each application has a Software Bill of Materials (SBOM) in [CycloneDX](https://cyclonedx.org/) format, made with [bombon](https://github.com/nikstur/bombon).
+The SBOM lists the programs and services of the application, with their runtime dependencies and vendored dependencies.
+It also lists the runtime dependencies of the container and of the NixOS VM, if the application enables them.
+
+Build the SBOM:
+
+```bash
+nix build .#apps.<app-name>.sbom
+```
+
+The result is a `<app-name>.cdx.json` file.
+
 ## Re-exporting packages
 
 If exposing a package already in nixpkgs, consider re-exporting the package using the new [`build.builders.identity`](https://ngi.nixos.org/recipe/options?p=apps&p=pkgs&q=identity#pkgs.%3Cname%3E.build.builders.identity.enable). This will allow the application to be accessed under the `pkgs` attribute path (i.e. `pkgs.<app-name>`). To do this, outside of the `apps.<app-name>` attribute set, add the following block:
