@@ -232,12 +232,6 @@ viewPoweredBy model =
                         , target "_blank"
                         ]
                         [ text "Nixpkgs" ]
-                    , text ", "
-                    , a
-                        [ href "https://github.com/weyl-ai/nimi"
-                        , target "_blank"
-                        ]
-                        [ text "Nimi" ]
                     , text " & "
                     , a [ href "https://elm-lang.org", target "_blank" ] [ text "Elm" ]
                     , text "."

@@ -19,27 +19,6 @@
 
         Each component must have `process.command` set.
       '';
-      apply =
-        self:
-        lib.mapAttrs (
-          _: service:
-          service
-          // {
-            result = {
-              process.argv =
-                let
-                  serviceCommand =
-                    if lib.isDerivation service.process.command then
-                      lib.getExe service.process.command
-                    else
-                      service.process.command;
-                in
-                [ serviceCommand ] ++ service.process.argv;
-              configData = service.process.configData;
-              preStart = service.process.preStart;
-            };
-          }
-        ) self;
     };
 
     runtimes = lib.mkOption {
