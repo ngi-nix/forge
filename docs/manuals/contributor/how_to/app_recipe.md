@@ -144,22 +144,11 @@ The command uses the first of these sources that has screenshots:
    of the Git repositories of these sources, for example from
    `fetchFromGitHub`. Thus a metainfo file that is merged upstream, but is not
    in a release yet, is used.
-1. Flathub, for the IDs in `screenshotSources.appstreamIds`, the component IDs
-   of the metainfo files, and the desktop file IDs in reverse-DNS format.
-1. Flathub, for the applications that a search for the `displayName` or the
-   name of the application finds, if the homepage or the source repository of
-   the Flathub application is the same as the `links.website` or
-   `links.source` of the application, the `meta.homepage` of a package, or
-   the Git repository of a package source.
 1. The URLs in `screenshotSources.urls`.
 
 If these sources have no screenshots, give a source:
 
 ```nix
-# The application is on Flathub, but has other links.
-screenshotSources.appstreamIds = [ "org.example.App" ];
-
-# The application has screenshots in its source repository or website.
 screenshotSources.urls = [
   "https://raw.githubusercontent.com/example/app/main/docs/screenshot.png"
   {

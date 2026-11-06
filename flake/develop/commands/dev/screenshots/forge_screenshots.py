@@ -12,13 +12,7 @@ them to a `screenshots.nix` file next to the recipe. Sources, in order:
    sources are read from the local store or from a binary cache, or fetched.
 3. AppStream metainfo files in the default branch of the Git repositories of
    these sources, for metainfo files that are not in a release yet.
-4. Flathub, for the `screenshotSources.appstreamIds` option of the application,
-   for the component IDs in the metainfo files, and for the desktop file IDs
-   in reverse-DNS format.
-5. Flathub, for the components found by a search for the name of the
-   application, if the homepage or the source repository of the component is
-   the same as a link of the application or of its packages.
-6. The `screenshotSources.urls` option of the application.
+4. The `screenshotSources.urls` option of the application.
 
 If a source gives no image that can be fetched, the next source is used.
 If a source before `screenshotSources.urls` gives screenshots, the command
@@ -42,9 +36,6 @@ import re
 import subprocess
 import sys
 import tempfile
-import urllib.error
-import urllib.parse
-import urllib.request
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 from functools import cache
@@ -53,12 +44,6 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
 SUBSTITUTERS = ["https://cache.nixos.org", "https://ngi-forge.cachix.org"]
-FLATHUB_API = "https://flathub.org/api/v2/appstream/"
-FLATHUB_SEARCH = "https://flathub.org/api/v2/search"
-# Search results to compare with the links of an application.
-SEARCH_HITS = 5
-# Flathub URLs that identify an application.
-FLATHUB_LINKS = {"homepage": "homepage", "vcs_browser": "source repository"}
 METAINFO_DIRS = ["share/metainfo", "share/appdata"]
 # Wrappers often link these directories, or the files in them, from the
 # wrapped package.
@@ -68,9 +53,6 @@ METAINFO_SUFFIXES = (".metainfo.xml", ".appdata.xml")
 # application.
 SKIPPED_SOURCE_DIRS = {"node_modules", "test", "tests", "third_party", "vendor"}
 XML_LANG = "{http://www.w3.org/XML/1998/namespace}lang"
-# The web interface shows images with a maximum width of 1600 pixels.
-FULL_WIDTH = 1600
-USER_AGENT = "forge-screenshots (https://github.com/ngi-nix/forge)"
 
 # Applied to the `apps` output of the flake.
 EVAL_FILE = Path(__file__).with_name("eval.nix")
@@ -258,18 +240,6 @@ def linked_roots(store: Store, package: str) -> list[str]:
     return roots
 
 
-def desktop_ids(store: Store, package: str) -> list[str]:
-    """Return the desktop file IDs of `package` that are in reverse-DNS format."""
-    resolved = store.resolve(f"{package}/share/applications")
-    if resolved is None or resolved[1]["type"] != "directory":
-        return []
-    return [
-        name.removesuffix(".desktop")
-        for name in resolved[1]["entries"]
-        if re.fullmatch(r"[A-Za-z][\w-]*(\.[\w-]+){2,}\.desktop", name)
-    ]
-
-
 def metainfo_files(store: Store, package: str) -> Iterator[tuple[str, bytes]]:
     for directory in METAINFO_DIRS:
         resolved = store.resolve(f"{package}/{directory}")
@@ -339,9 +309,8 @@ def text(element: ET.Element | None) -> str:
     return " ".join("".join(element.itertext()).split()) if element is not None else ""
 
 
-def parse_metainfo(data: bytes) -> tuple[str, list[Screenshot]]:
+def parse_metainfo(data: bytes) -> list[Screenshot]:
     component = ET.fromstring(data)
-    component_id = text(component.find("id"))
     screenshots = []
     for element in component.findall("screenshots/screenshot"):
         images = [i for i in element.findall("image") if XML_LANG not in i.attrib]
@@ -357,67 +326,6 @@ def parse_metainfo(data: bytes) -> tuple[str, list[Screenshot]]:
             )
         )
     # Show the default screenshot first.
-    screenshots.sort(key=lambda s: not s.default)
-    return component_id, screenshots
-
-
-def flathub_get(request: urllib.request.Request, name: str) -> dict | None:
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            return json.load(response)
-    except urllib.error.HTTPError as e:
-        if e.code != 404:
-            warn(f"Flathub {name}: {e}")
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
-        warn(f"Flathub {name}: {e}")
-    return None
-
-
-@cache
-def flathub_component(component_id: str) -> dict:
-    request = urllib.request.Request(
-        FLATHUB_API + urllib.parse.quote(component_id),
-        headers={"User-Agent": USER_AGENT},
-    )
-    return flathub_get(request, f"`{component_id}`") or {}
-
-
-def flathub_search(query: str) -> list[str]:
-    """Return the IDs of the first Flathub components found for `query`."""
-    request = urllib.request.Request(
-        FLATHUB_SEARCH,
-        data=json.dumps({"query": query}).encode(),
-        headers={"User-Agent": USER_AGENT, "Content-Type": "application/json"},
-    )
-    hits = (flathub_get(request, f"search `{query}`") or {}).get("hits") or []
-    return [hit["app_id"] for hit in hits[:SEARCH_HITS] if hit.get("app_id")]
-
-
-def normalize_url(url: str) -> str:
-    """Remove the parts of `url` that do not identify a web page."""
-    parts = urllib.parse.urlsplit(url.strip().lower())
-    return parts.netloc.removeprefix("www.") + parts.path.rstrip("/").removesuffix(
-        ".git"
-    )
-
-
-def flathub_screenshots(component_id: str) -> list[Screenshot]:
-    data = flathub_component(component_id)
-    screenshots = []
-    for element in data.get("screenshots") or []:
-        sizes = sorted(element.get("sizes") or [], key=lambda s: int(s.get("width", 0)))
-        if not sizes:
-            continue
-        size = next(
-            (s for s in sizes if int(s.get("width", 0)) >= FULL_WIDTH), sizes[-1]
-        )
-        screenshots.append(
-            Screenshot(
-                url=size["src"],
-                caption=" ".join((element.get("caption") or "").split()),
-                default=bool(element.get("default")),
-            )
-        )
     screenshots.sort(key=lambda s: not s.default)
     return screenshots
 
@@ -451,12 +359,12 @@ def prefetch(url: str) -> str | None:
     return info["hash"]
 
 
-def parse(data: bytes, name: str, root: str) -> tuple[str, list[Screenshot]]:
+def parse(data: bytes, name: str, root: str) -> list[Screenshot]:
     try:
         return parse_metainfo(data)
     except ET.ParseError as e:
         warn(f"cannot parse {name} in `{root}`: {e}")
-        return "", []
+        return []
 
 
 HINTS = "`screenshotSources.urls`"
@@ -465,16 +373,12 @@ HINTS = "`screenshotSources.urls`"
 def candidates(
     name: str, app: dict, store: Store
 ) -> Iterator[tuple[str, list[Screenshot]]]:
-    sources = app["screenshotSources"]
-    component_ids = list(sources["appstreamIds"])
-    desktop_component_ids = []
     roots: list[str] = []
     for package in dict.fromkeys(app["packages"]):
         if store.location(Store.root(PurePosixPath(package))) is None:
             warn(f"`{package}` is not in the local store or in a binary cache")
             continue
         roots += [root for root in linked_roots(store, package) if root not in roots]
-        desktop_component_ids += desktop_ids(store, package)
     files = [
         (f"AppStream metainfo `{name}`", root, data)
         for root in roots
@@ -482,9 +386,7 @@ def candidates(
     ]
     found = False
     for source, root, data in files:
-        component_id, screenshots = parse(data, source, root)
-        if component_id and component_id not in component_ids:
-            component_ids.append(component_id)
+        screenshots = parse(data, source, root)
         if screenshots:
             found = True
             yield source, screenshots
@@ -492,11 +394,7 @@ def candidates(
     if not found:
         for package_source in app["sources"]:
             for name, data in source_metainfo_files(store, package_source):
-                component_id, screenshots = parse(
-                    data, f"`{name}`", package_source["path"]
-                )
-                if component_id and component_id not in component_ids:
-                    component_ids.append(component_id)
+                screenshots = parse(data, f"`{name}`", package_source["path"])
                 if screenshots:
                     found = True
                     yield f"AppStream metainfo `{name}` in the package source", screenshots
@@ -504,40 +402,15 @@ def candidates(
     if not found:
         for repo in dict.fromkeys(app["repos"]):
             for name, data in upstream_metainfo_files(repo):
-                component_id, screenshots = parse(data, f"`{name}`", repo)
-                if component_id and component_id not in component_ids:
-                    component_ids.append(component_id)
+                screenshots = parse(data, f"`{name}`", repo)
                 if screenshots:
                     yield (
                         f"AppStream metainfo `{name}` in the default branch of {repo}",
                         screenshots,
                     )
-    # Metainfo IDs often have a `.desktop` suffix that Flathub does not use.
-    component_ids = [i.removesuffix(".desktop") for i in component_ids]
-    component_ids += [i for i in desktop_component_ids if i not in component_ids]
-    for component_id in dict.fromkeys(component_ids):
-        yield f"Flathub `{component_id}`", flathub_screenshots(component_id)
-    # Find other components with the same homepage or source repository as the application.
-    links = {normalize_url(url) for url in app["links"] + app["repos"]}
-    tried = set(component_ids)
-    for query in dict.fromkeys([app["displayName"], name]):
-        for component_id in flathub_search(query):
-            if component_id in tried:
-                continue
-            tried.add(component_id)
-            urls = flathub_component(component_id).get("urls") or {}
-            same = [
-                label
-                for key, label in FLATHUB_LINKS.items()
-                if urls.get(key) and normalize_url(urls[key]) in links
-            ]
-            if same:
-                yield (
-                    f"Flathub `{component_id}`, with the same {' and '.join(same)}",
-                    flathub_screenshots(component_id),
-                )
     yield HINTS, [
-        Screenshot(url=item["url"], caption=item["caption"]) for item in sources["urls"]
+        Screenshot(url=item["url"], caption=item["caption"])
+        for item in app["screenshotSources"]["urls"]
     ]
 
 
