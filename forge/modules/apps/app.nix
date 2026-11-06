@@ -80,6 +80,34 @@
       '';
       example = lib.literalExpression "./icon.svg";
     };
+    screenshots = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.coercedTo lib.types.path (file: { inherit file; }) (
+          lib.types.submoduleWith {
+            modules = [ ./screenshot.nix ];
+            specialArgs = { inherit pkgs; };
+          }
+        )
+      );
+      default = [ ];
+      description = ''
+        Application screenshots, shown in the web interface.
+
+        The `forge-screenshots` command writes a `screenshots.nix` file next
+        to the recipe, which sets this option from AppStream metainfo.
+        A definition in the recipe overrides that file.
+      '';
+      example = lib.literalExpression ''
+        [
+          ./screenshot.png
+          {
+            url = "https://example.com/screenshot.png";
+            hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            caption = "Main window with an open project.";
+          }
+        ]
+      '';
+    };
     links = lib.mkOption {
       type = lib.types.submoduleWith {
         specialArgs = specialArgs // {
