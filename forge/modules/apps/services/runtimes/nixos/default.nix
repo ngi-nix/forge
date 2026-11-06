@@ -126,7 +126,7 @@ in
     result.modules = {
       general = import ./modules/general.nix args;
       setup = import ./modules/setup.nix args;
-      nimi = import ./modules/nimi.nix args;
+      services = import ./modules/services.nix args;
       virt = import ./modules/virt.nix args;
       nixosConfig = config.nixosConfig;
       packages = {
@@ -149,7 +149,7 @@ in
     result.nixosModule = {
       imports = [
         config.result.modules.setup
-        config.result.modules.nimi
+        config.result.modules.services
         config.result.modules.packages
         config.result.modules.nixosConfig
         config.result.modules.resources

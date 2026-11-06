@@ -347,8 +347,6 @@ services.resources.database.enable = false;
 Forge supports two service runtimes. At least one runtime must be enabled to
 start the service.
 
-Services are launched using the [Nimi process manager](https://github.com/weyl-ai/nimi).
-
 Each runtime provides a `setup` option for configuring a one-time preparation script
 at startup — for example, to create directory structures or copy configuration files.
 
@@ -356,7 +354,8 @@ at startup — for example, to create directory structures or copy configuration
 
 The _container_ runtime runs each service component in a separate container
 using a Podman Compose file automatically generated from the recipe
-configuration. Nimi is used as the container entrypoint.
+configuration. A generated script is the container entrypoint. It restarts the
+service after a failure and stops the service when the container stops.
 
 Each _component_ runs in separate single-process container, while _resources_
 run in a full NixOS systemd container.
@@ -392,24 +391,16 @@ Run a configured service in bubblewrap:
 nix run .#apps.<app-name>.services.my-service
 ```
 
-Nimi prints useful information about the command, arguments,
-configuration files, and environment variables used to start the service.
+The service runner prints the configuration files and the command that it uses
+to start the service.
 
-Example of Nimi output:
+Example of the output:
 
 ```bash
 nix run .#apps.tau.services.tau-tower
 
-[2026-06-08T06:39:50Z INFO  nimi::cli] Launching process manager...
-[2026-06-08T06:39:50Z INFO  nimi::process_manager] Starting process manager...
-[2026-06-08T06:39:50Z INFO  tau-tower] Config: tau/tower.toml -> /nix/store/l8w2spmpwm1cif4wsnjajr4q39287k2w-config.toml
-[2026-06-08T06:39:50Z INFO  tau-tower] Environment: PATH=/nix/store/yssab91xhfzc5q7g3xq08afrmirljpw4-nimi-0.1.0/bin:/nix/store/9ypz3flqsrl5xl495mm8h645gadjsxi1-coreutils-9.11/bin:/nix/store/vgi1b5730cvdpv72iddlc3w1di0bsy0k-tau-tower-0.2.2-beta-unstable-2026-03-14/bin
-[2026-06-08T06:39:50Z INFO  tau-tower] Environment: PWD=/var/lib/tau-tower
-[2026-06-08T06:39:50Z INFO  tau-tower] Environment: SHLVL=0
-[2026-06-08T06:39:50Z INFO  tau-tower] XDG_CONFIG_HOME=/tmp/nimi-config-672ed3a0b67ecd0198cabe9a92ab7e8af5710053b600a2b8c56694a8b2c9baab
-[2026-06-08T06:39:50Z INFO  tau-tower] Running: /nix/store/vgi1b5730cvdpv72iddlc3w1di0bsy0k-tau-tower-0.2.2-beta-unstable-2026-03-14/bin/tau-tower
-[2026-06-08T06:39:50Z DEBUG tau-tower] Broadcasting on:
-[2026-06-08T06:39:50Z DEBUG tau-tower] 	http://127.0.0.1:3002/tau.ogg
+Config: tau/tower.toml -> /nix/store/l8w2spmpwm1cif4wsnjajr4q39287k2w-config.toml
+Running: /nix/store/vgi1b5730cvdpv72iddlc3w1di0bsy0k-tau-tower-0.2.2-beta-unstable-2026-03-14/bin/tau-tower
 ```
 
 ::: {note}
@@ -422,7 +413,7 @@ user:user` — will fail.
 Inspect bubblewrap command:
 
 ```bash
-cat $(nix build .#apps.<app-name>.services.<service> --no-link --print-out-paths)/bin/<service-name>-service-sandbox
+cat $(nix build .#apps.<app-name>.services.<service> --no-link --print-out-paths)/bin/<app-name>-<service>-sandbox
 ```
 
 When services work as expected, run the entire application in containers:
@@ -480,7 +471,7 @@ podman-compose -f build-container/<service-name>/compose.yaml exec <service-name
 #### "nixos" runtime
 
 The _nixos_ runtime runs all services inside a NixOS machine. Each service
-component maps to a systemd unit which is launching a Nimi script.
+component maps to a systemd unit.
 
 All _components_ and _resources_ are running in a single NixOS system.
 
