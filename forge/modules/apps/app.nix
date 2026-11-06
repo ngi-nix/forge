@@ -109,22 +109,6 @@
       '';
     };
     screenshotSources = {
-      appstreamIds = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = ''
-          AppStream component IDs to look up on Flathub.
-
-          `forge-screenshots` uses Flathub only if the AppStream metainfo
-          files of the application packages, of their sources, and of the
-          default branches of their source repositories have no screenshots.
-          It also looks up the IDs found in these metainfo files, and the
-          Flathub applications with the same homepage or source repository as
-          the application. Set this option only if these lookups do not find
-          the application.
-        '';
-        example = [ "org.example.App" ];
-      };
       urls = lib.mkOption {
         type = lib.types.listOf (
           lib.types.coercedTo lib.types.str (url: { inherit url; }) (
