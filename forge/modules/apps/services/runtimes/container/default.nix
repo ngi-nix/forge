@@ -13,10 +13,18 @@
 let
   enabledResources = app.services.result.enabledResources;
 
+  # A file here replaces the `process.configData` item with the same `path`.
+  configOverrideDir = "/config";
+
   runners = lib.mapAttrs (
     serviceName: service:
     import ../mkServiceRunner.nix {
-      inherit lib pkgs service;
+      inherit
+        lib
+        pkgs
+        service
+        configOverrideDir
+        ;
       name = "${app.name}-service";
       setup = config.components.${serviceName}.setup or "";
       supervise = true;
@@ -338,8 +346,15 @@ in
               "/tmp:rw,size=64m"
               "/run:rw,size=64m"
             ];
-            volumes = [ "${name}-data:${service.process.stateDir}" ];
+            volumes = [
+              "${name}-data:${service.process.stateDir}"
+            ];
             labels = [ "ngi-forge.type=component" ];
+          }
+          # A name without a value gives the container the variable of the host
+          # if it is set. If not, the value of the image stays.
+          // lib.optionalAttrs (service.process.parameters != { }) {
+            environment = lib.attrNames service.process.parameters;
           }
           // lib.optionalAttrs service.healthcheck.enable {
             healthcheck = {
@@ -409,6 +424,16 @@ in
           }
         );
 
+        # This is a separate file because it needs `FORGE_CONFIG_DIR`. Thus,
+        # `compose.yaml` can start without this variable.
+        configComposeFile = pkgs.writeText "${app.name}-compose-config.yaml" (
+          lib.generators.toYAML { } {
+            services = lib.genAttrs componentNames (name: {
+              volumes = [ "\${FORGE_CONFIG_DIR}/${name}:${configOverrideDir}:ro,z" ];
+            });
+          }
+        );
+
         cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${
           lib.substring 0 8 (lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl)
         }";
@@ -434,6 +459,7 @@ in
 
         compose-file = pkgs.runCommand "compose-file" { } ''
           install -D ${composeFile} $out/${app.name}/compose.yaml
+          install -D ${configComposeFile} $out/${app.name}/compose.config.yaml
         '';
 
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
@@ -445,8 +471,19 @@ in
             podman tag ${app.name}-${name}:${image.tag} ${app.name}-${name}:latest
           '') config.result.images}
 
+          # Compose resolves a relative path from the directory of its file.
+          FORGE_CONFIG_DIR="$(${lib.getExe' pkgs.coreutils "realpath"} --canonicalize-missing \
+            "''${FORGE_CONFIG_DIR:-$CACHE_DIR/config/${app.name}}")"
+          export FORGE_CONFIG_DIR
+          mkdir -p ${
+            lib.concatMapStringsSep " " (name: ''"$FORGE_CONFIG_DIR"/${lib.escapeShellArg name}'') (
+              lib.attrNames app.services.components
+            )
+          }
+
           ${lib.getExe pkgs.podman-compose} \
             -f ${compose-file}/${app.name}/compose.yaml \
+            -f ${compose-file}/${app.name}/compose.config.yaml \
             up --force-recreate --remove-orphans "$@"
         '';
 

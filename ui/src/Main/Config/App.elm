@@ -135,15 +135,86 @@ decodeAppResource =
         (Decode.field "ports" (Decode.list Decode.string))
 
 
+type alias AppParameter =
+    { appParameter_description : String
+    , appParameter_default : Maybe String
+    , appParameter_enum : Maybe (List String)
+    }
+
+
+decodeAppParameter : Decoder AppParameter
+decodeAppParameter =
+    Decode.map3 AppParameter
+        (Decode.field "description" Decode.string)
+        (Decode.field "default"
+            (Decode.nullable
+                (Decode.oneOf
+                    [ Decode.string
+                    , Decode.map String.fromInt Decode.int
+                    , Decode.map
+                        (\value ->
+                            if value then
+                                "true"
+
+                            else
+                                "false"
+                        )
+                        Decode.bool
+                    ]
+                )
+            )
+        )
+        (Decode.field "enum" (Decode.nullable (Decode.list Decode.string)))
+
+
 type alias AppComponent =
     { appComponent_ports : List String
+    , appComponent_parameters : Dict String AppParameter
+    , appComponent_configFiles : List String
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent
-        (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
+    Decode.field "process"
+        (Decode.map3 AppComponent
+            (Decode.field "ports" (Decode.list Decode.string))
+            (Decode.field "parameters" (Decode.dict decodeAppParameter))
+            (Decode.field "configData"
+                (Decode.dict decodeAppConfigFile
+                    |> Decode.map (Dict.values >> List.filterMap identity)
+                )
+            )
+        )
+
+
+{-| Path of an enabled configuration file.
+-}
+decodeAppConfigFile : Decoder (Maybe String)
+decodeAppConfigFile =
+    Decode.map2
+        (\enable path ->
+            if enable then
+                Just path
+
+            else
+                Nothing
+        )
+        (Decode.field "enable" Decode.bool)
+        (Decode.field "path" Decode.string)
+
+
+{-| Service components that have settings to change after the build.
+-}
+appConfigurableComponents : App -> List ( String, AppComponent )
+appConfigurableComponents app =
+    app.app_services.appServices_components
+        |> Dict.toList
+        |> List.filter
+            (\( _, component ) ->
+                not (Dict.isEmpty component.appComponent_parameters)
+                    || not (List.isEmpty component.appComponent_configFiles)
+            )
 
 
 type alias AppServices =

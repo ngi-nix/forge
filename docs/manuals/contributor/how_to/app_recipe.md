@@ -210,6 +210,36 @@ services = {
 };
 ```
 
+Values that a user can change after build are _parameters_. Set them with the
+`process.parameters` option instead of `process.environment`. A parameter is an
+environment variable with a description, a type (`string`, `integer` or
+`boolean`), and optionally a default value and a list of permitted values.
+
+If the program does not read the environment variable, use `flag` to give the
+value to the program as a command line flag. The program gets the flag after
+`process.argv`.
+
+```nix
+services = {
+  components.my-service = {
+    ...
+    process.parameters = {
+      LOG_LEVEL = {
+        description = "Verbosity of the service logs.";
+        enum = [ "info" "debug" ];
+        default = "info";
+      };
+      BASE_URL = {
+        description = "Public URL of the service.";
+        default = "http://localhost:8080";
+        flag = "--base-url";
+      };
+    };
+    ...
+  };
+};
+```
+
 Service user and state directory (persistent data directory) are automatically
 created and managed by Forge but can be customized using `process.user` and
 `process.stateDir` options if required.
@@ -422,6 +452,34 @@ When services work as expected, run the entire application in containers:
 nix run .#apps.<app-name>.container
 ```
 
+A user can configure a built container in these ways. The _Run_ dialog of the
+application shows the parameters and configuration files of each service.
+
+- Environment variables: the values of `process.parameters` come from the host
+  environment. Other values of `process.environment` can only change with
+  `podman run --env`.
+- Configuration files: a file at `/config/<path>` in the container replaces the
+  `process.configData` item with the same `path`. `nix run` mounts the
+  `$FORGE_CONFIG_DIR/<service>` directory at `/config`. By default,
+  `FORGE_CONFIG_DIR` is a directory of the application in the Forge cache
+  directory. `podman-compose` with only `compose.yaml` does not mount `/config`.
+- Arguments: the service gets the arguments after the image name of
+  `podman run` after `process.argv`.
+
+```bash
+LOG_LEVEL=debug FORGE_CONFIG_DIR=./config nix run .#apps.<app-name>.container
+
+podman run --env LOG_LEVEL=debug --volume ./service.toml:/config/service.toml:ro,z \
+  localhost/<app-name>-<service>:latest --verbose
+```
+
+The image label `ngi-forge.parameters` contains a JSON Schema of the parameters:
+
+```bash
+podman image inspect --format '{{ index .Labels "ngi-forge.parameters" }}' \
+  localhost/<app-name>-<service>:latest
+```
+
 #### Debugging
 
 Build container artifacts (required for next steps):
@@ -551,6 +609,10 @@ test.services = {
   '';
 };
 ```
+
+Use `test.services.containerScript` to test the configuration of a container
+after `script`. `test.services.nixosConfig` can set the environment of the
+`nix run` command for the test.
 
 Run all tests:
 

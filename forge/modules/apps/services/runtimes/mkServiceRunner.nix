@@ -4,9 +4,15 @@
 # temporary directory if the variable is not set), runs
 # `process.preStart` and then runs `process.command`.
 #
+# If `configOverrideDir` contains a file at the `path` of a `process.configData`
+# item, the service gets that file instead of the file from the build.
+#
 # The service gets `process.argv` as double-quoted shell words. Thus, `$VAR` and
 # `${VAR}` expand at service start and each item stays one argument. `$$` is a
 # literal `$`. Other shell syntax has no special meaning.
+#
+# The service then gets the flags of `process.parameters` and last the arguments
+# of the executable. Thus, a user can give more arguments to a built service.
 #
 # Set `supervise` if no service manager controls the process, for example in a
 # container. The executable then runs `setup` one time, restarts the service
@@ -19,6 +25,7 @@
   service,
   setup ? "",
   supervise ? false,
+  configOverrideDir ? null,
 }:
 let
   inherit (pkgs) coreutils;
@@ -33,15 +40,39 @@ let
   configFiles = lib.filter (file: file.enable) (lib.attrValues process.configData);
 
   linkConfigFile = file: ''
-    echo ${lib.escapeShellArg "Config: ${file.path} -> ${file.source}"} >&2
+    source=${lib.escapeShellArg "${file.source}"}
+    ${lib.optionalString (configOverrideDir != null) ''
+      override=${lib.escapeShellArg "${configOverrideDir}/${file.path}"}
+      if [ -e "$override" ]; then source=$override; fi
+    ''}
+    echo ${lib.escapeShellArg "Config: ${file.path} -> "}"$source" >&2
     ${coreutils}/bin/mkdir --parents "$XDG_CONFIG_HOME"/${lib.escapeShellArg (dirOf file.path)}
-    ${coreutils}/bin/ln --symbolic --force ${lib.escapeShellArg "${file.source}"} \
+    ${coreutils}/bin/ln --symbolic --force "$source" \
       "$XDG_CONFIG_HOME"/${lib.escapeShellArg file.path}
   '';
 
+  addFlag =
+    name: parameter:
+    let
+      value = "\"\${${name}:-}\"";
+      flag = lib.escapeShellArg parameter.flag;
+    in
+    if parameter.type == "boolean" then
+      ''
+        if [ ${value} = true ]; then args+=(${flag}); fi
+      ''
+    else
+      ''
+        if [ -n ${value} ]; then args+=(${flag} ${value}); fi
+      '';
+
+  flagParameters = lib.filterAttrs (_: parameter: parameter.flag != null) process.parameters;
+
   start = pkgs.writeShellScript "${name}-start" ''
     ${lib.optionalString (process.preStart != null) "${process.preStart} || exit"}
-    set -- ${lib.escapeShellArg command} ${lib.concatMapStringsSep " " quoteArg process.argv}
+    args=(${lib.escapeShellArg command} ${lib.concatMapStringsSep " " quoteArg process.argv})
+    ${lib.concatStrings (lib.mapAttrsToList addFlag flagParameters)}
+    set -- "''${args[@]}" "$@"
     echo "Running: $*" >&2
     exec "$@"
   '';
@@ -69,7 +100,7 @@ let
     ${lib.optionalString (setup != "") ''
       run ${pkgs.writeShellScript "${name}-setup" setup}
     ''}
-    while [ -z "$stopping" ] && ! run ${start} && [ -z "$stopping" ]; do
+    while [ -z "$stopping" ] && ! run ${start} "$@" && [ -z "$stopping" ]; do
       echo ${lib.escapeShellArg "${name}: service failed, restarting"} >&2
       run ${coreutils}/bin/sleep 1 || true
     done
@@ -81,6 +112,6 @@ pkgs.writeShellApplication {
     XDG_CONFIG_HOME=''${XDG_CONFIG_HOME:-$(${coreutils}/bin/mktemp --directory)}
     export XDG_CONFIG_HOME
     ${lib.concatMapStrings linkConfigFile configFiles}
-    ${if supervise then supervisor else "exec ${start}"}
+    ${if supervise then supervisor else "exec ${start} \"$@\""}
   '';
 }

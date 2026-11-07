@@ -1,6 +1,7 @@
 module Main.View.Page.App.Run exposing (..)
 
-import Html exposing (Html, a, br, button, details, div, h5, hr, li, p, small, span, summary, text, ul)
+import Dict
+import Html exposing (Html, a, br, button, code, details, div, h5, h6, hr, li, p, small, span, summary, table, tbody, td, text, th, thead, tr, ul)
 import Html.Attributes exposing (attribute, class, href, id, style, tabindex, target, title)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
@@ -8,6 +9,7 @@ import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
+import Main.Helpers.String exposing (shellQuote)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
@@ -211,21 +213,124 @@ viewPageAppRunShell model pageApp =
         ]
 
 
+appRunContainerCommand : Model -> PageApp -> String
+appRunContainerCommand model pageApp =
+    String.concat
+        [ "nix run "
+        , showForgeInputFlakes model
+        , "#"
+        , pageApp.pageApp_app.app_outputName
+        , ".container"
+        ]
+
+
 viewPageAppRunContainer : Model -> PageApp -> Html Update
 viewPageAppRunContainer model pageApp =
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI containers" ]
         , br [] []
-        , bashCodeBlock <|
-            String.concat
-                [ "nix run "
-                , showForgeInputFlakes model
-                , "#"
-                , pageApp.pageApp_app.app_outputName
-                , ".container"
-                ]
+        , bashCodeBlock (appRunContainerCommand model pageApp)
+        , viewPageAppRunContainerConfigure model pageApp
         , hr [] []
         , viewPageAppRunContainerBuildOCI model pageApp
+        ]
+
+
+viewPageAppRunContainerConfigure : Model -> PageApp -> Html Update
+viewPageAppRunContainerConfigure model pageApp =
+    case appConfigurableComponents pageApp.pageApp_app of
+        [] ->
+            text ""
+
+        components ->
+            div [ attribute "data-testid" "run-container-configure" ]
+                [ hr [] []
+                , details []
+                    (summary [] [ text "Configure services" ]
+                        :: br [] []
+                        :: List.concatMap (viewPageAppRunContainerConfigureComponent model pageApp) components
+                    )
+                ]
+
+
+viewPageAppRunContainerConfigureComponent : Model -> PageApp -> ( String, AppComponent ) -> List (Html Update)
+viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
+    let
+        app =
+            pageApp.pageApp_app
+
+        parameters =
+            Dict.toList component.appComponent_parameters
+
+        run =
+            appRunContainerCommand model pageApp
+
+        assignment ( variable, parameter ) =
+            variable ++ "=" ++ shellQuote (Maybe.withDefault "value" parameter.appParameter_default)
+
+        podmanOptions =
+            List.map (\parameter -> "-e " ++ assignment parameter) parameters
+                ++ List.map (\path -> "-v " ++ shellQuote ("./" ++ path ++ ":/config/" ++ path ++ ":ro,z")) component.appComponent_configFiles
+    in
+    [ h6 [] [ text name ]
+    , if List.isEmpty parameters then
+        text ""
+
+      else
+        div []
+            [ p [ class "mb-1" ] [ text "Set parameters as environment variables:" ]
+            , table [ class "table table-sm" ]
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Variable" ]
+                        , th [] [ text "Default" ]
+                        , th [] [ text "Description" ]
+                        ]
+                    ]
+                , tbody [] (List.map viewPageAppRunContainerParameter parameters)
+                ]
+            , bashCodeBlock (String.join " " (List.map assignment parameters ++ [ run ]))
+            ]
+    , if List.isEmpty component.appComponent_configFiles then
+        text ""
+
+      else
+        div []
+            [ p [ class "mb-1" ]
+                [ text "Replace configuration files with files in "
+                , code [] [ text "$FORGE_CONFIG_DIR" ]
+                , text ":"
+                ]
+            , ul [] (List.map (\path -> li [] [ code [] [ text (name ++ "/" ++ path) ] ]) component.appComponent_configFiles)
+            , bashCodeBlock ("FORGE_CONFIG_DIR=./config " ++ run)
+            ]
+    , p [ class "mb-1" ] [ text "Or set them on one container, and add arguments for the service after the image name:" ]
+    , bashCodeBlock
+        (String.join " "
+            ([ "podman run" ]
+                ++ podmanOptions
+                ++ [ "localhost/" ++ app.app_name ++ "-" ++ name ++ ":latest" ]
+            )
+        )
+    ]
+
+
+viewPageAppRunContainerParameter : ( String, AppParameter ) -> Html Update
+viewPageAppRunContainerParameter ( variable, parameter ) =
+    tr []
+        [ td [] [ code [] [ text variable ] ]
+        , td [] [ code [] [ text (Maybe.withDefault "" parameter.appParameter_default) ] ]
+        , td []
+            [ text
+                (String.join " "
+                    (parameter.appParameter_description
+                        :: (parameter.appParameter_enum
+                                |> Maybe.map (\values -> [ "One of: " ++ String.join ", " values ++ "." ])
+                                |> Maybe.withDefault []
+                           )
+                    )
+                )
+            ]
         ]
 
 

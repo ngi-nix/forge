@@ -15,6 +15,12 @@
 {
   name = "${app.name}-${serviceName}";
 
+  # Compose mounts these as `tmpfs`. They must also exist in the image, so that
+  # the image can start without compose, for example with `podman run`.
+  extraCommands = ''
+    mkdir --mode=1777 tmp run
+  '';
+
   contents =
     let
       uid = "1001";
@@ -59,6 +65,9 @@
     Labels = {
       ngi-forge = "true";
       "ngi-forge.type" = "component";
+    }
+    // lib.optionalAttrs (service.process.parameters != { }) {
+      "ngi-forge.parameters" = builtins.toJSON service.process.parametersSchema;
     };
   };
 }

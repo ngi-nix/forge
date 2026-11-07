@@ -41,6 +41,12 @@
             set -euo pipefail
             ${config.script}
           ''}")
+          ${lib.optionalString (config.containerScript != "") ''
+            machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-config-script" ''
+              set -euo pipefail
+              ${config.containerScript}
+            ''}")
+          ''}
         '';
       }).overrideTestDerivation
         (_: lib.optionalAttrs (!config.sandbox) { __noChroot = true; })

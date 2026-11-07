@@ -169,12 +169,23 @@ in
           "${app.data.mainPort}"
         ];
         # https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/ENV.md
-        process.environment = {
-          CDXGEN_DEBUG_MODE = "info"; # debug or verbose
-          # Query public registries to resolve package licenses.
+        process.parameters = {
+          CDXGEN_DEBUG_MODE = {
+            description = "Verbosity of the service logs.";
+            enum = [
+              "info"
+              "debug"
+              "verbose"
+            ];
+            default = "info";
+          };
           # Disabled by default because it's time-consuming. See:
           # https://github.com/cdxgen/cdxgen/blob/v13.0.1/README.md#resolving-licenses
-          FETCH_LICENSE = "false";
+          FETCH_LICENSE = {
+            description = "Query public registries to resolve package licenses.";
+            type = "boolean";
+            default = false;
+          };
         };
         process.ports = [
           "${app.data.mainPort}:${app.data.mainPort}"
