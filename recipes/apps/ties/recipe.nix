@@ -122,12 +122,15 @@ in
           '';
 
           ports = [ "${listenPort}:${listenPort}" ];
+          parameters.TIES_BASE_URL = {
+            description = "Public URL of this instance.";
+            default = "http://localhost:${listenPort}";
+            flag = "--base-url";
+          };
           argv = [
             "start"
             "--database-url"
             "postgresql://postgres@database/postgres"
-            "--base-url"
-            "http://localhost:${listenPort}"
             "--listen"
             "0.0.0.0:${listenPort}" # accept connections from outside the container
           ];
@@ -160,6 +163,27 @@ in
         };
       };
     };
+
+    test.services.nixosConfig = {
+      environment.variables = {
+        TIES_BASE_URL = "http://ties.test";
+        # A relative path, from `/tmp`, the working directory of the test script.
+        FORGE_CONFIG_DIR = "../etc/forge-config";
+      };
+      environment.etc."forge-config/ties/adminUsername" = {
+        text = "test_admin";
+        mode = "0444";
+      };
+    };
+
+    test.services.containerScript = ''
+      logs=$(podman logs ties_ties_1 2>&1)
+      grep --fixed-strings -- "--base-url http://ties.test" <<<"$logs"
+      grep --fixed-strings -- "Config: adminUsername -> /config/adminUsername" <<<"$logs"
+      podman inspect --format '{{ index .Config.Labels "ngi-forge.parameters" }}' ties_ties_1 |
+        grep --fixed-strings TIES_BASE_URL
+      podman run --rm --network none localhost/ties-ties:latest --help | grep --fixed-strings -- --listen
+    '';
 
     test.services.script = ''
       # wait for ties to become ready

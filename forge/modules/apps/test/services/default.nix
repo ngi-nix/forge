@@ -41,6 +41,19 @@ in
       '';
     };
 
+    containerScript = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = ''
+        Script to run after `script` in the test of the container runtime.
+
+        Use this script to test the run-time configuration of a container.
+      '';
+      example = ''
+        podman logs my-app_my-service_1 2>&1 | grep -- "--base-url http://example.test"
+      '';
+    };
+
     result = {
       # HACK:
       # Prevent toJSON from attempting to convert the `build` options,

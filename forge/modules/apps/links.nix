@@ -3,8 +3,7 @@
   ...
 }:
 let
-  # https://www.rfc-editor.org/rfc/rfc3986#section-3.1
-  link = lib.types.strMatching "[a-zA-Z][a-zA-Z0-9+\-.]*://[^ \t\n]+";
+  link = import ./link-type.nix { inherit lib; };
 in
 {
   options = {

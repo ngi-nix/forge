@@ -1,5 +1,4 @@
 {
-  forge-inputs,
   app,
 
   pkgs,
@@ -7,16 +6,6 @@
   ...
 }:
 {
-
-  imports = [
-    forge-inputs.nimi.nixosModules.default
-  ];
-
-  nimi = lib.mapAttrs (serviceName: service: {
-    settings.binName = "${serviceName}-service";
-    services = import ../../mkNimiImports.nix { inherit lib service serviceName; };
-  }) app.services.components;
-
   users.groups = lib.mkMerge (
     lib.mapAttrsToList (serviceName: _: { ${serviceName} = { }; }) (
       lib.filterAttrs (_: service: service.process.user != "prefer-dynamic") app.services.components
@@ -39,12 +28,28 @@
         lib.filter (a: app.services.components ? ${a}) service.dependsOn
       );
 
+      runtimeDirectory = "forge/${serviceName}";
     in
     {
-      environment = service.process.environment;
+      description = "${app.name}: ${serviceName}";
+      wantedBy = [ "default.target" ];
+      environment = service.process.environment // {
+        XDG_CONFIG_HOME = "/run/${runtimeDirectory}";
+      };
       path = service.process.packages;
+      startLimitIntervalSec = 0;
       serviceConfig = lib.mkMerge [
         {
+          Type = "simple";
+          ExecStart = lib.getExe (
+            import ../../mkServiceRunner.nix {
+              inherit lib pkgs service;
+              name = "${serviceName}-service";
+            }
+          );
+          Restart = "always";
+          RestartSec = "1";
+          RuntimeDirectory = runtimeDirectory;
           PassEnvironment = lib.attrNames service.process.environment;
           User = lib.mkDefault serviceName;
           Group = lib.mkDefault serviceName;
@@ -82,7 +87,7 @@
           TimeoutStartSec = "infinity";
         })
       ];
-      after = requiredServiceUnits;
+      after = [ "default.target" ] ++ requiredServiceUnits;
       requires = requiredServiceUnits;
     }
   ) app.services.components;
