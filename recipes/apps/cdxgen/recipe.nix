@@ -161,18 +161,23 @@ in
     services = {
       components.cdxgen = {
         process.command = pkgs.cdxgen;
-        process.argv = [
-          "--server"
-          "--server-host"
-          "0.0.0.0"
-          "--server-port"
-          "${app.data.mainPort}"
-        ];
+        process.argv = [ "--server" ];
         process.references = {
           commandLine = "https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/CLI.md";
           environment = "https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/ENV.md";
         };
         process.parameters = {
+          CDXGEN_SERVER_HOST = {
+            description = "Address that the server listens on.";
+            default = "0.0.0.0";
+            flag = "--server-host";
+          };
+          CDXGEN_SERVER_PORT = {
+            description = "Port that the server listens on.";
+            type = "integer";
+            default = lib.toInt "${app.data.mainPort}";
+            flag = "--server-port";
+          };
           CDXGEN_DEBUG_MODE = {
             description = "Verbosity of the service logs.";
             enum = [
@@ -236,6 +241,24 @@ in
       services.script = ''
         curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
         $curl "http://localhost:${app.data.mainPort}/sbom?path=${pkgs.cdxgen.src}/test/repotests/npm-smoke&type=npm"
+      '';
+      services.containerScript = ''
+        podman run --rm --network none localhost/cdxgen-cdxgen:latest --forge-help |
+          grep --fixed-strings -- "--server-port"
+
+        podman run --detach --name configured --network none localhost/cdxgen-cdxgen:latest \
+          --server-port=9191 --server-host 127.0.0.1
+        for i in $(seq 1 10); do
+          if podman logs configured 2>&1 | grep --quiet "Running:"; then break; fi
+          sleep 1
+        done
+        logs=$(podman logs configured 2>&1)
+        grep --fixed-strings -- "--server-host 127.0.0.1 --server-port 9191" <<<"$logs"
+        if grep --fixed-strings -- "--server-host 0.0.0.0" <<<"$logs"; then
+          echo "The flag did not replace the default value"
+          exit 1
+        fi
+        podman rm --force configured
       '';
     };
   };

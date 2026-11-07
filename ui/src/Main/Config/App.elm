@@ -139,12 +139,13 @@ type alias AppParameter =
     { appParameter_description : String
     , appParameter_default : Maybe String
     , appParameter_enum : Maybe (List String)
+    , appParameter_flag : Maybe String
     }
 
 
 decodeAppParameter : Decoder AppParameter
 decodeAppParameter =
-    Decode.map3 AppParameter
+    Decode.map4 AppParameter
         (Decode.field "description" Decode.string)
         (Decode.field "default"
             (Decode.nullable
@@ -165,6 +166,7 @@ decodeAppParameter =
             )
         )
         (Decode.field "enum" (Decode.nullable (Decode.list Decode.string)))
+        (Decode.field "flag" (Decode.nullable Decode.string))
 
 
 type alias AppReferences =

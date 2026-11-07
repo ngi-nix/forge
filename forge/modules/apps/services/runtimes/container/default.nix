@@ -28,6 +28,7 @@ let
       name = "${app.name}-service";
       setup = config.components.${serviceName}.setup or "";
       supervise = true;
+      parseArguments = true;
     }
   ) app.services.components;
 in

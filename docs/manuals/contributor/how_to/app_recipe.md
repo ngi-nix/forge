@@ -453,21 +453,31 @@ nix run .#apps.<app-name>.container
 ```
 
 A user can configure a built container without Nix. The _Run_ dialog of the
-application shows this configuration for each service.
+application shows this configuration for each service, and
+`podman run --rm <image> --forge-help` shows it for an image.
 
 - Environment variables: `podman run --env` sets a value of
   `process.parameters` or `process.environment`. `nix run` gets the values of
   `process.parameters` from the host environment.
+- Flags: each `process.parameters` item with a `flag` is an option of the image.
+  The value of the flag after the image name replaces the default value and the
+  value of the environment variable, and the service gets the flag one time. To
+  let a user replace a value of the default command, put the value in a
+  parameter and not in `process.argv`. Use one parameter for each option of the
+  command that a user can change.
+- Other arguments: the service gets other arguments after the image name after
+  `process.argv` and the parameter flags. The service also gets all arguments
+  after `--`.
 - Configuration files: a file at `/config/<path>` in the container replaces the
   `process.configData` item with the same `path`. `nix run` mounts the
   `$FORGE_CONFIG_DIR/<service>` directory at `/config`. By default,
   `FORGE_CONFIG_DIR` is a directory of the application in the Forge cache
   directory. `podman-compose` with only `compose.yaml` does not mount `/config`.
-- Arguments: the service gets the arguments after the image name of
-  `podman run` after `process.argv`.
 
 ```bash
-podman run --env LOG_LEVEL=debug localhost/<app-name>-<service>:latest --verbose
+podman run --env LOG_LEVEL=debug localhost/<app-name>-<service>:latest \
+  --base-url=http://example.test \
+  --verbose
 
 podman run --volume ./service.toml:/config/service.toml:ro,z \
   localhost/<app-name>-<service>:latest
@@ -476,8 +486,8 @@ LOG_LEVEL=debug FORGE_CONFIG_DIR=./config nix run .#apps.<app-name>.container
 ```
 
 Use `process.references` to link to the upstream reference of the command line,
-the environment variables and the configuration files. The image labels and the
-_Run_ dialog show these links.
+the environment variables and the configuration files. `--forge-help`, the image
+labels and the _Run_ dialog show these links.
 
 ```nix
 process.references = {
@@ -487,8 +497,9 @@ process.references = {
 };
 ```
 
-The image label `ngi-forge.parameters` contains a JSON Schema of the parameters.
-The label `ngi-forge.references` contains the references:
+The image label `ngi-forge.parameters` contains a JSON Schema of the parameters,
+with the flag of a parameter in `x-flag`. The label `ngi-forge.references`
+contains the references:
 
 ```bash
 podman image inspect --format '{{ index .Labels "ngi-forge.parameters" }}' \

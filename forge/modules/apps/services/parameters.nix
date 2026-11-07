@@ -1,9 +1,10 @@
 # Run-time parameters of a service process.
 #
 # A parameter is an environment variable that the user of a built service can
-# change. `mkServiceRunner.nix` gives the value to the service as a flag if
-# `flag` is set. Thus, a service that does not read environment variables can
-# use the same interface.
+# change. If `flag` is set, `mkServiceRunner.nix` gives the value to the service
+# as a flag, and an argument of a container with the same flag changes the value.
+# Thus, a parameter maps one option of the command line of the service to one
+# value that the user can replace at run time.
 { config, lib, ... }:
 let
   parameterType = lib.types.submodule (
@@ -62,6 +63,15 @@ let
             The service gets this flag after `process.argv`. A parameter that
             is empty or not set adds no flag. A parameter of type `boolean`
             adds only the flag, and only if the value is `true`.
+
+            A user can give this flag as an argument of the container, as
+            `--flag value` or `--flag=value`. This value replaces the default
+            value and the value of the environment variable, and the service
+            gets the flag one time. A parameter of type `boolean` accepts
+            `--flag` and `--flag=false`.
+
+            To let a user replace a value of the default command, put the value
+            here and not in `process.argv`.
           '';
           example = "--base-url";
         };
@@ -115,6 +125,7 @@ in
               default
               enum
               ;
+            x-flag = parameter.flag;
           }
         ) config.parameters;
       };

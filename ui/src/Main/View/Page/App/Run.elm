@@ -276,18 +276,32 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
 
         volumeOptions =
             List.map (\path -> "-v " ++ shellQuote ("./" ++ path ++ ":/config/" ++ path ++ ":ro,z")) configFiles
+
+        flagArguments =
+            List.filterMap
+                (\( _, parameter ) ->
+                    Maybe.map
+                        (\flag -> flag ++ "=" ++ shellQuote (Maybe.withDefault "value" parameter.appParameter_default))
+                        parameter.appParameter_flag
+                )
+                parameters
     in
     [ h6 [] [ text name ]
+    , p [ class "mb-1" ]
+        [ text "Show the configuration of the image:" ]
+    , bashCodeBlock (String.join " " [ "podman run --rm", image, "--forge-help" ])
     , if List.isEmpty parameters then
         text ""
 
       else
         div []
-            [ p [ class "mb-1" ] [ text "Set parameters with environment variables:" ]
+            [ p [ class "mb-1" ]
+                [ text "Set parameters with environment variables or with flags after the image name. A flag replaces that value of the default command." ]
             , table [ class "table table-sm" ]
                 [ thead []
                     [ tr []
                         [ th [] [ text "Variable" ]
+                        , th [] [ text "Flag" ]
                         , th [] [ text "Default" ]
                         , th [] [ text "Description" ]
                         ]
@@ -296,12 +310,17 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
                 ]
             , bashCodeBlock (String.join " " ([ "podman run" ] ++ environmentOptions ++ [ image ]))
             ]
+    , if List.isEmpty flagArguments then
+        text ""
+
+      else
+        bashCodeBlock (String.join " " ([ "podman run", image ] ++ flagArguments))
     , if List.isEmpty configFiles then
         text ""
 
       else
         div []
-            [ p [ class "mb-1" ] [ text "Replace a configuration file with a mount at /config. Add arguments for the service after the image name:" ]
+            [ p [ class "mb-1" ] [ text "Replace a configuration file with a mount at /config:" ]
             , ul [] (List.map (\path -> li [] [ code [] [ text path ] ]) configFiles)
             , bashCodeBlock (String.join " " ([ "podman run" ] ++ volumeOptions ++ [ image ]))
             ]
@@ -357,6 +376,7 @@ viewPageAppRunContainerParameter : ( String, AppParameter ) -> Html Update
 viewPageAppRunContainerParameter ( variable, parameter ) =
     tr []
         [ td [] [ code [] [ text variable ] ]
+        , td [] [ code [] [ text (Maybe.withDefault "" parameter.appParameter_flag) ] ]
         , td [] [ code [] [ text (Maybe.withDefault "" parameter.appParameter_default) ] ]
         , td []
             [ text

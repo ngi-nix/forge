@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TEST_APP_NAME, TEST_PARAMETER, TEST_PARAMETER_APP_NAME } from "../constants";
+import { TEST_APP_NAME, TEST_PARAMETER, TEST_PARAMETER_APP_NAME, TEST_PARAMETER_FLAG } from "../constants";
 
 test.describe("Run Modal and Hash State", () => {
   const targetPage = `./app/${TEST_APP_NAME}`;
@@ -31,6 +31,8 @@ test.describe("Run Modal and Hash State", () => {
     const configure = page.getByTestId("run-container-configure");
     await configure.getByText("Configure services").click();
     await expect(configure).toContainText(TEST_PARAMETER);
+    await expect(configure).toContainText("--forge-help");
+    await expect(configure).toContainText(TEST_PARAMETER_FLAG);
   });
 
   test("modal closes via Escape, close button, and backdrop click", async ({ page }) => {
