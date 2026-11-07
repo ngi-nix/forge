@@ -168,7 +168,10 @@ in
           "--server-port"
           "${app.data.mainPort}"
         ];
-        # https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/ENV.md
+        process.references = {
+          commandLine = "https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/CLI.md";
+          environment = "https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/ENV.md";
+        };
         process.parameters = {
           CDXGEN_DEBUG_MODE = {
             description = "Verbosity of the service logs.";

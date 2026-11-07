@@ -55,6 +55,7 @@
             '';
             path = "config.toml";
           };
+          references.configFile = "https://git.sr.ht/~migadu/alps/tree/main/item/docs/CONFIGURATION.md";
           command = pkgs.alps;
           argv = [
             "-config"

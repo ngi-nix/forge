@@ -167,17 +167,33 @@ decodeAppParameter =
         (Decode.field "enum" (Decode.nullable (Decode.list Decode.string)))
 
 
+type alias AppReferences =
+    { appReferences_commandLine : Maybe String
+    , appReferences_environment : Maybe String
+    , appReferences_configFile : Maybe String
+    }
+
+
+decodeAppReferences : Decoder AppReferences
+decodeAppReferences =
+    Decode.map3 AppReferences
+        (Decode.field "commandLine" (Decode.nullable Decode.string))
+        (Decode.field "environment" (Decode.nullable Decode.string))
+        (Decode.field "configFile" (Decode.nullable Decode.string))
+
+
 type alias AppComponent =
     { appComponent_ports : List String
     , appComponent_parameters : Dict String AppParameter
     , appComponent_configFiles : List String
+    , appComponent_references : AppReferences
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
     Decode.field "process"
-        (Decode.map3 AppComponent
+        (Decode.map4 AppComponent
             (Decode.field "ports" (Decode.list Decode.string))
             (Decode.field "parameters" (Decode.dict decodeAppParameter))
             (Decode.field "configData"
@@ -185,6 +201,7 @@ decodeAppComponent =
                     |> Decode.map (Dict.values >> List.filterMap identity)
                 )
             )
+            (Decode.field "references" decodeAppReferences)
         )
 
 
@@ -214,7 +231,24 @@ appConfigurableComponents app =
             (\( _, component ) ->
                 not (Dict.isEmpty component.appComponent_parameters)
                     || not (List.isEmpty component.appComponent_configFiles)
+                    || (appComponentReferences component /= [])
             )
+
+
+{-| Upstream references of a service component, as pairs of title and URL.
+-}
+appComponentReferences : AppComponent -> List ( String, String )
+appComponentReferences component =
+    let
+        references =
+            component.appComponent_references
+    in
+    List.filterMap
+        (\( title, link ) -> Maybe.map (Tuple.pair title) link)
+        [ ( "Command line", references.appReferences_commandLine )
+        , ( "Environment variables", references.appReferences_environment )
+        , ( "Configuration files", references.appReferences_configFile )
+        ]
 
 
 type alias AppServices =

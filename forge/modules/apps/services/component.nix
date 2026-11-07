@@ -23,6 +23,7 @@
             inherit pkgs;
           })
           ./parameters.nix
+          ./references.nix
           {
             options = {
               command = lib.mkOption {

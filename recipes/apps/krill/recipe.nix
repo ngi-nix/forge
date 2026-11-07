@@ -91,6 +91,7 @@ in
           source = ./krill.conf;
           path = "krill.conf";
         };
+        process.references.configFile = "https://krill.docs.nlnetlabs.nl/en/stable/config.html";
         process.command = lib.getExe' pkgs.krill "krill";
         process.argv = [
           "--config"

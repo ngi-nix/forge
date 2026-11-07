@@ -256,21 +256,26 @@ viewPageAppRunContainerConfigure model pageApp =
 viewPageAppRunContainerConfigureComponent : Model -> PageApp -> ( String, AppComponent ) -> List (Html Update)
 viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
     let
-        app =
-            pageApp.pageApp_app
-
         parameters =
             Dict.toList component.appComponent_parameters
+
+        configFiles =
+            component.appComponent_configFiles
 
         run =
             appRunContainerCommand model pageApp
 
+        image =
+            appImageReference pageApp.pageApp_app name
+
         assignment ( variable, parameter ) =
             variable ++ "=" ++ shellQuote (Maybe.withDefault "value" parameter.appParameter_default)
 
-        podmanOptions =
+        environmentOptions =
             List.map (\parameter -> "-e " ++ assignment parameter) parameters
-                ++ List.map (\path -> "-v " ++ shellQuote ("./" ++ path ++ ":/config/" ++ path ++ ":ro,z")) component.appComponent_configFiles
+
+        volumeOptions =
+            List.map (\path -> "-v " ++ shellQuote ("./" ++ path ++ ":/config/" ++ path ++ ":ro,z")) configFiles
     in
     [ h6 [] [ text name ]
     , if List.isEmpty parameters then
@@ -278,7 +283,7 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
 
       else
         div []
-            [ p [ class "mb-1" ] [ text "Set parameters as environment variables:" ]
+            [ p [ class "mb-1" ] [ text "Set parameters with environment variables:" ]
             , table [ class "table table-sm" ]
                 [ thead []
                     [ tr []
@@ -289,30 +294,63 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
                     ]
                 , tbody [] (List.map viewPageAppRunContainerParameter parameters)
                 ]
-            , bashCodeBlock (String.join " " (List.map assignment parameters ++ [ run ]))
+            , bashCodeBlock (String.join " " ([ "podman run" ] ++ environmentOptions ++ [ image ]))
             ]
-    , if List.isEmpty component.appComponent_configFiles then
+    , if List.isEmpty configFiles then
         text ""
 
       else
         div []
-            [ p [ class "mb-1" ]
-                [ text "Replace configuration files with files in "
-                , code [] [ text "$FORGE_CONFIG_DIR" ]
-                , text ":"
-                ]
-            , ul [] (List.map (\path -> li [] [ code [] [ text (name ++ "/" ++ path) ] ]) component.appComponent_configFiles)
-            , bashCodeBlock ("FORGE_CONFIG_DIR=./config " ++ run)
+            [ p [ class "mb-1" ] [ text "Replace a configuration file with a mount at /config. Add arguments for the service after the image name:" ]
+            , ul [] (List.map (\path -> li [] [ code [] [ text path ] ]) configFiles)
+            , bashCodeBlock (String.join " " ([ "podman run" ] ++ volumeOptions ++ [ image ]))
             ]
-    , p [ class "mb-1" ] [ text "Or set them on one container, and add arguments for the service after the image name:" ]
-    , bashCodeBlock
-        (String.join " "
-            ([ "podman run" ]
-                ++ podmanOptions
-                ++ [ "localhost/" ++ app.app_name ++ "-" ++ name ++ ":latest" ]
-            )
-        )
+    , case appComponentReferences component of
+        [] ->
+            text ""
+
+        references ->
+            div []
+                [ p [ class "mb-1" ] [ text "Upstream references:" ]
+                , ul []
+                    (List.map
+                        (\( title_, link ) -> li [] [ a [ href link, target "_blank" ] [ text title_ ] ])
+                        references
+                    )
+                ]
+    , if List.isEmpty parameters && List.isEmpty configFiles then
+        text ""
+
+      else
+        details []
+            [ summary [] [ text "Configure with Nix" ]
+            , br [] []
+            , if List.isEmpty parameters then
+                text ""
+
+              else
+                bashCodeBlock (String.join " " (List.map assignment parameters ++ [ run ]))
+            , if List.isEmpty configFiles then
+                text ""
+
+              else
+                div []
+                    [ p [ class "mb-1" ]
+                        [ text "Replace configuration files with files in "
+                        , code [] [ text ("$FORGE_CONFIG_DIR/" ++ name) ]
+                        , text ":"
+                        ]
+                    , bashCodeBlock ("FORGE_CONFIG_DIR=./config " ++ run)
+                    ]
+            ]
     ]
+
+
+{-| Reference of the image of a service component.
+-}
+appImageReference : App -> String -> String
+appImageReference app name =
+    "localhost/" ++ app.app_name ++ "-" ++ name ++ ":latest"
 
 
 viewPageAppRunContainerParameter : ( String, AppParameter ) -> Html Update

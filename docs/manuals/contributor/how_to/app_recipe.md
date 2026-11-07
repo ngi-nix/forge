@@ -452,12 +452,12 @@ When services work as expected, run the entire application in containers:
 nix run .#apps.<app-name>.container
 ```
 
-A user can configure a built container in these ways. The _Run_ dialog of the
-application shows the parameters and configuration files of each service.
+A user can configure a built container without Nix. The _Run_ dialog of the
+application shows this configuration for each service.
 
-- Environment variables: the values of `process.parameters` come from the host
-  environment. Other values of `process.environment` can only change with
-  `podman run --env`.
+- Environment variables: `podman run --env` sets a value of
+  `process.parameters` or `process.environment`. `nix run` gets the values of
+  `process.parameters` from the host environment.
 - Configuration files: a file at `/config/<path>` in the container replaces the
   `process.configData` item with the same `path`. `nix run` mounts the
   `$FORGE_CONFIG_DIR/<service>` directory at `/config`. By default,
@@ -467,13 +467,28 @@ application shows the parameters and configuration files of each service.
   `podman run` after `process.argv`.
 
 ```bash
-LOG_LEVEL=debug FORGE_CONFIG_DIR=./config nix run .#apps.<app-name>.container
+podman run --env LOG_LEVEL=debug localhost/<app-name>-<service>:latest --verbose
 
-podman run --env LOG_LEVEL=debug --volume ./service.toml:/config/service.toml:ro,z \
-  localhost/<app-name>-<service>:latest --verbose
+podman run --volume ./service.toml:/config/service.toml:ro,z \
+  localhost/<app-name>-<service>:latest
+
+LOG_LEVEL=debug FORGE_CONFIG_DIR=./config nix run .#apps.<app-name>.container
 ```
 
-The image label `ngi-forge.parameters` contains a JSON Schema of the parameters:
+Use `process.references` to link to the upstream reference of the command line,
+the environment variables and the configuration files. The image labels and the
+_Run_ dialog show these links.
+
+```nix
+process.references = {
+  commandLine = "https://example.com/docs/cli";
+  environment = "https://example.com/docs/environment";
+  configFile = "https://example.com/docs/configuration";
+};
+```
+
+The image label `ngi-forge.parameters` contains a JSON Schema of the parameters.
+The label `ngi-forge.references` contains the references:
 
 ```bash
 podman image inspect --format '{{ index .Labels "ngi-forge.parameters" }}' \

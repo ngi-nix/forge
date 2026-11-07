@@ -12,6 +12,9 @@
   lib,
   ...
 }:
+let
+  references = lib.filterAttrs (_: link: link != null) service.process.references;
+in
 {
   name = "${app.name}-${serviceName}";
 
@@ -68,6 +71,15 @@
     }
     // lib.optionalAttrs (service.process.parameters != { }) {
       "ngi-forge.parameters" = builtins.toJSON service.process.parametersSchema;
+    }
+    // lib.optionalAttrs (references != { }) {
+      "ngi-forge.references" = builtins.toJSON references;
+    }
+    // lib.filterAttrs (_: value: value != null) {
+      "org.opencontainers.image.title" = app.displayName;
+      "org.opencontainers.image.url" = app.links.website;
+      "org.opencontainers.image.source" = app.links.source;
+      "org.opencontainers.image.documentation" = app.links.docs;
     };
   };
 }
