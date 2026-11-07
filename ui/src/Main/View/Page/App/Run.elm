@@ -262,6 +262,9 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
         configFiles =
             component.appComponent_configFiles
 
+        fieldFiles =
+            List.filter (\file -> file.appConfigFile_format /= Nothing) configFiles
+
         run =
             appRunContainerCommand model pageApp
 
@@ -275,7 +278,11 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
             List.map (\parameter -> "-e " ++ assignment parameter) parameters
 
         volumeOptions =
-            List.map (\path -> "-v " ++ shellQuote ("./" ++ path ++ ":/config/" ++ path ++ ":ro,z")) configFiles
+            List.map
+                (\file ->
+                    "-v " ++ shellQuote ("./" ++ file.appConfigFile_path ++ ":/config/" ++ file.appConfigFile_path ++ ":ro,z")
+                )
+                configFiles
 
         flagArguments =
             List.filterMap
@@ -285,6 +292,10 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
                         parameter.appParameter_flag
                 )
                 parameters
+
+        fieldArguments =
+            List.take 1 fieldFiles
+                |> List.map (\file -> "--forge-set " ++ shellQuote (file.appConfigFile_path ++ ":section.field=value"))
     in
     [ h6 [] [ text name ]
     , p [ class "mb-1" ]
@@ -321,8 +332,16 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
       else
         div []
             [ p [ class "mb-1" ] [ text "Replace a configuration file with a mount at /config:" ]
-            , ul [] (List.map (\path -> li [] [ code [] [ text path ] ]) configFiles)
+            , ul [] (List.map viewPageAppRunContainerConfigFile configFiles)
             , bashCodeBlock (String.join " " ([ "podman run" ] ++ volumeOptions ++ [ image ]))
+            ]
+    , if List.isEmpty fieldArguments then
+        text ""
+
+      else
+        div []
+            [ p [ class "mb-1" ] [ text "Or set one field of a configuration file. The value is parsed as YAML:" ]
+            , bashCodeBlock (String.join " " ([ "podman run", image ] ++ fieldArguments))
             ]
     , case appComponentReferences component of
         [] ->
@@ -370,6 +389,19 @@ viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
 appImageReference : App -> String -> String
 appImageReference app name =
     "localhost/" ++ app.app_name ++ "-" ++ name ++ ":latest"
+
+
+viewPageAppRunContainerConfigFile : AppConfigFile -> Html Update
+viewPageAppRunContainerConfigFile file =
+    li []
+        [ code [] [ text file.appConfigFile_path ]
+        , case file.appConfigFile_format of
+            Just format ->
+                text (" (" ++ format ++ ")")
+
+            Nothing ->
+                text ""
+        ]
 
 
 viewPageAppRunContainerParameter : ( String, AppParameter ) -> Html Update

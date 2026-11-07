@@ -468,6 +468,11 @@ application shows this configuration for each service, and
 - Other arguments: the service gets other arguments after the image name after
   `process.argv` and the parameter flags. The service also gets all arguments
   after `--`.
+- Configuration file fields: `--forge-set <path>:<field>=<value>` sets one field
+  of a `process.configData` item that has a `format`. The field is a `yq` path
+  and the value is parsed as YAML. The file name extension sets the `format` of
+  JSON, TOML and YAML files. Other files need `format`, or a user can only
+  replace them. `process.argv` must read the file from `$XDG_CONFIG_HOME`.
 - Configuration files: a file at `/config/<path>` in the container replaces the
   `process.configData` item with the same `path`. `nix run` mounts the
   `$FORGE_CONFIG_DIR/<service>` directory at `/config`. By default,
@@ -477,6 +482,7 @@ application shows this configuration for each service, and
 ```bash
 podman run --env LOG_LEVEL=debug localhost/<app-name>-<service>:latest \
   --base-url=http://example.test \
+  --forge-set service.toml:server.port=8080 \
   --verbose
 
 podman run --volume ./service.toml:/config/service.toml:ro,z \
@@ -498,8 +504,8 @@ process.references = {
 ```
 
 The image label `ngi-forge.parameters` contains a JSON Schema of the parameters,
-with the flag of a parameter in `x-flag`. The label `ngi-forge.references`
-contains the references:
+with the flag of a parameter in `x-flag`. The label `ngi-forge.config-files`
+contains the configuration files and `ngi-forge.references` the references:
 
 ```bash
 podman image inspect --format '{{ index .Labels "ngi-forge.parameters" }}' \

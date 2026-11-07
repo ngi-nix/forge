@@ -23,6 +23,7 @@
             inherit pkgs;
           })
           ./parameters.nix
+          ./config-files.nix
           ./references.nix
           {
             options = {

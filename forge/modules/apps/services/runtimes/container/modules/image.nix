@@ -13,6 +13,10 @@
   ...
 }:
 let
+  configFiles = map (file: { inherit (file) path format; }) (
+    lib.filter (file: file.enable) (lib.attrValues service.process.configData)
+  );
+
   references = lib.filterAttrs (_: link: link != null) service.process.references;
 in
 {
@@ -71,6 +75,9 @@ in
     }
     // lib.optionalAttrs (service.process.parameters != { }) {
       "ngi-forge.parameters" = builtins.toJSON service.process.parametersSchema;
+    }
+    // lib.optionalAttrs (configFiles != [ ]) {
+      "ngi-forge.config-files" = builtins.toJSON configFiles;
     }
     // lib.optionalAttrs (references != { }) {
       "ngi-forge.references" = builtins.toJSON references;

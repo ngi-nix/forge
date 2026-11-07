@@ -20,6 +20,8 @@
 #
 # - A flag of `process.parameters` sets the value of that parameter. Thus, the
 #   service gets the flag one time.
+# - `--forge-set <path>:<field>=<value>` sets one field of a `process.configData`
+#   item that has a `format`. The value is parsed as YAML.
 # - `--forge-help` shows the available configuration and stops.
 # - `--` stops the parsing. The service gets all arguments after it.
 #
@@ -78,6 +80,8 @@ let
 
   flagParameters = lib.filterAttrs (_: parameter: parameter.flag != null) process.parameters;
 
+  fieldFiles = lib.filter (file: file.format != null) configFiles;
+
   parseFlag =
     name: parameter:
     let
@@ -124,7 +128,8 @@ let
             lib.optionalString (parameter.flag != null) ", ${parameter.flag}"
           }\n      ${lib.concatStringsSep " " details}\n";
 
-      describeFile = file: "  ${file.path}\n";
+      describeFile =
+        file: "  ${file.path}${lib.optionalString (file.format != null) " (${file.format})"}\n";
 
       describeReference = title: link: lib.optional (link != null) "  ${title}: ${link}\n";
     in
@@ -140,10 +145,14 @@ let
         ) " (mount a file at ${configOverrideDir}/<path> to replace it)"
         + ":"
       ) (map describeFile configFiles))
-      (section "Options:" [
-        "  --forge-help\n      Show this text.\n"
-        "  --\n      Give all next arguments to the service.\n"
-      ])
+      (section "Options:" (
+        lib.optional (fieldFiles != [ ])
+          "  --forge-set <path>:<field>=<value>\n      Set one field of a configuration file with a format. Example: --forge-set ${(lib.head fieldFiles).path}:server.port=8080\n"
+        ++ [
+          "  --forge-help\n      Show this text.\n"
+          "  --\n      Give all next arguments to the service.\n"
+        ]
+      ))
       (section "Upstream references:" (
         describeReference "Command line" process.references.commandLine
         ++ describeReference "Environment variables" process.references.environment
@@ -160,6 +169,7 @@ let
       fi
     }
 
+    fields=()
     forwarded=()
     while [ "$#" -gt 0 ]; do
       case "$1" in
@@ -172,6 +182,15 @@ let
           ${coreutils}/bin/cat ${help}
           exit 0
           ;;
+        --forge-set)
+          needValue "$@"
+          fields+=("$2")
+          shift 2
+          ;;
+        --forge-set=*)
+          fields+=("''${1#*=}")
+          shift
+          ;;
         ${lib.concatStrings (lib.mapAttrsToList parseFlag flagParameters)}
         *)
           forwarded+=("$1")
@@ -181,6 +200,53 @@ let
     done
     set -- "''${forwarded[@]}"
   '';
+
+  # The file in `$XDG_CONFIG_HOME` can be a link to a read-only file. Thus, this
+  # replaces the file and does not change it in place.
+  setFields =
+    if fieldFiles == [ ] then
+      ''
+        if [ "''${#fields[@]}" -gt 0 ]; then
+          echo ${lib.escapeShellArg "${name}: this service has no file for --forge-set"} >&2
+          exit 64
+        fi
+      ''
+    else
+      ''
+        setField() {
+          local spec=$1 path assignment format
+          path=''${spec%%:*}
+          assignment=''${spec#*:}
+          if [ "$path" = "$spec" ] || [ "''${assignment#*=}" = "$assignment" ]; then
+            echo ${lib.escapeShellArg "${name}: "}"--forge-set needs <path>:<field>=<value>, not: $spec" >&2
+            exit 64
+          fi
+          case "$path" in
+            ${lib.concatMapStrings (file: ''
+              ${lib.escapeShellArg file.path})
+                format=${file.format}
+                ;;
+            '') fieldFiles}
+            *)
+              echo ${lib.escapeShellArg "${name}: "}"--forge-set cannot change: $path" >&2
+              echo ${lib.escapeShellArg "Files that it can change: ${lib.concatMapStringsSep " " (file: file.path) fieldFiles}"} >&2
+              exit 64
+              ;;
+          esac
+
+          local target=$XDG_CONFIG_HOME/$path patched
+          patched=$(${coreutils}/bin/mktemp "$target.XXXXXX")
+          value=''${assignment#*=} ${lib.getExe pkgs.yq-go} --input-format "$format" --output-format "$format" \
+            ".''${assignment%%=*} = (strenv(value) | from_yaml)" "$target" >"$patched"
+          ${coreutils}/bin/chmod --reference="$target" "$patched"
+          ${coreutils}/bin/mv --force "$patched" "$target"
+          echo "Config: $path: set ''${assignment%%=*}" >&2
+        }
+
+        for spec in "''${fields[@]}"; do
+          setField "$spec"
+        done
+      '';
 
   start = pkgs.writeShellScript "${name}-start" ''
     ${lib.optionalString (process.preStart != null) "${process.preStart} || exit"}
@@ -227,6 +293,7 @@ pkgs.writeShellApplication {
     XDG_CONFIG_HOME=''${XDG_CONFIG_HOME:-$(${coreutils}/bin/mktemp --directory)}
     export XDG_CONFIG_HOME
     ${lib.concatMapStrings linkConfigFile configFiles}
+    ${lib.optionalString parseArguments setFields}
     ${if supervise then supervisor else "exec ${start} \"$@\""}
   '';
 }

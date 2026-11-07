@@ -169,6 +169,12 @@ decodeAppParameter =
         (Decode.field "flag" (Decode.nullable Decode.string))
 
 
+type alias AppConfigFile =
+    { appConfigFile_path : String
+    , appConfigFile_format : Maybe String
+    }
+
+
 type alias AppReferences =
     { appReferences_commandLine : Maybe String
     , appReferences_environment : Maybe String
@@ -187,7 +193,7 @@ decodeAppReferences =
 type alias AppComponent =
     { appComponent_ports : List String
     , appComponent_parameters : Dict String AppParameter
-    , appComponent_configFiles : List String
+    , appComponent_configFiles : List AppConfigFile
     , appComponent_references : AppReferences
     }
 
@@ -207,20 +213,21 @@ decodeAppComponent =
         )
 
 
-{-| Path of an enabled configuration file.
+{-| An enabled configuration file.
 -}
-decodeAppConfigFile : Decoder (Maybe String)
+decodeAppConfigFile : Decoder (Maybe AppConfigFile)
 decodeAppConfigFile =
-    Decode.map2
-        (\enable path ->
+    Decode.map3
+        (\enable path format ->
             if enable then
-                Just path
+                Just (AppConfigFile path format)
 
             else
                 Nothing
         )
         (Decode.field "enable" Decode.bool)
         (Decode.field "path" Decode.string)
+        (Decode.field "format" (Decode.nullable Decode.string))
 
 
 {-| Service components that have settings to change after the build.
