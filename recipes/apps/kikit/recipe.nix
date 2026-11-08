@@ -4,27 +4,36 @@
   pkgs,
   ...
 }:
+
+let
+  setBroken = {
+    # Depends on vulnerable pybars3: https://github.com/NixOS/nixpkgs/pull/581431
+    # Could potentiall by solved by: https://github.com/yaqwsx/KiKit/issues/948
+    broken = true;
+  };
+in
+
 {
-  pkgs.kikit = {
+  pkgs.kikit = setBroken // {
     build.builders.identity = {
       enable = true;
       derivation = pkgs.pkgsOriginal.kikit;
     };
   };
-  pkgs.kicadAddons-kikit = {
+  pkgs.kicadAddons-kikit = setBroken // {
     build.builders.identity = {
       enable = true;
       derivation = pkgs.pkgsOriginal.kicadAddons.kikit;
     };
   };
-  pkgs.kicadAddons-kikit-library = {
+  pkgs.kicadAddons-kikit-library = setBroken // {
     build.builders.identity = {
       enable = true;
       derivation = pkgs.pkgsOriginal.kicadAddons.kikit-library;
     };
   };
 
-  apps.kikit = {
+  apps.kikit = setBroken // {
     displayName = "KiKit";
     description = "Tooling for automation of production of PCB designed in KiCAD.";
     categories = with forge-lib.categories; [
