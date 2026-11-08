@@ -135,15 +135,129 @@ decodeAppResource =
         (Decode.field "ports" (Decode.list Decode.string))
 
 
+type alias AppParameter =
+    { appParameter_description : String
+    , appParameter_default : Maybe String
+    , appParameter_enum : Maybe (List String)
+    , appParameter_flag : Maybe String
+    }
+
+
+decodeAppParameter : Decoder AppParameter
+decodeAppParameter =
+    Decode.map4 AppParameter
+        (Decode.field "description" Decode.string)
+        (Decode.field "default"
+            (Decode.nullable
+                (Decode.oneOf
+                    [ Decode.string
+                    , Decode.map String.fromInt Decode.int
+                    , Decode.map
+                        (\value ->
+                            if value then
+                                "true"
+
+                            else
+                                "false"
+                        )
+                        Decode.bool
+                    ]
+                )
+            )
+        )
+        (Decode.field "enum" (Decode.nullable (Decode.list Decode.string)))
+        (Decode.field "flag" (Decode.nullable Decode.string))
+
+
+type alias AppConfigFile =
+    { appConfigFile_path : String
+    , appConfigFile_format : Maybe String
+    }
+
+
+type alias AppReferences =
+    { appReferences_commandLine : Maybe String
+    , appReferences_environment : Maybe String
+    , appReferences_configFile : Maybe String
+    }
+
+
+decodeAppReferences : Decoder AppReferences
+decodeAppReferences =
+    Decode.map3 AppReferences
+        (Decode.field "commandLine" (Decode.nullable Decode.string))
+        (Decode.field "environment" (Decode.nullable Decode.string))
+        (Decode.field "configFile" (Decode.nullable Decode.string))
+
+
 type alias AppComponent =
     { appComponent_ports : List String
+    , appComponent_parameters : Dict String AppParameter
+    , appComponent_configFiles : List AppConfigFile
+    , appComponent_references : AppReferences
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent
-        (Decode.field "process" (Decode.field "ports" (Decode.list Decode.string)))
+    Decode.field "process"
+        (Decode.map4 AppComponent
+            (Decode.field "ports" (Decode.list Decode.string))
+            (Decode.field "parameters" (Decode.dict decodeAppParameter))
+            (Decode.field "configData"
+                (Decode.dict decodeAppConfigFile
+                    |> Decode.map (Dict.values >> List.filterMap identity)
+                )
+            )
+            (Decode.field "references" decodeAppReferences)
+        )
+
+
+{-| An enabled configuration file.
+-}
+decodeAppConfigFile : Decoder (Maybe AppConfigFile)
+decodeAppConfigFile =
+    Decode.map3
+        (\enable path format ->
+            if enable then
+                Just (AppConfigFile path format)
+
+            else
+                Nothing
+        )
+        (Decode.field "enable" Decode.bool)
+        (Decode.field "path" Decode.string)
+        (Decode.field "format" (Decode.nullable Decode.string))
+
+
+{-| Service components that have settings to change after the build.
+-}
+appConfigurableComponents : App -> List ( String, AppComponent )
+appConfigurableComponents app =
+    app.app_services.appServices_components
+        |> Dict.toList
+        |> List.filter
+            (\( _, component ) ->
+                not (Dict.isEmpty component.appComponent_parameters)
+                    || not (List.isEmpty component.appComponent_configFiles)
+                    || (appComponentReferences component /= [])
+            )
+
+
+{-| Upstream references of a service component, as pairs of title and URL.
+-}
+appComponentReferences : AppComponent -> List ( String, String )
+appComponentReferences component =
+    let
+        references =
+            component.appComponent_references
+    in
+    List.filterMap
+        (\( title, link ) -> Maybe.map (Tuple.pair title) link)
+        [ ( "Command line", references.appReferences_commandLine )
+        , ( "Environment variables", references.appReferences_environment )
+        , ( "Configuration files", references.appReferences_configFile )
+        ]
 
 
 type alias AppServices =

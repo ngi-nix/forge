@@ -1,5 +1,6 @@
 module Main.View.Page.App.Deploy exposing (..)
 
+import Dict
 import Html exposing (Html, a, button, div, h4, h5, hr, li, p, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, tabindex, target, title)
 import Html.Events exposing (stopPropagationOn)
@@ -385,15 +386,45 @@ viewPageAppDeployFlake model pageApp deployTarget =
             , "          forge.apps." ++ pageApp.pageApp_app.app_name ++ " = {"
             , "            enable = true;"
             , "            # TODO: Set custom application configuration here ... "
-            , "            # services.components.<name>.process.environment.VARIABLE = \"value\";"
-            , "          };"
-            , ""
-            , "          # Shell environment"
-            , "          devShells.default = pkgs.mkShell {"
-            , "            packages = ["
-            , "              pkgs.nixos-anywhere"
-            , "              pkgs.nixos-rebuild"
             ]
+                ++ flakeParameters
+                ++ [ "          };"
+                   , ""
+                   , "          # Shell environment"
+                   , "          devShells.default = pkgs.mkShell {"
+                   , "            packages = ["
+                   , "              pkgs.nixos-anywhere"
+                   , "              pkgs.nixos-rebuild"
+                   ]
+
+        flakeParameters =
+            case
+                appConfigurableComponents pageApp.pageApp_app
+                    |> List.concatMap
+                        (\( name, component ) ->
+                            component.appComponent_parameters
+                                |> Dict.toList
+                                |> List.concatMap
+                                    (\( variable, parameter ) ->
+                                        [ "            # " ++ parameter.appParameter_description
+                                        , String.concat
+                                            [ "            # services.components."
+                                            , name
+                                            , ".process.environment."
+                                            , variable
+                                            , " = \""
+                                            , Maybe.withDefault "value" parameter.appParameter_default
+                                            , "\";"
+                                            ]
+                                        ]
+                                    )
+                        )
+            of
+                [] ->
+                    [ "            # services.components.<name>.process.environment.VARIABLE = \"value\";" ]
+
+                lines ->
+                    lines
 
         flakeEnd =
             [ "            ];"

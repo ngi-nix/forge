@@ -22,6 +22,9 @@
           (lib.modules.importApply (forge-inputs.nixpkgs + "/lib/services/config-data.nix") {
             inherit pkgs;
           })
+          ./parameters.nix
+          ./config-files.nix
+          ./references.nix
           {
             options = {
               command = lib.mkOption {

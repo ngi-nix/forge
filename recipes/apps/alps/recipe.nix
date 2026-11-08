@@ -55,6 +55,7 @@
             '';
             path = "config.toml";
           };
+          references.configFile = "https://git.sr.ht/~migadu/alps/tree/main/item/docs/CONFIGURATION.md";
           command = pkgs.alps;
           argv = [
             "-config"
@@ -71,6 +72,18 @@
     test.services.script = ''
       curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
       $curl -fs localhost:1323/ | grep -i "alps"
+    '';
+
+    test.services.containerScript = ''
+      podman run --detach --name configured --publish 1324:1324 localhost/alps-alps:latest \
+        --forge-set 'config.toml:server.addr=":1324"'
+      curl --retry 10 --retry-max-time 120 --retry-all-errors -fs localhost:1324/ | grep -i "alps"
+      podman rm --force configured
+
+      podman run --rm --network none localhost/alps-alps:latest --forge-help
+      status=0
+      podman run --rm --network none localhost/alps-alps:latest --forge-set other.toml:a=1 || status=$?
+      test "$status" = 64
     '';
   };
 }

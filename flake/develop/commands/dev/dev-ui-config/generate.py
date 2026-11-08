@@ -98,6 +98,15 @@ apps."{name}" = {{
   services = {{
     components.{name} = {{
       process.command = pkgs.hello;
+      process.parameters.GREETING = {{
+        description = "Text to print.";
+        default = "Hello World";
+        flag = "--greeting";
+      }};
+      process.configData.greeting = {{
+        text = "Hello";
+        path = "greeting";
+      }};
     }};
     runtimes = {{
       container = {{

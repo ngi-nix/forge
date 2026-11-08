@@ -1,6 +1,7 @@
 module Main.View.Page.App.Run exposing (..)
 
-import Html exposing (Html, a, br, button, details, div, h5, hr, li, p, small, span, summary, text, ul)
+import Dict
+import Html exposing (Html, a, br, button, code, details, div, h5, h6, hr, li, p, small, span, summary, table, tbody, td, text, th, thead, tr, ul)
 import Html.Attributes exposing (attribute, class, href, id, style, tabindex, target, title)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
@@ -8,6 +9,7 @@ import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Html exposing (..)
 import Main.Helpers.Nix exposing (..)
+import Main.Helpers.String exposing (shellQuote)
 import Main.Icons exposing (..)
 import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
@@ -211,21 +213,214 @@ viewPageAppRunShell model pageApp =
         ]
 
 
+appRunContainerCommand : Model -> PageApp -> String
+appRunContainerCommand model pageApp =
+    String.concat
+        [ "nix run "
+        , showForgeInputFlakes model
+        , "#"
+        , pageApp.pageApp_app.app_outputName
+        , ".container"
+        ]
+
+
 viewPageAppRunContainer : Model -> PageApp -> Html Update
 viewPageAppRunContainer model pageApp =
     div []
         [ p [ style "margin-bottom" "0em" ] [ text "Run application services in OCI containers" ]
         , br [] []
-        , bashCodeBlock <|
-            String.concat
-                [ "nix run "
-                , showForgeInputFlakes model
-                , "#"
-                , pageApp.pageApp_app.app_outputName
-                , ".container"
-                ]
+        , bashCodeBlock (appRunContainerCommand model pageApp)
+        , viewPageAppRunContainerConfigure model pageApp
         , hr [] []
         , viewPageAppRunContainerBuildOCI model pageApp
+        ]
+
+
+viewPageAppRunContainerConfigure : Model -> PageApp -> Html Update
+viewPageAppRunContainerConfigure model pageApp =
+    case appConfigurableComponents pageApp.pageApp_app of
+        [] ->
+            text ""
+
+        components ->
+            div [ attribute "data-testid" "run-container-configure" ]
+                [ hr [] []
+                , details []
+                    (summary [] [ text "Configure services" ]
+                        :: br [] []
+                        :: List.concatMap (viewPageAppRunContainerConfigureComponent model pageApp) components
+                    )
+                ]
+
+
+viewPageAppRunContainerConfigureComponent : Model -> PageApp -> ( String, AppComponent ) -> List (Html Update)
+viewPageAppRunContainerConfigureComponent model pageApp ( name, component ) =
+    let
+        parameters =
+            Dict.toList component.appComponent_parameters
+
+        configFiles =
+            component.appComponent_configFiles
+
+        fieldFiles =
+            List.filter (\file -> file.appConfigFile_format /= Nothing) configFiles
+
+        run =
+            appRunContainerCommand model pageApp
+
+        image =
+            appImageReference pageApp.pageApp_app name
+
+        assignment ( variable, parameter ) =
+            variable ++ "=" ++ shellQuote (Maybe.withDefault "value" parameter.appParameter_default)
+
+        environmentOptions =
+            List.map (\parameter -> "-e " ++ assignment parameter) parameters
+
+        volumeOptions =
+            List.map
+                (\file ->
+                    "-v " ++ shellQuote ("./" ++ file.appConfigFile_path ++ ":/config/" ++ file.appConfigFile_path ++ ":ro,z")
+                )
+                configFiles
+
+        flagArguments =
+            List.filterMap
+                (\( _, parameter ) ->
+                    Maybe.map
+                        (\flag -> flag ++ "=" ++ shellQuote (Maybe.withDefault "value" parameter.appParameter_default))
+                        parameter.appParameter_flag
+                )
+                parameters
+
+        fieldArguments =
+            List.take 1 fieldFiles
+                |> List.map (\file -> "--forge-set " ++ shellQuote (file.appConfigFile_path ++ ":section.field=value"))
+    in
+    [ h6 [] [ text name ]
+    , p [ class "mb-1" ]
+        [ text "Show the configuration of the image:" ]
+    , bashCodeBlock (String.join " " [ "podman run --rm", image, "--forge-help" ])
+    , if List.isEmpty parameters then
+        text ""
+
+      else
+        div []
+            [ p [ class "mb-1" ]
+                [ text "Set parameters with environment variables or with flags after the image name. A flag replaces that value of the default command." ]
+            , table [ class "table table-sm" ]
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Variable" ]
+                        , th [] [ text "Flag" ]
+                        , th [] [ text "Default" ]
+                        , th [] [ text "Description" ]
+                        ]
+                    ]
+                , tbody [] (List.map viewPageAppRunContainerParameter parameters)
+                ]
+            , bashCodeBlock (String.join " " ([ "podman run" ] ++ environmentOptions ++ [ image ]))
+            ]
+    , if List.isEmpty flagArguments then
+        text ""
+
+      else
+        bashCodeBlock (String.join " " ([ "podman run", image ] ++ flagArguments))
+    , if List.isEmpty configFiles then
+        text ""
+
+      else
+        div []
+            [ p [ class "mb-1" ] [ text "Replace a configuration file with a mount at /config:" ]
+            , ul [] (List.map viewPageAppRunContainerConfigFile configFiles)
+            , bashCodeBlock (String.join " " ([ "podman run" ] ++ volumeOptions ++ [ image ]))
+            ]
+    , if List.isEmpty fieldArguments then
+        text ""
+
+      else
+        div []
+            [ p [ class "mb-1" ] [ text "Or set one field of a configuration file. The value is parsed as YAML:" ]
+            , bashCodeBlock (String.join " " ([ "podman run", image ] ++ fieldArguments))
+            ]
+    , case appComponentReferences component of
+        [] ->
+            text ""
+
+        references ->
+            div []
+                [ p [ class "mb-1" ] [ text "Upstream references:" ]
+                , ul []
+                    (List.map
+                        (\( title_, link ) -> li [] [ a [ href link, target "_blank" ] [ text title_ ] ])
+                        references
+                    )
+                ]
+    , if List.isEmpty parameters && List.isEmpty configFiles then
+        text ""
+
+      else
+        details []
+            [ summary [] [ text "Configure with Nix" ]
+            , br [] []
+            , if List.isEmpty parameters then
+                text ""
+
+              else
+                bashCodeBlock (String.join " " (List.map assignment parameters ++ [ run ]))
+            , if List.isEmpty configFiles then
+                text ""
+
+              else
+                div []
+                    [ p [ class "mb-1" ]
+                        [ text "Replace configuration files with files in "
+                        , code [] [ text ("$FORGE_CONFIG_DIR/" ++ name) ]
+                        , text ":"
+                        ]
+                    , bashCodeBlock ("FORGE_CONFIG_DIR=./config " ++ run)
+                    ]
+            ]
+    ]
+
+
+{-| Reference of the image of a service component.
+-}
+appImageReference : App -> String -> String
+appImageReference app name =
+    "localhost/" ++ app.app_name ++ "-" ++ name ++ ":latest"
+
+
+viewPageAppRunContainerConfigFile : AppConfigFile -> Html Update
+viewPageAppRunContainerConfigFile file =
+    li []
+        [ code [] [ text file.appConfigFile_path ]
+        , case file.appConfigFile_format of
+            Just format ->
+                text (" (" ++ format ++ ")")
+
+            Nothing ->
+                text ""
+        ]
+
+
+viewPageAppRunContainerParameter : ( String, AppParameter ) -> Html Update
+viewPageAppRunContainerParameter ( variable, parameter ) =
+    tr []
+        [ td [] [ code [] [ text variable ] ]
+        , td [] [ code [] [ text (Maybe.withDefault "" parameter.appParameter_flag) ] ]
+        , td [] [ code [] [ text (Maybe.withDefault "" parameter.appParameter_default) ] ]
+        , td []
+            [ text
+                (String.join " "
+                    (parameter.appParameter_description
+                        :: (parameter.appParameter_enum
+                                |> Maybe.map (\values -> [ "One of: " ++ String.join ", " values ++ "." ])
+                                |> Maybe.withDefault []
+                           )
+                    )
+                )
+            ]
         ]
 
 

@@ -4,6 +4,10 @@ const isProd = BASE_URL.includes("ngi.nixos.org")
   || process.env.UI_CMD == "forge-ui";
 
 export const TEST_APP_NAME = process.env.TEST_APP_NAME || (isProd ? "emerge" : "mock-test");
+export const TEST_PARAMETER_APP_NAME = process.env.TEST_PARAMETER_APP_NAME || (isProd ? "cdxgen" : "mock-test");
+export const TEST_PARAMETER_FLAG = process.env.TEST_PARAMETER_FLAG
+  || (isProd ? "--server-port=9090" : "--greeting='Hello World'");
+export const TEST_PARAMETER = process.env.TEST_PARAMETER || (isProd ? "FETCH_LICENSE=false" : "GREETING='Hello World'");
 export const TEST_PKG_NAME = process.env.TEST_PKG_NAME || (isProd ? "emerge" : "mock-test-pkg");
 export const TEST_APP_SEARCH = process.env.TEST_APP_SEARCH || (isProd ? "emerge" : "mock-test");
 export const TEST_PKG_SEARCH = process.env.TEST_PKG_SEARCH || (isProd ? "emerge" : "mock-test");
