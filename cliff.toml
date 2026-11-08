@@ -108,6 +108,7 @@ commit_parsers = [
   { message = '^\((.*)\):.*->.*', group = "(${1})" },
 
   { message = "^chore\\(release\\): prepare for", skip = true },
+  { message = "^chore: Update CHANGELOG.md", skip = true },
   { message = "^chore", group = "Miscellaneous Tasks" },
   { message = "^treewide", group = "Miscellaneous Tasks" },
   { message = "^\\+[^ ]*@.*", group = "Miscellaneous Tasks" },
