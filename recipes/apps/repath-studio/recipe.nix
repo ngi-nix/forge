@@ -12,8 +12,7 @@ in
   pkgs.repath-studio = {
     build.builders.identity = {
       enable = true;
-      # TODO remove once https://github.com/NixOS/nixpkgs/pull/578613 is available
-      derivation = pkgs.callPackage ../../_nixpkgs/repath-studio/package.nix { };
+      derivation = pkgs.pkgsOriginal.repath-studio;
     };
   };
 
