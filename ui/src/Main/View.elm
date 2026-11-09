@@ -180,12 +180,8 @@ viewSearchInput model =
                         searchIn (Dict.size model.model_config.config_apps) "application"
 
                     Page_Apps pageApps ->
-                        -- Search looks only in the applications of the selected category.
                         searchIn
-                            (model.model_config.config_apps
-                                |> Dict.filter (\_ app -> pageApps.pageApps_route.routeApps_category |> Maybe.map (\category -> List.member category app.app_categories) |> Maybe.withDefault True)
-                                |> Dict.size
-                            )
+                            (Dict.filter (\_ app -> appInCategory pageApps.pageApps_route.routeApps_category app) model.model_config.config_apps |> Dict.size)
                             "application"
 
                     Page_Pkgs _ ->
