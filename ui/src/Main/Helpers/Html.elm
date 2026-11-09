@@ -9,40 +9,6 @@ import Main.Icons exposing (iconCopy, iconDownload)
 import Main.Update.Types exposing (..)
 
 
-viewCountWidget :
-    { total : Int
-    , filtered : Int
-    , noun : String
-    , testId : String
-    , suffix : String
-    }
-    -> Html Update
-viewCountWidget { total, filtered, noun, testId, suffix } =
-    let
-        finalNoun =
-            if total == 1 then
-                noun
-
-            else
-                noun ++ "s"
-
-        label =
-            if filtered == total then
-                String.join " " [ String.fromInt total, finalNoun, suffix ]
-
-            else
-                String.join " " [ String.fromInt filtered, "of", String.fromInt total, finalNoun, suffix ]
-    in
-    Html.span
-        [ class "btn btn-sm border d-inline-flex align-items-center flex-shrink-0"
-        , style "color" "var(--bs-body-color)"
-        , style "white-space" "nowrap"
-        , style "font-variant-numeric" "tabular-nums"
-        , attribute "data-testid" testId
-        ]
-        [ Html.text label ]
-
-
 viewRuntimeBadge : AppRuntime -> Html Update
 viewRuntimeBadge runtime =
     Html.span [ class "has-tooltip d-inline-block me-1", stopPropagationOn "click" (Json.Decode.succeed ( Update_NoOp, True )) ]

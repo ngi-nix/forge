@@ -1,6 +1,5 @@
 module Main.View.Page.Pkgs exposing (..)
 
-import Dict
 import Html exposing (Html, a, code, div, h5, span, text)
 import Html.Attributes exposing (attribute, class, href, id, rel, style, target, title)
 import Main.Config exposing (..)
@@ -53,35 +52,11 @@ viewPagePkgs model pagePkgs =
                     }
     in
     div []
-        [ div
-            [ class "d-flex flex-column flex-md-row align-items-center my-2 gap-3 w-100" ]
-            [ div
-                [ class "d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start align-items-center gap-2 flex-grow-1 w-100"
-                , style "flex-basis" "0"
-                ]
-                [ viewPkgsCount model pagePkgs ]
-            , div [ class "flex-shrink-0" ]
-                [ viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute ]
-            , div
-                [ class "d-none d-md-block flex-grow-1"
-                , style "flex-basis" "0"
-                ]
-                []
-            ]
+        [ div [ class "d-flex justify-content-center my-2" ]
+            [ viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute ]
         , viewPaginationContent pagePkgs.pagePkgs_pagination (viewPagePkgsItem model pagePkgs)
         , viewPaginationNavigation PaginationVisibility_AlwaysVisible pagePkgs.pagePkgs_pagination reRoute
         ]
-
-
-viewPkgsCount : Model -> PagePkgs -> Html Update
-viewPkgsCount model pagePkgs =
-    viewCountWidget
-        { total = Dict.size model.model_config.config_pkgs
-        , filtered = pagePkgs.pagePkgs_pagination.pagePagination_list |> List.concat |> List.length
-        , noun = "packages"
-        , testId = "pkgs-count-badge"
-        , suffix = ""
-        }
 
 
 viewPagePkgsItem : Model -> PagePkgs -> Pkg -> Html Update

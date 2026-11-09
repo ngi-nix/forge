@@ -1,5 +1,6 @@
 module Main.View exposing (..)
 
+import Dict
 import Html exposing (Html, a, button, div, footer, header, img, input, li, main_, section, span, text, ul)
 import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, src, style, target, title, type_, value)
 import Html.Events exposing (onBlur, onFocus, onInput, preventDefaultOn)
@@ -141,6 +142,19 @@ viewDocsLink =
 
 viewSearchInput : Model -> Html Update
 viewSearchInput model =
+    let
+        searchIn count noun =
+            "Search in "
+                ++ String.fromInt count
+                ++ " "
+                ++ noun
+                ++ (if count == 1 then
+                        ""
+
+                    else
+                        "s"
+                   )
+    in
     div
         [ class "name position-relative flex-grow-1"
         , style "max-width" "600px"
@@ -163,13 +177,19 @@ viewSearchInput model =
             , placeholder <|
                 case model.model_page of
                     Page_App _ ->
-                        "Search applications"
+                        searchIn (Dict.size model.model_config.config_apps) "application"
 
-                    Page_Apps _ ->
-                        "Search applications"
+                    Page_Apps pageApps ->
+                        -- Search looks only in the applications of the selected category.
+                        searchIn
+                            (model.model_config.config_apps
+                                |> Dict.filter (\_ app -> pageApps.pageApps_route.routeApps_category |> Maybe.map (\category -> List.member category app.app_categories) |> Maybe.withDefault True)
+                                |> Dict.size
+                            )
+                            "application"
 
                     Page_Pkgs _ ->
-                        "Search packages"
+                        searchIn (Dict.size model.model_config.config_pkgs) "package"
 
                     Page_RecipeOptions page ->
                         "Search options"
