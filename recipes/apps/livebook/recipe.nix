@@ -11,6 +11,8 @@ let
   usageSnippets = forge-lib.snippets.usage app;
 
   port = "8080";
+  forwardedUrl = "http://localhost:${toString app.services.components.livebook.endpoints.web.forwardedPort}";
+
   caCertFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
 
   baseEnv = {
@@ -60,7 +62,7 @@ in
 
       ##### Web Interface
 
-      Open the [web interface](http://localhost:${port}) in your browser.
+      Open the [web interface](${forwardedUrl}) in your browser.
       Authentication token is disabled by default for ease of local use.
 
       ##### Managing Livebook
@@ -78,7 +80,7 @@ in
       ${app.data.exampleNotebook}
       ````
 
-      See [learn](http://localhost:${port}/learn) to see Livebook's full tutorial.
+      See [learn](${forwardedUrl}/learn) to see Livebook's full tutorial.
     '';
 
     categories = with forge-lib.categories; [ Development ];
@@ -123,9 +125,12 @@ in
             mkdir -p /var/lib/livebook/{tmp,data}
             ${fhsCompatSetup}
           '';
-          ports = [
-            "${port}:${port}"
-          ];
+        };
+
+        endpoints = {
+          web = {
+            port = lib.toInt port;
+          };
         };
 
         healthcheck = {
