@@ -1,6 +1,7 @@
 {
   config,
   forge-lib,
+  lib,
   pkgs,
   ...
 }:
@@ -41,7 +42,7 @@ in
 
       #### Web Interface
 
-      Open the [web interface](http://localhost:${toString app.services.resources.reverse-proxy.endpoints.web.forwardedPort}) and log in as
+      Open the [web interface](http://localhost:${toString app.services.components.offen.endpoints.web.forwardedPort}) and log in as
       the operator using the account created in the previous step.
     '';
 
@@ -83,30 +84,10 @@ in
           startPeriod = "10s";
           retries = 10;
         };
-      };
 
-      resources.reverse-proxy = {
-        role = "frontend";
-        nixosConfig = {
-          services.nginx = {
-            enable = true;
-            recommendedProxySettings = true;
-            virtualHosts.offen = {
-              default = true;
-              listen = [
-                {
-                  addr = "0.0.0.0";
-                  port = 80;
-                }
-              ];
-              locations."/".proxyPass =
-                "http://offen:${app.services.components.offen.process.environment.OFFEN_SERVER_PORT}";
-            };
-          };
-        };
         endpoints = {
           web = {
-            port = 80;
+            port = lib.toInt app.services.components.offen.process.environment.OFFEN_SERVER_PORT;
           };
         };
       };
@@ -140,7 +121,7 @@ in
         mkdir --parent /var/lib/offen
         export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
         offen setup -name test -email test@localhost -password test123456
-        $curl localhost | grep "Offen Fair Web Analytics"
+        $curl localhost:${app.services.components.offen.process.environment.OFFEN_SERVER_PORT} | grep "Offen Fair Web Analytics"
       '';
     };
   };
