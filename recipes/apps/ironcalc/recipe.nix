@@ -46,7 +46,6 @@ in
       Core = [ "IronCalc" ];
       Commons = [
         "IronCalc-conditional"
-        "IronCalc-NC"
       ];
     };
 
