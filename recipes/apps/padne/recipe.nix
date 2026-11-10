@@ -20,18 +20,6 @@
     displayName = "Padne";
     description = "KiCad-focused Power Delivery Network Simulator.";
     categories = with forge-lib.categories; [ Network ];
-    screenshots = [
-      {
-        url = "https://raw.githubusercontent.com/atx/padne/f19bf33981a487d16b035177401197feffd155ef/docs/_static/images/gui-demo.webp";
-        hash = "sha256-npqtvdC2KZPRJKT+tm3KdS3bfxJa24OCany4ZTdMxso=";
-        caption = "Voltage drop in the interactive GUI";
-      }
-      {
-        url = "https://raw.githubusercontent.com/atx/padne/f19bf33981a487d16b035177401197feffd155ef/docs/_static/images/banner.png";
-        hash = "sha256-IwRfn2Ax6v3fEFulNvHwGG2vCwEsDov04LUyxLBbUeA=";
-        caption = "Voltage, current density and mesh visualizations";
-      }
-    ];
     usage = ''
       Padne is a KiCad-native power delivery network analysis tool.
 
