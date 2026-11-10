@@ -46,7 +46,6 @@ viewPageApps model pageApps =
                     ]
                     [ viewCategoryDropdown model pageApps
                     , viewSortDropdown model pageApps
-                    , viewAppsCount model pageApps
                     ]
                 , div [ class "flex-shrink-0" ]
                     [ viewPaginationNavigation PaginationVisibility_HiddenIfSinglePage pageApps.pageApps_pagination reRoute ]
@@ -91,48 +90,6 @@ viewPageApps model pageApps =
                 nextPageApps
             )
         ]
-
-
-viewAppsCount : Model -> PageApps -> Html Update
-viewAppsCount model pageApps =
-    let
-        globalTotal =
-            Dict.size model.model_config.config_apps
-
-        filtered =
-            pageApps.pageApps_pagination.pagePagination_list
-                |> List.concat
-                |> List.length
-
-        hasSearch =
-            pageApps.pageApps_route.routeApps_search /= ""
-
-        hasCategory =
-            pageApps.pageApps_route.routeApps_category
-
-        activeTotal =
-            case hasCategory of
-                Just cat ->
-                    model.model_config.config_apps
-                        |> Dict.values
-                        |> List.filter (\a -> List.member cat a.app_categories)
-                        |> List.length
-
-                Nothing ->
-                    globalTotal
-    in
-    viewCountWidget
-        { total = activeTotal
-        , filtered = filtered
-        , noun = "application"
-        , testId = "apps-count-badge"
-        , suffix =
-            if hasSearch then
-                "matching \"" ++ pageApps.pageApps_route.routeApps_search ++ "\""
-
-            else
-                ""
-        }
 
 
 viewPageAppsPagination : PagePagination a -> (a -> Html Update) -> ((RoutePagination -> RoutePagination) -> Route) -> Html Update

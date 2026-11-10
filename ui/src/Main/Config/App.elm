@@ -26,6 +26,13 @@ type alias App =
     }
 
 
+{-| Whether the app is in the category, or `True` if there is no category.
+-}
+appInCategory : Maybe String -> App -> Bool
+appInCategory category app =
+    category |> Maybe.map (\c -> List.member c app.app_categories) |> Maybe.withDefault True
+
+
 decodeApp : Decoder App
 decodeApp =
     App
