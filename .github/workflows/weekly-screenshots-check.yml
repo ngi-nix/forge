@@ -42,7 +42,7 @@ jobs:
             {
               echo "## Broken screenshots"
               echo
-              echo "Run \`forge-screenshots <app-name>\`, or change \`screenshots\` in the recipe."
+              echo "Run \`forge-screenshots <app-name>\`, or change the \`screenshots.nix\` file of the application."
               echo
               grep ': broken ' "$RUNNER_TEMP/stdout.log" | sed 's/^/- /'
               echo

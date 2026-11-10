@@ -27,33 +27,6 @@
     displayName = "Goupile";
     description = "Free design tool for secure forms including Clinical Report Forms (eCRF).";
     categories = with forge-lib.categories; [ Uncategorised ];
-    screenshots = [
-      {
-        url = "https://codeberg.org/Koromix/rygel/raw/commit/fdf6871ac3a9956402661277a92f229b4075fa48/web/goupile.org/en/static/screenshots/editor.webp";
-        hash = "sha256-Mgk/WK1cZUCAeyzVvK0ElphJuaqJIDheqRtS2qZdReA=";
-        caption = "Create and test forms with the form editor";
-      }
-      {
-        url = "https://codeberg.org/Koromix/rygel/raw/commit/fdf6871ac3a9956402661277a92f229b4075fa48/web/goupile.org/en/static/screenshots/data.webp";
-        hash = "sha256-TEsi0CrVC+0E32WY43VcWzKazmxHoRBglJwKoQeOobw=";
-        caption = "Enter and export data from the same screen";
-      }
-      {
-        url = "https://codeberg.org/Koromix/rygel/raw/commit/fdf6871ac3a9956402661277a92f229b4075fa48/web/goupile.org/en/static/screenshots/overview.webp";
-        hash = "sha256-AJqfQSEc71qjaxB+VlR+CHwY2ITZWDs8a9aaphsziuU=";
-        caption = "Share forms with colleagues and users to collect data";
-      }
-      {
-        url = "https://codeberg.org/Koromix/rygel/raw/commit/fdf6871ac3a9956402661277a92f229b4075fa48/web/goupile.org/en/static/screenshots/tablet.webp";
-        hash = "sha256-xeoe43CUD2WN61iL9GTvOnCZWOvajytcsYkcIFPSTLg=";
-        caption = "Data entry on a tablet";
-      }
-      {
-        url = "https://codeberg.org/Koromix/rygel/raw/commit/fdf6871ac3a9956402661277a92f229b4075fa48/web/goupile.org/en/static/screenshots/admin.webp";
-        hash = "sha256-7muHQDHEtp6OddWwLXbehcKYo0r4PgI87w23S+l1dXE=";
-        caption = "Administration module for projects and users";
-      }
-    ];
     usage = ''
       Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
