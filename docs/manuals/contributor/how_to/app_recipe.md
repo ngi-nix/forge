@@ -122,36 +122,31 @@ These designs are adaptations of the upstream projects' logos and are [licensed]
 
 The application page shows the images from the `screenshots` option.
 
-If upstream has an [AppStream metainfo file](https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html) with `<screenshots>`, run this command in the development shell:
+If upstream package or source code contains [AppStream metainfo file](https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html) with `<screenshots>`, run this command in the development shell:
 
 ```bash
 forge-screenshots <app-name>
 ```
 
-The command writes the screenshots to a `screenshots.nix` file next to the recipe.
-A weekly workflow runs this command for all applications.
+The command creates screenshots configuration to a `screenshots.nix` file next to the recipe.
+An automated weekly workflow keeps the screenshots configuration up to date.
 
-Otherwise, set `screenshots` in the recipe, with images from official upstream sources only.
-An item is a local image file, or a URL with its hash.
+It is also possible to add screenshots manually. Please use only images from official upstream sources.
 Get the hash with `nix store prefetch-file <url>`.
 Use a URL that does not change, for example of a file at a Git commit.
 
 ```nix
-screenshots = [
-  ./screenshot.png
-  {
-    url = "https://raw.githubusercontent.com/example/app/<commit>/docs/screenshot.png";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-    caption = "Main window with an open project.";
-  }
-];
+{
+  apps.<app-name>.screenshots = [
+    ./screenshot.png
+    {
+      url = "https://raw.githubusercontent.com/example/app/<commit>/docs/screenshot.png";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      caption = "Main window with an open project.";
+    }
+  ];
+}
 ```
-
-::: {tip}
-The best source is an AppStream metainfo file with `<screenshots>` in the upstream source repository.
-Other distributions and app stores can then use the same screenshots.
-If upstream adds such a file, remove `screenshots` from the recipe.
-:::
 
 ## Programs
 
