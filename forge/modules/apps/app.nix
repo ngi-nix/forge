@@ -93,13 +93,20 @@
       description = ''
         Application screenshots, shown in the web interface.
 
-        The `forge-screenshots` command writes a `screenshots.nix` file next
-        to the recipe, which sets this option from AppStream metainfo.
-        A definition in the recipe overrides that file.
+        Set this option in a `screenshots.nix` file next to the recipe.
+        The `forge-screenshots` command writes this file from AppStream
+        metainfo. The command does not change a file that it did not write.
+
+        An item is an image file, or a set with `file` or with `url` and
+        `hash`, and an optional `caption`.
       '';
       example = lib.literalExpression ''
         [
           ./screenshot.png
+          {
+            file = ./settings.png;
+            caption = "Settings window.";
+          }
           {
             url = "https://example.com/screenshot.png";
             hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";

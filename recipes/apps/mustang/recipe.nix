@@ -9,18 +9,6 @@
     displayName = "Mustang";
     description = "Full-featured desktop email, chat, video conference, calendar and contacts client.";
     categories = with forge-lib.categories; [ Chat ];
-    screenshots = [
-      {
-        url = "https://www.mustang.im/assets/images/screenshots/mail.png";
-        hash = "sha256-vHyT/RoYDLOqw++w4qOfkTeDBPQ7SgfGcZ8jssdSv4o=";
-        caption = "Mail";
-      }
-      {
-        url = "https://www.mustang.im/assets/images/screenshots/fileShare.png";
-        hash = "sha256-JtNSU39SSEcAyXgB+hmHF7XEeZ6HN845BgvB/y+3uGM=";
-        caption = "File sharing";
-      }
-    ];
     usage = ''
       Mustang is a full desktop client combining email, chat,
       video conferencing, calendar, contacts, and file sharing in one app. Data
