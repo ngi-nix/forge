@@ -27,6 +27,7 @@ import os
 import re
 import subprocess
 import sys
+import threading
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
@@ -58,6 +59,16 @@ class Screenshot:
 
 def warn(message: str) -> None:
     print(f"warning: {message}", file=sys.stderr)
+
+
+VERBOSE = False
+# The application that the current thread updates or checks, for `info`.
+_current = threading.local()
+
+
+def info(message: str) -> None:
+    if VERBOSE:
+        print(f"{getattr(_current, 'app', '')}: {message}", file=sys.stderr)
 
 
 def nix(*args: str) -> subprocess.CompletedProcess[bytes]:
@@ -243,6 +254,7 @@ def metainfo_files(store: Store, package: str) -> Iterator[tuple[str, bytes]]:
 
 
 def source_metainfo_files(store: Store, source: dict) -> Iterator[tuple[str, bytes]]:
+    info(f"reading source `{source['path']}`")
     if store.fetch(source["path"], source["drv"]) is None:
         return
     for path in store.walk(source["path"]):
@@ -319,10 +331,16 @@ def candidates(
 ) -> Iterator[tuple[str, list[Screenshot]]]:
     roots: list[str] = []
     for package in dict.fromkeys(app["packages"]):
-        if store.location(Store.root(PurePosixPath(package))) is None:
+        location = store.location(Store.root(PurePosixPath(package)))
+        if location is None:
             warn(f"`{package}` is not in the local store or in a binary cache")
             continue
-        roots += [root for root in linked_roots(store, package) if root not in roots]
+        info(f"`{package}`: {location}")
+        for root in linked_roots(store, package):
+            if root not in roots:
+                if root != package:
+                    info(f"`{package}` links to `{root}`")
+                roots.append(root)
     files = [
         (f"AppStream metainfo `{name}`", root, data)
         for root in roots
@@ -331,14 +349,19 @@ def candidates(
     found = False
     for source, root, data in files:
         screenshots = parse(data, source, root)
+        info(f"{source} in `{root}`: {len(screenshots)} screenshots")
         if screenshots:
             found = True
             yield source, screenshots
     # Use the sources only if the packages do not install metainfo with screenshots.
     if not found:
+        info(
+            "no metainfo with screenshots in the packages, checking the package sources"
+        )
         for package_source in app["sources"]:
             for name, data in source_metainfo_files(store, package_source):
                 screenshots = parse(data, f"`{name}`", package_source["path"])
+                info(f"`{name}` in the package source: {len(screenshots)} screenshots")
                 if screenshots:
                     yield f"AppStream metainfo `{name}` in the package source", screenshots
 
@@ -353,7 +376,10 @@ def lock(screenshots: list[Screenshot], maximum: int) -> list[Screenshot]:
             continue
         screenshot.hash = prefetch(screenshot.url) or ""
         if screenshot.hash:
+            info(f"{screenshot.url}: {screenshot.hash}")
             locked.append(screenshot)
+        else:
+            info(f"{screenshot.url}: skipped")
     return locked
 
 
@@ -411,7 +437,9 @@ def same_metainfo(old: str, source: str) -> bool:
 def update(
     name: str, app: dict, store: Store, root: Path, args: argparse.Namespace
 ) -> str:
+    _current.app = name
     target = root / Path(app["recipePath"]).parent / "screenshots.nix"
+    info(f"`{target.relative_to(root)}`")
     existing = target.read_text() if target.exists() else ""
     if existing and not existing.startswith(GENERATED):
         return "kept (`screenshots.nix` is not from this command)"
@@ -434,7 +462,8 @@ def update(
     return "no screenshots found"
 
 
-def check(app: dict) -> str:
+def check(name: str, app: dict) -> str:
+    _current.app = name
     screenshots = app["lockedScreenshots"]
     broken = 0
     for screenshot in screenshots:
@@ -443,8 +472,10 @@ def check(app: dict) -> str:
         for _ in range(2):
             actual = prefetch(url)
             if actual == expected:
+                info(f"{url}: ok")
                 break
         else:
+            info(f"{url}: broken")
             if actual is not None:
                 warn(f"hash mismatch: {url}: expected {expected}, got {actual}")
             broken += 1
@@ -471,7 +502,15 @@ def main() -> None:
         action="store_true",
         help="check that the screenshot URLs can be fetched and have the same hash",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="print the steps for each application",
+    )
     args = parser.parse_args()
+    global VERBOSE
+    VERBOSE = args.verbose
 
     root = Path(
         subprocess.run(
@@ -495,7 +534,7 @@ def main() -> None:
     store = Store()
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         if args.check:
-            results = executor.map(lambda name: check(apps[name]), names)
+            results = executor.map(lambda name: check(name, apps[name]), names)
         else:
             results = executor.map(
                 lambda name: update(name, apps[name], store, root, args), names
