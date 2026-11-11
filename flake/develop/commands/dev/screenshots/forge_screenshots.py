@@ -15,6 +15,12 @@ that this command did not write stays as it is. Sources, in order:
 
 If a source gives no image that can be fetched, the next source is used.
 
+A URL of a file in a GitHub, GitLab, Forgejo or Gitea repository that is also
+the source of an application package is changed to the URL of the file at the
+revision of the source. Thus the URL continues to work when the file changes or
+moves in the repository. If the file is not at this revision, the URL stays as
+it is.
+
 With `--check`, the command does not write files. It downloads each screenshot
 URL with a hash in the final configuration of the applications, also the
 screenshots that a recipe sets by hand. It tells you which URLs cannot be
@@ -366,7 +372,89 @@ def candidates(
                     yield f"AppStream metainfo `{name}` in the package source", screenshots
 
 
-def lock(screenshots: list[Screenshot], maximum: int) -> list[Screenshot]:
+REF = r"(?:refs/(?:heads|tags)/[^/]+|[^/]+)"
+# The URLs of a file in a Git repository: the URL pattern, the URL of the
+# repository, and the URL of the file at a revision. In the URL of the file,
+# `rev` is the revision of the source, `ref` is the revision without
+# `refs/heads/` or `refs/tags/`, and `kind` is "commit", "branch" or "tag". The
+# first pattern that matches is used.
+FORGE_FILES = [
+    # GitHub.
+    (
+        re.compile(
+            rf"https://raw\.githubusercontent\.com/(?P<repo>[^/]+/[^/]+)/{REF}/(?P<path>.+)"
+        ),
+        "https://github.com/{repo}",
+        "https://raw.githubusercontent.com/{repo}/{rev}/{path}",
+    ),
+    (
+        re.compile(
+            rf"(?P<repo>https://github\.com/[^/]+/[^/]+)/raw/{REF}/(?P<path>.+)"
+        ),
+        "{repo}",
+        "{repo}/raw/{rev}/{path}",
+    ),
+    # Forgejo and Gitea, for example Codeberg.
+    (
+        re.compile(
+            r"(?P<repo>https://[^/]+/[^/]+/[^/]+)/raw/(?:branch|tag|commit)/[^/]+/(?P<path>.+)"
+        ),
+        "{repo}",
+        "{repo}/raw/{kind}/{ref}/{path}",
+    ),
+    # GitLab. It does not find `refs/heads/<branch>` or `refs/tags/<tag>`.
+    (
+        re.compile(rf"(?P<repo>https://[^/]+/.+?)/-/raw/{REF}/(?P<path>.+)"),
+        "{repo}",
+        "{repo}/-/raw/{ref}/{path}",
+    ),
+    # Old GitLab URLs, without `-/`.
+    (
+        re.compile(rf"(?P<repo>https://gitlab\.[^/]+/.+?)/raw/{REF}/(?P<path>.+)"),
+        "{repo}",
+        "{repo}/-/raw/{ref}/{path}",
+    ),
+]
+COMMIT = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
+
+
+def repo_key(url: str) -> str:
+    return url.removesuffix("/").removesuffix(".git").lower()
+
+
+def source_revisions(sources: list[dict]) -> dict[str, str]:
+    """Return the revisions of the sources, by `repo_key` of the Git repository."""
+    revisions: dict[str, str] = {}
+    for source in sources:
+        if source["gitRepoUrl"] and source["rev"]:
+            revisions.setdefault(repo_key(source["gitRepoUrl"]), source["rev"])
+    return revisions
+
+
+def pinned(url: str, revisions: dict[str, str]) -> str:
+    """Return the URL of the file `url` at the revision of its source."""
+    for pattern, repo, template in FORGE_FILES:
+        match = pattern.fullmatch(url)
+        if not match:
+            continue
+        parts = match.groupdict()
+        rev = revisions.get(repo_key(repo.format(**parts)))
+        if not rev:
+            return url
+        if COMMIT.fullmatch(rev):
+            kind = "commit"
+        elif rev.startswith("refs/heads/"):
+            kind = "branch"
+        else:
+            kind = "tag"
+        ref = re.sub(r"^refs/(?:heads|tags)/", "", rev)
+        return template.format(**parts, rev=rev, ref=ref, kind=kind)
+    return url
+
+
+def lock(
+    screenshots: list[Screenshot], maximum: int, revisions: dict[str, str]
+) -> list[Screenshot]:
     locked = []
     for screenshot in screenshots:
         if len(locked) >= maximum:
@@ -374,7 +462,14 @@ def lock(screenshots: list[Screenshot], maximum: int) -> list[Screenshot]:
         if not screenshot.url.startswith("https://"):
             warn(f"not an HTTPS URL: {screenshot.url}")
             continue
-        screenshot.hash = prefetch(screenshot.url) or ""
+        url = pinned(screenshot.url, revisions)
+        if url != screenshot.url:
+            screenshot.hash = prefetch(url) or ""
+            if screenshot.hash:
+                info(f"{screenshot.url}: pinned to {url}")
+                screenshot.url = url
+        if not screenshot.hash:
+            screenshot.hash = prefetch(screenshot.url) or ""
         if screenshot.hash:
             info(f"{screenshot.url}: {screenshot.hash}")
             locked.append(screenshot)
@@ -443,8 +538,9 @@ def update(
     existing = target.read_text() if target.exists() else ""
     if existing and not existing.startswith(GENERATED):
         return "kept (`screenshots.nix` is not from this command)"
+    revisions = source_revisions(app["sources"])
     for source, screenshots in candidates(name, app, store):
-        locked = lock(screenshots, args.max)
+        locked = lock(screenshots, args.max, revisions)
         if not locked:
             continue
         content = render(name, source, locked)
