@@ -161,6 +161,57 @@
       else
         url;
 
+    # Function for triggering warning messages only when building/evaluating a
+    # derivation. For this purpose, wrapping its `drvPath` and `outPath`
+    # attributes is enough.
+    #
+    # NOTE: if we wrap other attrs (e.g. with `lib.warnOnInstantiate`), we risk
+    # the messsage being printed mistakingly if those attributes are evaluated,
+    # especially when we do this for all packages (e.g. filtering flake checks).
+    warnOnBuild =
+      msg: drv:
+      let
+        warnedDrv = lib.warn msg drv;
+      in
+      drv
+      // {
+        drvPath = warnedDrv.drvPath;
+        outPath = warnedDrv.outPath;
+      };
+
+    handleUnfree =
+      pkgs: drv:
+      let
+        isApp = drv ? forge && drv.forge._recipeType == "apps";
+        isPkg = !isApp;
+
+        drvName = if isPkg then "pkgs.${drv.pname}" else "apps.${drv.name}";
+        drvIsUnfree = if isPkg then drv.unfree else drv.forge.unfree;
+
+        warnedDrv = warnOnBuild ''
+          '${drvName}' is unfree or depends on an unfree package.
+
+          To build it, you must allow unfree packages in your forge flake:
+
+          ```
+          perSystem =
+            { config, pkgs, ... }:
+            {
+              forge {
+                allowUnfree = true;
+              };
+            };
+          ```
+        '' pkgs.emptyFile;
+      in
+      if !drvIsUnfree || pkgs.config.allowUnfree then
+        if isPkg then drv.result.derivation else drv
+      else
+        # Replace the main derivation and all its passthru attributes with
+        # fake ones that carry the unfree warning.
+        # This is to make sure that we don't evaluate the real ones.
+        warnedDrv // lib.optionalAttrs isApp (lib.mapAttrs (_: v: warnedDrv) drv.passthru);
+
     # Application categories (eg. `forge-lib.categories.Development`).
     categories = lib.listToAttrs (
       map (c: lib.nameValuePair c.name c) (import ../../maintainers/categories-list.nix)
