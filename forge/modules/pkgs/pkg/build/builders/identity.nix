@@ -43,6 +43,7 @@
                 inherit (drv.meta)
                   license
                   ;
+                _recipeType = "pkgs";
                 broken = lib.mkDefault drv.meta.broken;
                 unfree = lib.mkDefault drv.meta.unfree;
               };

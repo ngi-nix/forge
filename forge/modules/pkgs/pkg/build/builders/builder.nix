@@ -89,6 +89,7 @@ in
               };
 
               forge = {
+                _recipeType = config._recipeType;
                 broken = config.broken;
                 unfree = config.unfree;
               };
