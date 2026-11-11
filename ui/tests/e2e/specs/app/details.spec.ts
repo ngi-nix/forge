@@ -103,6 +103,20 @@ test.describe("App Details Page", () => {
     await expect(modal).toBeHidden();
   });
 
+  test("ignores a screenshot URL without a screenshot", async ({ page }) => {
+    // mock-test in mock data has two screenshots
+    const modal = page.getByTestId("screenshot-modal");
+    await page.goto(`./app/${TEST_APP_NAME}#screenshot-9`);
+    await expect(page.getByTestId("app-title")).toBeVisible();
+    await expect(modal).toBeHidden();
+    // The arrow keys do not show a screenshot.
+    await page.keyboard.press("ArrowRight");
+    await expect(modal).toBeHidden();
+    // The page continues to work.
+    await page.getByTestId("app-screenshots").locator("a").first().click();
+    await expect(page.getByTestId("screenshot-modal-position")).toHaveText("1 / 2");
+  });
+
   test("keeps the screenshot modal buttons at the same position for each image width", async ({ page }) => {
     const modal = page.getByTestId("screenshot-modal");
     await page.getByTestId("app-screenshots").locator("a").first().click();
