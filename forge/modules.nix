@@ -21,6 +21,7 @@ let
         {
           pkgs,
           system,
+          config,
           forge-inputs,
           ...
         }:
@@ -40,7 +41,12 @@ let
           _module.args.forge-lib = forge-inputs.self.lib;
 
           # Do not require users to pin their own `inputs.nixpkgs`.
-          _module.args.pkgs = lib.mkDefault forge-inputs.nixpkgs.legacyPackages.${system};
+          _module.args.pkgs = lib.mkDefault (
+            import forge-inputs.nixpkgs {
+              config.allowUnfree = config.forge.allowUnfree;
+              inherit system;
+            }
+          );
 
           # See: https://github.com/ngi-nix/forge/issues/1020
           formatter = pkgs.lib.mkDefault pkgs.nixfmt-tree;
