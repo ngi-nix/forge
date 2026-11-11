@@ -100,6 +100,12 @@
               description = "List of application categories.";
               internal = true;
             };
+
+            allowUnfree = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "Whether to allow building unfree packages and apps.";
+            };
           };
         }
       ];
