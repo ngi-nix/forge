@@ -91,14 +91,12 @@
       );
       default = [ ];
       description = ''
-        Application screenshots, shown in the web interface.
+        Application screenshots, shown in the application details page.
 
         Set this option in a `screenshots.nix` file next to the recipe.
-        The `forge-screenshots` command writes this file from AppStream
-        metainfo. The command does not change a file that it did not write.
 
-        An item is an image file, or a set with `file` or with `url` and
-        `hash`, and an optional `caption`.
+        An item is an image file, or a set with `file` or with `url` and `hash`,
+        and an optional `caption`.
       '';
       example = lib.literalExpression ''
         [
