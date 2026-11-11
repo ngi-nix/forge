@@ -334,7 +334,7 @@ viewPageAppScreenshotModal _ pageApp =
                     , class "btn btn-dark rounded-circle flex-shrink-0 screenshot-modal-nav"
                     , title label
                     , attribute "aria-label" label
-                    , onClickStopPropagation (show (Maybe.map (\index -> modBy count (index + step)) routeApp.routeApp_screenshotShown))
+                    , onClickStopPropagation (show (Maybe.map (\index -> modBy count (index + step)) (pageAppScreenshotShown pageApp)))
                     ]
                     [ icon ]
 
@@ -342,7 +342,7 @@ viewPageAppScreenshotModal _ pageApp =
                 text ""
     in
     case
-        routeApp.routeApp_screenshotShown
+        pageAppScreenshotShown pageApp
             |> Maybe.andThen (\index -> List.drop index screenshots |> List.head |> Maybe.map (Tuple.pair index))
     of
         Nothing ->

@@ -50,6 +50,22 @@ type alias PageApp =
     }
 
 
+{-| The index of the screenshot shown in full size, if the `App` has a screenshot at this index.
+The index in the route comes from the URL, thus it can be outside of the screenshots.
+-}
+pageAppScreenshotShown : PageApp -> Maybe Int
+pageAppScreenshotShown pageApp =
+    pageApp.pageApp_route.routeApp_screenshotShown
+        |> Maybe.andThen
+            (\index ->
+                if index >= 0 && index < List.length pageApp.pageApp_app.app_screenshots then
+                    Just index
+
+                else
+                    Nothing
+            )
+
+
 type alias PageApps =
     { pageApps_route : RouteApps
     , pageApps_pagination : PagePagination App

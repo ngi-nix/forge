@@ -18,7 +18,7 @@ subscriptions model =
         [ Navigation.onEvent Main.Ports.Navigation.onNavEvent Update_Navigation
         , case model.model_page of
             Page_App pageApp ->
-                if pageApp.pageApp_route.routeApp_runShown || pageApp.pageApp_route.routeApp_deployShown || pageApp.pageApp_route.routeApp_screenshotShown /= Nothing then
+                if pageApp.pageApp_route.routeApp_runShown || pageApp.pageApp_route.routeApp_deployShown || pageAppScreenshotShown pageApp /= Nothing then
                     Sub.none
 
                 else
@@ -42,7 +42,7 @@ subscriptions model =
                         )
 
                 else
-                    case pageApp.pageApp_route.routeApp_screenshotShown of
+                    case pageAppScreenshotShown pageApp of
                         Just index ->
                             Browser.Events.onKeyDown (decodeScreenshotKey pageApp index)
 
