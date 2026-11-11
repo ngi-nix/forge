@@ -23,6 +23,10 @@ let
       sources = map (src: {
         path = src.outPath;
         drv = src.drvPath;
+        # The Git repository and the revision of the source, for example from
+        # `fetchFromGitHub`, to pin the screenshot URLs to the revision.
+        gitRepoUrl = src.gitRepoUrl or null;
+        rev = src.rev or null;
       }) sources;
     };
 in
