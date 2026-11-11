@@ -24,8 +24,6 @@ let
         path = src.outPath;
         drv = src.drvPath;
       }) sources;
-      # Git repositories of the sources, for example from `fetchFromGitHub`.
-      repos = builtins.filter builtins.isString (map (src: src.gitRepoUrl or null) sources);
     };
 in
 builtins.listToAttrs (
