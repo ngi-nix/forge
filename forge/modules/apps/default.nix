@@ -113,14 +113,17 @@
           );
         };
 
-      # TODO: collect disabled apps and print warnings?
-      enabledApps = lib.filterAttrs (_: app: !app.broken && !app.unfree && app.enable) config.forge.apps;
+      enabledApps = lib.filterAttrs (_: app: !app.broken && app.enable) config.forge.apps;
+
+      handleUnfree = forge-lib.handleUnfree pkgs;
 
       # App warnings and assertions are checked only when the app is evaluated,
       # to not slow down evaluation of other flake outputs.
       bundledApps = lib.mapAttrs (
         appName: app:
-        forge-lib.checkAssertionsWarnings { inherit (app) assertions warnings; } (shellBundle app)
+        forge-lib.checkAssertionsWarnings { inherit (app) assertions warnings; } (
+          handleUnfree (shellBundle app)
+        )
       ) enabledApps;
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
