@@ -11,12 +11,12 @@
     }
     {
       url = "https://www.kicad.org/img/screenshots/appstream/pcbnew_9.png";
-      hash = "sha256-mVRpQR4jGLU8HJNR3jahyeIRZ5K43jrLJwt3u1Cpuq0=";
+      hash = "sha256-15SD0eOJ93d4redOEcj/yEiiPGyyh3m6Vayo/QNz6/0=";
       caption = "KiCad PCB Layout Editor";
     }
     {
       url = "https://www.kicad.org/img/screenshots/appstream/3dviewer_9.png";
-      hash = "sha256-Twj5UDLmeiRj7QuvAvx96LcaIt5ZiPycLdD5/19SmB8=";
+      hash = "sha256-6jV7HtqvapwrNG5rSkfNda8vrIQ9OBPiNkpYT20sYlo=";
       caption = "KiCad 3D Viewer";
     }
   ];
