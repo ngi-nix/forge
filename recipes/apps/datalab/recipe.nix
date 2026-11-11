@@ -88,6 +88,7 @@ in
     ngi.grants = {
       Commons = [
         "DataLab-DEW"
+        "DataLab-Timeseries"
       ];
       Core = [
         "DataLab"
