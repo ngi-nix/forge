@@ -120,9 +120,11 @@ These designs are adaptations of the upstream projects' logos and are [licensed]
 
 ### Screenshots
 
-The application page shows the images from the `screenshots` option.
+Use `screenshots` option to add screenshots to the application details page.
 
-If upstream package or source code contains [AppStream metainfo file](https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html) with `<screenshots>`, run this command in the development shell:
+Screenshots can be automatically detected and configured if
+[AppStream metainfo file](https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html)
+is present in the package or package source using following command:
 
 ```bash
 forge-screenshots <app-name>
@@ -131,8 +133,8 @@ forge-screenshots <app-name>
 The command creates screenshots configuration to a `screenshots.nix` file next to the recipe.
 An automated weekly workflow keeps the screenshots configuration up to date.
 
-It is also possible to add screenshots manually. Please use only images from official upstream sources.
-Get the hash with `nix store prefetch-file <url>`.
+It is also possible to add screenshots manually. Please use only images from
+official upstream sources. Get the hash with `nix store prefetch-file <url>`.
 Use a URL that does not change, for example of a file at a Git commit.
 
 ```nix
