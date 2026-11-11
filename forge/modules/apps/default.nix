@@ -78,6 +78,7 @@
         in
         lib.fix (self: {
           config = app;
+          forge._recipeType = app._recipeType;
           forge.broken = app.broken;
           forge.unfree = app.unfree;
           packages = app.packages;
