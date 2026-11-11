@@ -77,6 +77,12 @@ def info(message: str) -> None:
         print(f"{getattr(_current, 'app', '')}: {message}", file=sys.stderr)
 
 
+def last_line(output: bytes) -> str:
+    """Return the last line of the output of a command, usually the error."""
+    lines = output.decode().strip().splitlines()
+    return lines[-1] if lines else "unknown error"
+
+
 def nix(*args: str) -> subprocess.CompletedProcess[bytes]:
     return subprocess.run(["nix", *args], capture_output=True)
 
@@ -163,9 +169,7 @@ class Store:
         if self.location(root) is None:
             result = nix("build", "--no-link", f"{drv}^out")
             if result.returncode != 0:
-                warn(
-                    f"cannot fetch `{root}`: {result.stderr.decode().strip().splitlines()[-1:]}"
-                )
+                warn(f"cannot fetch `{root}`: {last_line(result.stderr)}")
                 return None
             self._location[root] = "local"
         return self.location(root)
@@ -303,6 +307,14 @@ def is_image(head: bytes) -> bool:
 
 def prefetch(url: str) -> str | None:
     """Return the SRI hash of the image at `url`, or None if it is not an image."""
+    digest, problem = fetch_hash(url)
+    if digest is None:
+        warn(f"{problem}: {url}")
+    return digest
+
+
+def fetch_hash(url: str) -> tuple[str | None, str]:
+    """Return the SRI hash of the image at `url`, or None and the problem."""
     result = nix(
         "store",
         "prefetch-file",
@@ -314,14 +326,12 @@ def prefetch(url: str) -> str | None:
         url,
     )
     if result.returncode != 0:
-        warn(f"cannot fetch {url}: {result.stderr.decode().strip().splitlines()[-1:]}")
-        return None
-    info = json.loads(result.stdout)
-    with open(info["storePath"], "rb") as f:
+        return None, f"cannot fetch ({last_line(result.stderr)})"
+    prefetched = json.loads(result.stdout)
+    with open(prefetched["storePath"], "rb") as f:
         if not is_image(f.read(12)):
-            warn(f"not a PNG, JPEG, GIF or WebP image: {url}")
-            return None
-    return info["hash"]
+            return None, "not a PNG, JPEG, GIF or WebP image"
+    return prefetched["hash"], ""
 
 
 def parse(data: bytes, name: str, root: str) -> list[Screenshot]:
@@ -558,7 +568,8 @@ def update(
     return "no screenshots found"
 
 
-def check(name: str, app: dict) -> str:
+def check(name: str, app: dict, problems: list[str]) -> str:
+    """Check the screenshots of `app`, and add the broken ones to `problems`."""
     _current.app = name
     screenshots = app["lockedScreenshots"]
     broken = 0
@@ -566,18 +577,34 @@ def check(name: str, app: dict) -> str:
         url, expected = screenshot["url"], screenshot["hash"]
         # Some servers sometimes send other data. Thus, try a second time.
         for _ in range(2):
-            actual = prefetch(url)
+            actual, problem = fetch_hash(url)
             if actual == expected:
                 info(f"{url}: ok")
                 break
+            if actual is not None:
+                problem = f"hash mismatch (expected {expected}, got {actual})"
         else:
             info(f"{url}: broken")
-            if actual is not None:
-                warn(f"hash mismatch: {url}: expected {expected}, got {actual}")
+            warn(f"{problem}: {url}")
+            problems.append(f"{name}: {url}: {problem}")
             broken += 1
     if broken:
         return f"broken ({broken} of {len(screenshots)} screenshots)"
     return f"ok ({len(screenshots)} screenshots)"
+
+
+def write_summary(problems: list[str]) -> None:
+    """Add the broken screenshots to the summary of the GitHub Actions job, if any."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if not path or not problems:
+        return
+    with open(path, "a") as summary:
+        summary.write(
+            "## Broken screenshots\n\n"
+            "Run `forge-screenshots <app-name>`, or change the `screenshots.nix`"
+            " file of the application.\n\n"
+        )
+        summary.writelines(f"- {problem}\n" for problem in sorted(problems))
 
 
 def main() -> None:
@@ -628,9 +655,12 @@ def main() -> None:
     names = args.apps or sorted(apps)
 
     store = Store()
+    problems: list[str] = []
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         if args.check:
-            results = executor.map(lambda name: check(name, apps[name]), names)
+            results = executor.map(
+                lambda name: check(name, apps[name], problems), names
+            )
         else:
             results = executor.map(
                 lambda name: update(name, apps[name], store, root, args), names
@@ -639,6 +669,7 @@ def main() -> None:
         for name, outcome in zip(names, results):
             print(f"{name}: {outcome}")
             broken = broken or outcome.startswith("broken")
+    write_summary(problems)
     if broken:
         sys.exit(1)
 
