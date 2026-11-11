@@ -35,6 +35,9 @@
             apps.himalaya.enable = true;
             apps.offen.enable = true;
             pkgs.himalaya.enable = true;
+
+            # Uncomment this to enable unfree packages.
+            #allowUnfree = true;
           };
         };
 
