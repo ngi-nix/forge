@@ -10,9 +10,8 @@ that this command did not write stays as it is. Sources, in order:
    a wrapper of an unwrapped package), the metainfo files of these store paths
    are also used.
 2. AppStream metainfo files in the sources of the application packages. The
-   sources are read from the local store or from a binary cache, or fetched.
-3. AppStream metainfo files in the default branch of the Git repositories of
-   these sources, for metainfo files that are not in a release yet.
+   sources are read from the local store or from a binary cache, or fetched
+   with Nix.
 
 If a source gives no image that can be fetched, the next source is used.
 
@@ -33,7 +32,6 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 from functools import cache
@@ -260,45 +258,6 @@ def source_metainfo_files(store: Store, source: dict) -> Iterator[tuple[str, byt
                 yield str(path.relative_to(source["path"])), data
 
 
-def git(*args: str) -> subprocess.CompletedProcess[bytes]:
-    return subprocess.run(
-        ["git", *args],
-        capture_output=True,
-        env={**os.environ, "GIT_TERMINAL_PROMPT": "0"},
-        timeout=300,
-    )
-
-
-def upstream_metainfo_files(repo: str) -> Iterator[tuple[str, bytes]]:
-    """Read the metainfo files in the default branch of the Git repository `repo`."""
-    with tempfile.TemporaryDirectory(prefix="forge-screenshots-") as directory:
-        # Get the file tree only. `git show` gets the contents of the metainfo files.
-        clone = git(
-            "clone",
-            "--quiet",
-            "--depth=1",
-            "--filter=blob:none",
-            "--no-checkout",
-            repo,
-            directory,
-        )
-        if clone.returncode != 0:
-            warn(f"cannot clone {repo}: {clone.stderr.decode().strip()}")
-            return
-        tree = git("-C", directory, "ls-tree", "-r", "-z", "--name-only", "HEAD")
-        for name in tree.stdout.decode().split("\0"):
-            path = PurePosixPath(name)
-            if not path.name.endswith(METAINFO_SUFFIXES) or any(
-                skipped(part) for part in path.parent.parts
-            ):
-                continue
-            show = git("-C", directory, "show", f"HEAD:{name}")
-            if show.returncode == 0:
-                yield name, show.stdout
-            else:
-                warn(f"cannot read `{name}` in {repo}: {show.stderr.decode().strip()}")
-
-
 def text(element: ET.Element | None) -> str:
     return " ".join("".join(element.itertext()).split()) if element is not None else ""
 
@@ -387,18 +346,7 @@ def candidates(
             for name, data in source_metainfo_files(store, package_source):
                 screenshots = parse(data, f"`{name}`", package_source["path"])
                 if screenshots:
-                    found = True
                     yield f"AppStream metainfo `{name}` in the package source", screenshots
-    # Use the default branch only if the released sources have no metainfo with screenshots.
-    if not found:
-        for repo in dict.fromkeys(app["repos"]):
-            for name, data in upstream_metainfo_files(repo):
-                screenshots = parse(data, f"`{name}`", repo)
-                if screenshots:
-                    yield (
-                        f"AppStream metainfo `{name}` in the default branch of {repo}",
-                        screenshots,
-                    )
 
 
 REF = r"(?P<ref>refs/(?:heads|tags)/[^/]+|[^/]+)"
@@ -457,6 +405,15 @@ def forge_file(url: str) -> tuple[int, dict[str, str]] | None:
         if match:
             return index, match.groupdict()
     return None
+
+
+def git(*args: str) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        ["git", *args],
+        capture_output=True,
+        env={**os.environ, "GIT_TERMINAL_PROMPT": "0"},
+        timeout=300,
+    )
 
 
 @cache
@@ -588,8 +545,7 @@ METAINFO_NAME = re.compile(r"AppStream metainfo `(?:[^`]*/)?([^`/]+)`")
 def same_metainfo(old: str, source: str) -> bool:
     """Whether `old` has the same screenshots from the same metainfo file name.
 
-    The package, its source and the default branch of its repository often have
-    the same metainfo file. If the package is not available, the source changes,
+    The package and its source often have the same metainfo file. If the package is not available, the source changes,
     but the screenshots do not change. Thus, do not change the file.
     """
     line = SOURCE_LINE.search(old)
