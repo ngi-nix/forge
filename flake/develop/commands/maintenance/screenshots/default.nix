@@ -28,5 +28,5 @@ writeShellApplication {
     ''
       exec python3 ${src}/forge_screenshots.py "$@"
     '';
-  meta.description = "update application screenshots from AppStream metainfo";
+  meta.description = "configure and update application screenshots";
 }

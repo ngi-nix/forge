@@ -1,4 +1,4 @@
-"""forge-screenshots: update application screenshots.
+"""forge-screenshots: configure and update application screenshots.
 
 For each application, find screenshot URLs, lock them with a hash, and write
 them to a `screenshots.nix` file next to the recipe. A `screenshots.nix` file
