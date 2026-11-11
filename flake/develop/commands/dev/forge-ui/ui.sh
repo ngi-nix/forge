@@ -44,7 +44,7 @@ if [ "@mockBackend@" = "true" ]; then
   SCREENSHOTS_COMMAND="$(type -P true)"
 else
   BACKEND_COMMAND="$nix build -f \"$rootDir\" _forge.config -o \"$rootDir/ui/build/forge-config.json\" --show-trace"
-  SCREENSHOTS_COMMAND="$nix build -f \"$rootDir\" _forge.appScreenshots -o \"$rootDir/ui/build/app-screenshots\" --show-trace"
+  SCREENSHOTS_COMMAND="$nix build -f \"$rootDir\" _forge.screenshots -o \"$rootDir/ui/build/app-screenshots\" --show-trace"
 fi
 
 systemctl --user edit --runtime --force --full "$unit"-backend.service --stdin <<EOT

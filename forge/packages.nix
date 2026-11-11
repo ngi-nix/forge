@@ -73,7 +73,7 @@ let
   forgeConfig = config.forge;
 
   _forge = {
-    inherit appScreenshots;
+    screenshots = appScreenshots;
 
     config = pkgs.writeTextFile {
       name = "forge-config.json";

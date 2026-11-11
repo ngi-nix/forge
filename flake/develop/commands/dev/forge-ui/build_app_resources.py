@@ -40,7 +40,7 @@ def populate_resources_dir():
         build_dir = root_dir / "ui" / "build"
         resources_dir = build_dir / "resources"
         config_file = build_dir / "forge-config.json"
-        # Built by `nix build _forge.appScreenshots`, if not in mock mode.
+        # Built by `nix build _forge.screenshots`, if not in mock mode.
         screenshots_dir = build_dir / "app-screenshots"
 
         apps_dir = resources_dir / "apps"
