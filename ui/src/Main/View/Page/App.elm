@@ -271,7 +271,6 @@ viewPageAppScreenshots pageApp =
     else
         div [ id "screenshots", class "mt-4" ]
             [ hr [] []
-            , h4 [ class "mb-3" ] [ text "Screenshots" ]
             , div [ class "d-flex align-items-center gap-2" ]
                 (scrollButtons -1 "Show the previous screenshots" iconChevronLeft
                     ++ div
