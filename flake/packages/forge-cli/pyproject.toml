@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "forge-cli"
+version = "0.0.0"
+description = "Run, build, evaluate or enter a shell of an application with its parameters set"
+
+[project.scripts]
+forge = "forge_cli.__main__:main"
+
+[tool.setuptools]
+packages = ["forge_cli"]
