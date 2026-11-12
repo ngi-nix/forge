@@ -27,14 +27,32 @@ class PrefetchError(ForgeUpdateError):
         super().__init__(f"Prefetch failed: {detail}")
 
 
+def _format_build_stderr(stderr: str, max_lines: int = 20) -> str:
+    lines = stderr.strip().splitlines()
+    if not lines:
+        return ""
+
+    lines = lines[-max_lines:]
+    body = "\n".join(f"    {line}" for line in lines)
+
+    return body
+
+
 class BuildError(ForgeUpdateError):
     exit_code: int
     stderr: str
 
     def __init__(self, pname: str, exit_code: int, stderr: str) -> None:
-        super().__init__(f"Build of '{pname}' failed (exit {exit_code})")
         self.exit_code = exit_code
         self.stderr = stderr
+
+        msg = f"Build of '{pname}' failed (exit {exit_code})"
+        extra = _format_build_stderr(stderr)
+
+        if extra:
+            msg += f"\n{extra}"
+
+        super().__init__(msg)
 
 
 class UnsupportedRecipeError(ForgeUpdateError):
