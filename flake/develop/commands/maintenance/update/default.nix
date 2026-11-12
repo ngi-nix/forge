@@ -1,27 +1,40 @@
 {
-  writeShellApplication,
-  gitMinimal,
-  nix-prefetch-git,
-  nix,
+  lib,
   python3,
+  gitMinimal,
+  nix,
+  nix-prefetch-git,
 }:
+
 let
-  srcDir = toString ./.;
-  pythonEnv = python3.withPackages (ps: [
-    ps.colorama
-  ]);
-in
-writeShellApplication {
-  name = "forge-update";
-  runtimeInputs = [
+  runtimePath = lib.makeBinPath [
     gitMinimal
-    nix-prefetch-git
     nix
-    pythonEnv
+    nix-prefetch-git
   ];
-  text = ''
-    export PYTHONPATH="${srcDir}:''${PYTHONPATH-}"
-    exec python3 -m forge_update "$@"
-  '';
+in
+
+python3.pkgs.buildPythonApplication (finalAttrs: {
+  pname = "forge-update";
+  version = "0.0.0";
+  pyproject = true;
+
+  src = ./.;
+
+  makeWrapperArgs = [
+    "--prefix"
+    "PATH"
+    ":"
+    runtimePath
+  ];
+
+  build-system = with python3.pkgs; [
+    setuptools
+  ];
+
+  dependencies = with python3.pkgs; [
+    colorama
+  ];
+
   meta.description = "update Forge packages to the latest upstream version";
-}
+})
