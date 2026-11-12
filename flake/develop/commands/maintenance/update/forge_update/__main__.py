@@ -147,15 +147,17 @@ def main() -> None:
             rev_changed = (
                 not result.self_ref and result.rev != "" and result.rev != rev_current
             )
-            version_changed = pkg.version != result.version
+            version_current = pkg.version
+            version_new = result.version
+            version_changed = version_current != version_new
 
             print(style(name, Fore.YELLOW + Style.BRIGHT))
 
             if not version_changed and not rev_changed:
-                print(f"  {style('already at ' + pkg.version, Fore.YELLOW)}")
+                print(f"  {style('already at ' + version_current, Fore.YELLOW)}")
                 continue
 
-            writer.update_version(recipe, pkg.pname, result.version)
+            writer.update_version(recipe, pkg.pname, version_new)
             _print_changes(writer, 0)
 
             if not result.self_ref and result.rev:
