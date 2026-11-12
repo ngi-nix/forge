@@ -88,7 +88,7 @@ class BuilderHashUpdater:
 
         try:
             result = subprocess.run(
-                ["nix", "build", f".#{pname}"],
+                ["nix", "build", f".#pkgs.{pname}", "--no-link"],
                 capture_output=True,
                 text=True,
                 timeout=self.build_timeout,
