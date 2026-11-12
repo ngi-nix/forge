@@ -9,7 +9,7 @@ let
 in
 {
   pkgs.mwoffliner = {
-    version = "1.17.5";
+    version = "2.1.1";
     description = "Crawls any recent MediaWiki wiki and packages it into an offline ZIM snapshot for local browsing.";
     homePage = "https://github.com/openzim/mwoffliner";
     mainProgram = "mwoffliner";
@@ -17,12 +17,12 @@ in
 
     source = {
       git = "github:openzim/mwoffliner/v${recipe.version}";
-      hash = "sha256-aqhxcknSaOFZVUD7730vkyuG+H/zsD9pFdApl9cYGFU=";
+      hash = "sha256-Z8ty2sj7YPhUGuapMlCUBw4uMIVEBMyV5gm8fOXWMLY=";
     };
 
     build.builders.npm = {
       enable = true;
-      npmDepsHash = "sha256-RWLtRUKNPXqjALc2WNDvRriUSgdcwbon4LivZC/CIeo=";
+      npmDepsHash = "sha256-xa2Zt48i/OG8oTLH+Bsf0+0TRB34VLS0HbnywQwSEMA=";
     };
 
     build.extraAttrs = {
@@ -39,10 +39,6 @@ in
       prePatch = ''
         patchShebangs dev/build.sh
       '';
-
-      patches = [
-        ./001-fix-file-type-deps.patch
-      ];
 
       npmRebuildFlags = [ "--ignore-scripts" ];
 
