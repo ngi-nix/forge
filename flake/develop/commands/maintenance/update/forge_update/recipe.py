@@ -36,13 +36,13 @@ class RecipeParser:
     def __init__(self, recipes_root: Path) -> None:
         self.recipes_root = recipes_root
 
-    def find(self, name: str) -> Path:
+    def get_recipe_file(self, name: str) -> Path:
         path = self.recipes_root / name / "recipe.nix"
         if not path.exists():
             raise RecipeNotFoundError(name, self.recipes_root)
         return path
 
-    def parse(self, path: Path) -> Recipe:
+    def parse_recipe_file(self, path: Path) -> Recipe:
         lines = path.read_text().splitlines(keepends=True)
         text = "".join(lines)
 
@@ -356,7 +356,7 @@ class RecipeWriter:
             )
         )
 
-    def apply(self, recipe: Recipe, text: str | None = None) -> None:
+    def apply_text(self, recipe: Recipe, text: str | None = None) -> None:
         """
         Open the recipe file, write to it, and close the file.
 
