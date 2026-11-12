@@ -5,6 +5,7 @@
   forge-inputs,
   forge-lib,
   flake-parts-lib,
+  self-inputs,
   ...
 }:
 
@@ -120,7 +121,17 @@ let
     namespace = "_forge";
     derivations = _forge;
   }) { };
+
+  # Run, build, evaluate or enter a shell of an app of this flake with its parameters set
+  # (`nix run .#forge -- run <app>.<output> --set <name>=<value>`).
+  forgeCli = pkgs.callPackage ../flake/packages/forge-cli {
+    flake = self-inputs.self;
+    forge = forge-inputs.self;
+  };
 in
 {
-  packages = lib.mkIf config.forge.enable packagesWithNamespace.packages;
+  packages = lib.mkMerge [
+    (lib.mkIf config.forge.enable packagesWithNamespace.packages)
+    { forge = forgeCli; }
+  ];
 }

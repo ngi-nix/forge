@@ -10,11 +10,28 @@
     type = lib.types.submoduleWith {
       modules = [
         (
-          { specialArgs, ... }@forgeArgs:
+          { specialArgs, extendModules, ... }@forgeArgs:
           {
             config = {
               # Convenient alias to use `apps` instead of `config.apps`
               _module.args.apps = forgeArgs.config.apps;
+
+              # Evaluate all recipes again, so that the recipe of the app,
+              # which reads its parameters from `config.apps.<name>`,
+              # gets the new values.
+              appWithParameters =
+                name: parameters:
+                (extendModules {
+                  modules = [
+                    { apps.${name}.parameters = lib.mapAttrs (_: value: { value = lib.mkForce value; }) parameters; }
+                  ];
+                }).config.apps.${name};
+            };
+            options.appWithParameters = lib.mkOption {
+              type = lib.types.raw;
+              internal = true;
+              readOnly = true;
+              description = "Function returning the app `name` with the `parameters` set.";
             };
             options.apps = lib.mkOption {
               default = { };
@@ -81,6 +98,19 @@
           forge.broken = app.broken;
           forge.unfree = app.unfree;
           packages = app.packages;
+          # Change the parameters of the app, for example
+          # `apps.<name>.override { port = 9090; }`.
+          override =
+            parameters:
+            let
+              checked = forge-lib.checkParameters app.name app.parameters parameters;
+            in
+            # Report invalid parameters even if no app output reads them.
+            lib.seq checked (
+              # Keep the parameters set by earlier `override` calls,
+              # because `appWithParameters` starts again from the recipe.
+              bundle (config.forge.appWithParameters app.name (app.parameters // checked))
+            );
         })
         // lib.optionalAttrs app.programs.runtimes.program.enable {
           program = app.programs.mainPackage;
@@ -117,10 +147,10 @@
 
       # App warnings and assertions are checked only when the app is evaluated,
       # to not slow down evaluation of other flake outputs.
-      bundledApps = lib.mapAttrs (
-        appName: app:
-        forge-lib.checkAssertionsWarnings { inherit (app) assertions warnings; } (shellBundle app)
-      ) enabledApps;
+      bundle =
+        app: forge-lib.checkAssertionsWarnings { inherit (app) assertions warnings; } (shellBundle app);
+
+      bundledApps = lib.mapAttrs (_: bundle) enabledApps;
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
         derivations = bundledApps;
