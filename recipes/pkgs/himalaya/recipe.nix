@@ -5,20 +5,20 @@
 
 {
   pkgs.himalaya = {
-    version = "1.2.0";
+    version = "2.2.1";
     description = "Command-line email client supporting IMAP, Maildir, and SMTP.";
     homePage = "https://pimalaya.org";
     mainProgram = "himalaya";
     license = lib.licenses.mit;
 
     source = {
-      git = "github:pimalaya/himalaya/v1.2.0";
-      hash = "sha256-BBzfDeNu7s010ARCYuydCyR7QWrbeI3/B4CxA6d4olw=";
+      git = "github:pimalaya/himalaya/v2.2.1";
+      hash = "sha256-fYspChAGb0PLdsgP5GViAwp4NdmDXDyait0mpqIkGfQ=";
     };
 
     build.builders.rust = {
       enable = true;
-      cargoHash = "sha256-IkvRiU9NuD6n7aCF8J235u2LjjmLftnF1n874IWVcN0=";
+      cargoHash = "sha256-KDsvF8wHMIEw+rjBJpUTgX6QIhcCMVjLWcPWklpxG3Q=";
     };
 
     test.script = ''
