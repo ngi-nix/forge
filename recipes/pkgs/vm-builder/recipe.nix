@@ -9,7 +9,7 @@ let
 in
 {
   pkgs.vm-builder = {
-    version = "0.3.0";
+    version = "0-unstable-2025-08-21";
     description = "Portable, isolated tool for building virtual machines from text-based configurations.";
     homePage = "https://codeberg.org/uvm/vm-builder";
     mainProgram = "vm-builder";
