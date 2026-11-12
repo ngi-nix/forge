@@ -14,6 +14,7 @@ from .types import ForgeHost, GitSource, Recipe, Source, SourceType
 class VersionResult:
     version: str
     rev: str
+    self_ref: bool = False
 
 
 class VersionDetector:
@@ -42,7 +43,7 @@ class VersionDetector:
         # and we should only change the version.
         if re.search(regexes.PACKAGE_SELF_REFERENCE, rev):
             result = self._detect_tag_based(git_source)
-            return VersionResult(version=result.version, rev="")
+            return VersionResult(version=result.version, rev=result.rev, self_ref=True)
 
         if self._is_commit_hash(rev):
             return self._detect_hash_based(git_source)
