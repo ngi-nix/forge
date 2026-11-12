@@ -81,9 +81,9 @@ class BuilderHashUpdater:
         before = len(writer.pending_changes)
         original_text = recipe.abs_path.read_text()
 
-        writer.apply(recipe)
+        writer.apply_text(recipe)
         updater(recipe, pname, "")
-        writer.apply(recipe)
+        writer.apply_text(recipe)
 
         try:
             result = subprocess.run(
@@ -95,7 +95,7 @@ class BuilderHashUpdater:
         except subprocess.TimeoutExpired:
             raise BuildError(pname, -1, f"nix build timed out ({self.build_timeout}s)")
         finally:
-            writer.apply(recipe, original_text)
+            writer.apply_text(recipe, original_text)
 
         stderr = result.stderr or ""
         match = HASH_MISMATCH_RE.search(stderr)

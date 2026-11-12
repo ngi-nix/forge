@@ -131,8 +131,8 @@ def main() -> None:
         writer = RecipeWriter(dry_run=args.dry_run)
 
         try:
-            path = parser.find(name)
-            recipe = parser.parse(path)
+            path = parser.get_recipe_file(name)
+            recipe = parser.parse_recipe_file(path)
             pkg = recipe.packages[0]
 
             original_text = recipe.abs_path.read_text()
@@ -142,9 +142,9 @@ def main() -> None:
             else:
                 result = detector.detect(recipe)
 
-            g = pkg.source.git
-            current_rev = g.rev if g else ""
-            rev_changed = bool(result.rev) and result.rev != current_rev
+            source_git = pkg.source.git
+            rev_current = source_git.rev if source_git else ""
+            rev_changed = bool(result.rev) and result.rev != rev_current
             version_changed = pkg.version != result.version
 
             print(style(name, Fore.YELLOW + Style.BRIGHT))
@@ -162,17 +162,17 @@ def main() -> None:
                 _print_changes(writer, before)
 
             should_prefetch = (
-                g is not None
+                source_git is not None
                 and result.rev
                 and not args.dry_run
                 and not args.skip_prefetch
             )
             if should_prefetch:
-                assert g is not None
+                assert source_git is not None
                 before = len(writer.pending_changes)
                 with _progress("source.hash"):
                     new_hash = prefetcher.prefetch_git(
-                        g.remote_url, result.rev, g.submodules
+                        source_git.remote_url, result.rev, source_git.submodules
                     )
                 writer.update_source_hash(recipe, pkg.pname, new_hash)
                 _print_changes(writer, before)
@@ -184,13 +184,13 @@ def main() -> None:
                         builder_hash.update(recipe, writer, pkg)
                     _print_changes(writer, before)
 
-            writer.apply(recipe)
+            writer.apply_text(recipe)
 
             if args.commit and not args.dry_run:
                 _commit_recipe(recipe, pkg, result)
         except ForgeUpdateError as e:
             if recipe and original_text:
-                writer.apply(recipe, original_text)
+                writer.apply_text(recipe, original_text)
             print(style(name, Fore.YELLOW + Style.BRIGHT))
             print(f"  {style(str(e), Fore.RED)}")
             continue
