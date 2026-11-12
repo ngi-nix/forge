@@ -1,4 +1,3 @@
-import re
 import subprocess
 from typing import Callable
 
@@ -6,8 +5,6 @@ from . import regexes
 from .errors import BuildError
 from .recipe import RecipeWriter
 from .types import BuilderType, PackageEntry, Recipe
-
-HASH_MISMATCH_RE = re.compile(regexes.NIX_BUILD_GOT_HASH)
 
 
 class BuilderHashUpdater:
@@ -98,7 +95,7 @@ class BuilderHashUpdater:
             writer.apply_text(recipe, original_text)
 
         stderr = result.stderr or ""
-        match = HASH_MISMATCH_RE.search(stderr)
+        match = regexes.NIX_BUILD_GOT_HASH.search(stderr)
         if not match:
             raise BuildError(pname, result.returncode, stderr)
 
