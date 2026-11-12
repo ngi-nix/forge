@@ -144,7 +144,9 @@ def main() -> None:
 
             source_git = pkg.source.git
             rev_current = source_git.rev if source_git else ""
-            rev_changed = bool(result.rev) and result.rev != rev_current
+            rev_changed = (
+                not result.self_ref and result.rev != "" and result.rev != rev_current
+            )
             version_changed = pkg.version != result.version
 
             print(style(name, Fore.YELLOW + Style.BRIGHT))
@@ -156,7 +158,7 @@ def main() -> None:
             writer.update_version(recipe, pkg.pname, result.version)
             _print_changes(writer, 0)
 
-            if result.rev:
+            if not result.self_ref and result.rev:
                 before = len(writer.pending_changes)
                 writer.update_git_rev(recipe, pkg.pname, result.rev)
                 _print_changes(writer, before)
