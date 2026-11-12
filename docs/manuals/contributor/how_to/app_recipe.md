@@ -152,6 +152,72 @@ the recipe, and add them to Git.
 }
 ```
 
+## Parameters
+
+Use the `parameters` option to let users customize the application
+configuration, for example its port. Each parameter has a default `value` (a
+string, an integer or a boolean) and a `description`. In the recipe, reference
+the value of a parameter as `app.parameters.<name>`:
+
+```nix
+{
+  config,
+  ...
+}:
+
+let
+  app = config.apps.my-app;
+in
+{
+  apps.my-app = {
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the web interface.";
+      };
+    };
+
+    services.components.my-app = {
+      process.environment.MY_APP_PORT = app.parameters.port;
+      endpoints.web.port = app.parameters.port;
+    };
+  };
+}
+```
+
+Users can change the application parameters with the `override` function of the
+application output. It accepts only the parameters that the recipe sets, with
+the same type.
+
+```nix
+# In a flake with NGI Forge as the `ngi-forge` input
+ngi-forge.packages.${system}.apps.my-app.override { port = 9090; }
+```
+
+In a flake which imports the NGI Forge flake module (for example a
+[deployment configuration](../../user/deployment.md)), the applications are
+configured in the flake itself, so set the value of the parameter instead. The
+recipe sets the value too, hence `lib.mkForce`.
+
+```nix
+forge.apps.my-app.parameters.port.value = lib.mkForce 9090;
+```
+
+On the command line, use the `forge` command. It takes the same application
+outputs as `nix run .#apps.my-app.<output>`, and converts each value to the type
+of the parameter. Options after `--` are passed to Nix.
+
+```bash
+# From local source code
+nix run .#forge -- run my-app.container --set port=9090
+nix run .#forge -- build my-app.vm --set port=9090
+nix run .#forge -- eval my-app.config.parameters --set port=9090 -- --json
+nix run .#forge -- shell my-app --set port=9090
+
+# Or from GitHub
+nix run github:ngi-nix/forge#forge -- run my-app.container --set port=9090
+```
+
 ## Programs
 
 Add a `programs` block if the application provides GUI or CLI programs.

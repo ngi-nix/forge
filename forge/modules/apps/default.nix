@@ -10,11 +10,28 @@
     type = lib.types.submoduleWith {
       modules = [
         (
-          { specialArgs, ... }@forgeArgs:
+          { specialArgs, extendModules, ... }@forgeArgs:
           {
             config = {
               # Convenient alias to use `apps` instead of `config.apps`
               _module.args.apps = forgeArgs.config.apps;
+
+              # Evaluate all recipes again, so that the recipe of the app,
+              # which reads its parameters from `config.apps.<name>`,
+              # gets the new values.
+              appWithParameters =
+                name: parameters:
+                (extendModules {
+                  modules = [
+                    { apps.${name}.parameters = lib.mapAttrs (_: value: { value = lib.mkForce value; }) parameters; }
+                  ];
+                }).config.apps.${name};
+            };
+            options.appWithParameters = lib.mkOption {
+              type = lib.types.raw;
+              internal = true;
+              readOnly = true;
+              description = "Function returning the app `name` with the `parameters` set.";
             };
             options.apps = lib.mkOption {
               default = { };
@@ -82,6 +99,31 @@
           forge.broken = app.broken;
           forge.unfree = app.unfree;
           packages = app.packages;
+          # Return a new version of the app with parameters overwritten.
+          #
+          # For example, if `apps.<name>` declares `port = 8080;`, we can:
+          # `apps.<name>.override { port = 9090; }`
+          override =
+            newParameters:
+            let
+              oldParameters = app.parameters;
+
+              # Assert that new parameters are declared by the app, with the same types.
+              checkedParameters = forge-lib.checkParameters {
+                appName = app.name;
+                declaredParameters = oldParameters;
+                parameters = newParameters;
+              };
+
+              # Keep the parameters set by earlier `override` calls,
+              # because `appWithParameters` starts again from the recipe.
+              allParameters = oldParameters // checkedParameters;
+
+              newApp = bundle (config.forge.appWithParameters app.name allParameters);
+            in
+            # Evaluate and check all parameters, so we catch all invalid ones,
+            # even if no app output reads them. Then, return the overwritten app.
+            lib.seq checkedParameters newApp;
         })
         // lib.optionalAttrs app.programs.runtimes.program.enable {
           program = app.programs.mainPackage;
@@ -119,12 +161,13 @@
 
       # App warnings and assertions are checked only when the app is evaluated,
       # to not slow down evaluation of other flake outputs.
-      bundledApps = lib.mapAttrs (
-        appName: app:
+      bundle =
+        app:
         forge-lib.checkAssertionsWarnings { inherit (app) assertions warnings; } (
           handleUnfree (shellBundle app)
-        )
-      ) enabledApps;
+        );
+
+      bundledApps = lib.mapAttrs (_: bundle) enabledApps;
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "apps";
         derivations = bundledApps;

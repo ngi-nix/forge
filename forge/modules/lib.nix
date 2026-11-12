@@ -223,5 +223,85 @@
 
     # Re-usable snippets in Markdown format (eg. `forge-lib.snippets.usage app`).
     snippets = import ../../maintainers/snippets-list.nix { inherit lib; };
+
+    # Check that the app `appName` declares the `parameters` in `declaredParameters`,
+    # with the same types.
+    checkParameters =
+      {
+        appName,
+        declaredParameters,
+        parameters,
+      }:
+      let
+        names = lib.concatStringsSep ", " (lib.attrNames declaredParameters);
+        typeName =
+          value:
+          {
+            int = "an integer";
+            string = "a string";
+            bool = "a boolean";
+          }
+          .${lib.typeOf value} or (lib.typeOf value);
+        checked = lib.mapAttrs (
+          name: value:
+          if !declaredParameters ? ${name} then
+            throw "The app `${appName}` has no parameter `${name}`. Available parameters: ${
+              if names == "" then "none" else names
+            }."
+          else if lib.typeOf value != lib.typeOf declaredParameters.${name} then
+            throw "The parameter `${name}` of the app `${appName}` must be ${
+              typeName declaredParameters.${name}
+            }, not ${typeName value}."
+          else
+            value
+        ) parameters;
+      in
+      # Check all the parameters now, also those that the recipe does not read
+      # (for example a parameter that the app does not declare).
+      lib.deepSeq checked checked;
+
+    # Convert the strings of the parameters (eg. from the command line)
+    # to the types that the app `appName` declares in `declaredParameters`.
+    # Parameters that the app does not declare stay strings,
+    # for `checkParameters` to report them.
+    parametersFromStrings =
+      {
+        appName,
+        declaredParameters,
+        parameterStrings,
+      }:
+      lib.mapAttrs (
+        name: value:
+        let
+          declaredValue = declaredParameters.${name};
+
+          throwExpected =
+            expected:
+            throw "The parameter `${name}` of the app `${appName}` must be ${expected}, not `${value}`.";
+
+          parseBool =
+            value:
+            if value == "true" then
+              true
+            else if value == "false" then
+              false
+            else
+              throwExpected "`true` or `false`";
+
+          parseInt =
+            value:
+            if lib.strings.match "-?[0-9]+" value != null then lib.toInt value else throwExpected "an integer";
+
+          convert =
+            value:
+            if lib.isBool declaredValue then
+              parseBool value
+            else if lib.isInt declaredValue then
+              parseInt value
+            else
+              value;
+        in
+        if declaredParameters ? ${name} then convert value else value
+      ) parameterStrings;
   };
 }
