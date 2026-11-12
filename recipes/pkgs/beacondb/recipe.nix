@@ -8,14 +8,14 @@ let
 in
 {
   pkgs.beacondb = {
-    version = "v0.2.0";
+    version = "0.2.0";
     description = "A privacy focused assisted GPS service written in Rust.";
     homePage = "https://beacondb.net";
     mainProgram = "beacondb";
     license = lib.licenses.agpl3Only;
 
     source = {
-      git = "github:beacondb/beacondb/${recipe.version}";
+      git = "github:beacondb/beacondb/v${recipe.version}";
       hash = "sha256-jKSHFtSeykan/cx4cFWjMLaropXskNo5OEwNlA/u3zs=";
     };
 
