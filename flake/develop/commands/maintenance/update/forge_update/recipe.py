@@ -331,7 +331,12 @@ class RecipeWriter:
         raise RecipeParseError(abs_path, f"package '{pname}' not found for replacement")
 
     def _replace(
-        self, recipe: Recipe, pname: str, pattern: str, replacement: str, field: str
+        self,
+        recipe: Recipe,
+        pname: str,
+        pattern: str | re.Pattern[str],
+        replacement: str,
+        field: str,
     ) -> None:
         text = "".join(recipe.raw_lines)
 
