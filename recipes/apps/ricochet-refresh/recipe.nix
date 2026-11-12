@@ -27,7 +27,7 @@ in
     '';
 
     usage = ''
-      First, ${usageSnippets.run-shell}, then launch the Ricochet Refresh desktop application.
+      First, ${usageSnippets.run-program}, to launch the Ricochet Refresh desktop application.
 
       Then you can connect to Tor directly or Configure your network.
       Once connected, share your Ricochet ID with others to communicate.
