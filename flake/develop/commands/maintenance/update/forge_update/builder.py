@@ -1,12 +1,11 @@
 import re
 import subprocess
-
 from typing import Callable
 
 from . import regexes
 from .errors import BuildError
-from .recipe import Recipe, RecipeWriter
-from .types import BuilderType, PackageEntry
+from .recipe import RecipeWriter
+from .types import BuilderType, PackageEntry, Recipe
 
 HASH_MISMATCH_RE = re.compile(regexes.NIX_BUILD_GOT_HASH)
 
@@ -21,7 +20,7 @@ class BuilderHashUpdater:
         match pkg.builder_type:
             case BuilderType.GO:
                 bh = pkg.builder_hashes
-                if bh is not None and bh.vendor_hash is not None:
+                if bh.vendor_hash is not None:
                     return "vendorHash"
                 return None
             case BuilderType.RUST:
@@ -41,7 +40,7 @@ class BuilderHashUpdater:
                 )
             case BuilderType.GO:
                 bh = pkg.builder_hashes
-                if bh is not None and bh.vendor_hash is not None:
+                if bh.vendor_hash is not None:
                     self._update_single(
                         recipe,
                         pkg.pname,
@@ -80,11 +79,11 @@ class BuilderHashUpdater:
             return
 
         before = len(writer.pending_changes)
+        original_text = recipe.abs_path.read_text()
 
-        recipe.abs_path.write_text("".join(recipe.raw_lines))
-
+        writer.apply(recipe)
         updater(recipe, pname, "")
-        recipe.abs_path.write_text("".join(recipe.raw_lines))
+        writer.apply(recipe)
 
         try:
             result = subprocess.run(
@@ -95,6 +94,8 @@ class BuilderHashUpdater:
             )
         except subprocess.TimeoutExpired:
             raise BuildError(pname, -1, f"nix build timed out ({self.build_timeout}s)")
+        finally:
+            writer.apply(recipe, original_text)
 
         stderr = result.stderr or ""
         match = HASH_MISMATCH_RE.search(stderr)

@@ -326,7 +326,7 @@ class RecipeWriter:
         """
         for match in re.finditer(rf"pkgs\.{re.escape(pname)}\s*=\s*\{{", text):
             start = match.start()
-            end_pos, block_text = _extract_braced_block(text, match.end() - 1)
+            end_pos, _block_text = _extract_braced_block(text, match.end() - 1)
             return start, end_pos, text[start:end_pos]
         raise RecipeParseError(abs_path, f"package '{pname}' not found for replacement")
 
