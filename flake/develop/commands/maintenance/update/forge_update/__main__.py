@@ -125,11 +125,17 @@ def main() -> None:
     for i, name in enumerate(names):
         if i > 0:
             print()
+
+        recipe: Recipe | None = None
+        original_text: str | None = None
+        writer = RecipeWriter(dry_run=args.dry_run)
+
         try:
             path = parser.find(name)
             recipe = parser.parse(path)
             pkg = recipe.packages[0]
-            writer = RecipeWriter(dry_run=args.dry_run)
+
+            original_text = recipe.abs_path.read_text()
 
             if args.version:
                 result = VersionResult(version=args.version, rev="")
@@ -183,6 +189,8 @@ def main() -> None:
             if args.commit and not args.dry_run:
                 _commit_recipe(recipe, pkg, result)
         except ForgeUpdateError as e:
+            if recipe and original_text:
+                writer.apply(recipe, original_text)
             print(style(name, Fore.YELLOW + Style.BRIGHT))
             print(f"  {style(str(e), Fore.RED)}")
             continue
