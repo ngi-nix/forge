@@ -47,18 +47,25 @@ in
       ];
     };
 
+    parameters = {
+      port = {
+        value = 3000;
+        description = "Port of the dokieli web interface.";
+      };
+    };
+
     services = {
       components.web = {
         process = {
           command = pkgs.dokieli;
           argv = [
             "-l"
-            "tcp://0.0.0.0:3000"
+            "tcp://0.0.0.0:${toString app.parameters.port}"
           ];
         };
         endpoints = {
           web = {
-            port = 3000;
+            port = app.parameters.port;
           };
         };
       };
@@ -68,7 +75,7 @@ in
 
     test.services.script = ''
       curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:3000 | grep "dokieli" > /dev/null
+      $curl localhost:${toString app.parameters.port} | grep "dokieli" > /dev/null
     '';
 
   };

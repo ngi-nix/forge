@@ -8,7 +8,6 @@
 
 let
   app = config.apps.pdfding;
-  endpoint = app.services.components.pdfding.endpoints.web;
 in
 {
   pkgs.pdfding = {
@@ -47,7 +46,7 @@ in
 
       ##### Web Interface
 
-      Open the [web interface](http://localhost:${toString endpoint.forwardedPort}) and log in using the account created in the previous step.
+      Open the [web interface](http://localhost:${toString app.services.components.pdfding.endpoints.web.forwardedPort}) and log in using the account created in the previous step.
     '';
 
     links = {
@@ -62,6 +61,13 @@ in
       ];
     };
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the PdfDing web interface.";
+      };
+    };
+
     services = {
       components.pdfding = {
         process = {
@@ -73,7 +79,7 @@ in
           '';
           environment = {
             HOST_IP = "0.0.0.0";
-            HOST_PORT = toString endpoint.port;
+            HOST_PORT = app.parameters.port;
             HOST_NAME = "localhost,127.0.0.1,0.0.0.0,pdfding";
             SECRET_KEY = "insecure-default-key-change-in-production";
             CSRF_COOKIE_SECURE = "FALSE";
@@ -89,7 +95,7 @@ in
 
         endpoints = {
           web = {
-            port = 8080;
+            port = app.parameters.port;
           };
         };
 
@@ -98,7 +104,7 @@ in
           test = [
             "curl"
             "-fs"
-            "http://localhost:${toString endpoint.port}/accountlogin/"
+            "http://localhost:${toString app.parameters.port}/accountlogin/"
           ];
           packages = [ pkgs.curl ];
           interval = "3s";
@@ -135,8 +141,8 @@ in
       script = ''
         curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
 
-        $curl -fsL localhost:${toString endpoint.port} | grep "<title>PdfDing</title>"
-        $curl -fs localhost:${toString endpoint.port}/accountlogin/ | grep "PdfDing"
+        $curl -fsL localhost:${toString app.parameters.port} | grep "<title>PdfDing</title>"
+        $curl -fs localhost:${toString app.parameters.port}/accountlogin/ | grep "PdfDing"
       '';
     };
   };

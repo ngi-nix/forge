@@ -95,7 +95,7 @@ in
       ##### cdxgen server
 
       First, ${usageSnippets.run-container} or ${usageSnippets.run-nixos}.
-      By default, it will be accessible from `http://127.0.0.1:${app.data.mainPort}`, but you can change this from the application recipe.
+      By default, it will be accessible from `http://127.0.0.1:${toString app.parameters.port}`, but you can change this with the `port` parameter.
 
       Next, to scan a local path, run the following:
 
@@ -103,7 +103,7 @@ in
       export PROJECT_PATH="/path/to/project"
       export PROJECT_TYPE="js"
 
-      curl "http://127.0.0.1:${app.data.mainPort}/sbom?path=$PROJECT_PATH&multiProject=true&type=$PROJECT_TYPE"
+      curl "http://127.0.0.1:${toString app.parameters.port}/sbom?path=$PROJECT_PATH&multiProject=true&type=$PROJECT_TYPE"
       ```
 
       or, to scan a git repo:
@@ -112,7 +112,7 @@ in
       export REPO_URL="https://github.com/HooliCorp/vulnerable-aws-koa-app.git"
       export PROJECT_TYPE="js"
 
-      curl "http://127.0.0.1:${app.data.mainPort}/sbom?url=$REPO_URL&multiProject=true&type=$PROJECT_TYPE"
+      curl "http://127.0.0.1:${toString app.parameters.port}/sbom?url=$REPO_URL&multiProject=true&type=$PROJECT_TYPE"
       ```
 
       For more details and examples, please see the [project documentation](${config.apps.cdxgen.links.docs}).
@@ -126,7 +126,6 @@ in
     '';
 
     data = {
-      mainPort = "9090";
       cdxgenCommit = "1bbffbffbb3da6386310fcb2997c72cbf0c7ecb8";
       ociPythonTag = "3.14-slim";
       ociPythonHash = "810da6270e43d30a1f3e0e1eabbeb6fbd9d78ad9dd2e754d5297a3d6cb42df46";
@@ -158,6 +157,13 @@ in
       };
     };
 
+    parameters = {
+      port = {
+        value = 9090;
+        description = "Port of the cdxgen server API.";
+      };
+    };
+
     services = {
       components.cdxgen = {
         process.command = pkgs.cdxgen;
@@ -166,7 +172,7 @@ in
           "--server-host"
           "0.0.0.0"
           "--server-port"
-          "${app.data.mainPort}"
+          (toString app.parameters.port)
         ];
         # https://github.com/cdxgen/cdxgen/blob/v13.0.1/docs/ENV.md
         process.environment = {
@@ -178,7 +184,7 @@ in
         };
         endpoints = {
           api = {
-            port = lib.toInt (toString app.data.mainPort);
+            port = app.parameters.port;
           };
         };
         healthcheck = {
@@ -186,7 +192,7 @@ in
           test = [
             "${lib.getExe pkgs.curl}"
             "-fs"
-            "http://localhost:${app.data.mainPort}/health"
+            "http://localhost:${toString app.parameters.port}/health"
           ];
           interval = "3s";
           timeout = "3s";
@@ -223,7 +229,7 @@ in
       '';
       services.script = ''
         curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-        $curl "http://localhost:${app.data.mainPort}/sbom?path=${pkgs.cdxgen.src}/test/repotests/npm-smoke&type=npm"
+        $curl "http://localhost:${toString app.parameters.port}/sbom?path=${pkgs.cdxgen.src}/test/repotests/npm-smoke&type=npm"
       '';
     };
   };

@@ -30,7 +30,7 @@ in
 
       Ironcalc will be available on [http://localhost:${toString app.services.components.ironcalc.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.ironcalc.endpoints.web.forwardedPort}).
 
-      You can specify a different port via `ROCKET_PORT`, and different database path with `IRONCALC_DB_PATH` environment variables.
+      You can specify a different database path with the `IRONCALC_DB_PATH` environment variable.
 
     '';
 
@@ -49,16 +49,24 @@ in
       ];
     };
 
+    parameters = {
+      port = {
+        value = 8000;
+        description = "Port of the IronCalc web interface.";
+      };
+    };
+
     services = {
       components.ironcalc = {
         process.command = lib.getExe pkgs.ironcalc;
         process.environment = {
           ROCKET_ADDRESS = "0.0.0.0";
+          ROCKET_PORT = app.parameters.port;
           IRONCALC_DB_PATH = "/var/lib/ironcalc/ironcalc.sqlite";
         };
         endpoints = {
           web = {
-            port = 8000;
+            port = app.parameters.port;
           };
         };
       };
@@ -79,7 +87,7 @@ in
 
     test.services.script = ''
       curl="curl --retry 8 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:8000 | grep -q "IronCalc"
+      $curl localhost:${toString app.parameters.port} | grep -q "IronCalc"
     '';
   };
 }
