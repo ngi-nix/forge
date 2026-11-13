@@ -6,20 +6,20 @@
 
 {
   pkgs.sequoia-pgp = {
-    version = "1.4.0-pqc.1";
+    version = "1.5.0";
     description = "Command-line OpenPGP tool with post-quantum cryptography support.";
     homePage = "https://sequoia-pgp.org";
     mainProgram = "sq";
     license = "lgpl2Plus";
 
     source = {
-      git = "gitlab:sequoia-pgp/sequoia-sq/v1.4.0-pqc.1";
-      hash = "sha256-ep3il5In0ecyNWHvCo0yh4yL92VTy3/FligzKkY+SJQ=";
+      git = "gitlab:sequoia-pgp/sequoia-sq/sequoia-sq/v1.5.0";
+      hash = "sha256-DLJ32QGFbCNcIDZnNAx+JCP7xvL+Qoy3Eju1/xCu/AA=";
     };
 
     build.builders.rust = {
       enable = true;
-      cargoHash = "sha256-NYUYQCKG4XWchvuEzzAD+R25Wk0YrHN4ISVtQnhPkcM=";
+      cargoHash = "sha256-mYrDtPE010isOdGpq70sRzB02y9Tiiei0S1McOM4AVM=";
       packages.build = [
         pkgs.pkg-config
         pkgs.rustPlatform.bindgenHook

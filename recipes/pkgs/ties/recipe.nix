@@ -9,7 +9,7 @@ let
 in
 {
   pkgs.ties = {
-    version = "0.3.0";
+    version = "0.4.0";
     description = "A federated network to bookmark, organize, share and discover good web pages.";
     homePage = "https://ties.pub";
     mainProgram = "ties";
@@ -17,21 +17,16 @@ in
 
     source = {
       git = "github:raffomania/ties/v${recipe.version}";
-      hash = "sha256-42QqZeA3OfjAM86ysHXYgn2ZPJ7HNSjInW0+jHcEGmY=";
+      hash = "sha256-upm3mztL3V2g8ESNn3+yuWgn6jbvmJfr/OW+twGlYss=";
     };
 
     build.builders.rust = {
       enable = true;
-      cargoHash = "sha256-4irWiRYyi51PbnAXly7aG2mXDnLstGR//UaZwMvpVas=";
+      cargoHash = "sha256-NmMau1yCoPcOfOD8UOFfQwPcjtyv0rkpjEJYA5uae5E=";
       packages.check = [ pkgs.postgresql ];
     };
 
     build.extraAttrs = {
-      patches = [
-        # Remove on next release if https://github.com/raffomania/ties/pull/396 is merged
-        ./0001-Omit-Secure-cookie-for-http-deployment.patch
-        ./0002-Fix-cookie-parser-to-handle-multiple-cookies-correct.patch
-      ];
       checkType = "debug";
       preCheck = ''
         # spin up a temporary postgres server for testing

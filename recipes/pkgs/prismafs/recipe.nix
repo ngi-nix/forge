@@ -9,7 +9,7 @@ let
 in
 {
   pkgs.prismafs = {
-    version = "1.8.0";
+    version = "1.9.0";
     description = "Lightweight, portable userspace filesystem with isolated session layer.";
     homePage = "https://github.com/goranb131/prismaFS";
     mainProgram = "prismafs";
@@ -17,7 +17,7 @@ in
 
     source = {
       git = "github:goranb131/prismaFS/v${recipe.version}";
-      hash = "sha256-DoBEZxkJW4/cS0FdmDZiMSyhK8P3Zu+lxtHAMFUD1xY=";
+      hash = "sha256-an6e0txbgE3dLaHryr9vwZyJp3QXPkqrdqGWBH1Rw6M=";
     };
 
     build.builders.standard = {
@@ -28,6 +28,7 @@ in
       ];
       packages.run = with pkgs; [
         fuse3
+        libsodium
       ];
     };
 
