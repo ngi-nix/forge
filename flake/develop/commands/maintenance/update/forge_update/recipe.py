@@ -356,6 +356,12 @@ class RecipeWriter:
             )
         )
 
-    def apply(self, recipe: Recipe) -> None:
+    def apply(self, recipe: Recipe, text: str | None = None) -> None:
+        """
+        Open the recipe file, write to it, and close the file.
+
+        If no `text` argument is supplied, the in-memory recipe text will be written.
+        """
         if not self.dry_run:
-            _ = recipe.abs_path.write_text("".join(recipe.raw_lines))
+            in_memory_text = "".join(recipe.raw_lines)
+            _ = recipe.abs_path.write_text(text if text is not None else in_memory_text)
