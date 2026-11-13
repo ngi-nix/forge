@@ -47,13 +47,19 @@
               };
 
               environment = lib.mkOption {
-                type = lib.types.attrsOf lib.types.str;
+                type = lib.types.attrsOf (lib.types.coercedTo lib.types.int toString lib.types.str);
                 default = { };
-                description = "Environment variables passed to the service.";
+                description = ''
+                  Environment variables passed to the service.
+
+                  Integers are converted to strings, for example
+                  `PORT = app.parameters.port`.
+                '';
                 example = lib.literalExpression ''
                   {
                     DEBUG = "1";
                     LOG_LEVEL = "info";
+                    PORT = 8080;
                   }
                 '';
               };
