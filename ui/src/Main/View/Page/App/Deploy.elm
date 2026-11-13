@@ -1,5 +1,6 @@
 module Main.View.Page.App.Deploy exposing (..)
 
+import Dict
 import Html exposing (Html, a, button, div, h4, h5, hr, li, p, span, text, ul)
 import Html.Attributes exposing (attribute, class, classList, href, id, style, tabindex, target, title)
 import Html.Events exposing (stopPropagationOn)
@@ -388,6 +389,25 @@ viewPageAppDeployFlake model pageApp deployTarget =
             , "            ];"
             ]
 
+        -- The recipe sets the parameters too, hence `lib.mkForce`.
+        parametersConfig =
+            if Dict.isEmpty pageApp.pageApp_app.app_parameters then
+                []
+
+            else
+                ""
+                    :: "            # Application parameters"
+                    :: (pageApp.pageApp_app.app_parameters
+                            |> Dict.toList
+                            |> List.concatMap
+                                (\( name, parameter ) ->
+                                    [ "            # " ++ parameter.appParameter_description
+                                    , "            parameters." ++ name ++ ".value = lib.mkForce " ++ parameter.appParameter_nixValue ++ ";"
+                                    ]
+                                )
+                       )
+                    ++ [ "" ]
+
         flakeAppModule =
             [ "          }"
             , ""
@@ -402,7 +422,10 @@ viewPageAppDeployFlake model pageApp deployTarget =
             , "          # Application configuration"
             , "          forge.apps." ++ pageApp.pageApp_app.app_name ++ " = {"
             , "            enable = true;"
-            , "            # TODO: Set custom application configuration here ... "
+            ]
+
+        flakeAppConfig =
+            [ "            # Custom application recipe configuration"
             , "            # services.components.<name>.process.environment.VARIABLE = \"value\";"
             , "          };"
             , ""
@@ -428,7 +451,7 @@ viewPageAppDeployFlake model pageApp deployTarget =
         , style "resize" "vertical"
         ]
         [ nixCodeBlock <|
-            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ firewallConfig ++ flakeAppModule ++ devShellTargetPackages ++ flakeEnd)
+            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ firewallConfig ++ flakeAppModule ++ parametersConfig ++ flakeAppConfig ++ devShellTargetPackages ++ flakeEnd)
         ]
 
 

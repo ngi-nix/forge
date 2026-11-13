@@ -1,6 +1,7 @@
 module Main.View.Page.App.Run exposing (..)
 
-import Html exposing (Html, a, br, button, details, div, h5, hr, li, p, small, span, summary, text, ul)
+import Dict
+import Html exposing (Html, a, br, button, code, details, div, h5, hr, li, p, small, span, summary, text, ul)
 import Html.Attributes exposing (attribute, class, href, id, style, tabindex, target, title)
 import Html.Events exposing (stopPropagationOn)
 import Json.Decode as Decode
@@ -192,6 +193,7 @@ viewPageAppRunProgram model pageApp =
                 , pageApp.pageApp_app.app_outputName
                 , ".program"
                 ]
+        , viewPageAppRunParameters model pageApp "run" "program"
         ]
 
 
@@ -208,6 +210,7 @@ viewPageAppRunShell model pageApp =
                 , "#"
                 , pageApp.pageApp_app.app_outputName
                 ]
+        , viewPageAppRunParameters model pageApp "shell" ""
         ]
 
 
@@ -224,7 +227,75 @@ viewPageAppRunContainer model pageApp =
                 , pageApp.pageApp_app.app_outputName
                 , ".container"
                 ]
+        , viewPageAppRunParameters model pageApp "run" "container"
         ]
+
+
+{-| Instructions to `command` (eg. `run`) the `output` of the app
+(eg. `container`, or `""` for the app itself) with its parameters changed,
+if the app has parameters.
+-}
+viewPageAppRunParameters : Model -> PageApp -> String -> String -> Html Update
+viewPageAppRunParameters model pageApp command output =
+    let
+        app =
+            pageApp.pageApp_app
+    in
+    if Dict.isEmpty app.app_parameters then
+        text ""
+
+    else
+        div []
+            [ hr [] []
+            , details []
+                [ summary [] [ text "Run with customized parameters" ]
+                , br [] []
+                , bashCodeBlock <|
+                    String.join " " <|
+                        String.concat
+                            [ "nix run "
+                            , showForgeInputFlakes model
+                            , "#forge -- "
+                            , command
+                            , " "
+                            , app.app_name
+                            , if String.isEmpty output then
+                                ""
+
+                              else
+                                "." ++ output
+                            ]
+                            :: (app.app_parameters
+                                    |> Dict.toList
+                                    |> List.map (\( name, parameter ) -> "--set " ++ shellQuote (name ++ "=" ++ parameter.appParameter_value))
+                               )
+                , p [ class "mt-3 mb-1" ] [ text "Parameters:" ]
+                , ul []
+                    (app.app_parameters
+                        |> Dict.toList
+                        |> List.map
+                            (\( name, parameter ) ->
+                                li []
+                                    [ code [] [ text name ]
+                                    , text (" – " ++ parameter.appParameter_description ++ " (default: ")
+                                    , code [] [ text parameter.appParameter_value ]
+                                    , text ")"
+                                    ]
+                            )
+                    )
+                ]
+            ]
+
+
+{-| Quote the argument for the shell, if needed.
+-}
+shellQuote : String -> String
+shellQuote argument =
+    if String.all (\c -> Char.isAlphaNum c || String.contains (String.fromChar c) "-_=.,:/@%+") argument then
+        argument
+
+    else
+        "'" ++ String.replace "'" "'\\''" argument ++ "'"
 
 
 viewPageAppRunNixOS : Model -> PageApp -> Html Update
@@ -240,6 +311,7 @@ viewPageAppRunNixOS model pageApp =
                 , pageApp.pageApp_app.app_outputName
                 , ".vm"
                 ]
+        , viewPageAppRunParameters model pageApp "run" "vm"
         ]
 
 
