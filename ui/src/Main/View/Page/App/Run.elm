@@ -224,28 +224,6 @@ viewPageAppRunContainer model pageApp =
                 , pageApp.pageApp_app.app_outputName
                 , ".container"
                 ]
-        , hr [] []
-        , viewPageAppRunContainerBuildOCI model pageApp
-        ]
-
-
-viewPageAppRunContainerBuildOCI : Model -> PageApp -> Html Update
-viewPageAppRunContainerBuildOCI model pageApp =
-    details []
-        [ summary [] [ text "Build container images manually" ]
-        , br [] []
-        , bashCodeBlock <|
-            String.join "\n"
-                [ String.concat
-                    [ "nix build "
-                    , showForgeInputFlakes model
-                    , "#"
-                    , pageApp.pageApp_app.app_outputName
-                    , ".container"
-                    ]
-                , ""
-                , "./result/bin/build-oci-images"
-                ]
         ]
 
 
