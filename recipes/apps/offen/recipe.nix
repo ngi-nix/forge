@@ -1,7 +1,6 @@
 {
   config,
   forge-lib,
-  lib,
   pkgs,
   ...
 }:
@@ -61,12 +60,19 @@ in
 
     icon = ./icon.svg;
 
+    parameters = {
+      port = {
+        value = 3000;
+        description = "Port of the Offen web interface.";
+      };
+    };
+
     services = {
       components.offen = {
         process.command = pkgs.offen;
         process.argv = [ "serve" ];
         process.environment = {
-          OFFEN_SERVER_PORT = "3000";
+          OFFEN_SERVER_PORT = app.parameters.port;
           OFFEN_DATABASE_DIALECT = "sqlite3";
           OFFEN_DATABASE_CONNECTIONSTRING = "/var/lib/offen/offen.db";
         };
@@ -76,7 +82,7 @@ in
           test = [
             "curl"
             "-fs"
-            "http://offen:${app.services.components.offen.process.environment.OFFEN_SERVER_PORT}/healthz"
+            "http://offen:${toString app.parameters.port}/healthz"
           ];
           packages = [ pkgs.curl ];
           interval = "3s";
@@ -87,7 +93,7 @@ in
 
         endpoints = {
           web = {
-            port = lib.toInt app.services.components.offen.process.environment.OFFEN_SERVER_PORT;
+            port = app.parameters.port;
           };
         };
       };
@@ -121,7 +127,7 @@ in
         mkdir --parent /var/lib/offen
         export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
         offen setup -name test -email test@localhost -password test123456
-        $curl localhost:${app.services.components.offen.process.environment.OFFEN_SERVER_PORT} | grep "Offen Fair Web Analytics"
+        $curl localhost:${toString app.parameters.port} | grep "Offen Fair Web Analytics"
       '';
     };
   };
