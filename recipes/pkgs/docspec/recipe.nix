@@ -6,35 +6,27 @@
 
 {
   pkgs.docspec = {
-    version = "1.21.9";
+    version = "1.21.11";
     description = "Document conversion SDK for rich text formats.";
     homePage = "https://github.com/docspec/docspec";
     mainProgram = "docspec";
     license = lib.licenses.eupl12;
 
     source = {
-      git = "github:docspec/docspec/v1.21.9";
-      hash = "sha256-uwMPWQEcgOOkPozr8iGOaOjCIEGzkZFHIflZeeTigHk=";
+      git = "github:docspec/docspec/v1.21.11";
+      hash = "sha256-FxVLfPpRIG+36I/veiGTO1fisSmIW/dcRi1WGEarEr0=";
       lfs = true; # test files (not big in size)
     };
 
     build = {
       builders.rust = {
         enable = true;
-        cargoHash = "sha256-gOBDc/SNOI06rpb87alR2G8fTHM/iXnpZRy6HAqWiE4=";
+        cargoHash = "sha256-g3UvCPNNwnzwtEpRBgEM4u637hPligXc8r72oKe1XMQ=";
         packages.check = with pkgs; [
           # Required for health-check test, else it fails with:
           # No CA certificates were loaded from the system
           cacert
         ];
-      };
-      extraAttrs = {
-        postPatch = ''
-          substituteInPlace crates/docspec-blocknote-writer/tests/writer.rs \
-            --replace-fail \
-            'out of range integral type conversion attempted' \
-            'number too large to fit in target type'
-        '';
       };
     };
 
