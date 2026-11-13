@@ -47,8 +47,8 @@ in
     '';
 
     links = {
-      website = "https://yaqwsx.github.io/KiKit/latest";
-      docs = "https://yaqwsx.github.io/KiKit/latest/cli";
+      website = "https://yaqwsx.github.io/KiKit/latest/";
+      docs = "https://yaqwsx.github.io/KiKit/latest/cli/";
       source = "https://github.com/yaqwsx/KiKit";
     };
 
