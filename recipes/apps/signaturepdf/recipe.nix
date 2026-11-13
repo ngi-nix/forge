@@ -46,6 +46,13 @@ in
       ];
     };
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the Signature PDF web interface.";
+      };
+    };
+
     services = {
       components.signaturepdf = {
         process = {
@@ -56,12 +63,12 @@ in
             installPhase = builtins.replaceStrings [ "localhost:\$port" ] [ "0.0.0.0:\$port" ] old.installPhase;
           });
           argv = [
-            "8080"
+            (toString app.parameters.port)
           ];
         };
         endpoints = {
           web = {
-            port = 8080;
+            port = app.parameters.port;
           };
         };
       };
@@ -72,7 +79,7 @@ in
 
     test.services.script = ''
       curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:8080 | grep "Signature PDF"
+      $curl localhost:${toString app.parameters.port} | grep "Signature PDF"
     '';
   };
 }

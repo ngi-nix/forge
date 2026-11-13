@@ -46,14 +46,25 @@ in
 
     icon = ./icon.svg;
 
+    parameters = {
+      port = {
+        value = 3000;
+        description = "Port of the TeXlyre web interface.";
+      };
+    };
+
     services = {
       components.texlyre = {
         process = {
           command = pkgs.texlyre;
+          argv = [
+            "-l"
+            "tcp://0.0.0.0:${toString app.parameters.port}"
+          ];
         };
         endpoints = {
           web = {
-            port = 3000;
+            port = app.parameters.port;
           };
         };
       };
@@ -63,7 +74,7 @@ in
 
     test.services.script = ''
       curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:3000 | grep "TeXlyre"
+      $curl localhost:${toString app.parameters.port} | grep "TeXlyre"
     '';
   };
 }

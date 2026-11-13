@@ -85,10 +85,17 @@ in
     # WARNING: for testing purposes only, the token is stored in the Nix store.
     data.adminToken = "krill";
 
+    parameters = {
+      port = {
+        value = 3000;
+        description = "Port of the Krill web interface and API.";
+      };
+    };
+
     services = {
       components.krill = {
         process.configData."krill.conf" = {
-          source = ./krill.conf;
+          source = pkgs.replaceVars ./krill.conf { inherit (app.parameters) port; };
           path = "krill.conf";
         };
         process.command = lib.getExe' pkgs.krill "krill";
@@ -103,7 +110,7 @@ in
         };
         endpoints = {
           web = {
-            port = 3000;
+            port = app.parameters.port;
             appProtocol = "https";
           };
         };
@@ -132,10 +139,10 @@ in
       packages = [ pkgs.krill ];
       script = ''
         curl --insecure -f --retry 10 --retry-max-time 120 --retry-all-errors \
-          https://localhost:3000/health
+          https://localhost:${toString app.parameters.port}/health
 
         # The Unix socket is not reachable from the host in the container runtime
-        export KRILL_CLI_SERVER="https://localhost:3000/"
+        export KRILL_CLI_SERVER="https://localhost:${toString app.parameters.port}/"
         export KRILL_CLI_TOKEN="${app.data.adminToken}"
         krillc add --ca test-ca
         krillc list | grep test-ca

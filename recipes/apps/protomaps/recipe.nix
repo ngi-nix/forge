@@ -68,13 +68,20 @@ in
       runtimes.shell.enable = true;
     };
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the PMTiles viewer web interface.";
+      };
+    };
+
     services = {
       components.pmtiles-viewer = {
         process.environment = {
           PMTILES_APP_ROOT = "${pkgs.pmtiles-viewer}/share/pmtiles-app";
         };
         process.configData."Caddyfile" = {
-          source = ./Caddyfile;
+          source = pkgs.replaceVars ./Caddyfile { inherit (app.parameters) port; };
           path = "Caddyfile";
         };
         process.command = pkgs.caddy;
@@ -87,7 +94,7 @@ in
         ];
         endpoints = {
           web = {
-            port = 8080;
+            port = app.parameters.port;
           };
         };
       };
@@ -103,7 +110,7 @@ in
 
       services.script = ''
         curl="curl --retry 10 --retry-max-time 60 --retry-all-errors"
-        $curl localhost:8080 | grep -qi "PMTiles viewer"
+        $curl localhost:${toString app.parameters.port} | grep -qi "PMTiles viewer"
       '';
     };
   };

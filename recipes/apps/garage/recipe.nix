@@ -1,10 +1,17 @@
 {
+  config,
   forge-lib,
   lib,
   pkgs,
   ...
 }:
 
+let
+  app = config.apps.garage;
+  configFile = pkgs.replaceVars ./garage.toml {
+    inherit (app.parameters) rpcPort s3ApiPort adminApiPort;
+  };
+in
 {
   pkgs.garage = {
     build.builders.identity = {
@@ -88,6 +95,21 @@
       runtimes.shell.enable = true;
     };
 
+    parameters = {
+      rpcPort = {
+        value = 3900;
+        description = "Port of the Garage RPC, for the nodes of the cluster.";
+      };
+      s3ApiPort = {
+        value = 3901;
+        description = "Port of the Garage S3 API.";
+      };
+      adminApiPort = {
+        value = 3902;
+        description = "Port of the Garage admin API.";
+      };
+    };
+
     services = {
       components.garage = {
         process.preStart = ''
@@ -96,19 +118,19 @@
         process.command = pkgs.garage;
         process.argv = [
           "-c"
-          "${./garage.toml}"
+          "${configFile}"
           "server"
         ];
         endpoints = {
           rpc = {
-            port = 3900;
+            port = app.parameters.rpcPort;
             appProtocol = "garage-rpc";
           };
           s3-api = {
-            port = 3901;
+            port = app.parameters.s3ApiPort;
           };
           admin-api = {
-            port = 3902;
+            port = app.parameters.adminApiPort;
           };
         };
       };
@@ -133,7 +155,7 @@
     };
 
     test.services.script = ''
-      curl -s -f --retry 10 --retry-max-time 120 --retry-all-errors http://localhost:3902/metrics > /dev/null
+      curl -s -f --retry 10 --retry-max-time 120 --retry-all-errors http://localhost:${toString app.parameters.adminApiPort}/metrics > /dev/null
 
       if command -v podman >/dev/null 2>&1; then
         EXEC="podman exec garage_garage_1"
@@ -141,12 +163,12 @@
         EXEC=""
       fi
 
-      node_id=$($EXEC garage -c ${./garage.toml} status | awk '/^[0-9a-f]{16}/ {print $1}')
-      $EXEC garage -c ${./garage.toml} layout assign -z dc1 -c 1G "$node_id"
-      $EXEC garage -c ${./garage.toml} layout apply --version 1
+      node_id=$($EXEC garage -c ${configFile} status | awk '/^[0-9a-f]{16}/ {print $1}')
+      $EXEC garage -c ${configFile} layout assign -z dc1 -c 1G "$node_id"
+      $EXEC garage -c ${configFile} layout apply --version 1
 
-      $EXEC garage -c ${./garage.toml} bucket create test-bucket
-      $EXEC garage -c ${./garage.toml} bucket list | grep test-bucket
+      $EXEC garage -c ${configFile} bucket create test-bucket
+      $EXEC garage -c ${configFile} bucket list | grep test-bucket
     '';
   };
 }

@@ -51,13 +51,20 @@ in
       runtimes.program.enable = true;
     };
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the Repath Studio web interface.";
+      };
+    };
+
     services = {
       components.repath-studio-web = {
         process.environment = {
           REPATH_STUDIO_WEB_ROOT = "${pkgs.repath-studio-web}/share/repath-studio-web";
         };
         process.configData."Caddyfile" = {
-          source = ./Caddyfile;
+          source = pkgs.replaceVars ./Caddyfile { inherit (app.parameters) port; };
           path = "Caddyfile";
         };
         process.command = pkgs.caddy;
@@ -70,7 +77,7 @@ in
         ];
         endpoints = {
           web = {
-            port = 8080;
+            port = app.parameters.port;
           };
         };
       };
@@ -82,8 +89,8 @@ in
     test = {
       services.script = ''
         curl="curl --retry 10 --retry-max-time 60 --retry-all-errors"
-        $curl localhost:8080 | grep -i "Repath Studio" > /dev/null
-        $curl localhost:8080/schema-explorer/ | grep -i "Schema Explorer" > /dev/null
+        $curl localhost:${toString app.parameters.port} | grep -i "Repath Studio" > /dev/null
+        $curl localhost:${toString app.parameters.port}/schema-explorer/ | grep -i "Schema Explorer" > /dev/null
       '';
     };
   };

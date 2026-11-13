@@ -48,17 +48,24 @@ in
       Core = [ "Goupile" ];
     };
 
+    parameters = {
+      port = {
+        value = 8181;
+        description = "Port of the Goupile web interface.";
+      };
+    };
+
     services = {
       components = {
         goupile = {
           process.command = pkgs.goupile;
           process.argv = [
             "-C"
-            "${./goupile.ini}"
+            "${pkgs.replaceVars ./goupile.ini { inherit (app.parameters) port; }}"
           ];
           endpoints = {
             web = {
-              port = 8181;
+              port = app.parameters.port;
             };
           };
         };
@@ -80,7 +87,7 @@ in
       script = ''
         curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
 
-        $curl --location localhost:8181 | grep "Goupile" >/dev/null
+        $curl --location localhost:${toString app.parameters.port} | grep "Goupile" >/dev/null
       '';
     };
   };

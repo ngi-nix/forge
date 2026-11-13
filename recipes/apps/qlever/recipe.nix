@@ -52,11 +52,18 @@ in
       ];
     };
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the QLever web interface.";
+      };
+    };
+
     services = {
       components.qlever-ui = {
         process.command = pkgs.qlever-ui;
         process.argv = [
-          "--bind=0.0.0.0:8080"
+          "--bind=0.0.0.0:${toString app.parameters.port}"
         ];
         process.environment = {
           DJANGO_SETTINGS_MODULE = "qlever.settings";
@@ -71,7 +78,7 @@ in
         ];
         endpoints = {
           web = {
-            port = 8080;
+            port = app.parameters.port;
           };
         };
         dependsOn = [
@@ -162,7 +169,7 @@ in
         sleep 30
 
         # UI accessible
-        $curl --location localhost:8080 | grep -i "qlever"
+        $curl --location localhost:${toString app.parameters.port} | grep -i "qlever"
 
         sleep 30
 

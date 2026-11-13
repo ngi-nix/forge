@@ -1,10 +1,14 @@
 {
+  config,
   forge-lib,
   lib,
   pkgs,
   ...
 }:
 
+let
+  app = config.apps.rotonda;
+in
 {
   pkgs.rotonda = {
     build.builders.identity = {
@@ -25,12 +29,12 @@
       Query the routing information base
 
       ```
-      curl http://localhost:8080/
+      curl http://localhost:${toString app.parameters.apiPort}/
       ```
 
       #### BMP sessions
 
-      Rotonda listens for BMP (BGP Monitoring Protocol) connections on port 11019.
+      Rotonda listens for BMP (BGP Monitoring Protocol) connections on port ${toString app.parameters.bmpPort}.
       Point your BMP-capable router to this address to start collecting routes.
 
       #### BGP sessions
@@ -60,19 +64,30 @@
       runtimes.shell.enable = true;
     };
 
+    parameters = {
+      apiPort = {
+        value = 8080;
+        description = "Port of the Rotonda HTTP API.";
+      };
+      bmpPort = {
+        value = 11019;
+        description = "Port on which Rotonda listens for BMP connections.";
+      };
+    };
+
     services = {
       components.rotonda = {
         process.command = pkgs.rotonda;
         process.argv = [
           "-c"
-          "${./rotonda.conf}"
+          "${pkgs.replaceVars ./rotonda.conf { inherit (app.parameters) apiPort bmpPort; }}"
         ];
         endpoints = {
           api = {
-            port = 8080;
+            port = app.parameters.apiPort;
           };
           bmp = {
-            port = 11019;
+            port = app.parameters.bmpPort;
             appProtocol = "bmp";
           };
         };
@@ -101,9 +116,9 @@
       ];
       script = ''
         curl -f --retry 10 --retry-max-time 120 --retry-all-errors \
-          http://localhost:8080/
+          http://localhost:${toString app.parameters.apiPort}/
 
-        nc -z localhost 11019
+        nc -z localhost ${toString app.parameters.bmpPort}
       '';
     };
   };

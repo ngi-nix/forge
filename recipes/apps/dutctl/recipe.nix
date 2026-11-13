@@ -1,10 +1,14 @@
 {
+  config,
   forge-lib,
   lib,
   pkgs,
   ...
 }:
 
+let
+  app = config.apps.dutctl;
+in
 {
   pkgs.dutctl = {
     build.builders.identity = {
@@ -26,7 +30,7 @@
 
       #### Components
 
-      - **dutagent**: Service daemon that manages physical devices (default port: 1024)
+      - **dutagent**: Service daemon that manages physical devices (default port: ${toString app.parameters.port})
       - **dutctl**: CLI client for interacting with agents
       - **dutserver**: Central proxy for multi-agent setups (experimental)
 
@@ -76,18 +80,25 @@
       runtimes.shell.enable = true;
     };
 
+    parameters = {
+      port = {
+        value = 1024;
+        description = "Port of the dutagent service.";
+      };
+    };
+
     services = {
       components.dutagent = {
         process.command = "${pkgs.dutctl}/bin/dutagent";
         process.argv = [
           "-a" # address
-          "0.0.0.0:1024"
+          "0.0.0.0:${toString app.parameters.port}"
           "-c" # path to config
           "$XDG_CONFIG_HOME/dutagent/config.yaml"
         ];
         endpoints = {
           rpc = {
-            port = 1024;
+            port = app.parameters.port;
             appProtocol = "connect-rpc";
           };
         };
@@ -116,6 +127,8 @@
     };
 
     test.services.script = ''
+      dutctl() { command dutctl -s localhost:${toString app.parameters.port} "$@"; }
+
       # wait for agent to become ready
       for i in $(seq 1 10); do
         dutctl list 2>/dev/null | grep -q device1 && break

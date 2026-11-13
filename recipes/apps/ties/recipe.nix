@@ -7,7 +7,6 @@
 }:
 let
   app = config.apps.ties;
-  listenPort = "8080";
 in
 {
   apps.ties = {
@@ -33,8 +32,8 @@ in
       ```bash
       ties start \ 
         --database-url <pg-socket> \ 
-        --base-url http://localhost:${listenPort} \ 
-        --listen localhost:${listenPort}
+        --base-url http://localhost:${toString app.parameters.port} \ 
+        --listen localhost:${toString app.parameters.port}
       ```
 
       Once Ties is running, open the web interface:
@@ -97,6 +96,13 @@ in
       runtimes.shell.enable = true;
     };
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the Ties web interface.";
+      };
+    };
+
     services = {
       components.ties = {
         process = {
@@ -126,14 +132,14 @@ in
             "--database-url"
             "postgresql://postgres@database/postgres"
             "--base-url"
-            "http://localhost:${listenPort}"
+            "http://localhost:${toString app.parameters.port}"
             "--listen"
-            "0.0.0.0:${listenPort}" # accept connections from outside the container
+            "0.0.0.0:${toString app.parameters.port}" # accept connections from outside the container
           ];
         };
         endpoints = {
           web = {
-            port = lib.toInt listenPort;
+            port = app.parameters.port;
           };
         };
       };
@@ -168,7 +174,7 @@ in
     test.services.script = ''
       # wait for ties to become ready
       for i in $(seq 1 10); do
-        if curl -fs "http://localhost:${listenPort}"; then
+        if curl -fs "http://localhost:${toString app.parameters.port}"; then
           exit 0
         fi
         sleep 3

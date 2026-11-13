@@ -1,4 +1,4 @@
-:8080 {
+:@port@ {
 	root * {$PMTILES_APP_ROOT}
 	file_server
 }
