@@ -4,6 +4,7 @@
   pkgs,
   self-inputs,
   forge-inputs,
+  bombon,
   system,
   ...
 }:
@@ -16,7 +17,7 @@
         inherit system;
         forgeConfig = config;
         inputs = self-inputs;
-        inherit forge-inputs;
+        inherit forge-inputs bombon;
         # Avoid an infinite recursion when generating `options`
         # (eg. with `forge-lib.mkAliasOptionModule`)
         # from a `forge-lib` that would otherwise be taken from `config._module.args.forge-lib`.

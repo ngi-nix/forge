@@ -1,4 +1,5 @@
 {
+  bombon,
   lib,
   pkgs,
   ...
@@ -9,6 +10,7 @@
       name = "rust";
       imports = rust/options.nix;
       mkDerivation = pkgs.rustPlatform.buildRustPackage;
+      passthruVendoredSbom = _: drv: bombon.passthruVendoredSbom.rust drv { inherit pkgs; };
       attrs = builder: finalAttrs: previousAttrs: {
         inherit (builder)
           cargoHash

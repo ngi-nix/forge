@@ -39,6 +39,8 @@ let
           _module.args.flake-parts-lib = flake-parts-lib;
           _module.args.forge-inputs = inputs;
           _module.args.forge-lib = forge-inputs.self.lib;
+          # Builds CycloneDX SBOMs (eg. `.#pkgs.<name>.sbom`).
+          _module.args.bombon = import forge-inputs.bombon { inherit pkgs; };
 
           # Do not require users to pin their own `inputs.nixpkgs`.
           _module.args.pkgs = lib.mkDefault (

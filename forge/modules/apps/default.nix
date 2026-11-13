@@ -1,5 +1,6 @@
 {
   config,
+  bombon,
   lib,
   forge-lib,
   pkgs,
@@ -82,6 +83,17 @@
           forge.broken = app.broken;
           forge.unfree = app.unfree;
           packages = app.packages;
+          sbom = bombon.buildBom finalApp {
+            # The closures of the container and the VM hold what the app deploys.
+            # The app packages are also given, because bombon finds their metadata
+            # only through `drvAttrs`, and not through the string context of
+            # eg. a systemd unit.
+            extraPaths =
+              app.packages.programs
+              ++ app.packages.services
+              ++ lib.optional app.services.runtimes.container.enable app.services.runtimes.container.result.build
+              ++ lib.optional app.services.runtimes.nixos.enable app.services.runtimes.nixos.result.build;
+          };
         })
         // lib.optionalAttrs app.programs.runtimes.program.enable {
           program = app.programs.mainPackage;
@@ -147,6 +159,9 @@
             "apps.${appName}.program" = bundled.program;
           }
           // lib.optionalAttrs app.services.runtimes.nixos.enable { "apps.${appName}.vm" = bundled.vm; }
+          // {
+            "apps.${appName}.sbom" = bundled.sbom;
+          }
         ) enabledApps;
     };
 }
