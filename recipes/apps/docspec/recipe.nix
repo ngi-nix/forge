@@ -57,10 +57,9 @@ in
     '';
 
     data = {
-      mainPort = "3030";
       testProgram = "docspec convert tests/fixtures/docx/pandoc/headers.docx --output blocknote.json";
       testService = ''
-        curl -X POST http://localhost:${app.data.mainPort}/conversion \
+        curl -X POST http://localhost:${toString app.parameters.port}/conversion \
              -H 'Content-Type: text/markdown' \
              -d '# Hello' '';
     };
@@ -87,6 +86,13 @@ in
       };
     };
 
+    parameters = {
+      port = {
+        value = 3030;
+        description = "Port of the docspec HTTP API.";
+      };
+    };
+
     services = {
       components.docspec = {
         process.command = pkgs.docspec;
@@ -95,11 +101,11 @@ in
           "--host"
           "0.0.0.0"
           "--port"
-          "${app.data.mainPort}"
+          (toString app.parameters.port)
         ];
         endpoints = {
           api = {
-            port = lib.toInt (toString app.data.mainPort);
+            port = app.parameters.port;
           };
         };
         healthcheck = {
@@ -107,7 +113,7 @@ in
           test = [
             "${lib.getExe pkgs.curl}"
             "-fs"
-            "http://localhost:${app.data.mainPort}/health"
+            "http://localhost:${toString app.parameters.port}/health"
           ];
           interval = "3s";
           timeout = "3s";

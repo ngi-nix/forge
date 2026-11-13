@@ -39,13 +39,20 @@ in
       docs = "https://git.sr.ht/~migadu/alps/tree/main/item/docs/CONFIGURATION.md";
     };
 
+    parameters = {
+      port = {
+        value = 1323;
+        description = "Port of the Alps webmail interface.";
+      };
+    };
+
     services = {
       components.alps = {
         process = {
           configData."config.toml" = {
             text = ''
               [server]
-              addr = ":1323"
+              addr = ":${toString app.parameters.port}"
 
               [provider]
               type = "imap"
@@ -66,7 +73,7 @@ in
         };
         endpoints = {
           web = {
-            port = 1323;
+            port = app.parameters.port;
           };
         };
       };
@@ -77,7 +84,7 @@ in
 
     test.services.script = ''
       curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-      $curl -fs localhost:1323/ | grep -i "alps"
+      $curl -fs localhost:${toString app.parameters.port}/ | grep -i "alps"
     '';
   };
 }

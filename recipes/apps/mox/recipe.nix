@@ -70,10 +70,27 @@ in
 
     icon = ./icon.svg;
 
+    parameters = {
+      accountPort = {
+        value = 8080;
+        description = "Port of the Mox account web interface.";
+      };
+      adminPort = {
+        value = 8081;
+        description = "Port of the Mox admin web interface.";
+      };
+      webmailPort = {
+        value = 8082;
+        description = "Port of the Mox webmail interface.";
+      };
+    };
+
     services = {
       components.mox = {
         process.configData."mox.conf" = {
-          source = ./mox.conf;
+          source = pkgs.replaceVars ./mox.conf {
+            inherit (app.parameters) accountPort adminPort webmailPort;
+          };
           path = "mox.conf";
         };
         process.configData."domains.conf" = {
@@ -89,13 +106,13 @@ in
         ];
         endpoints = {
           account = {
-            port = 8080;
+            port = app.parameters.accountPort;
           };
           admin = {
-            port = 8081;
+            port = app.parameters.adminPort;
           };
           webmail = {
-            port = 8082;
+            port = app.parameters.webmailPort;
           };
         };
       };
@@ -143,9 +160,9 @@ in
     test.services.script = ''
       curl="curl --retry 20 --retry-max-time 120 --retry-all-errors"
 
-      $curl --location localhost:8080 | grep "Mox Account"
-      $curl --location localhost:8081/admin | grep "Mox Admin"
-      $curl --location localhost:8082/webmail | grep "Mox Webmail"
+      $curl --location localhost:${toString app.parameters.accountPort} | grep "Mox Account"
+      $curl --location localhost:${toString app.parameters.adminPort}/admin | grep "Mox Admin"
+      $curl --location localhost:${toString app.parameters.webmailPort}/webmail | grep "Mox Webmail"
     '';
   };
 }
