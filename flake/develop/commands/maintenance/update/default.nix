@@ -3,14 +3,12 @@
   python3,
   gitMinimal,
   nix,
-  nix-prefetch-git,
 }:
 
 let
   runtimePath = lib.makeBinPath [
     gitMinimal
     nix
-    nix-prefetch-git
   ];
 in
 

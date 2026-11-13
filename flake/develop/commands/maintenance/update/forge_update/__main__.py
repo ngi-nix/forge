@@ -11,9 +11,8 @@ from pathlib import Path
 from colorama import Fore, Style
 from colorama import init as colorama_init
 
-from .builder import BuilderHashUpdater
+from .builder import NixHashUpdater
 from .errors import ForgeUpdateError
-from .hasher import HashPrefetcher
 from .recipe import RecipeParser, RecipeWriter
 from .types import PackageEntry, Recipe
 from .version import VersionDetector, VersionResult
@@ -88,7 +87,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--prefetch-timeout",
         type=int,
         default=180,
-        help="Timeout in seconds for each hash prefetch (default: 180)",
+        help="Timeout in seconds for the source hash fetching (default: 180)",
     )
     _ = parser.add_argument(
         "--recipes-root",
@@ -119,8 +118,10 @@ def main() -> None:
 
     parser = RecipeParser(args.recipes_root)
     detector = VersionDetector()
-    prefetcher = HashPrefetcher(timeout=args.prefetch_timeout)
-    builder_hash = BuilderHashUpdater(dry_run=args.dry_run)
+    hash_updater = NixHashUpdater(
+        dry_run=args.dry_run,
+        source_timeout=args.prefetch_timeout,
+    )
 
     for i, name in enumerate(names):
         if i > 0:
@@ -165,27 +166,23 @@ def main() -> None:
                 writer.update_git_rev(recipe, pkg.pname, result.rev)
                 _print_changes(writer, before)
 
-            should_prefetch = (
+            should_update_hashes = (
                 source_git is not None
                 and result.rev
                 and not args.dry_run
                 and not args.skip_prefetch
             )
-            if should_prefetch:
-                assert source_git is not None
+            if should_update_hashes:
                 before = len(writer.pending_changes)
                 with _progress("source.hash"):
-                    new_hash = prefetcher.prefetch_git(
-                        source_git.remote_url, result.rev, source_git.submodules
-                    )
-                writer.update_source_hash(recipe, pkg.pname, new_hash)
+                    hash_updater.update_source(recipe, writer, pkg)
                 _print_changes(writer, before)
 
-                field = builder_hash.field_name(pkg)
+                field = hash_updater.field_name(pkg)
                 if field:
                     before = len(writer.pending_changes)
                     with _progress(field):
-                        builder_hash.update(recipe, writer, pkg)
+                        hash_updater.update(recipe, writer, pkg)
                     _print_changes(writer, before)
 
             writer.apply_text(recipe)

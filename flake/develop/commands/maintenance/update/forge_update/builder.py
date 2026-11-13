@@ -7,11 +7,25 @@ from .recipe import RecipeWriter
 from .types import BuilderType, PackageEntry, Recipe
 
 
-class BuilderHashUpdater:
-    build_timeout: int = 300
+class NixHashUpdater:
+    source_timeout: int
 
-    def __init__(self, dry_run: bool = False) -> None:
+    def __init__(self, dry_run: bool = False, source_timeout: int = 180) -> None:
         self.dry_run = dry_run
+        self.source_timeout = source_timeout
+
+    def update_source(
+        self, recipe: Recipe, writer: RecipeWriter, pkg: PackageEntry
+    ) -> None:
+        self._update_single(
+            recipe,
+            pkg.pname,
+            writer,
+            "source.hash",
+            writer.update_source_hash,
+            attr=f"pkgs.{pkg.pname}.src",
+            timeout=self.source_timeout,
+        )
 
     def field_name(self, pkg: PackageEntry) -> str | None:
         match pkg.builder_type:
@@ -30,10 +44,18 @@ class BuilderHashUpdater:
                 return None
 
     def update(self, recipe: Recipe, writer: RecipeWriter, pkg: PackageEntry) -> None:
+        # NOTE: Fetching ecosystem dependencies can take some long time,
+        # so we don't want to time them out.
         match pkg.builder_type:
             case BuilderType.RUST:
                 self._update_single(
-                    recipe, pkg.pname, writer, "cargoHash", writer.update_cargo_hash
+                    recipe,
+                    pkg.pname,
+                    writer,
+                    "cargoHash",
+                    writer.update_cargo_hash,
+                    attr=f"pkgs.{pkg.pname}",
+                    timeout=None,
                 )
             case BuilderType.GO:
                 bh = pkg.builder_hashes
@@ -44,6 +66,8 @@ class BuilderHashUpdater:
                         writer,
                         "vendorHash",
                         writer.update_vendor_hash,
+                        attr=f"pkgs.{pkg.pname}",
+                        timeout=None,
                     )
             case BuilderType.NPM:
                 self._update_single(
@@ -52,6 +76,8 @@ class BuilderHashUpdater:
                     writer,
                     "npmDepsHash",
                     writer.update_npm_deps_hash,
+                    attr=f"pkgs.{pkg.pname}",
+                    timeout=None,
                 )
             case BuilderType.PNPM:
                 self._update_single(
@@ -60,6 +86,8 @@ class BuilderHashUpdater:
                     writer,
                     "pnpmDepsHash",
                     writer.update_pnpm_deps_hash,
+                    attr=f"pkgs.{pkg.pname}",
+                    timeout=None,
                 )
             case _:
                 return
@@ -71,6 +99,9 @@ class BuilderHashUpdater:
         writer: RecipeWriter,
         field_name: str,
         updater: Callable[..., None],
+        *,
+        attr: str,
+        timeout: int | None,
     ) -> None:
         if self.dry_run:
             return
@@ -84,13 +115,13 @@ class BuilderHashUpdater:
 
         try:
             result = subprocess.run(
-                ["nix", "build", f".#pkgs.{pname}", "--no-link"],
+                ["nix", "build", f".#{attr}", "--no-link"],
                 capture_output=True,
                 text=True,
-                timeout=self.build_timeout,
+                timeout=timeout,
             )
         except subprocess.TimeoutExpired:
-            raise BuildError(pname, -1, f"nix build timed out ({self.build_timeout}s)")
+            raise BuildError(pname, -1, f"nix build timed out ({timeout}s)")
         finally:
             writer.apply_text(recipe, original_text)
 
