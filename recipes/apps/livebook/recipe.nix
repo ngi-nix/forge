@@ -10,7 +10,6 @@ let
   app = config.apps.livebook;
   usageSnippets = forge-lib.snippets.usage app;
 
-  port = "8080";
   forwardedUrl = "http://localhost:${toString app.services.components.livebook.endpoints.web.forwardedPort}";
 
   caCertFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
@@ -99,6 +98,13 @@ in
 
     icon = ./icon.svg;
 
+    parameters = {
+      port = {
+        value = 8080;
+        description = "Port of the Livebook web interface.";
+      };
+    };
+
     data = {
       exampleNotebook = ./example_notebook.livemd;
       testNotebook = ./test_notebook.livemd;
@@ -118,7 +124,7 @@ in
             LIVEBOOK_DATA_PATH = "/var/lib/livebook/data";
             LIVEBOOK_HOME = "/var/lib/livebook";
             LIVEBOOK_IP = "0.0.0.0";
-            LIVEBOOK_PORT = port;
+            LIVEBOOK_PORT = app.parameters.port;
             LIVEBOOK_TOKEN_ENABLED = "false";
           };
           preStart = ''
@@ -129,7 +135,7 @@ in
 
         endpoints = {
           web = {
-            port = lib.toInt port;
+            port = app.parameters.port;
           };
         };
 
@@ -138,7 +144,7 @@ in
           test = [
             (lib.getExe pkgs.curl)
             "-fs"
-            "http://localhost:${port}/public/health"
+            "http://localhost:${toString app.parameters.port}/public/health"
           ];
           packages = [ pkgs.curl ];
           interval = "3s";
@@ -175,13 +181,13 @@ in
       script = /* bash */ ''
         curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
 
-        $curl -fs "localhost:${port}/public/health" | grep '"application":"livebook"'
-        $curl -fs "localhost:${port}" | grep '<title>'
+        $curl -fs "localhost:${toString app.parameters.port}/public/health" | grep '"application":"livebook"'
+        $curl -fs "localhost:${toString app.parameters.port}" | grep '<title>'
 
         # Create a new notebook and verify it is accessible and can be exported
-        SESSION_URL=$($curl -s -i "localhost:${port}/new" | tr -d '\r' | awk -F': ' '/^location:/{print $2}')
-        $curl -fs "localhost:${port}$SESSION_URL" | grep 'Untitled notebook - Livebook'
-        $curl -fs "localhost:${port}$SESSION_URL/download/export/livemd" | grep '# Untitled notebook'
+        SESSION_URL=$($curl -s -i "localhost:${toString app.parameters.port}/new" | tr -d '\r' | awk -F': ' '/^location:/{print $2}')
+        $curl -fs "localhost:${toString app.parameters.port}$SESSION_URL" | grep 'Untitled notebook - Livebook'
+        $curl -fs "localhost:${toString app.parameters.port}$SESSION_URL/download/export/livemd" | grep '# Untitled notebook'
 
         # Set up SSL certificates and glibc dynamic loader for pythonx/uv
         ${fhsCompatSetup}

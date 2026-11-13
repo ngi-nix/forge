@@ -23,6 +23,7 @@ type alias App =
     , app_categories : List String
     , app_broken : Bool
     , app_unfree : Bool
+    , app_parameters : Dict String AppParameter
     }
 
 
@@ -52,6 +53,70 @@ decodeApp =
         |> Decode.andMap (Decode.field "categories" (Decode.list Decode.string))
         |> Decode.andMap (Decode.field "broken" Decode.bool)
         |> Decode.andMap (Decode.field "unfree" Decode.bool)
+        |> Decode.andMap decodeAppParameters
+
+
+type alias AppParameter =
+    { -- Value as it is written on the command line (eg. `hello`).
+      appParameter_value : String
+
+    -- Value as it is written in Nix (eg. `"hello"`).
+    , appParameter_nixValue : String
+    , appParameter_description : String
+    }
+
+
+{-| The values of the parameters are in `parameters`,
+and their descriptions in `parameterDescriptions`.
+-}
+decodeAppParameters : Decoder (Dict String AppParameter)
+decodeAppParameters =
+    Decode.map2
+        (\values descriptions ->
+            values
+                |> Dict.map
+                    (\name ( value, nixValue ) ->
+                        AppParameter value nixValue (Dict.get name descriptions |> Maybe.withDefault "")
+                    )
+        )
+        (Decode.field "parameters" (Decode.dict decodeAppParameterValue))
+        (Decode.field "parameterDescriptions" (Decode.dict Decode.string))
+
+
+{-| Value of a parameter, as it is written on the command line and in Nix.
+-}
+decodeAppParameterValue : Decoder ( String, String )
+decodeAppParameterValue =
+    let
+        same value =
+            ( value, value )
+    in
+    Decode.oneOf
+        [ Decode.string |> Decode.map (\value -> ( value, showNixString value ))
+        , Decode.int |> Decode.map (String.fromInt >> same)
+        , Decode.bool
+            |> Decode.map
+                (\value ->
+                    if value then
+                        same "true"
+
+                    else
+                        same "false"
+                )
+        ]
+
+
+{-| Nix string literal of the `string`.
+-}
+showNixString : String -> String
+showNixString string =
+    "\""
+        ++ (string
+                |> String.replace "\\" "\\\\"
+                |> String.replace "\"" "\\\""
+                |> String.replace "${" "\\${"
+           )
+        ++ "\""
 
 
 type alias AppName =

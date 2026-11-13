@@ -3,6 +3,7 @@
   forge-lib,
   lib,
   name,
+  options,
   specialArgs,
   pkgs,
   ...
@@ -139,6 +140,48 @@
         maintainer defined in `maintainers/maintainers-list.nix` file.
       '';
       example = lib.literalExpression "with lib.maintainers; [ ngi-nix ]";
+    };
+    parameters = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submoduleWith {
+          modules = [ ./parameter.nix ];
+        }
+      );
+      default = { };
+      # Recipes read the values directly, for example `app.parameters.port`.
+      apply = lib.mapAttrs (_: parameter: parameter.value);
+      description = ''
+        Parameters of the application, to use in the recipe.
+
+        In the application configuration, each parameter is its value, for
+        example `config.apps.<name>.parameters.port`.
+
+        Users can change the values with the `override` function of the
+        application output, for example `apps.<name>.override { port = 9090; }`.
+      '';
+      example = lib.literalExpression ''
+        {
+          port = {
+            value = 8080;
+            description = "Port of the web interface.";
+          };
+          debug = {
+            value = false;
+            description = "Enable debug logging.";
+          };
+        }
+      '';
+    };
+    parameterDescriptions = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      # The `parameters` before `apply`, which keeps only their values.
+      default = lib.mapAttrs (_: parameter: parameter.description) (
+        options.parameters.type.merge options.parameters.loc options.parameters.definitionsWithLocations
+      );
+      defaultText = lib.literalMD "the `description` of each parameter";
+      description = "Descriptions of the parameters, for the UI.";
+      readOnly = true;
+      internal = true;
     };
     data = lib.mkOption {
       description = ''

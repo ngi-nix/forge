@@ -168,5 +168,62 @@
 
     # Re-usable snippets in Markdown format (eg. `forge-lib.snippets.usage app`).
     snippets = import ../../maintainers/snippets-list.nix { inherit lib; };
+
+    # Check that the app `appName` declares the `parameters`, with the same types.
+    checkParameters =
+      appName: declared: parameters:
+      let
+        names = lib.concatStringsSep ", " (lib.attrNames declared);
+        typeName =
+          value:
+          {
+            int = "an integer";
+            string = "a string";
+            bool = "a boolean";
+          }
+          .${lib.typeOf value} or (lib.typeOf value);
+        checked = lib.mapAttrs (
+          name: value:
+          if !declared ? ${name} then
+            throw "The app `${appName}` has no parameter `${name}`. Available parameters: ${
+              if names == "" then "none" else names
+            }."
+          else if lib.typeOf value != lib.typeOf declared.${name} then
+            throw "The parameter `${name}` of the app `${appName}` must be ${typeName declared.${name}}, not ${typeName value}."
+          else
+            value
+        ) parameters;
+      in
+      # Check all the parameters now, also those that the recipe does not read
+      # (for example a parameter that the app does not declare).
+      lib.deepSeq checked checked;
+
+    # Convert the strings of the parameters (eg. from the command line)
+    # to the types that the app `appName` declares.
+    # Parameters that the app does not declare stay strings,
+    # for `checkParameters` to report them.
+    parametersFromStrings =
+      appName: declared: strings:
+      lib.mapAttrs (
+        name: value:
+        let
+          invalid =
+            expected:
+            throw "The parameter `${name}` of the app `${appName}` must be ${expected}, not `${value}`.";
+        in
+        if !declared ? ${name} then
+          value
+        else if lib.isBool declared.${name} then
+          if value == "true" then
+            true
+          else if value == "false" then
+            false
+          else
+            invalid "`true` or `false`"
+        else if lib.isInt declared.${name} then
+          if lib.strings.match "-?[0-9]+" value != null then lib.toInt value else invalid "an integer"
+        else
+          value
+      ) strings;
   };
 }

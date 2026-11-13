@@ -4,10 +4,10 @@ username = "user"
 password = "password"
 
 # Sets the listening port, to which the source stream is transmitted
-listen_port = 3001
+listen_port = @sourcePort@
 
 # Sets the broadcast port, from which the stream will be accessable
-broadcast_port = 3002
+broadcast_port = @broadcastPort@
 
 # Sets the server http endpoint - http://localhost:8001/tau.ogg
 broadcast_endpoint = "tau.ogg"

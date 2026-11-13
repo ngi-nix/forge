@@ -1,10 +1,14 @@
 {
+  config,
   forge-lib,
   lib,
   pkgs,
   ...
 }:
 
+let
+  app = config.apps.tau;
+in
 {
   apps.tau = {
     displayName = "Tau";
@@ -38,6 +42,17 @@
       ];
     };
 
+    parameters = {
+      sourcePort = {
+        value = 3001;
+        description = "Port of Tau Tower, to which Tau Radio streams the audio.";
+      };
+      broadcastPort = {
+        value = 3002;
+        description = "Port of Tau Tower, from which the clients listen to the stream.";
+      };
+    };
+
     programs = {
       packages = [
         pkgs.tau-radio
@@ -49,16 +64,18 @@
       components.tau-tower = {
         process.command = pkgs.tau-tower;
         process.configData."tau/tower.toml" = {
-          source = ./config.toml;
+          source = pkgs.replaceVars ./config.toml {
+            inherit (app.parameters) sourcePort broadcastPort;
+          };
           path = "tau/tower.toml";
         };
         endpoints = {
           source = {
-            port = 3001;
+            port = app.parameters.sourcePort;
             appProtocol = "websocket";
           };
           broadcast = {
-            port = 3002;
+            port = app.parameters.broadcastPort;
           };
         };
       };
@@ -83,7 +100,7 @@
     test.services.script = ''
       curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
 
-      $curl localhost:3002 | grep "Audio Stream"
+      $curl localhost:${toString app.parameters.broadcastPort} | grep "Audio Stream"
     '';
   };
 }

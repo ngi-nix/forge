@@ -360,6 +360,23 @@ viewPageAppConfiguration model pageApp =
                 , viewBulletList
                     (List.map (\endpoint -> li [] [ small [] [ viewEndpointUrl endpoint ] ]) endpoints)
                 ]
+        , if Dict.isEmpty pageApp.pageApp_app.app_parameters then
+            text ""
+
+          else
+            div []
+                [ div [ class "ms-2 mb-1" ]
+                    [ small [ class "text-body-secondary" ] [ text "Parameters" ] ]
+                , viewBulletList
+                    (pageApp.pageApp_app.app_parameters
+                        |> Dict.toList
+                        |> List.map
+                            (\( name, parameter ) ->
+                                li [ title parameter.appParameter_description ]
+                                    [ small [] [ text name ] ]
+                            )
+                    )
+                ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]
         , div [ class "ms-2 mb-3" ]
