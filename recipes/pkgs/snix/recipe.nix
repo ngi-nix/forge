@@ -9,29 +9,25 @@ let
 in
 {
   pkgs.snix = {
-    version = "0.1.0";
+    version = "0-unstable-2026-11-10";
     description = "Modern Rust re-implementation of the components of the Nix package manager.";
     homePage = "https://snix.dev";
     license = lib.licenses.mit;
 
     source = {
-      git = "git:https://git.snix.dev/snix/snix.git?rev=6e990352dd1fe25248a9b47ca61e5b90cc829faf";
-      hash = "sha256-LOkDqGsu6oyw/AyHScLOntTzKTaQbNqagw3Wlym5Y0I=";
+      git = "git:https://git.snix.dev/snix/snix.git?rev=e6a4f77ea12b8c46779451b7e48f0d334f7d246c";
+      hash = "sha256-ZMU90InalYjEe9Uvv0NCNCHNIxKmt4PRcWZ42w272Xk=";
     };
 
     build.builders.rust = {
       enable = true;
-      cargoHash = "sha256-L6xQcfjo9buZzCZ4rFhCifrRKNxBOg/I8KYKfBo0cTE=";
+      cargoHash = "sha256-x4b8SNXdvgX9nWchx8Kkp4qefNXuz9pGC9K+g9RU/TU=";
       packages.build = with pkgs; [
         protobuf
       ];
     };
 
     build.extraAttrs = {
-      patches = [
-        ./0001-fix-ui-test.patch
-      ];
-
       nativeCheckInputs = [ pkgs.cacert ];
 
       preCheck = ''
