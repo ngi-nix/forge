@@ -118,6 +118,38 @@ Hexagonal icons for NLnet-supported projects can be found in the [NLnet Hex Gall
 These designs are adaptations of the upstream projects' logos and are [licensed](https://nlnet.nl/officehour/#:~:text=What%20is%20the%20license%20of%20the%20nice%20hexagon%20stickers) the same as the original logo.
 :::
 
+### Screenshots
+
+Use `screenshots` option to add screenshots to the application details page.
+
+Screenshots can be automatically detected and configured if
+[AppStream metainfo file](https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html)
+is present in the package or package source using following command:
+
+```bash
+forge-screenshots <app-name>
+```
+
+The command creates screenshots configuration to a `screenshots.nix` file next to the recipe.
+An automated weekly workflow keeps the screenshots configuration up to date.
+
+It is also possible to add screenshots manually. Please use only images from
+official upstream sources. Get the hash with `nix store prefetch-file <url>`.
+Use a URL that does not change, for example of a file at a Git commit.
+
+```nix
+{
+  apps.<app-name>.screenshots = [
+    ./screenshot.png
+    {
+      url = "https://raw.githubusercontent.com/example/app/<commit>/docs/screenshot.png";
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      caption = "Main window with an open project.";
+    }
+  ];
+}
+```
+
 ## Programs
 
 Add a `programs` block if the application provides GUI or CLI programs.
