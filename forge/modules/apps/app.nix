@@ -123,17 +123,11 @@
         with forge-lib.categories; [ Office Science ];
       '';
       apply = cats: map (c: c.name) cats;
-      description =
-        let
-          repo = specialArgs.forgeConfig.forge.repositoryUrl;
-          baseUrl = specialArgs.forge-lib.showNixUrl repo;
-          version = specialArgs.inputs.self.rev or "master";
-        in
-        ''
-          A list of categories this application belongs to.
+      description = ''
+        A list of categories this application belongs to.
 
-          Categories must be defined in `maintainers/categories-list.nix` file.
-        '';
+        Categories must be defined in `maintainers/categories-list.nix` file.
+      '';
     };
     maintainers = lib.mkOption {
       type = lib.types.listOf lib.types.anything;
