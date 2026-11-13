@@ -14,15 +14,18 @@ from .types import ForgeHost, GitSource, Recipe, Source, SourceType
 class VersionResult:
     version: str
     rev: str
+    self_ref: bool = False
 
 
 class VersionDetector:
     def detect(self, recipe: Recipe) -> VersionResult:
-        source = recipe.packages[0].source
+        pkg = recipe.packages[0]
+        current_version = pkg.version
+        source = pkg.source
 
         match source.type:
             case SourceType.GIT if source.git is not None:
-                return self._detect_from_git(source.git)
+                return self._detect_from_git(source.git, current_version)
             case SourceType.URL:
                 raise VersionDetectionError(
                     source, "URL sources not supported for auto-detection"
@@ -34,30 +37,44 @@ class VersionDetector:
             case _:
                 raise VersionDetectionError(source, "no git source found")
 
-    def _detect_from_git(self, git_source: GitSource) -> VersionResult:
+    def _detect_from_git(
+        self, git_source: GitSource, current_version: str
+    ) -> VersionResult:
         rev = git_source.rev
 
         # Version can be self-referencing: ${config.pkgs.xxx.version}
         # In which case, we're updating a tag rather than an unstable commit,
         # and we should only change the version.
         if re.search(regexes.PACKAGE_SELF_REFERENCE, rev):
-            result = self._detect_tag_based(git_source)
-            return VersionResult(version=result.version, rev="")
+            result = self._detect_tag_based(git_source, current_version)
+            return VersionResult(version=result.version, rev=result.rev, self_ref=True)
 
         if self._is_commit_hash(rev):
             return self._detect_hash_based(git_source)
-        return self._detect_tag_based(git_source)
+        return self._detect_tag_based(git_source, current_version)
 
     @staticmethod
     def _extract_numeric_version(tag: str) -> str:
-        match = re.search(regexes.NUMERIC_VERSION, tag)
-        return match.group(1) if match else tag
+        match = regexes.VERSION_TAG.search(tag)
+        return match.group("version") if match else tag
 
     @staticmethod
     def _is_commit_hash(rev: str) -> bool:
         return bool(re.fullmatch(r"[0-9a-f]{40}", rev))
 
-    def _detect_tag_based(self, git_source: GitSource) -> VersionResult:
+    @staticmethod
+    def _is_prerelease(version: str) -> bool:
+        match = regexes.VERSION_TAG.search(version)
+        if match is None:
+            return bool(regexes.PRERELEASE.search(version))
+
+        suffix = version[match.end("version") :]
+        suffix = suffix.split("+", 1)[0]  # strip build metadata
+        return bool(regexes.PRERELEASE.search(suffix))
+
+    def _detect_tag_based(
+        self, git_source: GitSource, current_version: str
+    ) -> VersionResult:
         remote = git_source.remote_url
         if not remote:
             raise VersionDetectionError(
@@ -74,8 +91,19 @@ class VersionDetector:
                 f"no version tags found at {remote}",
             )
 
-        sorted_tags = self._sort_tags(version_tags)
-        latest = sorted_tags[0]
+        if self._is_prerelease(current_version):
+            candidates = version_tags
+        else:
+            candidates = [t for t in version_tags if not self._is_prerelease(t)]
+            if not candidates:
+                available = ", ".join(self._sort_tags(version_tags)[:3])
+                raise VersionDetectionError(
+                    Source(type=SourceType.GIT, git=git_source),
+                    f"no stable version tags found at {remote} "
+                    + f"(only pre-releases: {available}); use --version to pin one explicitly",
+                )
+
+        latest = self._sort_tags(candidates)[0]
         return VersionResult(version=self._extract_numeric_version(latest), rev=latest)
 
     def _detect_hash_based(self, git_source: GitSource) -> VersionResult:
@@ -89,7 +117,7 @@ class VersionDetector:
         latest_tag = self._get_latest_tag(remote, git_source)
         latest_hash = self._get_head_commit(remote, git_source)
         date = self._get_commit_date(git_source, latest_hash)
-        version = f"{latest_tag.removeprefix('v')}-unstable-{date}"
+        version = f"{self._extract_numeric_version(latest_tag)}-unstable-{date}"
         return VersionResult(version=version, rev=latest_hash)
 
     def _get_latest_tag(self, remote: str, git_source: GitSource) -> str:
@@ -101,7 +129,7 @@ class VersionDetector:
 
     @staticmethod
     def _filter_version_tags(tags: set[str]) -> list[str]:
-        return [t for t in tags if len(re.findall(r"\d+", t)) >= 2]
+        return [t for t in tags if regexes.VERSION_TAG.search(t)]
 
     def _fetch_tags(self, remote: str, git_source: GitSource) -> set[str]:
         try:
@@ -208,10 +236,12 @@ class VersionDetector:
                 tags.add(tag)
         return tags
 
-    @staticmethod
-    def _sort_tags(tags: list[str]) -> list[str]:
-        def key(tag: str) -> tuple[int, ...]:
-            nums = re.findall(r"\d+", tag.removeprefix("v"))
-            return tuple(int(n) for n in nums)
+    def _sort_tags(self, tags: list[str]) -> list[str]:
+        def key(tag: str) -> tuple[tuple[int, ...], bool]:
+            match = regexes.VERSION_TAG.search(tag)
+            assert match is not None
+
+            version = tuple(int(n) for n in match.group("version").split("."))
+            return version, not self._is_prerelease(tag)
 
         return sorted(tags, key=key, reverse=True)

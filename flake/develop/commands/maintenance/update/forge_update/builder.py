@@ -1,27 +1,37 @@
-import re
 import subprocess
-
 from typing import Callable
 
 from . import regexes
 from .errors import BuildError
-from .recipe import Recipe, RecipeWriter
-from .types import BuilderType, PackageEntry
-
-HASH_MISMATCH_RE = re.compile(regexes.NIX_BUILD_GOT_HASH)
+from .recipe import RecipeWriter
+from .types import BuilderType, PackageEntry, Recipe
 
 
-class BuilderHashUpdater:
-    build_timeout: int = 300
+class NixHashUpdater:
+    source_timeout: int
 
-    def __init__(self, dry_run: bool = False) -> None:
+    def __init__(self, dry_run: bool = False, source_timeout: int = 180) -> None:
         self.dry_run = dry_run
+        self.source_timeout = source_timeout
+
+    def update_source(
+        self, recipe: Recipe, writer: RecipeWriter, pkg: PackageEntry
+    ) -> None:
+        self._update_single(
+            recipe,
+            pkg.pname,
+            writer,
+            "source.hash",
+            writer.update_source_hash,
+            attr=f"pkgs.{pkg.pname}.src",
+            timeout=self.source_timeout,
+        )
 
     def field_name(self, pkg: PackageEntry) -> str | None:
         match pkg.builder_type:
             case BuilderType.GO:
                 bh = pkg.builder_hashes
-                if bh is not None and bh.vendor_hash is not None:
+                if bh.vendor_hash is not None:
                     return "vendorHash"
                 return None
             case BuilderType.RUST:
@@ -34,20 +44,30 @@ class BuilderHashUpdater:
                 return None
 
     def update(self, recipe: Recipe, writer: RecipeWriter, pkg: PackageEntry) -> None:
+        # NOTE: Fetching ecosystem dependencies can take some long time,
+        # so we don't want to time them out.
         match pkg.builder_type:
             case BuilderType.RUST:
                 self._update_single(
-                    recipe, pkg.pname, writer, "cargoHash", writer.update_cargo_hash
+                    recipe,
+                    pkg.pname,
+                    writer,
+                    "cargoHash",
+                    writer.update_cargo_hash,
+                    attr=f"pkgs.{pkg.pname}",
+                    timeout=None,
                 )
             case BuilderType.GO:
                 bh = pkg.builder_hashes
-                if bh is not None and bh.vendor_hash is not None:
+                if bh.vendor_hash is not None:
                     self._update_single(
                         recipe,
                         pkg.pname,
                         writer,
                         "vendorHash",
                         writer.update_vendor_hash,
+                        attr=f"pkgs.{pkg.pname}",
+                        timeout=None,
                     )
             case BuilderType.NPM:
                 self._update_single(
@@ -56,6 +76,8 @@ class BuilderHashUpdater:
                     writer,
                     "npmDepsHash",
                     writer.update_npm_deps_hash,
+                    attr=f"pkgs.{pkg.pname}",
+                    timeout=None,
                 )
             case BuilderType.PNPM:
                 self._update_single(
@@ -64,6 +86,8 @@ class BuilderHashUpdater:
                     writer,
                     "pnpmDepsHash",
                     writer.update_pnpm_deps_hash,
+                    attr=f"pkgs.{pkg.pname}",
+                    timeout=None,
                 )
             case _:
                 return
@@ -75,29 +99,34 @@ class BuilderHashUpdater:
         writer: RecipeWriter,
         field_name: str,
         updater: Callable[..., None],
+        *,
+        attr: str,
+        timeout: int | None,
     ) -> None:
         if self.dry_run:
             return
 
         before = len(writer.pending_changes)
+        original_text = recipe.abs_path.read_text()
 
-        recipe.abs_path.write_text("".join(recipe.raw_lines))
-
+        writer.apply_text(recipe)
         updater(recipe, pname, "")
-        recipe.abs_path.write_text("".join(recipe.raw_lines))
+        writer.apply_text(recipe)
 
         try:
             result = subprocess.run(
-                ["nix", "build", f".#{pname}"],
+                ["nix", "build", f".#{attr}", "--no-link"],
                 capture_output=True,
                 text=True,
-                timeout=self.build_timeout,
+                timeout=timeout,
             )
         except subprocess.TimeoutExpired:
-            raise BuildError(pname, -1, f"nix build timed out ({self.build_timeout}s)")
+            raise BuildError(pname, -1, f"nix build timed out ({timeout}s)")
+        finally:
+            writer.apply_text(recipe, original_text)
 
         stderr = result.stderr or ""
-        match = HASH_MISMATCH_RE.search(stderr)
+        match = regexes.NIX_BUILD_GOT_HASH.search(stderr)
         if not match:
             raise BuildError(pname, result.returncode, stderr)
 

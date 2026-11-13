@@ -36,13 +36,13 @@ class RecipeParser:
     def __init__(self, recipes_root: Path) -> None:
         self.recipes_root = recipes_root
 
-    def find(self, name: str) -> Path:
+    def get_recipe_file(self, name: str) -> Path:
         path = self.recipes_root / name / "recipe.nix"
         if not path.exists():
             raise RecipeNotFoundError(name, self.recipes_root)
         return path
 
-    def parse(self, path: Path) -> Recipe:
+    def parse_recipe_file(self, path: Path) -> Recipe:
         lines = path.read_text().splitlines(keepends=True)
         text = "".join(lines)
 
@@ -326,12 +326,17 @@ class RecipeWriter:
         """
         for match in re.finditer(rf"pkgs\.{re.escape(pname)}\s*=\s*\{{", text):
             start = match.start()
-            end_pos, block_text = _extract_braced_block(text, match.end() - 1)
+            end_pos, _block_text = _extract_braced_block(text, match.end() - 1)
             return start, end_pos, text[start:end_pos]
         raise RecipeParseError(abs_path, f"package '{pname}' not found for replacement")
 
     def _replace(
-        self, recipe: Recipe, pname: str, pattern: str, replacement: str, field: str
+        self,
+        recipe: Recipe,
+        pname: str,
+        pattern: str | re.Pattern[str],
+        replacement: str,
+        field: str,
     ) -> None:
         text = "".join(recipe.raw_lines)
 
@@ -356,6 +361,12 @@ class RecipeWriter:
             )
         )
 
-    def apply(self, recipe: Recipe) -> None:
+    def apply_text(self, recipe: Recipe, text: str | None = None) -> None:
+        """
+        Open the recipe file, write to it, and close the file.
+
+        If no `text` argument is supplied, the in-memory recipe text will be written.
+        """
         if not self.dry_run:
-            _ = recipe.abs_path.write_text("".join(recipe.raw_lines))
+            in_memory_text = "".join(recipe.raw_lines)
+            _ = recipe.abs_path.write_text(text if text is not None else in_memory_text)
