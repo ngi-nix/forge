@@ -77,6 +77,7 @@
     programs = {
       packages = [ pkgs.oils-for-unix ];
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     # Test every command mentioned in the usage above.

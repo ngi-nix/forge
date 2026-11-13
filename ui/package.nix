@@ -3,10 +3,12 @@
   buildElmApplication,
   fetchzip,
   jq,
+  linkFarm,
   symlinkJoin,
   esbuild,
 
   appIcons,
+  appWasm,
 
   _forge,
   highlight-js,
@@ -35,6 +37,21 @@ let
     url = "https://github.com/twbs/bootstrap/releases/download/v${version}/bootstrap-${version}-dist.zip";
     hash = "sha256-StRhHJIRGzguLlo0BGOAMy0PCCmMovzgU/5xZJgVrqQ=";
   };
+
+  browserWasiShim = fetchzip rec {
+    pname = "browser_wasi_shim";
+    version = "0.4.2";
+    url = "https://registry.npmjs.org/@bjorn3/browser_wasi_shim/-/browser_wasi_shim-${version}.tgz";
+    hash = "sha256-lfKZk1ZFchBCqon+Pr+PoT1Kb6Hq8O+0NKsalWEfCnI=";
+  };
+
+  # `NODE_PATH` for esbuild
+  nodeModules = linkFarm "forge-ui-node-modules" [
+    {
+      name = "@bjorn3/browser_wasi_shim";
+      path = browserWasiShim;
+    }
+  ];
 in
 symlinkJoin {
   name = "forge-ui";
@@ -62,7 +79,9 @@ symlinkJoin {
     # Rename minimized Elm output
     mv js/Elm.min.js js/Elm.js
 
+    export NODE_PATH=${nodeModules}
     ${esbuild}/bin/esbuild --bundle --outfile=js/main.js --minify js/src/main.js
+    ${esbuild}/bin/esbuild --bundle --outfile=js/WasiWorker.js --minify js/src/WasiWorker.js
     rm -rf js/src
 
     # Symlink config files
@@ -79,6 +98,11 @@ symlinkJoin {
       mkdir -p "resources/apps/$app"
       if [ -f "${appIcons}/$app/icon.svg" ]; then
         cp "${appIcons}/$app/icon.svg" "resources/apps/$app/icon.svg"
+      fi
+
+      # Copy the WASI program of the browser runtime if it exists
+      if [ -d "${appWasm}/$app" ]; then
+        cp "${appWasm}/$app"/*.wasm "resources/apps/$app/"
       fi
 
       # Create SPA routing for this app (github pages workaround)
@@ -100,5 +124,5 @@ symlinkJoin {
 
     popd
   '';
-  passthru = { inherit bootstrapCss; };
+  passthru = { inherit bootstrapCss nodeModules; };
 }
