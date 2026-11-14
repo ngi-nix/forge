@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="43.900002mm"
+   height="50.799999mm"
+   viewBox="0 0 43.900002 50.799998"
+   version="1.1"
+   id="hister-hex-icon"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview24"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="4.2604167"
+     inkscape:cx="82.855744"
+     inkscape:cy="95.999999"
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="hister-hex-icon" />
+  <defs
+     id="defs20">
+    <!-- Deep obsidian hex background -->
+    <linearGradient
+       id="hexBg"
+       x1="0%"
+       y1="0%"
+       x2="0%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#111827"
+         id="stop1" />
+      <stop
+         offset="50%"
+         stop-color="#0b0f19"
+         id="stop2" />
+      <stop
+         offset="100%"
+         stop-color="#050811"
+         id="stop3" />
+    </linearGradient>
+    <!-- Sleek border gradient echoing Hister brand colors -->
+    <!-- 4-Quadrant Directional Hex Border Gradients (Exact Hister logo colors) -->
+    <!-- Top-Left: Green (#1abc9c) -->
+    <linearGradient id="gradBorderTL" x1="0.6" y1="25.4" x2="21.95" y2="0.6" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5b8ba9"/>
+      <stop offset="28.9%" stop-color="#1abc9c"/>
+      <stop offset="100%" stop-color="#27abcb"/>
+    </linearGradient>
+
+    <!-- Top-Right: Blue (#3498db) -->
+    <linearGradient id="gradBorderTR" x1="21.95" y1="0.6" x2="43.3" y2="25.4" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#27abcb"/>
+      <stop offset="71.1%" stop-color="#3498db"/>
+      <stop offset="100%" stop-color="#92ae75"/>
+    </linearGradient>
+
+    <!-- Bottom-Right: Yellow (#f1c40f) -->
+    <linearGradient id="gradBorderBR" x1="43.3" y1="25.4" x2="21.95" y2="50.2" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#92ae75"/>
+      <stop offset="28.9%" stop-color="#f1c40f"/>
+      <stop offset="100%" stop-color="#c68eb4"/>
+    </linearGradient>
+
+    <!-- Bottom-Left: Purple (#9b59b6) -->
+    <linearGradient id="gradBorderBL" x1="21.95" y1="50.2" x2="0.6" y2="25.4" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c68eb4"/>
+      <stop offset="71.1%" stop-color="#9b59b6"/>
+      <stop offset="100%" stop-color="#5b8ba9"/>
+    </linearGradient>
+    <!-- Ambient central glow -->
+    <radialGradient
+       id="centerGlow"
+       cx="50%"
+       cy="43%"
+       r="50%">
+      <stop
+         offset="0%"
+         stop-color="#38bdf8"
+         stop-opacity="0.16"
+         id="stop8" />
+      <stop
+         offset="55%"
+         stop-color="#818cf8"
+         stop-opacity="0.05"
+         id="stop9" />
+      <stop
+         offset="100%"
+         stop-color="#0b0f19"
+         stop-opacity="0"
+         id="stop10" />
+    </radialGradient>
+    <!-- Quadrant Color Gradients -->
+    <!-- Teal (Top-Left) -->
+    <linearGradient
+       id="tealGrad"
+       x1="44.352467"
+       y1="85.731588"
+       x2="111.1906"
+       y2="152.56972"
+       gradientTransform="scale(0.99237212,1.0076865)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#2dd4bf"
+         id="stop11" />
+      <stop
+         offset="100%"
+         stop-color="#0d9488"
+         id="stop12" />
+    </linearGradient>
+    <!-- Blue (Top-Right) -->
+    <linearGradient
+       id="blueGrad"
+       x1="90.941568"
+       y1="84.214799"
+       x2="172.17707"
+       y2="165.4503"
+       gradientTransform="scale(0.9702166,1.0306977)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#38bdf8"
+         id="stop13" />
+      <stop
+         offset="100%"
+         stop-color="#0284c7"
+         id="stop14" />
+    </linearGradient>
+    <!-- Purple (Bottom-Left) -->
+    <linearGradient
+       id="purpleGrad"
+       x1="45.119422"
+       y1="122.59426"
+       x2="126.35492"
+       y2="203.82976"
+       gradientTransform="scale(0.97021664,1.0306976)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#c084fc"
+         id="stop15" />
+      <stop
+         offset="100%"
+         stop-color="#7c3aed"
+         id="stop16" />
+    </linearGradient>
+    <!-- Yellow/Amber (Bottom-Right) -->
+    <linearGradient
+       id="yellowGrad"
+       x1="100.4635"
+       y1="141.80248"
+       x2="167.30163"
+       y2="208.64061"
+       gradientTransform="scale(0.99237209,1.0076865)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#fde047"
+         id="stop17" />
+      <stop
+         offset="100%"
+         stop-color="#d97706"
+         id="stop18" />
+    </linearGradient>
+    <!-- Central H Divider Gradient -->
+    <linearGradient
+       id="hGrad"
+       x1="41.263712"
+       y1="84.763712"
+       x2="168.73629"
+       y2="212.23629"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#1f293d"
+         id="stop19" />
+      <stop
+         offset="100%"
+         stop-color="#090d16"
+         id="stop20" />
+    </linearGradient>
+    <!-- Clip path for sharp square Hister emblem -->
+    <clipPath
+       id="emblemClip">
+      <rect
+         x="44"
+         y="87.5"
+         width="122"
+         height="122"
+         id="rect20" />
+    </clipPath>
+  </defs>
+  <!-- Outer Hexagon Base with brand color gradient border -->
+  <!-- Outer Hexagon Base Fill -->
+  <polygon
+     id="hex-base"
+     points="21.95,0.6 43.3,12.92 43.3,37.88 21.95,50.2 0.6,37.88 0.6,12.92"
+     fill="url(#hexBg)" />
+
+  <!-- Multi-Color Directional Hex Border (Green TL, Blue TR, Yellow BR, Purple BL) -->
+  <g id="hex-border-quadrants">
+    <path d="M 0.6,25.4 L 0.6,12.92 L 21.95,0.6 L 24.0,1.78" fill="none" stroke="url(#gradBorderTL)" stroke-width="0.8" stroke-linejoin="miter" stroke-linecap="butt"/>
+    <path d="M 21.95,0.6 L 43.3,12.92 L 43.3,25.4" fill="none" stroke="url(#gradBorderTR)" stroke-width="0.8" stroke-linejoin="miter" stroke-linecap="butt"/>
+    <path d="M 43.3,25.4 L 43.3,37.88 L 21.95,50.2 L 19.9,49.02" fill="none" stroke="url(#gradBorderBR)" stroke-width="0.8" stroke-linejoin="miter" stroke-linecap="butt"/>
+    <path d="M 21.95,50.2 L 0.6,37.88 L 0.6,25.4" fill="none" stroke="url(#gradBorderBL)" stroke-width="0.8" stroke-linejoin="miter" stroke-linecap="butt"/>
+  </g>
+  <!-- Inner Inset Contour & Ambient Glow -->
+  <polygon
+     id="hex-inner"
+     points="21.95,2.4 41.7,13.84 41.7,36.96 21.95,48.4 2.2,36.96 2.2,13.84"
+     fill="url(#centerGlow)"
+     stroke="#38bdf8"
+     stroke-width="0.25"
+     stroke-opacity="0.22"
+     stroke-linejoin="miter" />
+  <!-- Hister Central Emblem Group -->
+  <!-- Scaled and centered at (21.95, 22.5) -->
+  <g
+     id="hister-emblem"
+     transform="matrix(0.15187557,0,0,0.15187557,6.0030651,1.9958665)"
+     style="paint-order:markers fill stroke">
+    <!-- Clipped Quadrants -->
+    <g
+       clip-path="url(#emblemClip)"
+       id="g24"
+       style="paint-order:markers fill stroke">
+      <!-- Top-Left (Teal) -->
+      <path
+         d="M 44.22078,153.74245 44.014151,86.390565 110.34245,87.426749 Z"
+         fill="url(#tealGrad)"
+         id="path20"
+         style="fill:url(#tealGrad);paint-order:markers fill stroke" />
+      <!-- Top-Right (Blue) -->
+      <path
+         d="m 88.233019,130.40471 42.376411,40.12453 36.43962,-33.98301 -0.40943,-49.746232 -53.84057,0.81887 z"
+         fill="url(#blueGrad)"
+         id="path21"
+         style="fill:url(#blueGrad);paint-order:markers fill stroke" />
+      <!-- Bottom-Left (Purple) -->
+      <path
+         d="m 122.59165,166.48214 -42.376415,-40.12453 -36.439621,33.98301 0.40943,49.74623 53.840571,-0.81887 z"
+         fill="url(#purpleGrad)"
+         id="path22"
+         style="fill:url(#purpleGrad);paint-order:markers fill stroke" />
+      <!-- Bottom-Right (Yellow) -->
+      <path
+         d="m 165.81884,142.89245 0.20663,67.35189 -66.3283,-1.03618 z"
+         fill="url(#yellowGrad)"
+         id="path23"
+         style="fill:url(#yellowGrad);paint-order:markers fill stroke" />
+      <!-- The Central H Cross with crisp dark fill -->
+      <path
+         d="M 110.42612,86.01366 42.51366,153.92612 56.008892,167.42135 85.617504,137.81274 115.68726,167.8825 86.07865,197.49111 99.573882,210.98634 167.48634,143.07388 153.99111,129.57865 124.3825,159.18726 94.312739,129.1175 123.92135,99.508892 Z"
+         fill="url(#hGrad)"
+         stroke="#090d16"
+         stroke-width="2.5"
+         stroke-linejoin="miter"
+         id="path24"
+         style="fill:url(#hGrad);paint-order:markers fill stroke" />
+    </g>
+    <!-- Sleek Hairline Bezel around sharp square emblem -->
+    <rect
+       x="44"
+       y="87.5"
+       width="122"
+       height="122"
+       fill="none"
+       stroke="#334155"
+       stroke-width="1.8"
+       stroke-opacity="0.8"
+       id="rect24"
+       style="paint-order:markers fill stroke" />
+  </g>
+  <!-- NGI ZERO Banner -->
+  <g
+     id="ngi-zero-badge"
+     transform="matrix(0.79242029,0,0,0.79242029,-57.797411,6.8081396)"
+     style="fill:#ffffff">
+    <path
+       id="ngi-tag"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0349404"
+       d="m 94.816632,42.398684 c -0.212393,0 -0.386368,0.174001 -0.386368,0.386374 v 2.708464 c 0,0.212392 0.173975,0.386368 0.386368,0.386368 h 5.766528 c 0.21237,0 0.38573,-0.174001 0.38573,-0.386368 v -0.63793 c 0,-0.07065 0.028,-0.138347 0.0781,-0.188347 l 0.318,-0.317998 c 0.0887,-0.08872 0.0883,-0.232132 -6.8e-4,-0.320578 l -0.31671,-0.315417 c -0.0503,-0.04999 -0.0787,-0.118067 -0.0787,-0.188998 v -0.739202 c 0,-0.212367 -0.17337,-0.386368 -0.38573,-0.386368 z m 3.769533,0.588911 c 0.195141,0 0.372416,0.03293 0.531499,0.09869 0.06896,0.02853 0.132813,0.06287 0.192211,0.102549 0.125921,0.0841 0.132555,0.269318 0.01101,0.365089 -0.07803,0.06146 -0.189116,0.06214 -0.270912,0.0056 -0.128758,-0.08868 -0.275059,-0.132882 -0.438616,-0.132882 -0.142143,0 -0.268357,0.02971 -0.378628,0.089 -0.110334,0.05948 -0.195844,0.143339 -0.257368,0.251563 -0.06153,0.10818 -0.09289,0.2322 -0.09289,0.372177 0,0.137925 0.03134,0.260779 0.09289,0.368953 0.06153,0.108181 0.146807,0.192403 0.256077,0.252853 0.109232,0.06047 0.233466,0.09094 0.373468,0.09094 0.08138,0 0.158457,-0.0099 0.230911,-0.02902 0.07707,-0.0204 0.135697,-0.07798 0.158668,-0.15093 0.0082,-0.02586 -0.01149,-0.05222 -0.0387,-0.05222 -0.148049,0 -0.267079,-0.125316 -0.257366,-0.275428 0.0089,-0.136964 0.12911,-0.240592 0.266395,-0.240592 h 0.254138 c 0.0023,0 0.0049,6.21e-4 0.007,6.21e-4 0.0023,-6.9e-5 0.0042,-6.21e-4 0.0063,-6.21e-4 h 0.01805 c 0.125195,0 0.226411,0.101892 0.226411,0.227041 v 0.316063 c 0,0.259854 -0.167177,0.492619 -0.415397,0.56956 -0.0017,3.29e-4 -0.003,6.2e-4 -0.0045,0.0012 -0.159113,0.04881 -0.319365,0.0729 -0.480544,0.0729 -0.231239,0 -0.439186,-0.04906 -0.623741,-0.147724 -0.184546,-0.09864 -0.329105,-0.235214 -0.434099,-0.410233 -0.10499,-0.175006 -0.157402,-0.372773 -0.157402,-0.593425 0,-0.220572 0.05239,-0.418438 0.157402,-0.59342 0.104989,-0.175031 0.250601,-0.312279 0.437324,-0.410884 0.186586,-0.09864 0.396823,-0.147718 0.630193,-0.147718 z m -3.274154,0.03808 h 0.05096 c 0.07632,0 0.148401,0.03448 0.196735,0.09352 L 96.4034,44.14866 c 0.06296,0.07693 0.18771,0.03293 0.18771,-0.06643 v -0.801767 c 0,-0.140597 0.113546,-0.254787 0.254141,-0.254787 0.140595,0 0.254787,0.114177 0.254787,0.254787 v 1.718345 c 0,0.140573 -0.114178,0.254143 -0.254787,0.254143 h -0.04772 c -0.0762,0 -0.148377,-0.03399 -0.196734,-0.0929 l -0.846918,-1.030749 c -0.06303,-0.07676 -0.18771,-0.03225 -0.18771,0.06709 v 0.802413 c 0,0.140573 -0.113545,0.254142 -0.254146,0.254142 -0.140571,0 -0.254782,-0.113569 -0.254782,-0.254142 V 43.28046 c 0,-0.140598 0.114225,-0.254788 0.254782,-0.254788 z m 4.772549,0 c 0.14235,0 0.25801,0.115654 0.25801,0.258013 v 1.711901 c 0,0.142353 -0.11566,0.257361 -0.25801,0.257361 -0.142356,0 -0.257368,-0.115021 -0.257368,-0.257361 v -1.711901 c 0,-0.142353 0.115022,-0.258013 0.257368,-0.258013 z" />
+    <path
+       style="font-variant:normal;font-weight:600;font-stretch:normal;font-size:31.76px;font-family:'Montserrat SemiBold';text-align:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0349406"
+       d="m 102.44599,43.824151 h 0.68002 v 0.126252 l -0.43402,0.525054 h 0.44648 v 0.157679 h -0.70495 v -0.126252 l 0.43403,-0.525054 h -0.42156 z"
+       id="path-z" />
+    <path
+       style="font-variant:normal;font-weight:600;font-stretch:normal;font-size:31.76px;font-family:'Montserrat SemiBold';text-align:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0349406"
+       d="m 103.67545,43.824151 h 0.56298 v 0.157679 h -0.35437 v 0.150635 h 0.33324 v 0.157679 h -0.33324 v 0.185313 h 0.36629 v 0.157679 h -0.5749 z"
+       id="path-e" />
+    <path
+       style="font-variant:normal;font-weight:600;font-stretch:normal;font-size:31.76px;font-family:'Montserrat SemiBold';text-align:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0349406"
+       d="m 105.11623,44.182857 q 0.0656,0 0.0937,-0.02438 0.0287,-0.02438 0.0287,-0.08019 0,-0.05527 -0.0287,-0.07911 -0.0282,-0.02384 -0.0937,-0.02384 h -0.0878 v 0.207529 z m -0.0878,0.144133 v 0.306146 h -0.20861 v -0.808985 h 0.31861 q 0.15984,0 0.23408,0.05364 0.0748,0.05364 0.0748,0.1696 0,0.08019 -0.039,0.13167 -0.0385,0.05148 -0.1165,0.07586 0.0428,0.0098 0.0764,0.04443 0.0341,0.03414 0.0688,0.104036 l 0.11325,0.229745 h -0.22216 l -0.0986,-0.201027 q -0.0298,-0.06069 -0.0607,-0.0829 -0.0303,-0.02222 -0.0813,-0.02222 z"
+       id="path-r" />
+    <path
+       style="font-variant:normal;font-weight:600;font-stretch:normal;font-size:31.76px;font-family:'Montserrat SemiBold';text-align:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.0349406"
+       d="m 106.42914,43.960698 q -0.0954,0 -0.14793,0.07044 -0.0526,0.07044 -0.0526,0.198318 0,0.127335 0.0526,0.197776 0.0526,0.07044 0.14793,0.07044 0.0959,0 0.14847,-0.07044 0.0526,-0.07044 0.0526,-0.197776 0,-0.127877 -0.0526,-0.198318 -0.0526,-0.07044 -0.14847,-0.07044 z m 0,-0.151177 q 0.19507,0 0.3056,0.111622 0.11054,0.111621 0.11054,0.308313 0,0.196151 -0.11054,0.307772 -0.11053,0.111622 -0.3056,0.111622 -0.19453,0 -0.30561,-0.111622 -0.11053,-0.111621 -0.11053,-0.307772 0,-0.196692 0.11053,-0.308313 0.11108,-0.111622 0.30561,-0.111622 z"
+       id="path-o" />
+  </g>
+</svg>
