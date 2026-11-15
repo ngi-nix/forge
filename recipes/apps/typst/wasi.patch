@@ -1,0 +1,45 @@
+diff --git a/crates/typst-cli/Cargo.toml b/crates/typst-cli/Cargo.toml
+index 2211746..9cc253a 100644
+--- a/crates/typst-cli/Cargo.toml
++++ b/crates/typst-cli/Cargo.toml
+@@ -38,7 +38,6 @@ comemo = { workspace = true }
+ dirs = { workspace = true }
+ ecow = { workspace = true }
+ fs_extra = { workspace = true }
+-open = { workspace = true }
+ parking_lot = { workspace = true }
+ pathdiff = { workspace = true }
+ rayon = { workspace = true }
+@@ -55,6 +54,10 @@ toml = { workspace = true }
+ xz2 = { workspace = true, optional = true }
+ zip = { workspace = true, optional = true }
+ 
++# WASI cannot start other programs.
++[target.'cfg(not(target_os = "wasi"))'.dependencies]
++open = { workspace = true }
++
+ [dependencies.typst-kit]
+ workspace = true
+ features = [
+diff --git a/crates/typst-cli/src/compile.rs b/crates/typst-cli/src/compile.rs
+index 8fed79c..f966e3e 100644
+--- a/crates/typst-cli/src/compile.rs
++++ b/crates/typst-cli/src/compile.rs
+@@ -691,10 +691,17 @@ fn open_output(config: &mut CompileConfig) -> StrResult<()> {
+     open_path(path.as_os_str(), viewer.as_deref())
+ }
+ 
++/// WASI cannot start other programs.
++#[cfg(target_os = "wasi")]
++fn open_path(_: &OsStr, _: Option<&str>) -> StrResult<()> {
++    Err("cannot open files on WASI".into())
++}
++
+ /// Opens the given file using:
+ ///
+ /// - The default file viewer if `app` is `None`.
+ /// - The given viewer provided by `app` if it is `Some`.
++#[cfg(not(target_os = "wasi"))]
+ fn open_path(path: &OsStr, viewer: Option<&str>) -> StrResult<()> {
+     if let Some(viewer) = viewer {
+         open::with_detached(path, viewer)
