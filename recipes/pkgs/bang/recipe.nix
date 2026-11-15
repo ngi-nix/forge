@@ -20,8 +20,8 @@ in
     license = lib.licenses.gpl3Only;
 
     source = {
-      git = "github:armijnhemel/binaryanalysis-ng/91516c1acd861d83d1c069f063a1e35e9c705315";
-      hash = "sha256-Xbx8x4gv/37LB1SnkHakSZ3fKiVDij5Q2x00fa2vu7E=";
+      git = "github:armijnhemel/binaryanalysis-ng/d72f0d9c5c4e5484878f357d07690e68334365db";
+      hash = "sha256-oi4mvBjabzh7SYQmQvXP83niXkynvdq5MSUu2tq+T20=";
     };
 
     build.builders.python = {
