@@ -24,6 +24,11 @@ in
       enable = true;
       cargoHash = "sha256-NmMau1yCoPcOfOD8UOFfQwPcjtyv0rkpjEJYA5uae5E=";
       packages.check = [ pkgs.postgresql ];
+      packages.run = with pkgs; [
+        aws-lc
+        zstd
+      ];
+      packages.build = with pkgs; [ pkg-config ];
     };
 
     build.extraAttrs = {
