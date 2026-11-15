@@ -55,6 +55,9 @@ type Update
     | Update_BrowserRunStdin App String
     | Update_BrowserRunStart App
     | Update_BrowserRunStop
+    | -- `Update_BrowserRunAddFiles app files` adds the JavaScript `File` objects `files`.
+      Update_BrowserRunAddFiles App (List Decode.Value)
+    | Update_BrowserRunRemoveFile App String
     | -- `Update_BrowserRunEvent value` applies an event of `Main.Ports.Wasi.onWasiEvent`.
       Update_BrowserRunEvent Decode.Value
     | Update_NoOp

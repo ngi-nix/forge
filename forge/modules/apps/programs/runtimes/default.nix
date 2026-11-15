@@ -73,6 +73,20 @@
         '';
         example = ''{"a": [1, 2]}'';
       };
+      files = lib.mkOption {
+        type = lib.types.attrsOf lib.types.path;
+        default = { };
+        description = ''
+          Example files in the working directory of the WASI program.
+          The attribute names are the file names.
+
+          The browser shows the files before the user runs the program.
+          The user can add files and remove files.
+          After the program stops, the user can download the files
+          of the working directory.
+        '';
+        example = lib.literalExpression ''{ "sample.typ" = ./sample.typ; }'';
+      };
     };
   };
 }

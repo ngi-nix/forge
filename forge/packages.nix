@@ -58,6 +58,11 @@ let
         install -D -m 444 \
           ${browser.wasmPackage}/bin/${browser.wasmProgram}.wasm \
           $out/${app.name}/${browser.wasmProgram}.wasm
+        ${lib.concatStrings (
+          lib.mapAttrsToList (name: file: ''
+            install -D -m 444 ${file} $out/${app.name}/files/${lib.escapeShellArg name}
+          '') browser.files
+        )}
       ''
     ) (lib.attrValues forgeApps)}
   '';

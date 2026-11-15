@@ -398,6 +398,14 @@
             App '${config.name}': programs.runtimes.browser.wasmPackage is missing the meta.mainProgram attribute.
           '';
         }
+        {
+          condition = lib.all (name: builtins.match "[A-Za-z0-9_][A-Za-z0-9._-]*" name != null) (
+            lib.attrNames browserRuntime.files
+          );
+          message = ''
+            App '${config.name}': the names of programs.runtimes.browser.files must be file names without a path, such as `sample.typ`.
+          '';
+        }
       ];
   };
 }

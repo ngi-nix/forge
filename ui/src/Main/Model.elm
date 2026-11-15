@@ -43,6 +43,20 @@ type alias BrowserRun =
     -- Output chunks, last chunk first.
     , browserRun_output : List ( BrowserRunStream, String )
     , browserRun_status : BrowserRunStatus
+
+    -- Files of the working directory.
+    -- `Nothing` if the files are the examples of the recipe.
+    , browserRun_files : Maybe (List BrowserFile)
+    }
+
+
+{-| A file of the working directory of the WASI program.
+`url` is the URL of the file contents.
+-}
+type alias BrowserFile =
+    { browserFile_name : String
+    , browserFile_size : Int
+    , browserFile_url : String
     }
 
 
@@ -65,6 +79,7 @@ emptyBrowserRun =
     , browserRun_stdin = ""
     , browserRun_output = []
     , browserRun_status = BrowserRunStatus_Idle
+    , browserRun_files = Nothing
     }
 
 

@@ -92,9 +92,17 @@
                 script = ''
                   # Wasmtime writes its cache to `$HOME`.
                   export HOME=$TMPDIR
+                  mkdir work
+                  ${lib.concatStrings (
+                    lib.mapAttrsToList (name: file: ''
+                      cp ${file} work/${lib.escapeShellArg name}
+                    '') browserRuntime.files
+                  )}
+                  chmod -R u+w work
+                  cd work
                   python3 -c '
                   import shlex, subprocess, sys
-                  args = ["wasmtime", "run", sys.argv[1]] + shlex.split(sys.argv[2])
+                  args = ["wasmtime", "run", "--dir", ".", sys.argv[1]] + shlex.split(sys.argv[2])
                   sys.exit(subprocess.run(args).returncode)
                   ' \
                     ${browserRuntime.wasmPackage}/bin/${browserRuntime.wasmProgram}.wasm \

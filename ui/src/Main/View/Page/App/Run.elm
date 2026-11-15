@@ -1,8 +1,8 @@
 module Main.View.Page.App.Run exposing (..)
 
 import Html exposing (Html, a, br, button, details, div, h5, hr, input, label, li, p, pre, small, span, summary, text, textarea, ul)
-import Html.Attributes exposing (attribute, class, for, href, id, rel, rows, spellcheck, style, tabindex, target, title, type_, value)
-import Html.Events exposing (onInput, stopPropagationOn)
+import Html.Attributes exposing (attribute, class, disabled, download, for, href, id, multiple, rel, rows, spellcheck, style, tabindex, target, title, type_, value)
+import Html.Events exposing (on, onInput, stopPropagationOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
@@ -313,6 +313,7 @@ viewPageAppRunBrowserWasm model app wasmProgram =
             , attribute "data-testid" "run-browser-stdin"
             ]
             []
+        , viewPageAppRunBrowserFiles app run
         , if running then
             button
                 [ type_ "button"
@@ -332,6 +333,82 @@ viewPageAppRunBrowserWasm model app wasmProgram =
                 [ text "Run" ]
         , viewPageAppRunBrowserOutput run
         ]
+
+
+{-| The files of the working directory of the WASI program.
+-}
+viewPageAppRunBrowserFiles : App -> BrowserRun -> Html Update
+viewPageAppRunBrowserFiles app run =
+    let
+        running =
+            run.browserRun_status == BrowserRunStatus_Running
+
+        filesId =
+            "run-browser-files"
+
+        files =
+            case run.browserRun_files of
+                Just userFiles ->
+                    userFiles
+                        |> List.map (\file -> ( file.browserFile_name, Just file.browserFile_size, file.browserFile_url ))
+
+                Nothing ->
+                    app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.files
+                        |> List.map (\name -> ( name, Nothing, appWasmFileUrl app name ))
+
+        viewFile ( name, size, url ) =
+            li [ class "list-group-item d-flex align-items-center py-1", attribute "data-testid" "run-browser-file" ]
+                [ a [ href url, download name, class "font-monospace me-auto" ] [ text name ]
+                , case size of
+                    Just bytes ->
+                        small [ class "text-body-secondary me-2" ] [ text (viewByteSize bytes) ]
+
+                    Nothing ->
+                        text ""
+                , button
+                    [ type_ "button"
+                    , class "btn btn-outline-secondary btn-sm py-0"
+                    , disabled running
+                    , title ("Remove " ++ name)
+                    , onClick (Update_BrowserRunRemoveFile app name)
+                    , attribute "data-testid" "run-browser-file-remove"
+                    ]
+                    [ text "Remove" ]
+                ]
+    in
+    div [ class "mb-2" ]
+        [ label [ for filesId, class "form-label small mb-0" ] [ text "Files in the working directory" ]
+        , if List.isEmpty files then
+            text ""
+
+          else
+            ul [ class "list-group list-group-flush small mb-1", attribute "data-testid" "run-browser-files-list" ] (List.map viewFile files)
+        , input
+            [ id filesId
+            , type_ "file"
+            , multiple True
+            , class "form-control form-control-sm"
+            , disabled running
+            , on "change"
+                (Decode.at [ "target", "files" ] (Decode.list Decode.value)
+                    |> Decode.map (Update_BrowserRunAddFiles app)
+                )
+            , attribute "data-testid" "run-browser-files"
+            ]
+            []
+        ]
+
+
+viewByteSize : Int -> String
+viewByteSize bytes =
+    if bytes < 1024 then
+        String.fromInt bytes ++ " B"
+
+    else if bytes < 1024 * 1024 then
+        String.fromInt (bytes // 1024) ++ " KiB"
+
+    else
+        String.fromInt (bytes // (1024 * 1024)) ++ " MiB"
 
 
 viewPageAppRunBrowserOutput : BrowserRun -> Html Update
@@ -390,7 +467,7 @@ trynixUrl : App -> String
 trynixUrl app =
     Url.Builder.crossOrigin "https://trynix.dev"
         []
-        (List.filterMap (.drv_outPath >> Maybe.map (Url.Builder.string "path")) app.app_programs.appPrograms_packages
+        (List.filterMap (.drv_storePath >> Maybe.map (Url.Builder.string "path")) app.app_programs.appPrograms_packages
             ++ [ Url.Builder.string "cache" "https://ngi-forge.cachix.org ngi-forge.cachix.org-1:PK0qK+LhWt4GQVpUtPapyXWxJSM1GhtmPW6CRCoygz0=" ]
         )
 

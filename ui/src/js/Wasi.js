@@ -1,5 +1,6 @@
 // Runs the WASI programs of the browser runtime.
-// Elm sends `runWasi` and receives the program output with `onWasiEvent`.
+// Elm sends `runWasi`, `addWasiFiles` and `removeWasiFile`,
+// and receives the program output and the files with `onWasiEvent`.
 
 const timeoutMilliseconds = 10000;
 const outputLimit = 1024 * 1024;
@@ -80,8 +81,89 @@ const compile = (url) => {
   return modules.get(url);
 };
 
+const fetchBytes = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return new Uint8Array(await response.arrayBuffer());
+};
+
+// The files of the working directory of one app.
+// Elm sends `workdir = { app, examples: [{ name, url }], reset }` with each request.
+// If `reset` is true or the app changes, the files are the examples again.
+const initWorkdir = (app) => {
+  let store = { app: null, files: new Map() };
+  let queue = Promise.resolve();
+
+  const revoke = () => {
+    for (const { url } of store.files.values()) {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  // Replace the files with `[{ name, data }]` and send them to Elm.
+  const set = (files) => {
+    revoke();
+    store.files = new Map(
+      files.map(({ name, data }) => [name, { data, url: URL.createObjectURL(new Blob([data])) }]),
+    );
+    app.ports.onWasiEvent.send({
+      kind: "files",
+      app: store.app,
+      files: [...store.files].map(([name, { data, url }]) => ({ name, size: data.byteLength, url })),
+    });
+  };
+
+  const load = async ({ app: appName, examples, reset }) => {
+    if (reset || store.app !== appName) {
+      revoke();
+      store = { app: appName, files: new Map() };
+      const files = await Promise.all(
+        examples.map(async ({ name, url }) => ({ name, data: await fetchBytes(new URL(url, document.baseURI).href) })),
+      );
+      store.files = new Map(files.map(({ name, data }) => [name, { data, url: "" }]));
+    }
+    return [...store.files].map(([name, { data }]) => ({ name, data }));
+  };
+
+  // Run the operations one after the other, so that they do not mix.
+  const enqueue = (operation) => {
+    const result = queue.then(operation);
+    queue = result.catch(() => {});
+    return result;
+  };
+
+  return {
+    files: (workdir) => enqueue(() => load(workdir)),
+    set: (files) => enqueue(() => set(files)),
+    update: (workdir, change) => enqueue(async () => set(await change(await load(workdir)))),
+  };
+};
+
 export const initWasi = (app) => {
   let running = null;
+  const workdir = initWorkdir(app);
+
+  const sendError = (text) => app.ports.onWasiEvent.send({ kind: "error", text });
+
+  app.ports.addWasiFiles.subscribe(({ workdir: dir, files }) =>
+    workdir
+      .update(dir, async (current) => {
+        const added = await Promise.all(
+          files.map(async (file) => ({ name: file.name, data: new Uint8Array(await file.arrayBuffer()) })),
+        );
+        const names = new Set(added.map(({ name }) => name));
+        return [...current.filter(({ name }) => !names.has(name)), ...added];
+      })
+      .catch((error) => sendError(`Cannot add the files: ${error.message}`))
+  );
+
+  app.ports.removeWasiFile.subscribe(({ workdir: dir, name }) =>
+    workdir
+      .update(dir, async (current) => current.filter((file) => file.name !== name))
+      .catch((error) => sendError(`Cannot remove the file: ${error.message}`))
+  );
 
   const stop = () => {
     if (running !== null) {
@@ -96,7 +178,7 @@ export const initWasi = (app) => {
     app.ports.onWasiEvent.send({ kind: "error", text });
   };
 
-  app.ports.runWasi.subscribe(async ({ url, program, args, stdin }) => {
+  app.ports.runWasi.subscribe(async ({ url, program, args, stdin, workdir: dir }) => {
     stop();
     const run = {};
     running = run;
@@ -118,6 +200,15 @@ export const initWasi = (app) => {
       }
       return;
     }
+    let files;
+    try {
+      files = await workdir.files(dir);
+    } catch (error) {
+      if (running === run) {
+        fail(`Cannot load the files: ${error.message}`);
+      }
+      return;
+    }
     if (running !== run) {
       return;
     }
@@ -131,6 +222,10 @@ export const initWasi = (app) => {
       outputSize += data.text?.length ?? 0;
       if (outputSize > outputLimit) {
         fail(`The program wrote more than ${outputLimit} characters.`);
+        return;
+      }
+      if (data.kind === "workdir") {
+        workdir.set(data.files);
         return;
       }
       app.ports.onWasiEvent.send(data);
@@ -148,7 +243,7 @@ export const initWasi = (app) => {
         fail(`The program did not stop in ${timeoutMilliseconds / 1000} seconds.`);
       }
     }, timeoutMilliseconds);
-    run.worker.postMessage({ module, args: argv, stdin });
+    run.worker.postMessage({ module, args: argv, stdin, files });
   });
 
   app.ports.stopWasi.subscribe(() => {

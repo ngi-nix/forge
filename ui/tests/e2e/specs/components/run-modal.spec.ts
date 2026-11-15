@@ -121,4 +121,29 @@ test.describe("Browser runtime", () => {
     await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
     await expect(modal.getByTestId("run-browser-start")).toBeVisible();
   });
+
+  test("runs the WASI program with an added file", async ({ page }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(TEST_WASM_APP_NAME !== "jaq", "The test uses the arguments of jaq");
+    await page.goto(`./app/${TEST_WASM_APP_NAME}#run-browser`);
+    const modal = page.getByTestId("run-modal-container");
+
+    await modal.getByTestId("run-browser-files").setInputFiles({
+      name: "added.json",
+      mimeType: "application/json",
+      buffer: Buffer.from("{\"added\": \"from-file\"}"),
+    });
+    const file = modal.getByTestId("run-browser-file").filter({ hasText: "added.json" });
+    await expect(file).toBeVisible();
+    await expect(file.getByRole("link")).toHaveAttribute("href", /^blob:/);
+
+    await modal.getByTestId("run-browser-args").fill(".added added.json");
+    await modal.getByTestId("run-browser-start").click();
+    await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
+    await expect(modal.getByTestId("run-browser-output")).toContainText("from-file");
+
+    await file.getByTestId("run-browser-file-remove").click();
+    await expect(file).toHaveCount(0);
+  });
+
 });

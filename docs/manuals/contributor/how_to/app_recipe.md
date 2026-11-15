@@ -178,8 +178,11 @@ binary cache.
 The virtual machine has no display and no network.
 
 If a WASI build of the program is available, the web page also runs it natively
-with the example arguments and standard input.
+with the example arguments, standard input and files.
 The user can change them before running the program.
+The program can read and write the files in its working directory.
+The user can add files to the working directory, remove files from it,
+and download the files.
 
 Enable the browser runtime only for CLI programs.
 Do not enable it for GUI programs or for daemons.
@@ -198,6 +201,8 @@ programs = {
     wasmPackage = pkgs.pkgsCross.wasi32.pkgsOriginal.package-cli;
     args = "--flag 'some value'";
     stdin = "input text";
+    # Optional. Example files in the working directory.
+    files."sample.txt" = ./sample.txt;
   };
 };
 ```
@@ -205,7 +210,7 @@ programs = {
 The browser splits `args` as POSIX shell words (like Python `shlex.split`).
 It does not expand variables, globs or `~`.
 
-Build the WASI program and run it with the example arguments and standard input:
+Build the WASI program and run it with the example arguments, standard input and files:
 
 ```bash
 nix build .#apps.<app-name>.browser

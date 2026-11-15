@@ -410,22 +410,33 @@ update upd modelInit =
                 , program = app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.wasmProgram
                 , args = run.browserRun_args
                 , stdin = run.browserRun_stdin
+                , workdir = Wasi.workdir app run
                 }
             )
 
         Update_BrowserRunStop ->
             ( model, Wasi.stopWasi () )
 
-        Update_BrowserRunEvent value ->
+        Update_BrowserRunAddFiles app files ->
             let
                 run =
-                    model.model_browserRun
+                    getBrowserRun model app
             in
-            if run.browserRun_status /= BrowserRunStatus_Running then
-                ( model, Cmd.none )
+            ( { model | model_browserRun = run }
+            , Wasi.addWasiFiles { workdir = Wasi.workdir app run, files = files }
+            )
 
-            else
-                ( { model | model_browserRun = Wasi.applyWasiEvent value run }, Cmd.none )
+        Update_BrowserRunRemoveFile app name ->
+            let
+                run =
+                    getBrowserRun model app
+            in
+            ( { model | model_browserRun = run }
+            , Wasi.removeWasiFile { workdir = Wasi.workdir app run, name = name }
+            )
+
+        Update_BrowserRunEvent value ->
+            ( { model | model_browserRun = Wasi.applyWasiEvent value model.model_browserRun }, Cmd.none )
 
         Update_Updater up ->
             model |> up

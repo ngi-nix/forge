@@ -64,7 +64,7 @@ type alias Drv =
     , drv_version : String
     , drv_broken : Bool
     , drv_unfree : Bool
-    , drv_outPath : Maybe String
+    , drv_storePath : Maybe String
     }
 
 
@@ -76,7 +76,7 @@ decodeDrv =
         (Decode.field "version" Decode.string)
         (Decode.field "broken" Decode.bool)
         (Decode.field "unfree" Decode.bool)
-        (Decode.field "outPath" (Decode.nullable Decode.string))
+        (Decode.field "storePath" (Decode.nullable Decode.string))
 
 
 type alias AppProgramsRuntimesProgram =
@@ -96,6 +96,9 @@ type alias AppProgramsRuntimesBrowser =
     , wasmProgram : String
     , args : String
     , stdin : String
+
+    -- Names of the example files in the working directory.
+    , files : List String
     }
 
 
@@ -176,11 +179,12 @@ isAppEndpointWeb endpoint =
 
 decodeAppProgramsRuntimesBrowser : Decoder AppProgramsRuntimesBrowser
 decodeAppProgramsRuntimesBrowser =
-    Decode.map4 AppProgramsRuntimesBrowser
+    Decode.map5 AppProgramsRuntimesBrowser
         (Decode.field "enable" Decode.bool)
         (Decode.field "wasmProgram" Decode.string)
         (Decode.field "args" Decode.string)
         (Decode.field "stdin" Decode.string)
+        (Decode.field "files" (Decode.keyValuePairs Decode.value |> Decode.map (List.map Tuple.first >> List.sort)))
 
 
 {-| URL of the WASI program of the browser runtime.
@@ -188,6 +192,13 @@ decodeAppProgramsRuntimesBrowser =
 appWasmUrl : App -> String
 appWasmUrl app =
     "resources/apps/" ++ app.app_name ++ "/" ++ app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.wasmProgram ++ ".wasm"
+
+
+{-| URL of the example file `name` of the WASI program of `app`.
+-}
+appWasmFileUrl : App -> String -> String
+appWasmFileUrl app name =
+    "resources/apps/" ++ app.app_name ++ "/files/" ++ name
 
 
 type alias AppResource =

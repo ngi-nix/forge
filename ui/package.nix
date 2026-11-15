@@ -102,7 +102,7 @@ symlinkJoin {
 
       # Copy the WASI program of the browser runtime if it exists
       if [ -d "${appWasm}/$app" ]; then
-        cp "${appWasm}/$app"/*.wasm "resources/apps/$app/"
+        cp -r "${appWasm}/$app"/. "resources/apps/$app/"
       fi
 
       # Create SPA routing for this app (github pages workaround)
