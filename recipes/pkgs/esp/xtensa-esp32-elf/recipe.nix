@@ -20,7 +20,10 @@
 
     build.builders.standard = {
       enable = true;
-      packages.build = lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.autoPatchelfHook ];
+      packages.build = lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        pkgs.patchelfUnstable # patchelf < 0.19 corrupts ELF headers with 2MB page size
+        pkgs.autoPatchelfHook
+      ];
       packages.run = [
         pkgs.libz
         pkgs.stdenv.cc.cc.lib
