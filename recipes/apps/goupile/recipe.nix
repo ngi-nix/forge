@@ -1,5 +1,6 @@
 {
   forge-lib,
+  lib,
   config,
   pkgs,
   ...
@@ -11,7 +12,7 @@ in
   pkgs.goupile = {
     build.builders.identity = {
       enable = true;
-      derivation = forge-lib.overrideUntil {
+      derivation = forge-lib.untilUpstream {
         pr = "https://github.com/NixOS/nixpkgs/pull/583555";
         condition = lib.hasInfix "-pFast" pkgs.pkgsOriginal.goupile.buildPhase;
         clean = pkgs.pkgsOriginal.goupile;

@@ -11,57 +11,51 @@
       ...
     }:
     {
-      checks =
-        (lib.concatMapAttrs (
-          packageName: package:
-          # `apps` and `pkgs` are invalid dedivations
-          # used as package sets (to support the .#apps.${name} syntax)
-          # hence filter them out (they do not have a `drvPath` attribute).
-          lib.optionalAttrs (lib.isDerivation package && lib.hasAttr "drvPath" package) (
-            let
-              subDrvs = [
-                # All packages passthru attributes
-                "env"
-                "test"
-                # All apps passthru attributes
-                "check-programs-main-package"
-                "container"
-                "program"
-                "test"
-                "test-programs"
-                "test-services-container"
-                "test-services-nixos"
-                "vm"
-              ];
-            in
-            lib.concatMapAttrs (
-              attrName: attr:
-              {
-                # Removing nested derivations so that `nix-eval-jobs --force-recurse`
-                # does not re-evaluate them.
-                # Explanation: https://github.com/ngi-nix/infra/issues/50#issuecomment-6114094518
-                ${packageName} = lib.removeAttrs package subDrvs;
-              }
-              // lib.optionalAttrs (lib.hasAttr attrName package && lib.isDerivation package.${attrName}) {
-                "${packageName}-${attrName}" = package.${attrName};
-              }
-            ) (lib.genAttrs subDrvs null)
-          )
-        ) config.packages)
-        // (lib.concatMapAttrs (
-          packageName: package:
+      checks = lib.concatMapAttrs (
+        packageName: package:
+        # `apps` and `pkgs` are invalid dedivations
+        # used as package sets (to support the .#apps.${name} syntax)
+        # hence filter them out (they do not have a `drvPath` attribute).
+        lib.optionalAttrs (lib.isDerivation package && lib.hasAttr "drvPath" package) (
           let
-            obsolete = package.passthru.forge.obsoleteOverride or package.forge.obsoleteOverride or null;
-            checkName = "obsolete-override-${lib.replaceStrings [ "." ] [ "-" ] packageName}";
+            subDrvs = [
+              # All packages passthru attributes
+              "env"
+              "test"
+              # All apps passthru attributes
+              "check-programs-main-package"
+              "container"
+              "program"
+              "test"
+              "test-programs"
+              "test-services-container"
+              "test-services-nixos"
+              "vm"
+            ];
+            obsolete = package.passthru.forge.obsoleteOverride or null;
+            checkName = "upstream-landed-${lib.replaceStrings [ "." ] [ "-" ] packageName}";
           in
-          lib.optionalAttrs (lib.isDerivation package && obsolete != null) {
+          lib.concatMapAttrs (
+            attrName: attr:
+            {
+              # Removing nested derivations so that `nix-eval-jobs --force-recurse`
+              # does not re-evaluate them.
+              # Explanation: https://github.com/ngi-nix/infra/issues/50#issuecomment-6114094518
+              ${packageName} = lib.removeAttrs package subDrvs;
+            }
+            // lib.optionalAttrs (lib.hasAttr attrName package && lib.isDerivation package.${attrName}) {
+              "${packageName}-${attrName}" = package.${attrName};
+            }
+          ) (lib.genAttrs subDrvs null)
+          // lib.optionalAttrs (obsolete != null) {
             "${checkName}" = pkgs.runCommand checkName { } ''
-              echo "ERROR: Package '${packageName}' has an obsolete temporary override." >&2
-              echo "${obsolete.message}" >&2
+              echo "ERROR: Package '${packageName}' temporary override is obsolete." >&2
+              echo "${obsolete}" >&2
               echo "Please remove the temporary override from the recipe before pushing to master." >&2
               exit 1
             '';
           }
-        ) config.packages);
+        )
+      ) config.packages;
     };
 }

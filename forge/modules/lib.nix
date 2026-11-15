@@ -184,9 +184,10 @@
     # While `condition` is false (upstream PR pending):
     #   Returns `override` (the temporary workaround).
     # When `condition` is true (upstream PR landed):
-    #   Returns `clean` with `warnOnBuild`, and sets `passthru.forge.obsoleteOverride`
-    #   so Forge's `flake.checks` can alert developers in CI without breaking downstream users.
-    overrideUntil =
+    #   Returns `clean` silently for downstream users, and sets
+    #   `passthru.forge.obsoleteOverride` so Forge's `flake.checks` can alert
+    #   developers in CI without breaking downstream users.
+    untilUpstream =
       {
         # Condition indicating the upstream fix has landed in the active nixpkgs
         condition,
@@ -207,21 +208,11 @@
         overrideDrv = if lib.isFunction override then override clean else override;
       in
       if condition then
-        let
-          warnedClean = warnOnBuild "forge: ${message}" clean;
-        in
-        warnedClean
+        clean
         // {
-          forge = (clean.forge or { }) // {
-            obsoleteOverride = {
-              inherit pr message;
-            };
-          };
           passthru = (clean.passthru or { }) // {
             forge = (clean.passthru.forge or { }) // {
-              obsoleteOverride = {
-                inherit pr message;
-              };
+              obsoleteOverride = message;
             };
           };
         }
