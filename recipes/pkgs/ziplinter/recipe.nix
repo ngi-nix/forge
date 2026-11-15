@@ -27,6 +27,8 @@
         "--package"
         "ziplinter"
       ];
+      packages.run = with pkgs; [ zstd ];
+      packages.build = with pkgs; [ pkg-config ];
     };
 
     build.extraAttrs = {

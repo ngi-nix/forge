@@ -89,6 +89,11 @@ in
           patchShebangs "$d/node_modules"
         done
 
+        # V2 versions are deprecated and renamed to original methods in electron45
+        substituteInPlace desktop/node_modules/better-sqlite3/src/util/macros.cpp \
+          --replace-fail 'HolderV2()' 'Holder()' \
+          --replace-fail 'GetPrototypeV2()' 'GetPrototype()'
+
         pushd desktop
 
         export npm_config_nodedir="${electron.headers}"

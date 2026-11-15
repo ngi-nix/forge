@@ -24,6 +24,9 @@
           perl
           pkg-config
         ];
+        run = with pkgs; [
+          openssl
+        ];
       };
       cargoHash = "sha256-Qv97FTiccfQSBI2OBfl31p3oF/JCL/+UXkK+owuByDY=";
     };

@@ -22,6 +22,8 @@
       builders.rust = {
         enable = true;
         cargoHash = "sha256-g3UvCPNNwnzwtEpRBgEM4u637hPligXc8r72oKe1XMQ=";
+        packages.build = with pkgs; [ pkg-config ];
+        packages.run = with pkgs; [ aws-lc ];
         packages.check = with pkgs; [
           # Required for health-check test, else it fails with:
           # No CA certificates were loaded from the system

@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 
@@ -19,6 +20,11 @@
     build.builders.rust = {
       enable = true;
       cargoHash = "sha256-3CwtSy8u6SKxKs8eTUgz0ctt667tfR5yB3EL1eWmn9c=";
+      packages.run = with pkgs; [
+        libgit2
+        sqlite
+      ];
+      packages.build = with pkgs; [ pkg-config ];
     };
 
     # Same pimalaya codebase pattern as cardamum — doc comments contain shell

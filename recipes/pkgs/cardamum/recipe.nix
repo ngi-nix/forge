@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 
@@ -19,6 +20,11 @@
     build.builders.rust = {
       enable = true;
       cargoHash = "sha256-AyeaPRxnTP8FYqrt1VNvImfje2NsILVxq17kIoOsx8M=";
+      packages.run = with pkgs; [
+        libgit2
+        sqlite
+      ];
+      packages.build = with pkgs; [ pkg-config ];
     };
 
     # Upstream lib.rs has shell/VCard examples in doc comments not marked

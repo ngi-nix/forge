@@ -1,6 +1,7 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 let
@@ -22,6 +23,8 @@ in
     build.builders.rust = {
       enable = true;
       cargoHash = "sha256-4mrcZ9UCOJdUWJkshciB6N4aoHz9tGSmFqp4w56BRtc=";
+      packages.build = with pkgs; [ pkg-config ];
+      packages.run = with pkgs; [ zstd ];
     };
 
     test.script = ''

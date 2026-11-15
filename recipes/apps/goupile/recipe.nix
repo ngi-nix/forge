@@ -1,6 +1,5 @@
 {
   forge-lib,
-  lib,
   config,
   pkgs,
   ...
@@ -12,18 +11,7 @@ in
   pkgs.goupile = {
     build.builders.identity = {
       enable = true;
-      derivation =
-        # TODO: Remove once https://github.com/NixOS/nixpkgs/pull/583555 is available in nixos-unstable
-        if lib.hasInfix "-pFast" pkgs.pkgsOriginal.goupile.buildPhase then
-          throw "PR #583555 landed for Goupile. The override in recipes/apps/goupile/recipe.nix should be removed."
-        else
-          (pkgs.pkgsOriginal.goupile.override {
-            stdenv = pkgs.clangStdenv;
-            profile = "Fast";
-          }).overrideAttrs
-            (old: {
-              nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.llvmPackages.bintools ];
-            });
+      derivation = pkgs.pkgsOriginal.goupile;
     };
   };
   apps.goupile = {
