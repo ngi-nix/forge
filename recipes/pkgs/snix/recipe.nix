@@ -22,9 +22,15 @@ in
     build.builders.rust = {
       enable = true;
       cargoHash = "sha256-L6xQcfjo9buZzCZ4rFhCifrRKNxBOg/I8KYKfBo0cTE=";
-      packages.build = with pkgs; [
-        protobuf
-      ];
+      packages = with pkgs; {
+        build = [
+          pkg-config
+          protobuf
+        ];
+        run = [
+          zstd
+        ];
+      };
     };
 
     build.extraAttrs = {
