@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 
@@ -19,6 +20,13 @@
     build.builders.rust = {
       enable = true;
       cargoHash = "sha256-KDsvF8wHMIEw+rjBJpUTgX6QIhcCMVjLWcPWklpxG3Q=";
+      packages = with pkgs; {
+        build = [ pkg-config ];
+        run = [
+          libgit2
+          sqlite
+        ];
+      };
     };
 
     test.script = ''
