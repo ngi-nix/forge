@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { TEST_APP_NAME, TEST_WASM_APP_NAME, TEST_WASM_BZIP2_APP_NAME, TEST_WASM_FILES_APP_NAME } from "../constants";
+import {
+  TEST_APP_NAME,
+  TEST_WASM_APP_NAME,
+  TEST_WASM_BZIP2_APP_NAME,
+  TEST_WASM_CPDF_APP_NAME,
+  TEST_WASM_FILES_APP_NAME,
+} from "../constants";
 
 test.describe("Run Modal and Hash State", () => {
   const targetPage = `./app/${TEST_APP_NAME}`;
@@ -179,5 +185,27 @@ test.describe("Browser runtime", () => {
     await modal.getByTestId("run-browser-start").click();
     await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
     await expect(input).toBeVisible();
+  });
+  // The WASI build of `cpdf` replaces the C code of zlib, AES and SHA-2 with OCaml code.
+  test("runs the WASI program that stamps and encrypts a PDF", async ({ page }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(TEST_WASM_CPDF_APP_NAME === "", "No app with cpdf");
+    await page.goto(`./app/${TEST_WASM_CPDF_APP_NAME}#run-browser`);
+    const modal = page.getByTestId("run-modal-container");
+    const output = modal.getByTestId("run-browser-output");
+    await expect(modal.getByTestId("run-browser-file").filter({ hasText: "sample.pdf" })).toBeVisible();
+
+    await modal.getByTestId("run-browser-start").click();
+    await expect(output).toContainText("Exit code 0", { timeout: 30000 });
+    await expect(modal.getByTestId("run-browser-file").filter({ hasText: "stamped.pdf" })).toBeVisible();
+
+    await modal.getByTestId("run-browser-args").fill("-encrypt AES256 owner user stamped.pdf -o secret.pdf");
+    await modal.getByTestId("run-browser-start").click();
+    await expect(output).toContainText("Exit code 0", { timeout: 30000 });
+
+    await modal.getByTestId("run-browser-args").fill("-info secret.pdf user=user");
+    await modal.getByTestId("run-browser-start").click();
+    await expect(output).toContainText("Exit code 0", { timeout: 30000 });
+    await expect(output).toContainText("Encryption: 256bit AES");
   });
 });
