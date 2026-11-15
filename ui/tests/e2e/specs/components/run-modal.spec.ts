@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TEST_APP_NAME, TEST_WASM_APP_NAME, TEST_WASM_FILES_APP_NAME } from "../constants";
+import { TEST_APP_NAME, TEST_WASM_APP_NAME, TEST_WASM_BZIP2_APP_NAME, TEST_WASM_FILES_APP_NAME } from "../constants";
 
 test.describe("Run Modal and Hash State", () => {
   const targetPage = `./app/${TEST_APP_NAME}`;
@@ -159,4 +159,25 @@ test.describe("Browser runtime", () => {
     await expect(output.getByRole("link")).toHaveAttribute("href", /^blob:/);
   });
 
+  // `bzip2` sets the times of the files that it writes.
+  test("runs the WASI program that sets the times of a file", async ({ page }) => {
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip(TEST_WASM_BZIP2_APP_NAME === "", "No app with bzip2");
+    await page.goto(`./app/${TEST_WASM_BZIP2_APP_NAME}#run-browser`);
+    const modal = page.getByTestId("run-modal-container");
+    const input = modal.getByTestId("run-browser-file").filter({ hasText: "bzip2.txt", hasNotText: ".bz2" });
+    const compressed = modal.getByTestId("run-browser-file").filter({ hasText: "bzip2.txt.bz2" });
+    await expect(input).toBeVisible();
+
+    await modal.getByTestId("run-browser-start").click();
+    await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
+    await expect(compressed).toBeVisible();
+
+    await input.getByTestId("run-browser-file-remove").click();
+    await expect(input).toHaveCount(0);
+    await modal.getByTestId("run-browser-args").fill("-d bzip2.txt.bz2");
+    await modal.getByTestId("run-browser-start").click();
+    await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
+    await expect(input).toBeVisible();
+  });
 });

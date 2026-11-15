@@ -8,6 +8,8 @@ export const TEST_APP_NAME = process.env.TEST_APP_NAME || (isProd ? "emerge" : "
 export const TEST_WASM_APP_NAME = process.env.TEST_WASM_APP_NAME || (isProd ? "jaq" : "");
 // An app with `programs.runtimes.browser.files`, whose example writes `sample.pdf`.
 export const TEST_WASM_FILES_APP_NAME = process.env.TEST_WASM_FILES_APP_NAME || (isProd ? "typst" : "");
+// An app with `bzip2`, whose example compresses `bzip2.txt`.
+export const TEST_WASM_BZIP2_APP_NAME = process.env.TEST_WASM_BZIP2_APP_NAME || (isProd ? "libbzip2-rs" : "");
 export const TEST_PKG_NAME = process.env.TEST_PKG_NAME || (isProd ? "emerge" : "mock-test-pkg");
 export const TEST_APP_SEARCH = process.env.TEST_APP_SEARCH || (isProd ? "emerge" : "mock-test");
 export const TEST_PKG_SEARCH = process.env.TEST_PKG_SEARCH || (isProd ? "emerge" : "mock-test");
