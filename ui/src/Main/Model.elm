@@ -52,11 +52,15 @@ type alias BrowserRun =
 
 {-| A file of the working directory of the WASI program.
 `url` is the URL of the file contents.
+`changed` is true if the last run made or changed the file.
+`viewable` is true if the browser can show the file in a new tab.
 -}
 type alias BrowserFile =
     { browserFile_name : String
     , browserFile_size : Int
     , browserFile_url : String
+    , browserFile_changed : Bool
+    , browserFile_viewable : Bool
     }
 
 

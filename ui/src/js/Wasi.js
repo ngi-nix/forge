@@ -89,6 +89,29 @@ const fetchBytes = async (url) => {
   return new Uint8Array(await response.arrayBuffer());
 };
 
+// The media types of the files that the browser can show in a new tab.
+// HTML and SVG files can run scripts in the origin of the page, thus the browser only downloads them.
+const viewableTypes = new Map([
+  ["pdf", "application/pdf"],
+  ["png", "image/png"],
+  ["jpg", "image/jpeg"],
+  ["jpeg", "image/jpeg"],
+  ["gif", "image/gif"],
+  ["webp", "image/webp"],
+  ["txt", "text/plain;charset=utf-8"],
+  ["md", "text/plain;charset=utf-8"],
+  ["csv", "text/plain;charset=utf-8"],
+  ["json", "text/plain;charset=utf-8"],
+  ["log", "text/plain;charset=utf-8"],
+]);
+
+const viewableType = (name) => {
+  const dot = name.lastIndexOf(".");
+  return dot < 0 ? undefined : viewableTypes.get(name.slice(dot + 1).toLowerCase());
+};
+
+const sameBytes = (a, b) => a.byteLength === b.byteLength && a.every((byte, i) => byte === b[i]);
+
 // The files of the working directory of one app.
 // Elm sends `workdir = { app, examples: [{ name, url }], reset }` with each request.
 // If `reset` is true or the app changes, the files are the examples again.
@@ -103,15 +126,31 @@ const initWorkdir = (app) => {
   };
 
   // Replace the files with `[{ name, data }]` and send them to Elm.
-  const set = (files) => {
+  // If `run` is true, the files come from a run of the program,
+  // and `changed` marks the files that the run made or changed.
+  // Else, the files keep their mark if their data stays the same.
+  const set = (files, run = false) => {
     revoke();
+    const previous = store.files;
     store.files = new Map(
-      files.map(({ name, data }) => [name, { data, url: URL.createObjectURL(new Blob([data])) }]),
+      files.map(({ name, data }) => {
+        const old = previous.get(name);
+        const changed = run ? !(old && sameBytes(old.data, data)) : old?.data === data && old.changed;
+        const type = viewableType(name);
+        const blob = new Blob([data], type ? { type } : {});
+        return [name, { data, url: URL.createObjectURL(blob), changed, viewable: type !== undefined }];
+      }),
     );
     app.ports.onWasiEvent.send({
       kind: "files",
       app: store.app,
-      files: [...store.files].map(([name, { data, url }]) => ({ name, size: data.byteLength, url })),
+      files: [...store.files].map(([name, { data, url, changed, viewable }]) => ({
+        name,
+        size: data.byteLength,
+        url,
+        changed,
+        viewable,
+      })),
     });
   };
 
@@ -122,7 +161,7 @@ const initWorkdir = (app) => {
       const files = await Promise.all(
         examples.map(async ({ name, url }) => ({ name, data: await fetchBytes(new URL(url, document.baseURI).href) })),
       );
-      store.files = new Map(files.map(({ name, data }) => [name, { data, url: "" }]));
+      store.files = new Map(files.map(({ name, data }) => [name, { data, url: "", changed: false }]));
     }
     return [...store.files].map(([name, { data }]) => ({ name, data }));
   };
@@ -136,7 +175,7 @@ const initWorkdir = (app) => {
 
   return {
     files: (workdir) => enqueue(() => load(workdir)),
-    set: (files) => enqueue(() => set(files)),
+    setFromRun: (files) => enqueue(() => set(files, true)),
     update: (workdir, change) => enqueue(async () => set(await change(await load(workdir)))),
   };
 };
@@ -225,7 +264,7 @@ export const initWasi = (app) => {
         return;
       }
       if (data.kind === "workdir") {
-        workdir.set(data.files);
+        workdir.setFromRun(data.files);
         return;
       }
       app.ports.onWasiEvent.send(data);

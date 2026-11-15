@@ -49,7 +49,7 @@ port stopWasi : () -> Cmd msg
 `{ kind : "stdout" | "stderr", text : String }`,
 `{ kind : "exit", code : Int }`,
 `{ kind : "error", text : String }`
-and `{ kind : "files", app : String, files : List { name : String, size : Int, url : String } }`.
+and `{ kind : "files", app : String, files : List { name : String, size : Int, url : String, changed : Bool, viewable : Bool } }`.
 The "stdout", "stderr" and "exit" events apply only while the program runs.
 -}
 port onWasiEvent : (Decode.Value -> msg) -> Sub msg
@@ -138,10 +138,12 @@ decodeWasiEvent =
                             (Decode.field "app" Decode.string)
                             (Decode.field "files"
                                 (Decode.list
-                                    (Decode.map3 BrowserFile
+                                    (Decode.map5 BrowserFile
                                         (Decode.field "name" Decode.string)
                                         (Decode.field "size" Decode.int)
                                         (Decode.field "url" Decode.string)
+                                        (Decode.field "changed" Decode.bool)
+                                        (Decode.field "viewable" Decode.bool)
                                     )
                                 )
                             )

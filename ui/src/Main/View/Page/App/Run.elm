@@ -349,28 +349,56 @@ viewPageAppRunBrowserFiles app run =
         files =
             case run.browserRun_files of
                 Just userFiles ->
-                    userFiles
-                        |> List.map (\file -> ( file.browserFile_name, Just file.browserFile_size, file.browserFile_url ))
+                    List.map (\file -> ( file, Just file.browserFile_size )) userFiles
 
                 Nothing ->
                     app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.files
-                        |> List.map (\name -> ( name, Nothing, appWasmFileUrl app name ))
+                        |> List.map
+                            (\name ->
+                                ( { browserFile_name = name
+                                  , browserFile_size = 0
+                                  , browserFile_url = appWasmFileUrl app name
+                                  , browserFile_changed = False
+                                  , browserFile_viewable = False
+                                  }
+                                , Nothing
+                                )
+                            )
 
-        viewFile ( name, size, url ) =
-            li [ class "list-group-item d-flex align-items-center py-1", attribute "data-testid" "run-browser-file" ]
-                [ a [ href url, download name, class "font-monospace me-auto" ] [ text name ]
+        viewFile ( file, size ) =
+            li [ class "list-group-item d-flex align-items-center gap-2 py-1", attribute "data-testid" "run-browser-file" ]
+                [ span [ class "font-monospace text-break" ] [ text file.browserFile_name ]
+                , if file.browserFile_changed then
+                    span [ class "badge text-bg-success", title "The last run made or changed this file", attribute "data-testid" "run-browser-file-new" ] [ text "new" ]
+
+                  else
+                    text ""
                 , case size of
                     Just bytes ->
-                        small [ class "text-body-secondary me-2" ] [ text (viewByteSize bytes) ]
+                        small [ class "text-body-secondary ms-auto" ] [ text (viewByteSize bytes) ]
 
                     Nothing ->
-                        text ""
+                        span [ class "ms-auto" ] []
+                , if file.browserFile_viewable then
+                    a
+                        [ href file.browserFile_url
+                        , target "_blank"
+                        , rel "noopener"
+                        , class "btn btn-outline-secondary btn-sm py-0"
+                        , title ("Open " ++ file.browserFile_name ++ " in a new tab")
+                        , attribute "data-testid" "run-browser-file-open"
+                        ]
+                        [ text "Open" ]
+
+                  else
+                    text ""
+                , viewBrowserFileDownload "btn btn-outline-primary btn-sm py-0" file
                 , button
                     [ type_ "button"
                     , class "btn btn-outline-secondary btn-sm py-0"
                     , disabled running
-                    , title ("Remove " ++ name)
-                    , onClick (Update_BrowserRunRemoveFile app name)
+                    , title ("Remove " ++ file.browserFile_name)
+                    , onClick (Update_BrowserRunRemoveFile app file.browserFile_name)
                     , attribute "data-testid" "run-browser-file-remove"
                     ]
                     [ text "Remove" ]
@@ -414,6 +442,25 @@ viewByteSize bytes =
 viewPageAppRunBrowserOutput : BrowserRun -> Html Update
 viewPageAppRunBrowserOutput run =
     let
+        -- Show the files that the run made or changed, so that the user can download them.
+        viewChangedFiles =
+            case List.filter .browserFile_changed (Maybe.withDefault [] run.browserRun_files) of
+                [] ->
+                    text ""
+
+                changed ->
+                    div [ class "d-flex flex-wrap align-items-center gap-2 mt-1 small", attribute "data-testid" "run-browser-changed-files" ]
+                        (span [] [ text "New or changed files:" ]
+                            :: List.map
+                                (\file ->
+                                    span [ class "d-inline-flex align-items-center gap-1" ]
+                                        [ span [ class "font-monospace" ] [ text file.browserFile_name ]
+                                        , viewBrowserFileDownload "btn btn-primary btn-sm py-0" file
+                                        ]
+                                )
+                                changed
+                        )
+
         status =
             case run.browserRun_status of
                 BrowserRunStatus_Idle ->
@@ -433,6 +480,7 @@ viewPageAppRunBrowserOutput run =
                             )
                         ]
                         [ text ("Exit code " ++ String.fromInt code) ]
+                    , viewChangedFiles
                     ]
 
                 BrowserRunStatus_Failed error ->
@@ -458,6 +506,20 @@ viewPageAppRunBrowserOutput run =
                 )
                 :: status
             )
+
+
+{-| The link that downloads `file`.
+-}
+viewBrowserFileDownload : String -> BrowserFile -> Html Update
+viewBrowserFileDownload classes file =
+    a
+        [ href file.browserFile_url
+        , download file.browserFile_name
+        , class (classes ++ " d-inline-flex align-items-center gap-1")
+        , title ("Download " ++ file.browserFile_name)
+        , attribute "data-testid" "run-browser-file-download"
+        ]
+        [ iconDownload, text "Download" ]
 
 
 {-| URL of trynix.dev that boots a Linux virtual machine

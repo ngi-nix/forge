@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import {
   TEST_APP_NAME,
   TEST_WASM_APP_NAME,
@@ -141,7 +142,8 @@ test.describe("Browser runtime", () => {
     });
     const file = modal.getByTestId("run-browser-file").filter({ hasText: "added.json" });
     await expect(file).toBeVisible();
-    await expect(file.getByRole("link")).toHaveAttribute("href", /^blob:/);
+    await expect(file.getByTestId("run-browser-file-download")).toHaveAttribute("href", /^blob:/);
+    await expect(file.getByTestId("run-browser-file-new")).toHaveCount(0);
 
     await modal.getByTestId("run-browser-args").fill(".added added.json");
     await modal.getByTestId("run-browser-start").click();
@@ -162,7 +164,21 @@ test.describe("Browser runtime", () => {
     await modal.getByTestId("run-browser-start").click();
     await expect(modal.getByTestId("run-browser-output")).toContainText("Exit code 0", { timeout: 30000 });
     const output = modal.getByTestId("run-browser-file").filter({ hasText: "sample.pdf" });
-    await expect(output.getByRole("link")).toHaveAttribute("href", /^blob:/);
+    await expect(output.getByTestId("run-browser-file-new")).toBeVisible();
+    await expect(output.getByTestId("run-browser-file-open")).toHaveAttribute("href", /^blob:/);
+    const input = modal.getByTestId("run-browser-file").filter({ hasText: "sample.typ" });
+    await expect(input.getByTestId("run-browser-file-new")).toHaveCount(0);
+    await expect(input.getByTestId("run-browser-file-open")).toHaveCount(0);
+
+    const changed = modal.getByTestId("run-browser-changed-files");
+    await expect(changed).toContainText("sample.pdf");
+    await expect(changed).not.toContainText("sample.typ");
+    const downloadPromise = page.waitForEvent("download");
+    await changed.getByTestId("run-browser-file-download").click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe("sample.pdf");
+    const bytes = await readFile(await download.path());
+    expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
   });
 
   // `bzip2` sets the times of the files that it writes.

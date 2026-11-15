@@ -183,6 +183,8 @@ The user can change them before running the program.
 The program can read and write the files in its working directory.
 The user can add files to the working directory, remove files from it,
 and download the files.
+After a run, the web page marks the files that the run made or changed.
+The user can open PDF files, images and text files in a new tab.
 
 Enable the browser runtime only for CLI programs.
 Do not enable it for GUI programs or for daemons.
