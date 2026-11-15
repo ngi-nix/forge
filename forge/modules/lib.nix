@@ -179,14 +179,42 @@
         outPath = warnedDrv.outPath;
       };
 
-    # Helper for temporary recipe overrides waiting for an upstream PR to land.
+    # Helper for temporary recipe overrides waiting for an upstream PR to land in Nixpkgs.
     #
-    # While `condition` is false (upstream PR pending):
-    #   Returns `override` (the temporary workaround).
-    # When `condition` is true (upstream PR landed):
-    #   Returns `clean` silently for downstream users, and sets
-    #   `passthru.forge.obsoleteOverride` so Forge's `flake.checks` can alert
-    #   developers in CI without breaking downstream users.
+    # Downstream Safety:
+    #   - When `condition` is false (upstream PR pending):
+    #       Returns `override` (the temporary workaround).
+    #   - When `condition` is true (upstream PR landed):
+    #       Returns `clean` silently for downstream users, so user builds (e.g. `nh os build`)
+    #       never fail or throw when upstream fixes land.
+    #
+    # Developer Safety:
+    #   When `condition` is true, sets `passthru.forge.obsoleteOverride` so that
+    #   `nix flake check` and Forge CI generate a failing check derivation
+    #   (`checks.upstream-landed-<pkg>`), alerting developers to remove the temporary
+    #   override before pushing/merging a nixpkgs bump to master.
+    #
+    # Common Patterns for `condition`:
+    #   1. New package init waiting to land in Nixpkgs:
+    #        condition = pkgs.pkgsOriginal ? my-package;
+    #        # Recommendation: Vendor the pending package expression in
+    #        # `recipes/_nixpkgs/<pname>/package.nix` following Nixpkgs by-name convention:
+    #        clean = pkgs.pkgsOriginal.my-package;
+    #        override = pkgs.callPackage ../../_nixpkgs/my-package/package.nix { };
+    #
+    #   2. Version bump PR:
+    #        condition = lib.versionAtLeast pkgs.pkgsOriginal.my-package.version "2.0.0";
+    #
+    #   3. Build flag / attribute / phase override:
+    #        condition = lib.hasInfix "-pFast" pkgs.pkgsOriginal.goupile.buildPhase;
+    #        # or checking an option/attribute introduced by the PR:
+    #        condition = pkgs.pkgsOriginal.my-package ? passthru.myFeature;
+    #
+    # How to validate your condition before pushing:
+    #   Verify that your condition properly toggles from false to true and triggers
+    #   the CI check by testing against your PR's branch on GitHub:
+    #     nix build .#checks.x86_64-linux.upstream-landed-<pkg> \
+    #       --override-input nixpkgs github:<user>/nixpkgs/<pr-branch>
     untilUpstream =
       {
         # Condition indicating the upstream fix has landed in the active nixpkgs
