@@ -16,7 +16,7 @@ in
     license = lib.licenses.gpl2;
 
     source = {
-      git = "git:https://invent.kde.org/education/labplot?tag=${recipe.version}";
+      git = "git:https://invent.kde.org/education/labplot?tag=2.12.1";
       hash = "sha256-68ODqeOBp2tynFgLgk4e5AoVcZAwk27Vrggy493F9QU=";
     };
 
