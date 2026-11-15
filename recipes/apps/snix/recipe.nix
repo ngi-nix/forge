@@ -55,7 +55,41 @@ in
       packages = [ pkgs.snix ];
       runtimes.program.enable = true;
       runtimes.shell.enable = true;
-      runtimes.browser.enable = true;
+      runtimes.browser = {
+        enable = true;
+        wasmPackage =
+          let
+            wasi = pkgs.pkgsCross.wasi32.pkgsOriginal;
+          in
+          wasi.rustPlatform.buildRustPackage {
+            pname = "snix-eval";
+            inherit (pkgs.snix)
+              version
+              src
+              sourceRoot
+              cargoDeps
+              ;
+            # The `snix-eval` program of `pkgs.snix` needs a store and `tokio`.
+            # The patch adds a smaller `snix-eval` program to the `snix-eval` library,
+            # and makes the library compile for WASI.
+            patches = [ ./wasi.patch ];
+            cargoBuildFlags = [
+              "-p"
+              "snix-eval"
+              "--bin"
+              "snix-eval"
+            ];
+            # The tests do not run on the build platform.
+            doCheck = false;
+            # Link with the C compiler of the WASI toolchain, not with `rust-lld`.
+            env.RUSTFLAGS = "-Clinker-flavor=gcc -Clink-self-contained=no -Clink-arg=--target=${wasi.stdenv.targetPlatform.config}";
+            meta = pkgs.snix.meta // {
+              mainProgram = "snix-eval";
+              platforms = lib.platforms.wasi;
+            };
+          };
+        args = "-E 'builtins.map (x: x * x) [ 1 2 3 ]'";
+      };
     };
 
     test.programs.script = ''
