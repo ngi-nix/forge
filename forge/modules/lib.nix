@@ -179,6 +179,55 @@
         outPath = warnedDrv.outPath;
       };
 
+    # Helper for temporary recipe overrides waiting for an upstream PR to land.
+    #
+    # While `condition` is false (upstream PR pending):
+    #   Returns `override` (the temporary workaround).
+    # When `condition` is true (upstream PR landed):
+    #   Returns `clean` with `warnOnBuild`, and sets `passthru.forge.obsoleteOverride`
+    #   so Forge's `flake.checks` can alert developers in CI without breaking downstream users.
+    overrideUntil =
+      {
+        # Condition indicating the upstream fix has landed in the active nixpkgs
+        condition,
+        # Reference to the upstream PR / issue (URL or number)
+        pr ? null,
+        # Clean upstream derivation to use once the PR lands (e.g. pkgs.pkgsOriginal.<pkg>)
+        clean,
+        # Override to use while waiting for upstream (derivation, or function `clean: derivation`)
+        override,
+        # Custom message
+        message ?
+          if pr != null then
+            "Upstream PR ${toString pr} has landed in nixpkgs. The temporary override in this recipe can be removed."
+          else
+            "Upstream fix has landed in nixpkgs. The temporary override in this recipe can be removed.",
+      }:
+      let
+        overrideDrv = if lib.isFunction override then override clean else override;
+      in
+      if condition then
+        let
+          warnedClean = warnOnBuild "forge: ${message}" clean;
+        in
+        warnedClean
+        // {
+          forge = (clean.forge or { }) // {
+            obsoleteOverride = {
+              inherit pr message;
+            };
+          };
+          passthru = (clean.passthru or { }) // {
+            forge = (clean.passthru.forge or { }) // {
+              obsoleteOverride = {
+                inherit pr message;
+              };
+            };
+          };
+        }
+      else
+        overrideDrv;
+
     handleUnfree =
       pkgs: drv:
       let

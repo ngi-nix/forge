@@ -11,7 +11,19 @@ in
   pkgs.goupile = {
     build.builders.identity = {
       enable = true;
-      derivation = pkgs.pkgsOriginal.goupile;
+      derivation = forge-lib.overrideUntil {
+        pr = "https://github.com/NixOS/nixpkgs/pull/583555";
+        condition = lib.hasInfix "-pFast" pkgs.pkgsOriginal.goupile.buildPhase;
+        clean = pkgs.pkgsOriginal.goupile;
+        override =
+          (pkgs.pkgsOriginal.goupile.override {
+            stdenv = pkgs.clangStdenv;
+            profile = "Fast";
+          }).overrideAttrs
+            (old: {
+              nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.llvmPackages.bintools ];
+            });
+      };
     };
   };
   apps.goupile = {
