@@ -1,0 +1,64 @@
+--- a/src/cli-zenroom.c
++++ b/src/cli-zenroom.c
+@@ -30,7 +30,7 @@
+ #include <ctype.h>
+ #include <time.h>
+ 
+-#if ! defined ARCH_WIN
++#if ! defined ARCH_WIN && ! defined DISABLE_FORK
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #endif
+--- a/src/randombytes.c
++++ b/src/randombytes.c
+@@ -254,6 +254,9 @@
+ }
+ #endif /* defined(BSD) */
+ #include <string.h>
++#if defined(__wasi__)
++#include <unistd.h>
++#endif
+ int randombytes(void *buf, size_t n)
+ {
+ 	if(!n) return 0;
+@@ -282,6 +285,11 @@
+ #elif defined(ARCH_CORTEX)
+ # pragma message("Using Cortex-M support for random API")
+     return randombytes_cortexm(buf, n);
++#elif defined(__wasi__)
++	/* getentropy() gives at most 256 bytes for each call */
++	for(size_t i = 0; i < n; i += 256)
++		if(getentropy((char*)buf + i, n - i < 256 ? n - i : 256)) return -1;
++	return 0;
+ #else
+ # error "randombytes(...) is not supported on this platform"
+ #endif
+--- a/src/sfpool.h
++++ b/src/sfpool.h
+@@ -35,6 +35,8 @@
+ #include <assert.h>
+ #ifdef __EMSCRIPTEN__
+ #include <emscripten.h>
++#elif defined(__wasi__)
++// WASI has no memory map and no memory lock
+ #elif defined(_WIN32)
+ #include <windows.h>
+ #else // lucky shot on POSIX
+@@ -132,7 +134,7 @@
+ 	// add bytes to every allocation to support alignment
+ 	size_t alloc_size = size + ptr_align;
+ 	void *res = NULL;
+-#if defined(__EMSCRIPTEN__)
++#if defined(__EMSCRIPTEN__) || defined(__wasi__)
+ 	res = (uint8_t *)malloc(alloc_size);
+ #elif defined(_WIN32)
+ 	res = VirtualAlloc(NULL, alloc_size,
+@@ -164,7 +166,7 @@
+ static inline void sfutil_secfree(void *ptr, size_t size) {
+ 	if (ptr == NULL) return;
+ 	size_t alloc_size = size + ptr_align;
+-#if defined(__EMSCRIPTEN__)
++#if defined(__EMSCRIPTEN__) || defined(__wasi__)
+ 	free(ptr);
+ #elif defined(_WIN32)
+ 	VirtualFree(ptr, 0, MEM_RELEASE);
