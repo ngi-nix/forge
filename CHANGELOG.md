@@ -4,9 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Bug Fixes
+
+- Skip all blocked endpoint ports - ([6a11a2c](https://github.com/ngi-nix/forge/commit/6a11a2c0cfd0c859bd561584ffd24d82cbc61277))
+
+
 ### Features
 
+- *test/services/container:* Use original service ports for testing - ([9721a81](https://github.com/ngi-nix/forge/commit/9721a81bcc2b082c2dbf58a2a2da841f48fdcfa8))
 - *ui:* Run commands from local source code when running on localhost - ([c6b3cd7](https://github.com/ngi-nix/forge/commit/c6b3cd7e4ffbe2bd9c06487200901f33d7259f86))
+- Add endpoints option for service components and resources - ([65264bc](https://github.com/ngi-nix/forge/commit/65264bc72b57e698b24c81fbd990c5c51e4a5f55))
+- Make endpoint forwardedPort configurable - ([c319495](https://github.com/ngi-nix/forge/commit/c3194952c7bcf8fa2768ce679e6e19e115cf0ff5))
+- Expose recipe types in derivations - ([b12af0d](https://github.com/ngi-nix/forge/commit/b12af0d3e7a57daf8c5784001002c68a5a55202a))
+- Add allowUnfree option and pass it to default pkgs - ([08c39f9](https://github.com/ngi-nix/forge/commit/08c39f984ecd2267d18a7383f06849f2d59e2a39))
+- Wrap unfree packages and apps with a warning - ([e323316](https://github.com/ngi-nix/forge/commit/e32331691818da459790bdb68f372ace618fc1b6))
 
 
 ### Flake
@@ -18,6 +29,7 @@ All notable changes to this project will be documented in this file.
 
 - *BEAM:* Init `forge.pkgs.${pkg}.build.builders.beam` ([#636](https://github.com/ngi-nix/forge/issues/636)) - ([03cc4c7](https://github.com/ngi-nix/forge/commit/03cc4c7e72043981f0c60d4eac2a1ad591fa26fd))
 - Skip changelog-updating commits in changelog - ([72f2e2e](https://github.com/ngi-nix/forge/commit/72f2e2eb0309681206243a8a78a4905880eb03b5))
+- Drop unused let binding - ([117062e](https://github.com/ngi-nix/forge/commit/117062eaba2c7fa0b3c36c211e25ce1baac11758))
 
 
 ### Other
@@ -31,9 +43,59 @@ All notable changes to this project will be documented in this file.
 
 ### Recipes
 
+- *apps.datalab:* Add new grant - ([95c8553](https://github.com/ngi-nix/forge/commit/95c85534a240679031738279fcbd25bdd0110778))
+- *apps.ironcalc:* Fix subgrants - ([bde1de3](https://github.com/ngi-nix/forge/commit/bde1de33d1937e9efb3f650c744f158544415228))
 - *apps.livebook:* Init ([#1117](https://github.com/ngi-nix/forge/issues/1117)) - ([aa35fa8](https://github.com/ngi-nix/forge/commit/aa35fa886dbea00dfed61efde0be71ec07b5dcc4))
 - *apps.livebook:* Fix config evaluation - ([f6959b6](https://github.com/ngi-nix/forge/commit/f6959b65c27f4b081af8dc4760adeafa95211a87))
+- *apps.livebook:* Add endpoints configuration - ([0da9eb2](https://github.com/ngi-nix/forge/commit/0da9eb29c089c34c2ae35f620b29348f69a199f2))
+- *apps.pdfding:* Init - ([d1737e1](https://github.com/ngi-nix/forge/commit/d1737e16e2d5375eb9bf8cb7187e7b01a8a98aa0))
+- *apps.ricochet-refresh:* Init - ([959c4d2](https://github.com/ngi-nix/forge/commit/959c4d2ac8ed3e83db456329040ffa3e436dc0e7))
+- *apps.ricochet-refresh:* Update icon - ([229c43a](https://github.com/ngi-nix/forge/commit/229c43a25349788c0145cb18dca0a11f85e90147))
+- *apps.ricochet-refresh:* Fix usage - ([ff51e5d](https://github.com/ngi-nix/forge/commit/ff51e5dcba951d43639d61efd10d9d38ed51c4fa))
+- *bang:* 0-unstable-2026-10-26 -> 0-unstable-2026-11-04 - ([0f22f87](https://github.com/ngi-nix/forge/commit/0f22f870f9b150dca5576eca3e58f8f79ae749ec))
+- *beacondb:* Fix version - ([ece72e8](https://github.com/ngi-nix/forge/commit/ece72e844357d4dd72e9ab45e54e0b45c1dad560))
 - *kikit:* Mark package and app as broken - ([2fc039b](https://github.com/ngi-nix/forge/commit/2fc039b4fa7f9f89339ca1c92e624eed0a73d8a6))
+- *offen:* Drop reverse-proxy resource - ([2016f2a](https://github.com/ngi-nix/forge/commit/2016f2aabb12686b1a841cc9abfba897eaade235))
+- *pkgs.bang:* 0-unstable-2026-11-04 -> 0-unstable-2026-11-12 - ([af671d9](https://github.com/ngi-nix/forge/commit/af671d9240260c184bb8356311d2ffe67fb2a65c))
+- *pkgs.calendula:* 0.1.0 -> 0.2.0 - ([b0c4d11](https://github.com/ngi-nix/forge/commit/b0c4d11458299ebf6c90eb4e8625bf2ad985768d))
+- *pkgs.cardamum:* 0.1.0 -> 0.3.0 - ([6623ef1](https://github.com/ngi-nix/forge/commit/6623ef1a10b7b99ee9e6b3875fb4191243ed9a25))
+- *pkgs.docspec:* 1.21.9 -> 1.21.11 - ([89a884c](https://github.com/ngi-nix/forge/commit/89a884cea8d70a07973f4a272a10ab8c5f0dfe53))
+- *pkgs.himalaya:* 1.2.0 -> 2.2.1 - ([a337db1](https://github.com/ngi-nix/forge/commit/a337db17ee4e046569cd1a6954dc4e65cbd59c77))
+- *pkgs.offen:* 1.4.2-unstable-2026-06-11 -> 1.4.2-unstable-2026-03-04 - ([1ef4785](https://github.com/ngi-nix/forge/commit/1ef478544f0c9987512e51fcfb8cb6afc7df20bc))
+- *pkgs.prismafs:* 1.8.0 -> 1.9.0 - ([57b8a75](https://github.com/ngi-nix/forge/commit/57b8a757cbd4ad524a64dfac1b34d9c7914950aa))
+- *pkgs.repath-studio:* Use from nixpkgs - ([bbe848a](https://github.com/ngi-nix/forge/commit/bbe848aad37351349ec2f3b39abdfa835b826920))
+- *pkgs.sequoia-pgp:* 1.4.0-pqc.1 -> 1.5.0 - ([282e230](https://github.com/ngi-nix/forge/commit/282e230019b24e087f804e19ad34d95472d5b933))
+- *pkgs.tau-radio:* 0.2.101-unstable-2026-06-11 -> 0.2.101-unstable-2026-08-23 - ([5a07101](https://github.com/ngi-nix/forge/commit/5a07101867d0acbbef137a0874ca5392a6ed932f))
+- *pkgs.tau-tower:* 0.2.101-unstable-2026-06-11 -> 0.2.101-unstable-2026-08-23 - ([d30559e](https://github.com/ngi-nix/forge/commit/d30559e86cb987be9d9ac5eeafbf39cded69dd96))
+- *pkgs.ties:* 0.3.0 -> 0.4.0 - ([acd2692](https://github.com/ngi-nix/forge/commit/acd2692c7d3954edebec43cb62fd5ee5fa2e1638))
+- *{pkgs,apps}.licomp-toolkit:* Init - ([b59997f](https://github.com/ngi-nix/forge/commit/b59997f8c2210facd338eca9737c60732707e186))
+- Add endpoints configuration - ([fa18274](https://github.com/ngi-nix/forge/commit/fa182740d3f32ea9c2e0a5fd74b710fcfd860d8d))
+- Remove ports configuration - ([d6d07bb](https://github.com/ngi-nix/forge/commit/d6d07bb621c9c86e1e11cd7195fb17a071fd85e4))
+- Remove private endpoints configuration - ([7f0e090](https://github.com/ngi-nix/forge/commit/7f0e0900c5f158c8aba1b02c6a10dc6bd9ea31d0))
+- Update to use endpoint appProtocol - ([c87c0d2](https://github.com/ngi-nix/forge/commit/c87c0d246dfe536f3a24f1e36970593f4be87ab6))
+
+
+### Refactor
+
+- *ui:* Show list of endpoints in separate section - ([fe87fe2](https://github.com/ngi-nix/forge/commit/fe87fe2d95911cd12b2343a8ab432118db2efdbe))
+- *ui:* Refactor endpoints functions - ([62c7c6a](https://github.com/ngi-nix/forge/commit/62c7c6a698f23b38f76de6316a08d2a569b9c78a))
+- *ui:* Move packages and apps count to search - ([37077cf](https://github.com/ngi-nix/forge/commit/37077cfd86054d6a8288a3043b591865cb956081))
+- *ui:* Add function to test if app belongs to category - ([f6cd5b1](https://github.com/ngi-nix/forge/commit/f6cd5b142aa6a4c5d5a7d3c368e3400ddf1ad2d5))
+- Replace service component and resource ports option with forwardedPort option - ([b2d1c3a](https://github.com/ngi-nix/forge/commit/b2d1c3a34c01b979f437372b5d9482d6a6370ad4))
+- Remove visibility endpoints option - ([cd18a87](https://github.com/ngi-nix/forge/commit/cd18a87b1e2b6d6d0558a535674adaeda053497c))
+- Add internal services endpoints option - ([b2fe275](https://github.com/ngi-nix/forge/commit/b2fe27549cebe0dab7823f35dce7955f20df05b0))
+- Merge multiple endpoints files - ([866a897](https://github.com/ngi-nix/forge/commit/866a897f1df936fb62e43796c6fab016c543d5ec))
+- Add appProtocol and re-purpose protocol enpoint options - ([83860ef](https://github.com/ngi-nix/forge/commit/83860ef2b271789432233a5564667eab23ac06aa))
+- Use 10000 offset for privileged endpoints port forwarding - ([4d84d83](https://github.com/ngi-nix/forge/commit/4d84d83965889fa6b75fbec42f5890412173a679))
+- Remove `nimi` dependency - ([ba7065a](https://github.com/ngi-nix/forge/commit/ba7065a0add779628f75db3279f289b4c8a9bce1))
+
+
+### Templates
+
+- Add endpoints configuration - ([ad48e87](https://github.com/ngi-nix/forge/commit/ad48e8775f7a5865e0dd3337b17cb16bb94d58dd))
+- Remove ports configuration - ([d9aeb16](https://github.com/ngi-nix/forge/commit/d9aeb16e3036dbc4193221384ea7875013b57079))
+- Remove private endpoints configuration - ([43d1670](https://github.com/ngi-nix/forge/commit/43d16703b0abc6c7c4a6cb062815ef8236b7d0dc))
+- Add commented out allowUnfree line in consumer - ([40154a4](https://github.com/ngi-nix/forge/commit/40154a40e1dbfe621bf09886d9cc59d4fb3473a6))
 
 
 ### Testing
@@ -45,6 +107,7 @@ All notable changes to this project will be documented in this file.
 
 - Add broken and unfree labels to apps and pkgs ([#1109](https://github.com/ngi-nix/forge/issues/1109)) - ([ee31be0](https://github.com/ngi-nix/forge/commit/ee31be0d8673bc135d5bcba5cdc15f121101aeed))
 - Change hover message for broken and unfree - ([d57075e](https://github.com/ngi-nix/forge/commit/d57075e64e791caaac1f27ebd122c5745ab0c286))
+- Update deployment done message - ([f53d9a3](https://github.com/ngi-nix/forge/commit/f53d9a3723c173b983daa69f4dfb25a0fafe0f9e))
 
 
 ## [0.3.0](https://github.com/ngi-nix/forge/compare/0.2.0..0.3.0) - 2026-11-05
