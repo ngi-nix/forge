@@ -52,6 +52,7 @@ in
         (pkgs.python3.withPackages (_: [ pkgs.amaranth ]))
       ];
       runtimes.shell.enable = true;
+      runtimes.browser.enable = true;
     };
 
     test.programs.script = ''

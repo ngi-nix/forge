@@ -326,6 +326,7 @@
 
         programRuntime = config.programs.runtimes.program;
         mainPackage = config.programs.mainPackage;
+        browserRuntime = config.programs.runtimes.browser;
       in
       lib.mapAttrsToList (
         componentName: component:
@@ -374,6 +375,29 @@
             -> lib.hasAttrByPath [ "meta" "mainProgram" ] mainPackage;
           message = ''
             App '${config.name}': programs.mainPackage is missing the meta.mainProgram attribute.
+          '';
+        }
+        {
+          condition =
+            browserRuntime.enable -> (config.programs.packages != [ ] || browserRuntime.wasmPackage != null);
+          message = ''
+            App '${config.name}': programs.runtimes.browser.enable requires programs.packages or programs.runtimes.browser.wasmPackage to be set.
+          '';
+        }
+        {
+          condition =
+            browserRuntime.wasmPackage != null
+            -> lib.hasAttrByPath [ "meta" "mainProgram" ] browserRuntime.wasmPackage;
+          message = ''
+            App '${config.name}': programs.runtimes.browser.wasmPackage is missing the meta.mainProgram attribute.
+          '';
+        }
+        {
+          condition = lib.all (name: builtins.match "[A-Za-z0-9_][A-Za-z0-9._-]*" name != null) (
+            lib.attrNames browserRuntime.files
+          );
+          message = ''
+            App '${config.name}': the names of programs.runtimes.browser.files must be file names without a path, such as `sample.typ`.
           '';
         }
       ];

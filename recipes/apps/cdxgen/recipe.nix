@@ -154,6 +154,7 @@ in
 
       runtimes = {
         shell.enable = true;
+        browser.enable = true;
         program.enable = true;
       };
     };

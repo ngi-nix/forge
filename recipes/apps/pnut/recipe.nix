@@ -48,6 +48,30 @@
       ];
 
       runtimes.shell.enable = true;
+      runtimes.browser = {
+        enable = true;
+        wasmPackage =
+          let
+            wasi = pkgs.pkgsCross.wasi32.pkgsOriginal;
+          in
+          wasi.pnut.overrideAttrs (old: {
+            # `make install` runs `pnut` to make `pnut-sh.sh`,
+            # but `pnut` does not run on the build platform.
+            buildFlags = [ "pnut-sh" ];
+            installPhase = ''
+              runHook preInstall
+              install -D build/pnut-sh $out/bin/pnut.wasm
+              runHook postInstall
+            '';
+            # The tests do not run on the build platform.
+            doCheck = false;
+            meta = old.meta // {
+              platforms = lib.platforms.wasi;
+            };
+          });
+        args = "fib.c";
+        files."fib.c" = "${pkgs.pnut.src}/examples/fib.c";
+      };
     };
   };
 }

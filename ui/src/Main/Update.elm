@@ -16,6 +16,7 @@ import Main.Model.Route exposing (..)
 import Main.Ports.Clipboard as Clipboard
 import Main.Ports.Navigation
 import Main.Ports.SmoothScroll exposing (..)
+import Main.Ports.Wasi as Wasi
 import Main.Update.Config exposing (..)
 import Main.Update.Focus exposing (..)
 import Main.Update.Route exposing (..)
@@ -383,6 +384,59 @@ update upd modelInit =
 
         Update_NoOp ->
             ( model, Cmd.none )
+
+        Update_BrowserRunArgs app args ->
+            let
+                run =
+                    getBrowserRun model app
+            in
+            ( { model | model_browserRun = { run | browserRun_args = args } }, Cmd.none )
+
+        Update_BrowserRunStdin app stdin ->
+            let
+                run =
+                    getBrowserRun model app
+            in
+            ( { model | model_browserRun = { run | browserRun_stdin = stdin } }, Cmd.none )
+
+        Update_BrowserRunStart app ->
+            let
+                run =
+                    getBrowserRun model app
+            in
+            ( { model | model_browserRun = { run | browserRun_output = [], browserRun_status = BrowserRunStatus_Running } }
+            , Wasi.runWasi
+                { url = appWasmUrl app
+                , program = app.app_programs.appPrograms_runtimes.appProgramsRuntimes_browser.wasmProgram
+                , args = run.browserRun_args
+                , stdin = run.browserRun_stdin
+                , workdir = Wasi.workdir app run
+                }
+            )
+
+        Update_BrowserRunStop ->
+            ( model, Wasi.stopWasi () )
+
+        Update_BrowserRunAddFiles app files ->
+            let
+                run =
+                    getBrowserRun model app
+            in
+            ( { model | model_browserRun = run }
+            , Wasi.addWasiFiles { workdir = Wasi.workdir app run, files = files }
+            )
+
+        Update_BrowserRunRemoveFile app name ->
+            let
+                run =
+                    getBrowserRun model app
+            in
+            ( { model | model_browserRun = run }
+            , Wasi.removeWasiFile { workdir = Wasi.workdir app run, name = name }
+            )
+
+        Update_BrowserRunEvent value ->
+            ( { model | model_browserRun = Wasi.applyWasiEvent value model.model_browserRun }, Cmd.none )
 
         Update_Updater up ->
             model |> up

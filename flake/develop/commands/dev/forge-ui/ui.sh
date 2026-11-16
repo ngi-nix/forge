@@ -74,6 +74,8 @@ EOT
 # Remark(correctness): --serve-fallback= prevents 404 errors
 # eg. on forge-config.json
 # but required to reload in the browser at non-root URLs.
+# Remark(correctness): --serve ignores NODE_PATH,
+# thus --alias: points to the packages in build/node_modules.
 systemctl --user edit --runtime --force --full "$unit"-esbuild.service --stdin <<EOT
 [Unit]
 After=$unit-elm-watch.service
@@ -86,6 +88,7 @@ WorkingDirectory=$rootDir/ui
 Environment=PATH=$PATH
 ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --bundle \\
+  --alias:@bjorn3/browser_wasi_shim=./build/node_modules/@bjorn3/browser_wasi_shim \\
   --loader:.html=copy \\
   --loader:.svg=copy \\
   --loader:.png=copy \\

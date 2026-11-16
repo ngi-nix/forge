@@ -1,0 +1,89 @@
+diff -ruN a/eval/src/bin/snix-eval.rs b/eval/src/bin/snix-eval.rs
+--- a/eval/src/bin/snix-eval.rs
++++ b/eval/src/bin/snix-eval.rs
+@@ -0,0 +1,46 @@
++//! Evaluates a Nix expression with `snix-eval` only, without a store.
++//! Thus the program compiles also for WASI.
++//!
++//! Usage: `snix-eval -E EXPR` or `snix-eval FILE`
++
++use snix_eval::{EvalMode, Evaluation};
++use std::path::PathBuf;
++use std::process::ExitCode;
++
++fn main() -> ExitCode {
++    let args: Vec<String> = std::env::args().skip(1).collect();
++    let (code, location) = match args.as_slice() {
++        [flag, expr] if flag == "-E" || flag == "--expr" => {
++            (expr.clone(), std::env::current_dir().ok())
++        }
++        [file] if !file.starts_with('-') => match std::fs::read_to_string(file) {
++            Ok(code) => (code, std::path::absolute(file).ok()),
++            Err(error) => {
++                eprintln!("error: cannot read {file}: {error}");
++                return ExitCode::FAILURE;
++            }
++        },
++        _ => {
++            eprintln!("usage: snix-eval -E EXPR | snix-eval FILE");
++            return ExitCode::from(2);
++        }
++    };
++
++    let evaluation = Evaluation::builder_impure().mode(EvalMode::Strict).build();
++    let source = evaluation.source_map();
++    let result = evaluation.evaluate(code, location);
++
++    for warning in &result.warnings {
++        eprint!("{}", warning.fancy_format_str(&source));
++    }
++    for error in &result.errors {
++        eprint!("{}", error.fancy_format_str());
++    }
++    match result.value {
++        Some(value) if result.errors.is_empty() => {
++            println!("{value}");
++            ExitCode::SUCCESS
++        }
++        _ => ExitCode::FAILURE,
++    }
++}
+diff -ruN a/eval/src/builtins/impure.rs b/eval/src/builtins/impure.rs
+--- a/eval/src/builtins/impure.rs
++++ b/eval/src/builtins/impure.rs
+@@ -13,7 +13,10 @@
+ #[builtins]
+ mod impure_builtins {
+     use std::ffi::OsStr;
++    #[cfg(target_family = "unix")]
+     use std::os::unix::ffi::OsStrExt;
++    #[cfg(target_os = "wasi")]
++    use std::os::wasi::ffi::OsStrExt;
+ 
+     use super::*;
+     use crate::{
+diff -ruN a/eval/src/io.rs b/eval/src/io.rs
+--- a/eval/src/io.rs
++++ b/eval/src/io.rs
+@@ -23,6 +23,8 @@
+ 
+ #[cfg(all(target_family = "unix", feature = "impure"))]
+ use std::os::unix::ffi::OsStringExt;
++#[cfg(all(target_os = "wasi", feature = "impure"))]
++use std::os::wasi::ffi::OsStringExt;
+ 
+ #[cfg(feature = "impure")]
+ use std::fs::File;
+diff -ruN a/eval/src/systems.rs b/eval/src/systems.rs
+--- a/eval/src/systems.rs
++++ b/eval/src/systems.rs
+@@ -33,6 +33,9 @@
+         // https://doc.rust-lang.org/beta/nightly-rustc/rustc_target/spec/wasm32_unknown_unknown/index.html
+         ["unknown", "unknown"] if cpu == "wasm32" => "none",
+ 
++        // Nixpkgs calls the WASI platform `wasm32-wasi`.
++        ["wasi" | "wasip1" | "wasip2"] if cpu == "wasm32" => "wasi",
++
+         _ => panic!("unrecognized triple {llvm_triple}"),
+     };
+     format!("{cpu}-{os}")

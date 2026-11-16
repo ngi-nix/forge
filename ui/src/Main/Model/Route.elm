@@ -293,6 +293,13 @@ appUrlToRoute url =
                                 , routeApp_runRuntime = Just AppRuntime_Shell
                             }
 
+                        Just "run-browser" ->
+                            { defaultRouteApp
+                                | routeApp_name = appName
+                                , routeApp_runShown = True
+                                , routeApp_runRuntime = Just AppRuntime_Browser
+                            }
+
                         Just "run-container" ->
                             { defaultRouteApp
                                 | routeApp_name = appName
@@ -460,6 +467,9 @@ routeToAppUrl route =
 
                                             AppRuntime_Shell ->
                                                 "-shell"
+
+                                            AppRuntime_Browser ->
+                                                "-browser"
 
                                             AppRuntime_Container ->
                                                 "-container"

@@ -92,6 +92,31 @@ def populate_resources_dir():
                 icon_perm = stat.S_IMODE(os.lstat(dest_icon).st_mode)
                 os.chmod(dest_icon, icon_perm | stat.S_IWRITE)
 
+            # Copy the WASI program of the browser runtime if it is built.
+            browser = app.get("programs", {}).get("runtimes", {}).get("browser", {})
+            # The store path is null if the derivation does not evaluate.
+            wasm_package = (browser.get("wasmPackage") or {}).get("storePath")
+            if browser.get("enable") and wasm_package:
+                wasm_name = f"{browser['wasmProgram']}.wasm"
+                wasm_file = Path(wasm_package) / "bin" / wasm_name
+                if wasm_file.is_file():
+                    dest_wasm = app_dir / wasm_name
+                    _ = shutil.copyfile(wasm_file, dest_wasm)
+                    files_dir = app_dir / "files"
+                    shutil.rmtree(files_dir, ignore_errors=True)
+                    for name, file in browser.get("files", {}).items():
+                        # A derivation is a dict with its store path.
+                        if isinstance(file, dict):
+                            file = file["storePath"]
+                        dest_file = files_dir / name
+                        dest_file.parent.mkdir(parents=True, exist_ok=True)
+                        _ = shutil.copyfile(file, dest_file)
+                else:
+                    print(
+                        f"[build-app-resources] {wasm_file} not found, "
+                        + f"run `nix build .#apps.{app_name}.browser` to build it"
+                    )
+
             app_count += 1
 
         print(

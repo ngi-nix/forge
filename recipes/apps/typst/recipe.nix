@@ -84,6 +84,49 @@ in
       packages = [ pkgs.typst ];
       runtimes.program.enable = true;
       runtimes.shell.enable = true;
+      runtimes.browser = {
+        enable = true;
+        wasmPackage =
+          let
+            wasi = pkgs.pkgsCross.wasi32.pkgsOriginal;
+            # TODO: use `wasi.openssl` when Nixpkgs has
+            # https://github.com/NixOS/nixpkgs/pull/579168.
+            openssl = wasi.openssl.overrideAttrs (old: {
+              configureScript = "./Configure linux-generic32";
+              configureFlags = old.configureFlags ++ [
+                "no-afalgeng"
+                "no-apps"
+                "no-asm"
+                "no-devcryptoeng"
+                "no-dso"
+                "no-secure-memory"
+                "no-sock"
+                "no-threads"
+                "no-ui-console"
+                "-D_WASI_EMULATED_GETPID"
+                "-lwasi-emulated-getpid"
+              ];
+              # `no-apps` removes the `openssl` program,
+              # thus there is no `$out/bin` and no `c_rehash` wrapper.
+              postInstall = ''
+                makeWrapper() { :; }
+                mkdir -p $out/bin
+              ''
+              + old.postInstall;
+            });
+          in
+          (wasi.typst.override { inherit openssl; }).overrideAttrs (old: {
+            patches = (old.patches or [ ]) ++ [ ./wasi.patch ];
+            # The tests do not run on the build platform.
+            doCheck = false;
+            # Link with the C compiler of the WASI toolchain, not with `rust-lld`.
+            env = (old.env or { }) // {
+              RUSTFLAGS = "-Clinker-flavor=gcc -Clink-self-contained=no -Clink-arg=--target=${wasi.stdenv.targetPlatform.config}";
+            };
+          });
+        args = "compile sample.typ sample.pdf";
+        files."sample.typ" = ./sample.typ;
+      };
     };
 
     test.programs = {

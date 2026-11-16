@@ -7,6 +7,7 @@ import Main.Model exposing (..)
 import Main.Model.Page exposing (..)
 import Main.Model.Route exposing (..)
 import Main.Ports.Navigation
+import Main.Ports.Wasi
 import Main.Update exposing (..)
 import Main.Update.Types exposing (..)
 import Navigation
@@ -16,6 +17,7 @@ subscriptions : Model -> Sub Update
 subscriptions model =
     Sub.batch
         [ Navigation.onEvent Main.Ports.Navigation.onNavEvent Update_Navigation
+        , Main.Ports.Wasi.onWasiEvent Update_BrowserRunEvent
         , case model.model_page of
             Page_App pageApp ->
                 if pageApp.pageApp_route.routeApp_runShown || pageApp.pageApp_route.routeApp_deployShown then

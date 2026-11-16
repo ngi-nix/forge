@@ -106,6 +106,83 @@
       packages = [ pkgs.cpdf ];
 
       runtimes.shell.enable = true;
+      runtimes.browser = {
+        enable = true;
+        # `camlpdf` uses C code for zlib, AES and SHA-2.
+        # The files in `wasi/` replace this C code with OCaml code,
+        # thus `wasm_of_ocaml` can compile `cpdf` for WASI.
+        wasmPackage =
+          let
+            inherit (pkgs.pkgsOriginal) stdenv ocamlPackages;
+            inherit (ocamlPackages) camlpdf cpdf;
+          in
+          stdenv.mkDerivation {
+            pname = "cpdf-wasi";
+            inherit (cpdf) version;
+
+            dontUnpack = true;
+
+            nativeBuildInputs = with ocamlPackages; [
+              ocaml
+              findlib
+              wasm_of_ocaml-compiler
+              pkgs.pkgsOriginal.binaryen
+            ];
+            buildInputs = with ocamlPackages; [
+              checkseum
+              decompress
+              digestif
+            ];
+
+            buildPhase = ''
+              runHook preBuild
+
+              # Write the value of a variable of the Makefile in directory `$1`.
+              makeVar() {
+                printf 'include Makefile\nprint-%%:\n\t@echo $(%s)\n' "$2" | make -s -C "$1" -f - "print-$2"
+              }
+              camlpdfDir=${camlpdf.src}
+              cpdfDir=${cpdf.src}
+              pdfMods=$(makeVar $camlpdfDir PDFMODS)
+              cpdfMods="$(makeVar $cpdfDir NONDOC) $(makeVar $cpdfDir DOC)"
+
+              mkdir build
+              cp $camlpdfDir/*.ml $camlpdfDir/*.mli $cpdfDir/*.ml $cpdfDir/*.mli build/
+              chmod -R u+w build
+              cp ${./wasi}/*.ml build/
+              cd build
+              patch -p1 < ${./wasi/crypt.patch}
+
+              files=""
+              for m in pdfaes $pdfMods $cpdfMods cpdfcommandrun; do
+                if [ -f $m.mli ]; then files="$files $m.mli"; fi
+                files="$files $m.ml"
+              done
+              # `De` refers to `Checkseum`. Select its OCaml implementation, not its C implementation.
+              # `-no-check-prims`: `camlpdf` declares C functions that only `js_of_ocaml` uses.
+              ocamlfind ocamlc -g -package checkseum.ocaml,unix,decompress.de,digestif.ocaml -linkpkg -no-check-prims $files -o cpdf.bc
+              wasm_of_ocaml compile --enable wasi cpdf.bc -o cpdf.js
+
+              runHook postBuild
+            '';
+
+            installPhase = ''
+              runHook preInstall
+              install -D cpdf.assets/code.wasm $out/bin/cpdf.wasm
+              runHook postInstall
+            '';
+
+            meta = {
+              inherit (cpdf.meta) description homepage license;
+              mainProgram = "cpdf";
+            };
+          };
+        args = "-add-text 'Made with cpdf in your browser' -top 20 -font-size 24 sample.pdf -o stamped.pdf";
+        # `cpdf` does not make the example file, thus `typst` makes it.
+        files."sample.pdf" = pkgs.pkgsOriginal.runCommand "cpdf-sample.pdf" {
+          nativeBuildInputs = [ pkgs.pkgsOriginal.typst ];
+        } "typst compile ${./sample.typ} $out";
+      };
       runtimes.program.enable = true;
     };
 

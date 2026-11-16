@@ -2,6 +2,7 @@ module Main.Update.Types exposing (Update(..), Updater)
 
 import Browser.Dom as Dom
 import Http
+import Json.Decode as Decode
 import Main.Config exposing (..)
 import Main.Config.App exposing (..)
 import Main.Helpers.Nix exposing (..)
@@ -50,6 +51,15 @@ type Update
     | Update_Search Search
     | Update_SearchFocus Bool
     | Update_CategoryFilter (Maybe String)
+    | Update_BrowserRunArgs App String
+    | Update_BrowserRunStdin App String
+    | Update_BrowserRunStart App
+    | Update_BrowserRunStop
+    | -- `Update_BrowserRunAddFiles app files` adds the JavaScript `File` objects `files`.
+      Update_BrowserRunAddFiles App (List Decode.Value)
+    | Update_BrowserRunRemoveFile App String
+    | -- `Update_BrowserRunEvent value` applies an event of `Main.Ports.Wasi.onWasiEvent`.
+      Update_BrowserRunEvent Decode.Value
     | Update_NoOp
 
 

@@ -46,6 +46,27 @@ let
     )}
   '';
 
+  # Collect the WASI programs of the browser runtimes into a derivation
+  appWasm = pkgs.runCommand "app-wasm" { } ''
+    mkdir -p $out
+    ${lib.concatMapStringsSep "\n" (
+      app:
+      let
+        browser = app.programs.runtimes.browser;
+      in
+      lib.optionalString (!app.broken && browser.enable && browser.wasmPackage != null) ''
+        install -D -m 444 \
+          ${browser.wasmPackage}/bin/${browser.wasmProgram}.wasm \
+          $out/${app.name}/${browser.wasmProgram}.wasm
+        ${lib.concatStrings (
+          lib.mapAttrsToList (name: file: ''
+            install -D -m 444 ${file} $out/${app.name}/files/${lib.escapeShellArg name}
+          '') browser.files
+        )}
+      ''
+    ) (lib.attrValues forgeApps)}
+  '';
+
   forgeConfig = config.forge;
 
   _forge = {
@@ -60,7 +81,7 @@ let
 
     ui = pkgs.callPackage ../ui/package.nix {
       inherit (config.packages) _forge;
-      inherit appIcons;
+      inherit appIcons appWasm;
       buildElmApplication = (forge-inputs.elm2nix.lib.elm2nix pkgs).buildElmApplication;
       highlight-js = pkgs.callPackage ../flake/packages/highlight-js.nix { };
     };
