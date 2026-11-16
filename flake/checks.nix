@@ -11,7 +11,45 @@
       ...
     }:
     {
-      checks = lib.concatMapAttrs (
+      checks = {
+        ui-test =
+          let
+            ui = config.packages."_forge.ui";
+            testUiCmd = pkgs.callPackage ./develop/commands/dev/test-ui { };
+            testUiSrc = lib.fileset.toSource {
+              root = ../ui/tests/e2e;
+              fileset = lib.fileset.intersection (lib.fileset.gitTracked ../.) ../ui/tests/e2e;
+            };
+          in
+          pkgs.runCommand "ui-test"
+            {
+              nativeBuildInputs = [
+                testUiCmd
+                pkgs.esbuild
+              ];
+              env = {
+                CI = "true";
+                FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
+                UI_CMD = "esbuild --serve=127.0.0.1:3000 --servedir=${ui} --serve-fallback=${ui}/index.html";
+                TEST_APP_NAME = "emerge";
+                TEST_APP_SEARCH = "emerge";
+                TEST_PKG_NAME = "emerge";
+                TEST_PKG_SEARCH = "emerge";
+              };
+            }
+            ''
+              export HOME="$TMPDIR"
+
+              mkdir -p ui/tests
+              cp -r ${testUiSrc} ui/tests/e2e
+              chmod -R u+w ui
+
+              test-ui --project=chromium
+
+              cp -r ui/tests/e2e/playwright-report $out
+            '';
+      }
+      // lib.concatMapAttrs (
         packageName: package:
         # `apps` and `pkgs` are invalid dedivations
         # used as package sets (to support the .#apps.${name} syntax)
