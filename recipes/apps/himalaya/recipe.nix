@@ -1,11 +1,16 @@
 {
   forge-lib,
-  lib,
   pkgs,
   ...
 }:
-
 {
+  pkgs.himalaya = {
+    build.builders.identity = {
+      enable = true;
+      derivation = pkgs.pkgsOriginal.himalaya;
+    };
+  };
+
   apps.himalaya = {
     displayName = "Himalaya";
     description = "Command-line email client supporting IMAP, Maildir, and SMTP.";
