@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "bombon": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792170504,
+        "narHash": "sha256-K8SOnnNlTtwD45qQ5gxVFzLnvF8zT5ahzF60yRFGoF0=",
+        "owner": "nikstur",
+        "repo": "bombon",
+        "rev": "4a14633102eba4823800596fa61ce3a8270530e4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nikstur",
+        "repo": "bombon",
+        "type": "github"
+      }
+    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -141,6 +157,7 @@
     },
     "root": {
       "inputs": {
+        "bombon": "bombon",
         "devshell": "devshell",
         "elm2nix": "elm2nix",
         "flake-parts": "flake-parts",

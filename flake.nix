@@ -29,6 +29,11 @@
       flake = false;
     };
 
+    bombon = {
+      url = "github:nikstur/bombon";
+      flake = false;
+    };
+
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";

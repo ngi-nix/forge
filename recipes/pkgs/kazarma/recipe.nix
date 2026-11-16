@@ -77,6 +77,8 @@
         npmDepsHash = "sha256-ygMFzDkl83cDh+72xuf/PyOBxIax2d58OSP+eeG+Na0=";
         npmFlags = [ "--include=dev" ];
         dontNpmBuild = true;
+        # `package.json` has `file:../deps/*` dependencies, which only `mix` supplies.
+        vendoredSbom = false;
         packages.build = [
         ];
       };

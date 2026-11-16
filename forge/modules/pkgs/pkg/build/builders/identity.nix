@@ -1,5 +1,6 @@
 {
   config,
+  bombon,
   forge-inputs,
   lib,
   ...
@@ -21,6 +22,8 @@
               source ${forge-inputs.nix-utils}/nix-develop-interactive.bash
             '';
           forge = previousAttrs.passthru.forge;
+          # `mkDerivation` drops the `passthru` of `builder.nix`.
+          sbom = bombon.buildBom builder.derivation { };
         };
       };
       parentImports = [

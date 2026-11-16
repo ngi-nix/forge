@@ -25,6 +25,17 @@
       '';
     };
 
+    vendoredSbom = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Whether the SBOM of the package also lists the vendored dependencies.
+
+        Set this to `false` if `package.json` has dependencies that `npm sbom` cannot find,
+        for example a `file:` dependency outside of the package source.
+      '';
+    };
+
     npmDepsHash = lib.mkOption {
       type = lib.types.str;
       default = "";

@@ -193,6 +193,22 @@ Run test:
 nix build .#pkgs.<package-name>.test --print-build-logs
 ```
 
+## SBOM
+
+Each package has a Software Bill of Materials (SBOM) in [CycloneDX](https://cyclonedx.org/) format, made with [bombon](https://github.com/nikstur/bombon).
+The SBOM lists the runtime dependencies of the package.
+For packages made with the `rust`, `go` and `npm` builders, the SBOM also lists the vendored dependencies.
+For the `pnpm` builder, this is also the case with pnpm 11 or later.
+To not list the vendored dependencies of an `npm` package, set `build.builders.npm.vendoredSbom = false`.
+
+Build the SBOM:
+
+```bash
+nix build .#pkgs.<package-name>.sbom
+```
+
+The result is a `<package-name>.cdx.json` file.
+
 ## Examples
 
 Browse the

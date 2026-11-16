@@ -21,6 +21,7 @@
             subDrvs = [
               # All packages passthru attributes
               "env"
+              "sbom"
               "test"
               # All apps passthru attributes
               "check-programs-main-package"
