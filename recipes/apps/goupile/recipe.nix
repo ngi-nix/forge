@@ -29,7 +29,7 @@ in
     links = {
       website = "https://goupile.org/en";
       source = "https://github.com/Koromix/rygel";
-      docs = "https://goupile.org/en/docs";
+      docs = "https://goupile.org/en/setup";
     };
 
     ngi.grants = {

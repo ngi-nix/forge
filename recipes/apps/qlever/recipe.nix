@@ -29,7 +29,7 @@ in
     categories = with forge-lib.categories; [ Development ];
     usage = ''
       By default, the Olympics dataset is downloaded and indexed on startup.
-      To use a different dataset, choose one from the [available use cases](https://docs.qlever.dev/use-cases) and update your `./Qleverfile` accordingly.
+      To use a different dataset, choose one from the [available use cases](https://docs.qlever.dev/use-cases/) and update your `./Qleverfile` accordingly.
 
       Once indexing is complete, open the UI in your browser at [http://localhost:${toString app.services.components.qlever-ui.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.qlever-ui.endpoints.web.forwardedPort}) and run the following query:
 

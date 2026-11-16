@@ -37,9 +37,9 @@ in
     icon = ./icon.svg;
 
     links = {
-      website = "https://repath.studio";
+      website = "https://repath.studio/";
       source = "https://github.com/repath-studio/repath-studio";
-      docs = "https://repath.studio/get-started/interactive-shell";
+      docs = "https://repath.studio/get-started/interactive-shell/";
     };
 
     ngi.grants = {
