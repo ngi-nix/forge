@@ -18,7 +18,7 @@
                 Packages indexed by their `pname`.
 
                 Each package uses one of the available builders.
-                Only one builder can be enabled per package by setting build.<builder>.enable = true.
+                Only one builder can be enabled per package by setting `build.builders.''${builder}.enable = true`.
               '';
               type = lib.types.attrsOf (
                 lib.types.submoduleWith {
