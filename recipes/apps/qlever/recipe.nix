@@ -1,6 +1,5 @@
 {
   forge-lib,
-  lib,
   config,
   pkgs,
   apps,
@@ -47,7 +46,7 @@ in
     };
 
     ngi.grants = {
-      Review = [
+      Commons = [
         "QLever-similarity"
       ];
     };
