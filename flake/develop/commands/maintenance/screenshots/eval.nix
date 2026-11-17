@@ -33,6 +33,8 @@ in
 builtins.listToAttrs (
   map (name: {
     inherit name;
-    value = info apps.${name}.config;
+    # Unfree applications are not allowed, and their `config` is replaced with
+    # a derivation that warns about it.
+    value = if apps.${name}.config ? recipePath then info apps.${name}.config else { unfree = true; };
   }) names
 )

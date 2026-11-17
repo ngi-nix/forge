@@ -536,6 +536,9 @@ def render(name: str, source: str, screenshots: list[Screenshot]) -> str:
 
 
 SOURCE_LINE = re.compile(r"^# Source: .*\n", re.M)
+# The flake does not allow unfree applications, so their configuration is not
+# available.
+UNFREE = "skipped (unfree application)"
 
 
 def convert(source: str, target: Path) -> None:
@@ -570,6 +573,8 @@ def update(
     name: str, app: dict, store: Store, root: Path, args: argparse.Namespace
 ) -> str:
     _current.app = name
+    if app.get("unfree"):
+        return UNFREE
     target = root / Path(app["recipePath"]).parent / "screenshots.nix"
     info(f"`{target.relative_to(root)}`")
     existing = target.read_text() if target.exists() else ""
@@ -604,6 +609,8 @@ def update(
 def check(name: str, app: dict, problems: list[str]) -> str:
     """Check the screenshots of `app`, and add the broken ones to `problems`."""
     _current.app = name
+    if app.get("unfree"):
+        return UNFREE
     screenshots = app["remoteScreenshots"]
     broken = 0
     for screenshot in screenshots:
