@@ -10,7 +10,7 @@ env:
 
 jobs:
   check:
-    name: Check application screenshot URLs
+    name: Check remote application screenshot URLs
     if: github.repository_owner == 'ngi-nix'
     runs-on: ubuntu-latest
     permissions:
@@ -29,5 +29,5 @@ jobs:
         with:
           name: ngi-forge
 
-      - name: Check screenshots
+      - name: Check remote screenshots
         run: nix develop --accept-flake-config --command forge-screenshots --check

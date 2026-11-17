@@ -130,17 +130,21 @@ is present in the package or package source using following command:
 forge-screenshots <app-name>
 ```
 
-The command creates screenshots configuration to a `screenshots.nix` file next to the recipe.
-An automated weekly workflow keeps the screenshots configuration up to date.
+The command downloads the screenshots, converts them to WebP images in a
+`screenshots` directory next to the recipe and creates screenshots configuration
+in a `screenshots.nix` file next to the recipe.
+Add the new files to Git (`git add`), so that Nix can use them.
+An automated weekly workflow keeps the screenshots up to date.
 
 It is also possible to add screenshots manually. Please use only images from
-official upstream sources. Get the hash with `nix store prefetch-file <url>`.
+official upstream sources. Put image files in a `screenshots` directory next to
+the recipe, or use a URL. Get the hash with `nix store prefetch-file <url>`.
 Use a URL that does not change, for example of a file at a Git commit.
 
 ```nix
 {
   apps.<app-name>.screenshots = [
-    ./screenshot.png
+    ./screenshots/main.png
     {
       url = "https://raw.githubusercontent.com/example/app/<commit>/docs/screenshot.png";
       hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";

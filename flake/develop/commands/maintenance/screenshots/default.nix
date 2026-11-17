@@ -2,6 +2,7 @@
   lib,
   writeShellApplication,
   gitMinimal,
+  imagemagick,
   nix,
   nixfmt,
   python3,
@@ -10,6 +11,7 @@ writeShellApplication {
   name = "forge-screenshots";
   runtimeInputs = [
     gitMinimal
+    imagemagick
     nix
     nixfmt
     python3

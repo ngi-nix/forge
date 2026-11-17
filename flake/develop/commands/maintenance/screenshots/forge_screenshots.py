@@ -1,8 +1,9 @@
 """forge-screenshots: configure and update application screenshots.
 
-For each application, find screenshot URLs, lock them with a hash, and write
-them to a `screenshots.nix` file next to the recipe. A `screenshots.nix` file
-that this command did not write stays as it is. Sources, in order:
+For each application, find screenshot URLs, download the images, convert them
+to WebP files in a `screenshots` directory next to the recipe, and write a
+`screenshots.nix` file that uses these files. A `screenshots.nix` file that
+this command did not write stays as it is. Sources, in order:
 
 1. AppStream metainfo files in the application packages. The packages are
    read from the local store or from a binary cache, without a build. If a
@@ -17,22 +18,27 @@ If a source gives no image that can be fetched, the next source is used.
 
 A URL of a file in a GitHub, GitLab, Forgejo or Gitea repository that is also
 the source of an application package is changed to the URL of the file at the
-revision of the source. Thus the URL continues to work when the file changes or
-moves in the repository. If the file is not at this revision, the URL stays as
-it is.
+revision of the source, so that the image matches the packaged version. If the
+file is not at this revision, the URL stays as it is.
+
+The URL and the hash of each original image are kept in a comment in
+`screenshots.nix`. If they do not change, the files stay as they are.
 
 With `--check`, the command does not write files. It downloads each screenshot
-URL with a hash in the final configuration of the applications, also the
-screenshots that a recipe sets by hand. It tells you which URLs cannot be
-fetched or have a different hash, and exits with status 1 if there are any.
+that sets `url` and `hash` in the final configuration of the applications.
+Only a recipe that sets the screenshots by hand has these, because this
+command writes local files. It tells you which URLs cannot be fetched or have
+a different hash, and exits with status 1 if there are any.
 """
 
 import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
@@ -61,6 +67,8 @@ class Screenshot:
     caption: str = ""
     default: bool = False
     hash: str = ""
+    # The downloaded original image in the store.
+    path: str = ""
 
 
 def warn(message: str) -> None:
@@ -305,16 +313,12 @@ def is_image(head: bytes) -> bool:
     )
 
 
-def prefetch(url: str) -> str | None:
-    """Return the SRI hash of the image at `url`, or None if it is not an image."""
-    digest, problem = fetch_hash(url)
-    if digest is None:
-        warn(f"{problem}: {url}")
-    return digest
+class FetchError(Exception):
+    pass
 
 
-def fetch_hash(url: str) -> tuple[str | None, str]:
-    """Return the SRI hash of the image at `url`, or None and the problem."""
+def fetch(url: str) -> tuple[str, str]:
+    """Download the image at `url`, and return its SRI hash and its store path."""
     result = nix(
         "store",
         "prefetch-file",
@@ -326,12 +330,12 @@ def fetch_hash(url: str) -> tuple[str | None, str]:
         url,
     )
     if result.returncode != 0:
-        return None, f"cannot fetch ({last_line(result.stderr)})"
+        raise FetchError(f"cannot fetch ({last_line(result.stderr)})")
     prefetched = json.loads(result.stdout)
     with open(prefetched["storePath"], "rb") as f:
         if not is_image(f.read(12)):
-            return None, "not a PNG, JPEG, GIF or WebP image"
-    return prefetched["hash"], ""
+            raise FetchError("not a PNG, JPEG, GIF or WebP image")
+    return prefetched["hash"], prefetched["storePath"]
 
 
 def parse(data: bytes, name: str, root: str) -> list[Screenshot]:
@@ -462,30 +466,36 @@ def pinned(url: str, revisions: dict[str, str]) -> str:
     return url
 
 
-def lock(
+def download(
     screenshots: list[Screenshot], maximum: int, revisions: dict[str, str]
 ) -> list[Screenshot]:
-    locked = []
+    """Download at most `maximum` of `screenshots`, and return them."""
+    downloaded = []
     for screenshot in screenshots:
-        if len(locked) >= maximum:
+        if len(downloaded) >= maximum:
             break
         if not screenshot.url.startswith("https://"):
             warn(f"not an HTTPS URL: {screenshot.url}")
             continue
-        url = pinned(screenshot.url, revisions)
-        if url != screenshot.url:
-            screenshot.hash = prefetch(url) or ""
-            if screenshot.hash:
+        # Prefer the file at the revision of the source, if it is there.
+        urls = dict.fromkeys([pinned(screenshot.url, revisions), screenshot.url])
+        problem = ""
+        for url in urls:
+            try:
+                screenshot.hash, screenshot.path = fetch(url)
+            except FetchError as e:
+                problem = str(e)
+                continue
+            if url != screenshot.url:
                 info(f"{screenshot.url}: pinned to {url}")
                 screenshot.url = url
-        if not screenshot.hash:
-            screenshot.hash = prefetch(screenshot.url) or ""
-        if screenshot.hash:
-            info(f"{screenshot.url}: {screenshot.hash}")
-            locked.append(screenshot)
+            break
         else:
-            info(f"{screenshot.url}: skipped")
-    return locked
+            warn(f"{problem}: {screenshot.url}")
+            continue
+        info(f"{screenshot.url}: {screenshot.hash}")
+        downloaded.append(screenshot)
+    return downloaded
 
 
 def nix_string(value: str) -> str:
@@ -498,22 +508,25 @@ def nix_attr(name: str) -> str:
 
 
 GENERATED = "# Generated by `forge-screenshots`."
+# The directory next to the recipe with the converted screenshots.
+SCREENSHOTS_DIR = "screenshots"
 
 
 def render(name: str, source: str, screenshots: list[Screenshot]) -> str:
     lines = [
         f"{GENERATED} Do not edit.",
         f"# Source: {source}.",
-        "# To set the screenshots manually, replace this file.",
+        f"# To set the screenshots manually, replace this file and the"
+        f" `{SCREENSHOTS_DIR}` directory.",
         "{ lib, ... }:",
         "{",
         f"  apps.{nix_attr(name)}.screenshots = lib.mkDefault [",
     ]
-    for screenshot in screenshots:
+    for index, screenshot in enumerate(screenshots):
         lines += [
             "    {",
-            f"      url = {nix_string(screenshot.url)};",
-            f"      hash = {nix_string(screenshot.hash)};",
+            f"      # {screenshot.url} {screenshot.hash}",
+            f"      file = ./{SCREENSHOTS_DIR}/{index}.webp;",
         ]
         if screenshot.caption:
             lines.append(f"      caption = {nix_string(screenshot.caption)};")
@@ -523,20 +536,34 @@ def render(name: str, source: str, screenshots: list[Screenshot]) -> str:
 
 
 SOURCE_LINE = re.compile(r"^# Source: .*\n", re.M)
-METAINFO_NAME = re.compile(r"AppStream metainfo `(?:[^`]*/)?([^`/]+)`")
 
 
-def same_metainfo(old: str, source: str) -> bool:
-    """Whether `old` has the same screenshots from the same metainfo file name.
+def convert(source: str, target: Path) -> None:
+    """Convert the image `source` to WebP, as large as the full view in the UI."""
+    # `[0]` selects the first frame of an animated image.
+    subprocess.run(
+        ["magick", f"{source}[0]", "-resize", "1600x>", "-quality", "85", target],
+        check=True,
+        capture_output=True,
+    )
 
-    The package and its source often have the same metainfo file. If the
-    package is not available, the source changes, but the screenshots do not
-    change. Thus, do not change the file.
-    """
-    line = SOURCE_LINE.search(old)
-    old_name = line and METAINFO_NAME.search(line.group())
-    new_name = METAINFO_NAME.search(source)
-    return bool(old_name and new_name and old_name[1] == new_name[1])
+
+def write(target: Path, content: str, screenshots: list[Screenshot]) -> None:
+    """Write `screenshots.nix` and replace the screenshots directory."""
+    directory = target.with_name(SCREENSHOTS_DIR)
+    # Convert to a new directory first, to keep the old files if this fails.
+    temporary = Path(tempfile.mkdtemp(dir=target.parent))
+    try:
+        for index, screenshot in enumerate(screenshots):
+            convert(screenshot.path, temporary / f"{index}.webp")
+    except BaseException:
+        shutil.rmtree(temporary)
+        raise
+    temporary.chmod(0o755)
+    shutil.rmtree(directory, ignore_errors=True)
+    temporary.rename(directory)
+    target.write_text(content)
+    subprocess.run(["nixfmt", str(target)], check=False)
 
 
 def update(
@@ -550,20 +577,26 @@ def update(
         return "kept (`screenshots.nix` is not from this command)"
     revisions = source_revisions(app["sources"])
     for source, screenshots in candidates(name, app, store):
-        locked = lock(screenshots, args.max, revisions)
-        if not locked:
+        downloaded = download(screenshots, args.max, revisions)
+        if not downloaded:
             continue
-        content = render(name, source, locked)
-        if existing:
-            if existing == content or (
-                SOURCE_LINE.sub("", existing) == SOURCE_LINE.sub("", content)
-                and same_metainfo(existing, source)
-            ):
-                return f"unchanged ({source})"
+        content = render(name, source, downloaded)
+        files = [
+            target.with_name(SCREENSHOTS_DIR) / f"{index}.webp"
+            for index in range(len(downloaded))
+        ]
+        # The package and its source often have the same screenshots. Thus,
+        # if only the source changes, do not change the files.
+        if SOURCE_LINE.sub("", existing) == SOURCE_LINE.sub("", content) and all(
+            file.is_file() for file in files
+        ):
+            return f"unchanged ({source})"
         if args.dry_run:
             return f"would update ({source})"
-        target.write_text(content)
-        subprocess.run(["nixfmt", str(target)], check=False)
+        try:
+            write(target, content, downloaded)
+        except subprocess.CalledProcessError as e:
+            return f"not updated (cannot convert an image: {last_line(e.stderr)})"
         return f"updated ({source})"
     return "no screenshots found"
 
@@ -571,18 +604,22 @@ def update(
 def check(name: str, app: dict, problems: list[str]) -> str:
     """Check the screenshots of `app`, and add the broken ones to `problems`."""
     _current.app = name
-    screenshots = app["lockedScreenshots"]
+    screenshots = app["remoteScreenshots"]
     broken = 0
     for screenshot in screenshots:
         url, expected = screenshot["url"], screenshot["hash"]
+        problem = ""
         # Some servers sometimes send other data. Thus, try a second time.
         for _ in range(2):
-            actual, problem = fetch_hash(url)
+            try:
+                actual, _path = fetch(url)
+            except FetchError as e:
+                problem = str(e)
+                continue
             if actual == expected:
                 info(f"{url}: ok")
                 break
-            if actual is not None:
-                problem = f"hash mismatch (expected {expected}, got {actual})"
+            problem = f"hash mismatch (expected {expected}, got {actual})"
         else:
             info(f"{url}: broken")
             warn(f"{problem}: {url}")
@@ -601,15 +638,15 @@ def write_summary(problems: list[str]) -> None:
     with open(path, "a") as summary:
         summary.write(
             "## Broken screenshots\n\n"
-            "Run `forge-screenshots <app-name>`, or change the `screenshots.nix`"
-            " file of the application.\n\n"
+            "Change the `screenshots.nix` file of the application, or remove it"
+            " and run `forge-screenshots <app-name>`.\n\n"
         )
         summary.writelines(f"- {problem}\n" for problem in sorted(problems))
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="forge-screenshots", description=__doc__.split("\n")[0]
+        prog="forge-screenshots", description=(__doc__ or "").split("\n")[0]
     )
     parser.add_argument("apps", nargs="*", help="applications to update (default: all)")
     parser.add_argument("--flake", default=".", help="flake to evaluate (default: .)")
@@ -623,7 +660,7 @@ def main() -> None:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="check that the screenshot URLs can be fetched and have the same hash",
+        help="check that the `url` of each screenshot has the same `hash`",
     )
     parser.add_argument(
         "-v",

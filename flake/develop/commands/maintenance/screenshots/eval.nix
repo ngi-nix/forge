@@ -15,7 +15,7 @@ let
     {
       inherit (config) recipePath;
       # The screenshots with a URL and a hash, for `--check`.
-      lockedScreenshots = map (screenshot: { inherit (screenshot) url hash; }) (
+      remoteScreenshots = map (screenshot: { inherit (screenshot) url hash; }) (
         builtins.filter (screenshot: screenshot.url != null && screenshot.hash != null) config.screenshots
       );
       packages = map (drv: drv.outPath) packages;

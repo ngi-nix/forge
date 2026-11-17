@@ -46,6 +46,7 @@ jobs:
         with:
           add-paths: |
             recipes/apps/*/screenshots.nix
+            recipes/apps/*/screenshots
           title: "apps: automatic update of screenshots"
           body-path: ${{ runner.temp }}/body.md
           branch: screenshots-update-pr
