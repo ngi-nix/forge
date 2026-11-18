@@ -45,7 +45,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="forge-screenshots", description=(__doc__ or "").split("\n")[0]
     )
-    parser.add_argument("apps", nargs="*", help="applications to update (default: all)")
+    parser.add_argument("apps", nargs="*", help="applications to update")
+    parser.add_argument("--all", action="store_true", help="update all applications")
     parser.add_argument("--flake", default=".", help="flake to evaluate (default: .)")
     parser.add_argument(
         "--max", type=int, default=6, help="maximum screenshots per app (default: 6)"
@@ -61,6 +62,11 @@ def main() -> None:
         help="print the steps for each application",
     )
     args = parser.parse_args()
+    if not args.apps and not args.all:
+        parser.print_help()
+        sys.exit(0)
+    if args.apps and args.all:
+        parser.error("use either application names or `--all`")
     log.VERBOSE = args.verbose
 
     root = Path(

@@ -32,7 +32,7 @@ jobs:
       - name: Update screenshots
         shell: bash
         run: |
-          nix develop --accept-flake-config --command forge-screenshots
+          nix develop --accept-flake-config --command forge-screenshots --all
           {
             echo "Update application screenshots with \`forge-screenshots\`."
             echo
