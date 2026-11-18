@@ -1,11 +1,10 @@
 import argparse
-import os
 import subprocess
 from pathlib import Path
 
-from .fetch import FetchError, download, fetch
+from .fetch import download
 from .forges import source_revisions
-from .log import info, set_app, warn
+from .log import info, set_app
 from .metainfo import candidates
 from .nix import last_line
 from .render import GENERATED, SCREENSHOTS_DIR, SOURCE_LINE, render, write
@@ -51,48 +50,3 @@ def update(
             return f"not updated (cannot convert an image: {last_line(e.stderr)})"
         return f"updated ({source})"
     return "no screenshots found"
-
-
-def check(name: str, app: dict, problems: list[str]) -> str:
-    """Check the screenshots of `app`, and add the broken ones to `problems`."""
-    set_app(name)
-    if app.get("unfree"):
-        return UNFREE
-    screenshots = app["remoteScreenshots"]
-    broken = 0
-    for screenshot in screenshots:
-        url, expected = screenshot["url"], screenshot["hash"]
-        problem = ""
-        # Some servers sometimes send other data. Thus, try a second time.
-        for _ in range(2):
-            try:
-                actual, _path = fetch(url)
-            except FetchError as e:
-                problem = str(e)
-                continue
-            if actual == expected:
-                info(f"{url}: ok")
-                break
-            problem = f"hash mismatch (expected {expected}, got {actual})"
-        else:
-            info(f"{url}: broken")
-            warn(f"{problem}: {url}")
-            problems.append(f"{name}: {url}: {problem}")
-            broken += 1
-    if broken:
-        return f"broken ({broken} of {len(screenshots)} screenshots)"
-    return f"ok ({len(screenshots)} screenshots)"
-
-
-def write_summary(problems: list[str]) -> None:
-    """Add the broken screenshots to the summary of the GitHub Actions job, if any."""
-    path = os.environ.get("GITHUB_STEP_SUMMARY")
-    if not path or not problems:
-        return
-    with open(path, "a") as summary:
-        summary.write(
-            "## Broken screenshots\n\n"
-            "Change the `screenshots.nix` file of the application, or remove it"
-            " and run `forge-screenshots <app-name>`.\n\n"
-        )
-        summary.writelines(f"- {problem}\n" for problem in sorted(problems))

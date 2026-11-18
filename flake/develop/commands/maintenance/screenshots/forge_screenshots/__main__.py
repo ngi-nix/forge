@@ -23,12 +23,6 @@ file is not at this revision, the URL stays as it is.
 
 The URL and the hash of each original image are kept in a comment in
 `screenshots.nix`. If they do not change, the files stay as they are.
-
-With `--check`, the command does not write files. It downloads each screenshot
-that sets `url` and `hash` in the final configuration of the applications.
-Only a recipe that sets the screenshots by hand has these, because this
-command writes local files. It tells you which URLs cannot be fetched or have
-a different hash, and exits with status 1 if there are any.
 """
 
 import argparse
@@ -39,7 +33,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from . import log
-from .commands import check, update, write_summary
+from .commands import update
 from .nix import nix
 from .store import Store
 
@@ -60,11 +54,6 @@ def main() -> None:
         "--jobs", type=int, default=8, help="applications to update in parallel"
     )
     parser.add_argument("--dry-run", action="store_true", help="do not write files")
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="check that the `url` of each screenshot has the same `hash`",
-    )
     parser.add_argument(
         "-v",
         "--verbose",
@@ -94,23 +83,12 @@ def main() -> None:
     names = args.apps or sorted(apps)
 
     store = Store()
-    problems: list[str] = []
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
-        if args.check:
-            results = executor.map(
-                lambda name: check(name, apps[name], problems), names
-            )
-        else:
-            results = executor.map(
-                lambda name: update(name, apps[name], store, root, args), names
-            )
-        broken = False
+        results = executor.map(
+            lambda name: update(name, apps[name], store, root, args), names
+        )
         for name, outcome in zip(names, results):
             print(f"{name}: {outcome}")
-            broken = broken or outcome.startswith("broken")
-    write_summary(problems)
-    if broken:
-        sys.exit(1)
 
 
 if __name__ == "__main__":

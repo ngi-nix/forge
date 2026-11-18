@@ -14,10 +14,6 @@ let
     in
     {
       inherit (config) recipePath;
-      # The screenshots with a URL and a hash, for `--check`.
-      remoteScreenshots = map (screenshot: { inherit (screenshot) url hash; }) (
-        builtins.filter (screenshot: screenshot.url != null && screenshot.hash != null) config.screenshots
-      );
       packages = map (drv: drv.outPath) packages;
       # `toJSON` writes an attribute set with `outPath` as a string, so use other names.
       sources = map (src: {

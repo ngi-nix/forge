@@ -138,17 +138,15 @@ An automated weekly workflow keeps the screenshots up to date.
 
 It is also possible to add screenshots manually. Please use only images from
 official upstream sources. Put image files in a `screenshots` directory next to
-the recipe, or use a URL. Get the hash with `nix store prefetch-file <url>`.
-Use a URL that does not change, for example of a file at a Git commit.
+the recipe, and add them to Git.
 
 ```nix
 {
   apps.<app-name>.screenshots = [
     ./screenshots/main.png
     {
-      url = "https://raw.githubusercontent.com/example/app/<commit>/docs/screenshot.png";
-      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
-      caption = "Main window with an open project.";
+      file = ./screenshots/settings.png;
+      caption = "Settings window.";
     }
   ];
 }
