@@ -1,34 +1,28 @@
 {
-  lib,
-  writeShellApplication,
+  python3,
   gitMinimal,
   imagemagick,
   nix,
   nixfmt,
-  python3,
 }:
-writeShellApplication {
-  name = "forge-screenshots";
-  runtimeInputs = [
+
+python3.pkgs.buildPythonApplication (finalAttrs: {
+  pname = "forge-screenshots";
+  version = "0.0.0";
+  pyproject = true;
+
+  src = ./.;
+
+  build-system = with python3.pkgs; [
+    setuptools
+  ];
+
+  dependencies = [
     gitMinimal
     imagemagick
     nix
     nixfmt
-    python3
   ];
-  text =
-    let
-      # The script reads `eval.nix` from its directory.
-      src = lib.fileset.toSource {
-        root = ./.;
-        fileset = lib.fileset.unions [
-          ./eval.nix
-          ./forge_screenshots.py
-        ];
-      };
-    in
-    ''
-      exec python3 ${src}/forge_screenshots.py "$@"
-    '';
+
   meta.description = "configure and update application screenshots";
-}
+})
