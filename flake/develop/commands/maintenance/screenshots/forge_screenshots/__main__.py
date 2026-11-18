@@ -77,23 +77,26 @@ def main() -> None:
             check=True,
         ).stdout.strip()
     )
-    result = nix(
+    forge_apps_result = nix(
         "eval", "--json", f"{args.flake}#apps", "--apply", EVAL_FILE.read_text()
     )
-    if result.returncode != 0:
-        sys.exit(result.stderr.decode())
-    apps: dict[str, dict] = json.loads(result.stdout)
-    unknown = [name for name in args.apps if name not in apps]
+    if forge_apps_result.returncode != 0:
+        sys.exit(forge_apps_result.stderr.decode())
+    forge_apps: dict[str, dict] = json.loads(forge_apps_result.stdout)
+
+    unknown = [name for name in args.apps if name not in forge_apps]
     if unknown:
         sys.exit(f"unknown applications: {', '.join(unknown)}")
-    names = args.apps or sorted(apps)
+
+    # Without duplicates, so that two threads do not write the same files.
+    apps = sorted(set(args.apps or forge_apps))
 
     store = Store()
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         results = executor.map(
-            lambda name: update(name, apps[name], store, root, args), names
+            lambda name: update(name, forge_apps[name], store, root, args), apps
         )
-        for name, outcome in zip(names, results):
+        for name, outcome in zip(apps, results):
             print(f"{name}: {outcome}")
 
 
