@@ -67,7 +67,7 @@ def main() -> None:
         sys.exit(0)
     if args.apps and args.all:
         parser.error("use either application names or `--all`")
-    log.VERBOSE = args.verbose
+    log.set_verbose(args.verbose)
 
     root = Path(
         subprocess.run(
