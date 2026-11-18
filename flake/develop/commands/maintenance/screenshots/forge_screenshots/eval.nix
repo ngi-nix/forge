@@ -2,15 +2,23 @@
 # Returns the data of each application that `forge-screenshots` needs.
 apps:
 let
-  isApp = name: builtins.isAttrs apps.${name} && apps.${name} ? config;
-  names = builtins.filter isApp (builtins.attrNames apps);
+  inherit (builtins)
+    attrNames
+    filter
+    isAttrs
+    listToAttrs
+    ;
+
+  # The `apps` output also has other attributes, for example `system`.
+  isApp = name: apps.${name}.forge._recipeType or null == "apps";
+  names = filter isApp (attrNames apps);
   # Only fixed-output sources, so that `forge-screenshots` downloads and does not build.
-  isSource = src: builtins.isAttrs src && src ? drvPath && src ? outputHash;
+  isSource = src: isAttrs src && src ? drvPath && src ? outputHash;
   info =
     config:
     let
       packages = config.packages.programs ++ config.packages.services;
-      sources = builtins.filter isSource (map (drv: drv.src or null) packages);
+      sources = filter isSource (map (drv: drv.src or null) packages);
     in
     {
       inherit (config) recipePath;
@@ -26,11 +34,11 @@ let
       }) sources;
     };
 in
-builtins.listToAttrs (
+listToAttrs (
   map (name: {
     inherit name;
-    # Unfree applications are not allowed, and their `config` is replaced with
-    # a derivation that warns about it.
-    value = if apps.${name}.config ? recipePath then info apps.${name}.config else { unfree = true; };
+    # The flake does not allow unfree applications, and their `config` is
+    # replaced with a derivation that warns about it.
+    value = if apps.${name}.forge.unfree then { unfree = true; } else info apps.${name}.config;
   }) names
 )
