@@ -6,8 +6,14 @@ _verbose = False
 _current = threading.local()
 
 
+def _prefix() -> str:
+    """Return `[<app>] `, to tell the steps apart from the result lines."""
+    app = getattr(_current, "app", "")
+    return f"[{app}] " if app else ""
+
+
 def warn(message: str) -> None:
-    print(f"warning: {message}", file=sys.stderr)
+    print(f"{_prefix()}warning: {message}", file=sys.stderr)
 
 
 def set_verbose(verbose: bool) -> None:
@@ -21,4 +27,9 @@ def set_app(name: str) -> None:
 
 def info(message: str) -> None:
     if _verbose:
-        print(f"{getattr(_current, 'app', '')}: {message}", file=sys.stderr)
+        print(f"{_prefix()}{message}", file=sys.stderr)
+
+
+def count(number: int, noun: str) -> str:
+    """Return for example "1 screenshot" or "2 screenshots"."""
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"

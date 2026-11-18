@@ -3,7 +3,7 @@ import os
 from collections.abc import Iterator
 from pathlib import Path, PurePosixPath
 
-from .log import warn
+from .log import info, warn
 from .nix import last_line, nix
 
 SUBSTITUTERS = ["https://cache.nixos.org", "https://ngi-forge.cachix.org"]
@@ -92,6 +92,9 @@ class Store:
     def fetch(self, root: str, drv: str) -> str | None:
         """Make sure that `root`, the output of the fixed-output derivation `drv`, is available."""
         if self.location(root) is None:
+            info(
+                f"`{root}` is not in the local store or in a binary cache, fetching it"
+            )
             result = nix("build", "--no-link", f"{drv}^out")
             if result.returncode != 0:
                 warn(f"cannot fetch `{root}`: {last_line(result.stderr)}")

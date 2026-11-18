@@ -58,12 +58,15 @@ def download(
                 problem = str(e)
                 continue
             if url != screenshot.url:
-                info(f"{screenshot.url}: pinned to {url}")
+                info(
+                    f"using {url} instead of {screenshot.url},"
+                    " because it is at the revision of the package source"
+                )
                 screenshot.url = url
             break
         else:
             warn(f"{problem}: {screenshot.url}")
             continue
-        info(f"{screenshot.url}: {screenshot.hash}")
+        info(f"downloaded {screenshot.url} (hash {screenshot.hash})")
         downloaded.append(screenshot)
     return downloaded

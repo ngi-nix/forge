@@ -22,7 +22,7 @@ def update(
     if app.get("unfree"):
         return UNFREE
     target = root / Path(app["recipePath"]).parent / "screenshots.nix"
-    info(f"`{target.relative_to(root)}`")
+    info(f"screenshots configuration file: `{target.relative_to(root)}`")
     existing = target.read_text() if target.exists() else ""
     if existing and not existing.startswith(GENERATED):
         return "kept (`screenshots.nix` is not from this command)"

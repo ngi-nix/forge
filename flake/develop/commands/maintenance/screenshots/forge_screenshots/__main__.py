@@ -1,4 +1,4 @@
-"""forge-screenshots: configure and update application screenshots.
+"""forge-screenshots: configure or update application screenshots.
 
 For each application, find screenshot URLs, download the images, convert them
 to WebP files in a `screenshots` directory next to the recipe, and write a
@@ -45,16 +45,42 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="forge-screenshots", description=(__doc__ or "").split("\n")[0]
     )
-    parser.add_argument("apps", nargs="*", help="applications to update")
-    parser.add_argument("--all", action="store_true", help="update all applications")
-    parser.add_argument("--flake", default=".", help="flake to evaluate (default: .)")
     parser.add_argument(
-        "--max", type=int, default=6, help="maximum screenshots per app (default: 6)"
+        "apps",
+        nargs="*",
+        metavar="APP",
+        help="applications to configure or update",
     )
     parser.add_argument(
-        "--jobs", type=int, default=8, help="applications to update in parallel"
+        "--all",
+        action="store_true",
+        help="configure or update all applications",
     )
-    parser.add_argument("--dry-run", action="store_true", help="do not write files")
+    parser.add_argument(
+        "--flake",
+        default=".",
+        help="flake with the applications (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--max",
+        type=int,
+        default=6,
+        metavar="N",
+        help="maximum number of screenshots per application (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=8,
+        metavar="N",
+        help="number of applications to configure or update in parallel"
+        " (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="show what would change, without writing files",
+    )
     parser.add_argument(
         "-v",
         "--verbose",

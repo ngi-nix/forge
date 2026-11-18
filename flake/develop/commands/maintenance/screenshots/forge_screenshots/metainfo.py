@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 from pathlib import PurePosixPath
 
-from .log import info, warn
+from .log import count, info, warn
 from .store import Store
 from .types import Screenshot
 
@@ -62,7 +62,7 @@ def metainfo_files(store: Store, package: str) -> Iterator[tuple[str, bytes]]:
 
 
 def source_metainfo_files(store: Store, source: dict) -> Iterator[tuple[str, bytes]]:
-    info(f"reading source `{source['path']}`")
+    info(f"looking for metainfo files in the package source `{source['path']}`")
     if store.fetch(source["path"], source["drv"]) is None:
         return
     for path in store.walk(source["path"]):
@@ -114,11 +114,15 @@ def candidates(
         if location is None:
             warn(f"`{package}` is not in the local store or in a binary cache")
             continue
-        info(f"`{package}`: {location}")
+        where = "the local store" if location == "local" else f"binary cache {location}"
+        info(f"reading package `{package}` from {where}")
         for root in linked_roots(store, package):
             if root not in roots:
                 if root != package:
-                    info(f"`{package}` links to `{root}`")
+                    info(
+                        f"package `{package}` links desktop files or icons from"
+                        f" `{root}`, looking for metainfo files there too"
+                    )
                 roots.append(root)
     files = [
         (f"AppStream metainfo `{name}`", root, data)
@@ -128,18 +132,22 @@ def candidates(
     found = False
     for source, root, data in files:
         screenshots = parse(data, source, root)
-        info(f"{source} in `{root}`: {len(screenshots)} screenshots")
+        info(f"found {count(len(screenshots), 'screenshot')} in {source} in `{root}`")
         if screenshots:
             found = True
             yield source, screenshots
     # Use the sources only if the packages do not install metainfo with screenshots.
     if not found:
         info(
-            "no metainfo with screenshots in the packages, checking the package sources"
+            "the packages have no metainfo files with screenshots,"
+            " looking in the package sources"
         )
         for package_source in app["sources"]:
             for name, data in source_metainfo_files(store, package_source):
                 screenshots = parse(data, f"`{name}`", package_source["path"])
-                info(f"`{name}` in the package source: {len(screenshots)} screenshots")
+                info(
+                    f"found {count(len(screenshots), 'screenshot')} in `{name}`"
+                    " in the package source"
+                )
                 if screenshots:
                     yield f"AppStream metainfo `{name}` in the package source", screenshots
