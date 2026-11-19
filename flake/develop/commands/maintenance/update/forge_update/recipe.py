@@ -2,7 +2,14 @@ import re
 from pathlib import Path
 
 from nix_manipulator import parse
-from nix_manipulator.expressions import AttributeSet, NixSourceCode
+from nix_manipulator.exceptions import ResolutionError
+from nix_manipulator.expressions import (
+    AttributeSet,
+    Identifier,
+    Inherit,
+    NixSourceCode,
+    Primitive,
+)
 
 from . import regexes
 from .errors import RecipeNotFoundError, RecipeParseError, UnsupportedRecipeError
@@ -20,19 +27,6 @@ from .types import (
 )
 
 
-def _extract_braced_block(text: str, brace_start: int) -> tuple[int, str]:
-    """Return (end_pos, block_text) for the balanced brace pair at brace_start."""
-    depth = 1
-    pos = brace_start + 1
-    while pos < len(text) and depth > 0:
-        if text[pos] == "{":
-            depth += 1
-        elif text[pos] == "}":
-            depth -= 1
-        pos += 1
-    return pos, text[brace_start:pos]
-
-
 class RecipeParser:
     recipes_root: Path
 
@@ -48,32 +42,85 @@ class RecipeParser:
     def parse_recipe_file(self, path: Path) -> Recipe:
         lines = path.read_text().splitlines(keepends=True)
         text = "".join(lines)
+        try:
+            source_ast = parse(text)
+        except Exception as e:
+            raise RecipeParseError(path, f"failed to parse recipe: {e}") from e
 
-        blocks = self._extract_package_blocks(text)
-        if not blocks:
+        try:
+            pkgs_set = source_ast["pkgs"]
+        except (KeyError, ValueError):
             raise RecipeParseError(path, "no package declarations found")
 
         packages: list[PackageEntry] = []
-        for pname, block_text in blocks:
+        for item in pkgs_set.values:
+            if not hasattr(item, "name"):
+                continue
+            pname = item.name.strip('"')
+            block = item.value
+            if not isinstance(block, AttributeSet):
+                continue
+
+            has_version_inherit = False
+            for val in block.values:
+                if isinstance(val, Inherit):
+                    for name_expr in val.names:
+                        name_str = (
+                            name_expr.name
+                            if isinstance(name_expr, Identifier)
+                            else getattr(name_expr, "value", "")
+                        )
+                        if name_str in ("version", "source"):
+                            has_version_inherit = True
+                            break
+
             try:
-                version = self._extract_version(block_text, path)
-                source = self._parse_source(block_text, path)
-            except RecipeParseError:
-                if re.search(r"\binherit\b", block_text):
+                ver_node = block["version"]
+                if isinstance(ver_node, Primitive):
+                    version = str(ver_node.value)
+                else:
+                    try:
+                        val = ver_node.value
+                        version = (
+                            str(val)
+                            if not isinstance(val, (AttributeSet, Inherit))
+                            else ver_node.rebuild().strip()
+                        )
+                    except ResolutionError:
+                        if has_version_inherit:
+                            raise UnsupportedRecipeError(
+                                pname, "package is inherited from another recipe"
+                            )
+                        version = ver_node.rebuild().strip()
+            except KeyError:
+                if has_version_inherit:
                     raise UnsupportedRecipeError(
                         pname, "package is inherited from another recipe"
-                    ) from None
+                    )
+                raise RecipeParseError(path, "version field not found")
+
+            try:
+                source_entry = self._parse_source(block, path)
+            except RecipeParseError:
+                if has_version_inherit:
+                    raise UnsupportedRecipeError(
+                        pname, "package is inherited from another recipe"
+                    )
                 raise
-            builder_type, builder_hashes = self._parse_builder(block_text)
+
+            builder_type, builder_hashes = self._parse_builder(block)
             packages.append(
                 PackageEntry(
                     pname=pname,
                     version=version,
-                    source=source,
+                    source=source_entry,
                     builder_type=builder_type,
                     builder_hashes=builder_hashes,
                 )
             )
+
+        if not packages:
+            raise RecipeParseError(path, "no package declarations found")
 
         return Recipe(
             rel_path=path.parent,
@@ -82,65 +129,52 @@ class RecipeParser:
             packages=packages,
         )
 
-    def _extract_package_blocks(self, text: str) -> list[tuple[str, str]]:
-        """Find each pkgs.<name> = { ... } block via brace-counting.
+    def _parse_source(self, block: AttributeSet, path: Path) -> Source:
+        try:
+            src_node = block["source"]
+        except KeyError:
+            raise RecipeParseError(path, "no source (git/url/path) found")
 
-        Pure regex cannot match balanced braces, so we scan
-        character-by-character counting depth instead.
-        """
-        blocks: list[tuple[str, str]] = []
-        for match in re.finditer(regexes.PACKAGE_BLOCK, text):
-            pname = match.group(1)
-            start = match.start()
-            end_pos, _ = _extract_braced_block(text, match.end() - 1)
-            blocks.append((pname, text[start:end_pos]))
-        return blocks
+        source_hash = ""
+        try:
+            source_hash = str(src_node["hash"].value)
+        except (KeyError, AttributeError):
+            pass
 
-    def _extract_version(self, text: str, path: Path) -> str:
-        match = re.search(regexes.FIELD_VERSION, text)
-        if not match:
-            raise RecipeParseError(path, "version field not found")
-        return match.group(1)
+        try:
+            git_spec = str(src_node["git"].value)
+            submodules = False
+            try:
+                submodules = bool(src_node["submodules"].value)
+            except (KeyError, AttributeError):
+                pass
+            git_source = self._parse_git(git_spec, submodules, path)
+            return Source(type=SourceType.GIT, git=git_source, hash=source_hash)
+        except KeyError:
+            pass
 
-    def _parse_source(self, text: str, path: Path) -> Source:
-        """Parse source fields from a scoped package block.
-
-        Within a `pkgs.<name> = { ... }` block each source field
-        (git/url/path) appears at most once, so plain word-boundary
-        matching is sufficient.
-        """
-        source_hash = self._extract_source_hash(text)
-
-        git_match = re.search(regexes.FIELD_GIT, text)
-        if git_match:
-            return Source(
-                type=SourceType.GIT,
-                git=self._parse_git(git_match.group(1), text, path),
-                hash=source_hash,
-            )
-
-        url_match = re.search(regexes.FIELD_URL, text)
-        if url_match:
+        try:
+            url_val = str(src_node["url"].value)
             return Source(
                 type=SourceType.URL,
-                url=UrlSource(url=url_match.group(1)),
+                url=UrlSource(url=url_val),
                 hash=source_hash,
             )
+        except KeyError:
+            pass
 
-        path_match = re.search(regexes.FIELD_PATH, text)
-        if path_match:
+        try:
+            path_val = str(src_node["path"].value)
             return Source(
                 type=SourceType.PATH,
-                path=PathSource(path=Path(path_match.group(1))),
+                path=PathSource(path=Path(path_val)),
             )
+        except KeyError:
+            pass
 
         raise RecipeParseError(path, "no source (git/url/path) found")
 
-    def _extract_source_hash(self, text: str) -> str:
-        match = re.search(regexes.FIELD_HASH, text)
-        return match.group(1) if match else ""
-
-    def _parse_git(self, spec: str, text: str, path: Path) -> GitSource:
+    def _parse_git(self, spec: str, submodules: bool, path: Path) -> GitSource:
         parts = spec.split(":")
         forge_str = parts[0]
         rest = ":".join(parts[1:])
@@ -151,7 +185,7 @@ class RecipeParser:
             raise RecipeParseError(path, f"unknown forge host in git spec: {forge_str}")
 
         if host == ForgeHost.GENERIC_GIT:
-            return self._parse_generic_git(rest, text)
+            return self._parse_generic_git(rest, submodules)
 
         path_parts = rest.split("/")
         path_len = len(path_parts)
@@ -162,8 +196,6 @@ class RecipeParser:
             _, owner, repo, rev = path_parts
         else:
             raise RecipeParseError(path, f"cannot parse git spec: {spec}")
-
-        submodules = bool(re.search(regexes.SUBMODULES, text))
 
         remote_url = self._forge_remote_url(host, owner, repo)
 
@@ -184,13 +216,11 @@ class RecipeParser:
             case _:
                 return f"https://{host.value}.com/{owner}/{repo}"
 
-    def _parse_generic_git(self, rest: str, text: str) -> GitSource:
+    def _parse_generic_git(self, rest: str, submodules: bool) -> GitSource:
         rev_match = re.search(regexes.GIT_REV, rest)
         rev = rev_match.group(1) if rev_match else "HEAD"
 
         remote_url = rest.split("?")[0] if "?" in rest else rest
-
-        submodules = bool(re.search(regexes.SUBMODULES, text))
 
         return GitSource(
             host=ForgeHost.GENERIC_GIT,
@@ -201,7 +231,7 @@ class RecipeParser:
             submodules=submodules,
         )
 
-    def _parse_builder(self, text: str) -> tuple[BuilderType, BuilderHashes]:
+    def _parse_builder(self, block: AttributeSet) -> tuple[BuilderType, BuilderHashes]:
         builder_map: dict[str, BuilderType] = {
             "go": BuilderType.GO,
             "npm": BuilderType.NPM,
@@ -213,27 +243,29 @@ class RecipeParser:
             "standard": BuilderType.STANDARD,
         }
 
-        for match in re.finditer(regexes.BUILDER_DECL, text):
-            _, block_text = _extract_braced_block(text, match.end() - 1)
-            if re.search(r"\benable\b\s*=\s*true", block_text):
-                builder_key = match.group(1)
-                builder_type = builder_map.get(builder_key, BuilderType.STANDARD)
-
-                hashes = BuilderHashes()
-                cargo = re.search(regexes.FIELD_CARGO_HASH, text)
-                if cargo:
-                    hashes.cargo_hash = cargo.group(1)
-                vendor = re.search(regexes.FIELD_VENDOR_HASH, text)
-                if vendor:
-                    hashes.vendor_hash = vendor.group(1)
-                npm = re.search(regexes.FIELD_NPM_DEPS_HASH, text)
-                if npm:
-                    hashes.npm_deps_hash = npm.group(1)
-                pnpm = re.search(regexes.FIELD_PNPM_DEPS_HASH, text)
-                if pnpm:
-                    hashes.pnpm_deps_hash = pnpm.group(1)
-
-                return builder_type, hashes
+        try:
+            builders = block["build"]["builders"]
+            for b in builders.values:
+                if isinstance(b.value, AttributeSet):
+                    try:
+                        if b.value["enable"].value is True:
+                            builder_type = builder_map.get(b.name, BuilderType.STANDARD)
+                            hashes = BuilderHashes()
+                            for h_field, h_attr in [
+                                ("cargoHash", "cargo_hash"),
+                                ("vendorHash", "vendor_hash"),
+                                ("npmDepsHash", "npm_deps_hash"),
+                                ("pnpmDepsHash", "pnpm_deps_hash"),
+                            ]:
+                                try:
+                                    setattr(hashes, h_attr, str(b.value[h_field].value))
+                                except KeyError:
+                                    pass
+                            return builder_type, hashes
+                    except KeyError:
+                        pass
+        except (KeyError, TypeError):
+            pass
 
         return BuilderType.STANDARD, BuilderHashes()
 
