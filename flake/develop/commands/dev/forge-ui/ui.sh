@@ -91,6 +91,10 @@ WorkingDirectory=$rootDir/ui
 Environment=PATH=$PATH
 ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --bundle \\
+  --external:"*.otf" \\
+  --external:"*.ttf" \\
+  --external:"*.woff2" \\
+  --external:"*.woff" \\
   --loader:.html=copy \\
   --loader:.svg=copy \\
   --loader:.png=copy \\
