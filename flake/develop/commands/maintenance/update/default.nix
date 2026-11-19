@@ -10,6 +10,16 @@ let
     gitMinimal
     nix
   ];
+
+  # Allowlist the package's source files so Python test/type-checker caches
+  # and other generated artifacts can never enter the store.
+  pyAllowList = lib.sources.sourceByRegex ./. [
+    "^(default\\.nix|pyproject\\.toml)$"
+    "^forge_update(/[^/]+\\.py)?$"
+    "^tests(/[^/]+\\.py)?$"
+    "^tests/__snapshots__(/[^/]+\\.ambr)?$"
+    "^tests/fixtures(/.*)?$"
+  ];
 in
 
 python3.pkgs.buildPythonApplication (finalAttrs: {
@@ -17,7 +27,11 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
   version = "0.0.0";
   pyproject = true;
 
-  src = ./.;
+  src = builtins.path {
+    path = ./.;
+    name = "forge-update-source";
+    filter = pyAllowList.filter;
+  };
 
   makeWrapperArgs = [
     "--prefix"
