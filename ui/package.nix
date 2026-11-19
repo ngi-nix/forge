@@ -58,15 +58,16 @@ symlinkJoin {
     # Copy static files
     cp ${./src/index.html} index.html
     cp ${./src/404.html} 404.html
-    cp ${./src/favicon.svg} favicon.svg
+    cp ${./src/assets/favicon.svg} favicon.svg
 
-    mkdir -p css js/src fonts
+    mkdir -p css js/src fonts assets
 
     cp -aR ${./src/css}/. css
     cp -aR ${./src/js}/. js/src
+    cp -aR ${./src/assets}/. assets/
     cp -aR ${fonts}/. fonts/
 
-    chmod -R u+w css js fonts
+    chmod -R u+w css js fonts assets
 
     install -D ${bootstrapCss}/css/bootstrap.min.css bootstrap/css/bootstrap.min.css
     install -D ${highlight-js}/theme.css css/highlightjs-theme.css

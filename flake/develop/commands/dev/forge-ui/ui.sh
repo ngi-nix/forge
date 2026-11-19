@@ -105,7 +105,6 @@ ExecStart=@runtimeShell@ -xc 'shopt -s nullglob; exec esbuild \\
   --serve-fallback=src/index.html \\
   --sourcemap=external \\
   --watch=forever \\
-  src/favicon.svg \\
   src/**/*.css \\
   src/**/*.html \\
   src/**/*.js \\
