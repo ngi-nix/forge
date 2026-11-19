@@ -4,8 +4,14 @@ import shutil
 import tempfile
 from pathlib import Path
 from faker import Faker
+from nix_manipulator import parse
 
 fake = Faker()
+
+
+def nix_string(val: str) -> str:
+    escaped = val.replace("\\", "\\\\").replace('"', '\\"').replace("${", "\\${")
+    return f'"{escaped}"'
 
 
 def run_command(cmd, **kwargs):
@@ -21,28 +27,29 @@ def generate_grants():
 
 
 def generate_pkg_recipe(name, index, is_test_pkg=False):
-    description = fake.sentence()
-    return f"""{{
+    description = nix_string(fake.sentence())
+    raw = f"""{{
   config,
   lib,
   pkgs,
   ...
 }}:
 {{
-pkgs."{name}" = {{
-  version = "0.0.{index}";
-  description = "{description}";
-  homePage = "{fake.url()}";
-  mainProgram = "{name}";
-  license = lib.licenses.mit;
+  pkgs."{name}" = {{
+    version = "0.0.{index}";
+    description = {description};
+    homePage = "{fake.url()}";
+    mainProgram = "{name}";
+    license = lib.licenses.mit;
 
-  source.url = "https://example.com/{name}.tar.gz";
-  source.hash = lib.fakeHash;
+    source.url = "https://example.com/{name}.tar.gz";
+    source.hash = lib.fakeHash;
 
-  build.builders.standard.enable = true;
-}};
+    build.builders.standard.enable = true;
+  }};
 }}
 """
+    return parse(raw).rebuild()
 
 
 def generate_app_recipe(name, index, is_test_app=False):
@@ -51,7 +58,7 @@ def generate_app_recipe(name, index, is_test_app=False):
     grant_lines = []
     for cat, items in grants.items():
         if items:
-            vals = " ".join(f'"{v}"' for v in items)
+            vals = " ".join(nix_string(v) for v in items)
             grant_lines.append(f"    {cat} = [ {vals} ];")
 
     grants_nix = "{\n" + "\n".join(grant_lines) + "\n  }"
@@ -83,7 +90,11 @@ def generate_app_recipe(name, index, is_test_app=False):
         else ""
     )
 
-    return f"""{{
+    desc = nix_string(fake.sentence())
+    usage_text = f"{fake.text()}\n\n[project documentation](https://example.com)\n\n[enter the Nix shell](app/mock-test#run-shell)"
+    usage = nix_string(usage_text)
+
+    raw = f"""{{
   config,
   forge-lib,
   lib,
@@ -92,8 +103,8 @@ def generate_app_recipe(name, index, is_test_app=False):
 }}:
 {{
 apps."{name}" = {{
-  description = "{fake.sentence()}";
-  usage = "{fake.text()}\n\n[project documentation](https://example.com)\n\n[enter the Nix shell](app/mock-test#run-shell)";
+  description = {desc};
+  usage = {usage};
 
   links = {{
     website = "{fake.url()}";
@@ -131,6 +142,7 @@ apps."{name}" = {{
 }};
 }}
 """
+    return parse(raw).rebuild()
 
 
 def main():

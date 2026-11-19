@@ -9,7 +9,10 @@
 let
   forgeUIDir = builtins.toString ../forge-ui;
   script = writers.writePython3Bin "dev-ui-config.py" {
-    libraries = [ python3.pkgs.faker ];
+    libraries = [
+      python3.pkgs.faker
+      python3.pkgs.nix-manipulator
+    ];
     flakeIgnore = [
       "E402"
       "E501"
