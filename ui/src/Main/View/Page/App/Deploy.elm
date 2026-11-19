@@ -297,34 +297,6 @@ viewPageAppDeployFlake model pageApp deployTarget =
                     , "          (inputs.forge.inputs.nixpkgs + \"/nixos/modules/profiles/qemu-guest.nix\")"
                     ]
 
-        -- Open the ports of the app endpoints, by transport-level protocol.
-        firewallOptions =
-            [ ( "tcp", "allowedTCPPorts" ), ( "udp", "allowedUDPPorts" ) ]
-                |> List.filterMap
-                    (\( protocol, option ) ->
-                        case getAppServicesFirewallPorts protocol pageApp.pageApp_app.app_services of
-                            [] ->
-                                Nothing
-
-                            ports ->
-                                Just
-                                    ("            networking.firewall."
-                                        ++ option
-                                        ++ " = [ "
-                                        ++ String.join " " (List.map String.fromInt ports)
-                                        ++ " ];"
-                                    )
-                    )
-
-        firewallConfig =
-            if List.isEmpty firewallOptions then
-                []
-
-            else
-                ""
-                    :: "            # Firewall configuration"
-                    :: firewallOptions
-
         devShellTargetPackages =
             case deployTarget of
                 DeployTarget_BareMetal ->
@@ -451,7 +423,7 @@ viewPageAppDeployFlake model pageApp deployTarget =
         , style "resize" "vertical"
         ]
         [ nixCodeBlock <|
-            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ firewallConfig ++ flakeAppModule ++ parametersConfig ++ flakeAppConfig ++ devShellTargetPackages ++ flakeEnd)
+            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ flakeAppModule ++ parametersConfig ++ flakeAppConfig ++ devShellTargetPackages ++ flakeEnd)
         ]
 
 

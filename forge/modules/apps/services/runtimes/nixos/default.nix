@@ -125,6 +125,7 @@ in
   config = {
     result.modules = {
       general = import ./modules/general.nix args;
+      firewall = import ./modules/firewall.nix args;
       setup = import ./modules/setup.nix args;
       services = import ./modules/services.nix args;
       virt = import ./modules/virt.nix args;
@@ -148,6 +149,7 @@ in
 
     result.nixosModule = {
       imports = [
+        config.result.modules.firewall
         config.result.modules.setup
         config.result.modules.services
         config.result.modules.packages

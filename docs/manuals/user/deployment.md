@@ -27,9 +27,9 @@ input and defines:
   the operating system of the target machine, consisting of a list of NixOS
   modules: disk partitioning, boot loader, remote access and the application
   module.
-- **Application configuration** (`perSystem.forge.<app-name>`) - custom
-  configuration of the application.
-- **User access configuraion** (`users.users.root.openssh.authorizedKeys.keys`)
+- **Application configuration** (`perSystem.forge.apps.<app-name>`) - custom
+  configuration of the application, including its parameters.
+- **User access configuration** (`users.users.root.openssh.authorizedKeys.keys`)
   public SSH key used to log in to the deployed machine.
 - **Deployment environment** (`perSystem.devShells.default`) - tools needed
   for the deployment.
@@ -98,6 +98,23 @@ appropriate one (e.g. `/dev/sda`, `/dev/vda` or `/dev/nvme0n1`).
 
 See the [disko examples](https://github.com/nix-community/disko/tree/master/example)
 for other layouts, such as LVM, LUKS encryption, RAID or ZFS.
+
+### Application parameters
+
+If the application has parameters, for example its port, the application
+configuration lists them with their default values. Change a value to customize
+the deployed application:
+
+```nix
+forge.apps.my-app = {
+  enable = true;
+
+  # Port of the web interface.
+  parameters.port.value = lib.mkForce 9090;
+};
+```
+
+The application recipe sets the default values too, hence `lib.mkForce`.
 
 ### Test configuration
 
@@ -223,7 +240,7 @@ internet, it is recommended to apply the following basic hardening steps.
 
 Instead of logging in as `root`, create a regular `admin` user with
 administrator (`sudo`) privileges and your public SSH key. Add the following
-configuration to the `Boot, remote access and firewall` module in `flake.nix`:
+configuration to the `System configuration` module in `flake.nix`:
 
 ```nix
 users.users.admin = {
@@ -268,10 +285,11 @@ services.fail2ban.enable = true;
 
 ### Firewall
 
-The firewall is enabled by default. The deployment configuration opens only
-the SSH port and the ports used by the application services
-(`networking.firewall.allowedTCPPorts`). Don't open any additional ports unless
-they are required.
+The firewall is enabled by default. Only the SSH port and the ports of the
+application endpoints are open. The application module opens the endpoint ports
+(`networking.firewall.allowedTCPPorts` and `allowedUDPPorts`), so they follow
+the application parameters. Don't open any additional ports unless they are
+required.
 
 ### Apply the changes
 
