@@ -6,6 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "forge-update"
 version = "0.0.0"
 description = "Update Forge packages to the latest upstream version"
+dependencies = [
+  "colorama",
+  "nix-manipulator",
+]
 
 [project.scripts]
 forge-update = "forge_update.__main__:main"

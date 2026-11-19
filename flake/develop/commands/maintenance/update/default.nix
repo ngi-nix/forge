@@ -32,6 +32,7 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
 
   dependencies = with python3.pkgs; [
     colorama
+    nix-manipulator
   ];
 
   meta.description = "update Forge packages to the latest upstream version";
