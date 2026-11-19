@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "forge-screenshots"
 version = "0.0.0"
 description = "Configure and update application screenshots"
+dependencies = [
+  "nix-manipulator",
+]
 
 [project.scripts]
 forge-screenshots = "forge_screenshots.__main__:main"

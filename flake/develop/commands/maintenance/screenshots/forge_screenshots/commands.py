@@ -7,7 +7,7 @@ from .forges import source_revisions
 from .log import info, set_app
 from .metainfo import candidates
 from .nix import last_line
-from .render import GENERATED, SCREENSHOTS_DIR, SOURCE_LINE, render, write
+from .render import GENERATED, SCREENSHOTS_DIR, is_same_content, render, write
 from .store import Store
 
 # The flake does not allow unfree applications, so their configuration is not
@@ -38,9 +38,7 @@ def update(
         ]
         # The package and its source often have the same screenshots. Thus,
         # if only the source changes, do not change the files.
-        if SOURCE_LINE.sub("", existing) == SOURCE_LINE.sub("", content) and all(
-            file.is_file() for file in files
-        ):
+        if is_same_content(existing, content) and all(file.is_file() for file in files):
             return f"unchanged ({source})"
         if args.dry_run:
             return f"would update ({source})"

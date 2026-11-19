@@ -1,8 +1,10 @@
-import re
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+
+from nix_manipulator import parse
+from nix_manipulator.expressions import FunctionDefinition
 
 from .nix import nix_attr, nix_string
 from .types import Screenshot
@@ -32,10 +34,23 @@ def render(name: str, source: str, screenshots: list[Screenshot]) -> str:
             lines.append(f"      caption = {nix_string(screenshot.caption)};")
         lines.append("    }")
     lines += ["  ];", "}", ""]
-    return "\n".join(lines)
+    return parse("\n".join(lines)).rebuild()
 
 
-SOURCE_LINE = re.compile(r"^# Source: .*\n", re.M)
+def is_same_content(existing_text: str, new_text: str) -> bool:
+    """Check if existing and new screenshot configurations match, ignoring Source comment."""
+    if not existing_text or not new_text:
+        return False
+    try:
+        ast_old = parse(existing_text)
+        ast_new = parse(new_text)
+        if isinstance(ast_old.expr, FunctionDefinition) and isinstance(
+            ast_new.expr, FunctionDefinition
+        ):
+            return ast_old.expr.output == ast_new.expr.output
+        return ast_old == ast_new
+    except Exception:
+        return False
 
 
 def convert(source: str, target: Path) -> None:

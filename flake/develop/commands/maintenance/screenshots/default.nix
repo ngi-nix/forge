@@ -22,6 +22,7 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
     imagemagick
     nix
     nixfmt
+    python3.pkgs.nix-manipulator
   ];
 
   meta.description = "configure and update application screenshots";
