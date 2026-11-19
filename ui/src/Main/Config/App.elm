@@ -3,7 +3,6 @@ module Main.Config.App exposing (..)
 import Dict exposing (Dict)
 import Json.Decode as Decode exposing (Decoder)
 import Main.Helpers.Json.Decode as Decode
-import Set
 
 
 type alias App =
@@ -504,22 +503,6 @@ getAppServicesEndpoints services =
            )
     )
         |> List.sortBy .appEndpoint_port
-
-
-{-| Ports which need to be open in the firewall of a machine running the services,
-for the given transport-level protocol (`tcp` or `udp`).
-
-Services listen on the ports of their endpoints on the deployed machine.
-
--}
-getAppServicesFirewallPorts : String -> AppServices -> List Int
-getAppServicesFirewallPorts protocol services =
-    services
-        |> getAppServicesEndpoints
-        |> List.filter (\endpoint -> endpoint.appEndpoint_protocol == protocol)
-        |> List.map .appEndpoint_port
-        |> Set.fromList
-        |> Set.toList
 
 
 type alias Maintainer =
