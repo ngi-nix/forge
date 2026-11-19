@@ -1,6 +1,9 @@
 import re
 from pathlib import Path
 
+from nix_manipulator import parse
+from nix_manipulator.expressions import AttributeSet, NixSourceCode
+
 from . import regexes
 from .errors import RecipeNotFoundError, RecipeParseError, UnsupportedRecipeError
 from .types import (
@@ -243,68 +246,116 @@ class RecipeWriter:
         self.dry_run = dry_run
         self.pending_changes = []
 
+    def _get_ast(self, recipe: Recipe) -> NixSourceCode:
+        text = "".join(recipe.raw_lines)
+        try:
+            return parse(text)
+        except Exception as e:
+            raise RecipeParseError(
+                recipe.abs_path, f"failed to parse recipe: {e}"
+            ) from e
+
+    def _get_pkg(
+        self, source: NixSourceCode, pname: str, abs_path: Path
+    ) -> AttributeSet:
+        try:
+            pkgs = source["pkgs"]
+        except (KeyError, ValueError) as e:
+            raise RecipeParseError(
+                abs_path, f"no 'pkgs' attribute set found: {e}"
+            ) from e
+        try:
+            return pkgs[pname]
+        except KeyError:
+            try:
+                return pkgs[f'"{pname}"']
+            except KeyError:
+                raise RecipeParseError(
+                    abs_path, f"package '{pname}' not found for replacement"
+                ) from None
+
+    def _save_ast(self, recipe: Recipe, source: NixSourceCode) -> None:
+        new_text = source.rebuild()
+        recipe.raw_lines = new_text.splitlines(keepends=True)
+
     def update_version(self, recipe: Recipe, pname: str, new_version: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_VERSION,
-            f'version = "{new_version}"',
-            "version",
-        )
+        source = self._get_ast(recipe)
+        pkg = self._get_pkg(source, pname, recipe.abs_path)
+        try:
+            old_val = str(pkg["version"].value)
+        except KeyError:
+            raise RecipeParseError(
+                recipe.abs_path, f"cannot find version for {pname}"
+            ) from None
+        pkg["version"] = new_version
+        self._save_ast(recipe, source)
+        self.pending_changes.append(("version", old_val, new_version))
 
     def update_source_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_HASH,
-            f'hash = "{new_hash}"',
-            "source.hash",
-        )
+        source = self._get_ast(recipe)
+        pkg = self._get_pkg(source, pname, recipe.abs_path)
+        try:
+            old_val = str(pkg["source"]["hash"].value)
+        except KeyError:
+            raise RecipeParseError(
+                recipe.abs_path, f"cannot find source.hash for {pname}"
+            ) from None
+        pkg["source"]["hash"] = new_hash
+        self._save_ast(recipe, source)
+        self.pending_changes.append(("source.hash", old_val, new_hash))
+
+    def _update_builder_hash(
+        self, recipe: Recipe, pname: str, hash_attr: str, new_hash: str
+    ) -> None:
+        source = self._get_ast(recipe)
+        pkg = self._get_pkg(source, pname, recipe.abs_path)
+        try:
+            builders = pkg["build"]["builders"]
+            for b in builders.values:
+                if isinstance(b.value, AttributeSet):
+                    try:
+                        old_val = str(b.value[hash_attr].value)
+                        b.value[hash_attr] = new_hash
+                        self._save_ast(recipe, source)
+                        self.pending_changes.append((hash_attr, old_val, new_hash))
+                        return
+                    except KeyError:
+                        continue
+        except (KeyError, TypeError):
+            pass
+
+        try:
+            old_val = str(pkg[hash_attr].value)
+            pkg[hash_attr] = new_hash
+            self._save_ast(recipe, source)
+            self.pending_changes.append((hash_attr, old_val, new_hash))
+            return
+        except KeyError:
+            pass
+
+        raise RecipeParseError(recipe.abs_path, f"cannot find {hash_attr} for {pname}")
 
     def update_cargo_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_CARGO_HASH,
-            f'cargoHash = "{new_hash}"',
-            "cargoHash",
-        )
+        self._update_builder_hash(recipe, pname, "cargoHash", new_hash)
 
     def update_vendor_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_VENDOR_HASH,
-            f'vendorHash = "{new_hash}"',
-            "vendorHash",
-        )
+        self._update_builder_hash(recipe, pname, "vendorHash", new_hash)
 
     def update_npm_deps_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_NPM_DEPS_HASH,
-            f'npmDepsHash = "{new_hash}"',
-            "npmDepsHash",
-        )
+        self._update_builder_hash(recipe, pname, "npmDepsHash", new_hash)
 
     def update_pnpm_deps_hash(self, recipe: Recipe, pname: str, new_hash: str) -> None:
-        self._replace(
-            recipe,
-            pname,
-            regexes.FIELD_PNPM_DEPS_HASH,
-            f'pnpmDepsHash = "{new_hash}"',
-            "pnpmDepsHash",
-        )
+        self._update_builder_hash(recipe, pname, "pnpmDepsHash", new_hash)
 
     def update_git_rev(self, recipe: Recipe, pname: str, new_rev: str) -> None:
-        text = "".join(recipe.raw_lines)
-        _, _, block_text = self._find_package_block(text, pname, recipe.abs_path)
-
-        match = re.search(regexes.FIELD_GIT, block_text)
-        if not match:
-            raise RecipeParseError(recipe.abs_path, f"cannot find git spec for {pname}")
-        old_git = match.group(1)
+        source = self._get_ast(recipe)
+        pkg = self._get_pkg(source, pname, recipe.abs_path)
+        try:
+            old_git = str(pkg["source"]["git"].value)
+        except KeyError:
+            raise RecipeParseError(
+                recipe.abs_path, f"cannot find git spec for {pname}"
+            ) from None
 
         if old_git.startswith("git:"):
             # Generic git: replace tag= or rev= query-param value
@@ -314,52 +365,9 @@ class RecipeWriter:
             # Forge-host: replace last /-separated component
             new_git = old_git.rsplit("/", 1)[0] + "/" + new_rev
 
-        self._replace(recipe, pname, regexes.FIELD_GIT, f'git = "{new_git}"', "git")
-
-    def _find_package_block(
-        self, text: str, pname: str, abs_path: Path
-    ) -> tuple[int, int, str]:
-        """Return (start, end, block-text) for a `packages.<pname>` block.
-
-        Uses the same brace-counting approach as `_extract_package_blocks`
-        so that nested { } inside builder configs don't confuse the scan.
-        """
-        for match in re.finditer(rf"pkgs\.{re.escape(pname)}\s*=\s*\{{", text):
-            start = match.start()
-            end_pos, _block_text = _extract_braced_block(text, match.end() - 1)
-            return start, end_pos, text[start:end_pos]
-        raise RecipeParseError(abs_path, f"package '{pname}' not found for replacement")
-
-    def _replace(
-        self,
-        recipe: Recipe,
-        pname: str,
-        pattern: str | re.Pattern[str],
-        replacement: str,
-        field: str,
-    ) -> None:
-        text = "".join(recipe.raw_lines)
-
-        block_start, block_end, block_text = self._find_package_block(
-            text, pname, recipe.abs_path
-        )
-
-        new_block, count = re.subn(pattern, replacement, block_text, count=1)
-        if count == 0:
-            raise RecipeParseError(recipe.abs_path, f"cannot find {field} for {pname}")
-
-        new_text = text[:block_start] + new_block + text[block_end:]
-        recipe.raw_lines = new_text.splitlines(keepends=True)
-
-        old_match = re.search(pattern, block_text)
-        old_value = old_match.group(1) if old_match else "?"
-        self.pending_changes.append(
-            (
-                field,
-                old_value,
-                replacement.split('"')[1] if '"' in replacement else replacement,
-            )
-        )
+        pkg["source"]["git"] = new_git
+        self._save_ast(recipe, source)
+        self.pending_changes.append(("git", old_git, new_git))
 
     def apply_text(self, recipe: Recipe, text: str | None = None) -> None:
         """
