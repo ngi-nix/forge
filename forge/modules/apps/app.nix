@@ -80,6 +80,33 @@
       '';
       example = lib.literalExpression "./icon.svg";
     };
+    screenshots = lib.mkOption {
+      type = lib.types.listOf (
+        lib.types.coercedTo lib.types.path (file: { inherit file; }) (
+          lib.types.submoduleWith {
+            modules = [ ./screenshot.nix ];
+          }
+        )
+      );
+      default = [ ];
+      description = ''
+        Application screenshots, shown in the application details page.
+
+        Set this option in a `screenshots.nix` file next to the recipe.
+
+        An item is an image file, or a set with `file` and an optional
+        `caption`.
+      '';
+      example = lib.literalExpression ''
+        [
+          ./screenshots/main.png
+          {
+            file = ./screenshots/settings.png;
+            caption = "Settings window.";
+          }
+        ]
+      '';
+    };
     links = lib.mkOption {
       type = lib.types.submoduleWith {
         specialArgs = specialArgs // {

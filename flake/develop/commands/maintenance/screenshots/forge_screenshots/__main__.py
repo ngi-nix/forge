@@ -1,0 +1,130 @@
+"""forge-screenshots: configure or update application screenshots.
+
+For each application, find screenshot URLs, download the images, convert them
+to WebP files in a `screenshots` directory next to the recipe, and write a
+`screenshots.nix` file that uses these files. A `screenshots.nix` file that
+this command did not write stays as it is. Sources, in order:
+
+1. AppStream metainfo files in the application packages. The packages are
+   read from the local store or from a binary cache, without a build. If a
+   package links desktop files or icons from other store paths (for example,
+   a wrapper of an unwrapped package), the metainfo files of these store paths
+   are also used.
+2. AppStream metainfo files in the sources of the application packages. The
+   sources are read from the local store or from a binary cache, or fetched
+   with Nix.
+
+If a source gives no image that can be fetched, the next source is used.
+
+A URL of a file in a GitHub, GitLab, Forgejo or Gitea repository that is also
+the source of an application package is changed to the URL of the file at the
+revision of the source, so that the image matches the packaged version. If the
+file is not at this revision, the URL stays as it is.
+
+The URL and the hash of each original image are kept in a comment in
+`screenshots.nix`. If they do not change, the files stay as they are.
+"""
+
+import argparse
+import json
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+
+from . import log
+from .commands import update
+from .nix import nix
+from .store import Store
+
+# Applied to the `apps` output of the flake.
+EVAL_FILE = Path(__file__).with_name("eval.nix")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        prog="forge-screenshots", description=(__doc__ or "").split("\n")[0]
+    )
+    parser.add_argument(
+        "apps",
+        nargs="*",
+        metavar="APP",
+        help="applications to configure or update",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="configure or update all applications",
+    )
+    parser.add_argument(
+        "--flake",
+        default=".",
+        help="flake with the applications (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--max",
+        type=int,
+        default=6,
+        metavar="N",
+        help="maximum number of screenshots per application (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=8,
+        metavar="N",
+        help="number of applications to configure or update in parallel"
+        " (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="show what would change, without writing files",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="print the steps for each application",
+    )
+    args = parser.parse_args()
+    if not args.apps and not args.all:
+        parser.print_help()
+        sys.exit(0)
+    if args.apps and args.all:
+        parser.error("use either application names or `--all`")
+    log.set_verbose(args.verbose)
+
+    root = Path(
+        subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    )
+    forge_apps_result = nix(
+        "eval", "--json", f"{args.flake}#apps", "--apply", EVAL_FILE.read_text()
+    )
+    if forge_apps_result.returncode != 0:
+        sys.exit(forge_apps_result.stderr.decode())
+    forge_apps: dict[str, dict] = json.loads(forge_apps_result.stdout)
+
+    unknown = [name for name in args.apps if name not in forge_apps]
+    if unknown:
+        sys.exit(f"unknown applications: {', '.join(unknown)}")
+
+    # Without duplicates, so that two threads do not write the same files.
+    apps = sorted(set(args.apps or forge_apps))
+
+    store = Store()
+    with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+        results = executor.map(
+            lambda name: update(name, forge_apps[name], store, root, args), apps
+        )
+        for name, outcome in zip(apps, results):
+            print(f"{name}: {outcome}")
+
+
+if __name__ == "__main__":
+    main()

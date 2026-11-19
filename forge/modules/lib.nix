@@ -210,7 +210,11 @@
         # Replace the main derivation and all its passthru attributes with
         # fake ones that carry the unfree warning.
         # This is to make sure that we don't evaluate the real ones.
-        warnedDrv // lib.optionalAttrs isApp (lib.mapAttrs (_: v: warnedDrv) drv.passthru);
+        # Keep `forge`, which only has metadata, such as `unfree`.
+        warnedDrv
+        // lib.optionalAttrs isApp (
+          lib.mapAttrs (_: v: warnedDrv) drv.passthru // { inherit (drv) forge; }
+        );
 
     # Application categories (eg. `forge-lib.categories.Development`).
     categories = lib.listToAttrs (

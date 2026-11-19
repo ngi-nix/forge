@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "forge-screenshots"
+version = "0.0.0"
+description = "Configure and update application screenshots"
+
+[project.scripts]
+forge-screenshots = "forge_screenshots.__main__:main"
+
+[tool.setuptools]
+packages = ["forge_screenshots"]
+
+[tool.setuptools.package-data]
+forge_screenshots = ["eval.nix"]

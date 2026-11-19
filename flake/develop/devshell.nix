@@ -123,9 +123,12 @@ let
       let
         src = ./commands;
 
+        # A command is a `<category>/<command>/default.nix` file, or a
+        # `<command>/default.nix` file for the general category. Other files in
+        # the directory of a command are a part of the command.
         files = lib.fileset.toList (
           lib.fileset.intersection (lib.fileset.gitTracked ../..) (
-            lib.fileset.fileFilter (file: file.hasExt "nix") src
+            lib.fileset.fileFilter (file: file.name == "default.nix") src
           )
         );
 
@@ -134,22 +137,9 @@ let
         getCategory =
           file:
           let
-            parentDir = dirOf file;
-            grandParentDir = dirOf parentDir;
-            isDefault = baseNameOf file == "default.nix";
+            categoryDir = dirOf (dirOf file);
           in
-          # ./commands/<command.nix>
-          if parentDir == src then
-            final.generalCategory
-          # ./commands/<command>/default.nix
-          else if isDefault && grandParentDir == src then
-            final.generalCategory
-          # ./commands/<category>/<command>/default.nix
-          else if isDefault then
-            baseNameOf grandParentDir
-          # ./commands/<category>/<command.nix>
-          else
-            baseNameOf parentDir;
+          if categoryDir == src then final.generalCategory else baseNameOf categoryDir;
 
         groupedFiles = lib.groupBy getCategory files;
       in

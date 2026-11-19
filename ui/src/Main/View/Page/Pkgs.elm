@@ -129,7 +129,7 @@ viewPagePkgsItem model pagePkgs pkg =
                     [ href <| showPkgRecipeLink model pkg
                     , target "_blank"
                     , rel "noopener"
-                    , onClickStopPropagation
+                    , onClickStopPropagation Update_NoOp
                     ]
                     [ text "Forge Recipe" ]
                 ]
@@ -150,7 +150,7 @@ viewLicense obj =
                 [ href url
                 , target "_blank"
                 , rel "noopener"
-                , onClickStopPropagation
+                , onClickStopPropagation Update_NoOp
                 ]
                 [ text label ]
 
