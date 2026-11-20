@@ -215,7 +215,7 @@
     #   the CI check by testing against your PR's branch on GitHub:
     #     nix build .#checks.x86_64-linux.upstream-landed-<pkg> \
     #       --override-input nixpkgs github:<user>/nixpkgs/<pr-branch>
-    untilUpstream =
+    overrideUntil =
       {
         # Condition indicating the upstream fix has landed in the active nixpkgs
         condition,
