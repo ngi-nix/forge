@@ -6,6 +6,7 @@ import subprocess
 import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from colorama import Fore, Style
@@ -51,8 +52,9 @@ def _commit_recipe(recipe: Recipe, pkg: PackageEntry, result: VersionResult) -> 
     print(f"  {style('committed', Style.DIM)}")
 
 
+@dataclass
 class Args(argparse.Namespace):
-    recipe: list[str] = []
+    recipe: list[str] = field(default_factory=list)
     all: bool = False
     version: str | None = None
     dry_run: bool = False
@@ -68,31 +70,29 @@ def build_parser() -> argparse.ArgumentParser:
         description="Update forge package recipes to latest upstream versions",
     )
 
-    _ = parser.add_argument("recipe", nargs="*", default=[], metavar="RECIPE")
+    _ = parser.add_argument("recipe", nargs="*", metavar="RECIPE")
     _ = parser.add_argument(
         "--all",
         action="store_true",
-        help="Update all recipes in --recipes-root",
+        help="Update all recipes in `--recipes-root`",
     )
     _ = parser.add_argument("--version")
     _ = parser.add_argument("--dry-run", action="store_true")
     _ = parser.add_argument(
         "--commit",
         action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Commit recipe changes to git",
+        help="Commit recipe changes to git (default: --no-commit)",
     )
     _ = parser.add_argument("--skip-prefetch", action="store_true")
     _ = parser.add_argument(
         "--prefetch-timeout",
         type=int,
-        default=180,
         help="Timeout in seconds for the source hash fetching (default: 180)",
     )
     _ = parser.add_argument(
         "--recipes-root",
         type=Path,
-        default=Path("recipes/pkgs"),
+        help="Path to the directory that contains recipe files to update (default: recipes/pkgs)",
     )
 
     return parser
