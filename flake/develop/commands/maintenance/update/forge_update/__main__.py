@@ -102,8 +102,13 @@ def parse_args(argv: list[str] | None = None) -> Args:
     return build_parser().parse_args(argv, namespace=Args())
 
 
-def main() -> None:
-    args = parse_args()
+def main(
+    argv: list[str] | None = None,
+    *,
+    detector: VersionDetector | None = None,
+    hash_updater: NixHashUpdater | None = None,
+) -> int:
+    args = parse_args(argv)
 
     if not args.recipe and not args.all:
         build_parser().print_help()
@@ -112,16 +117,20 @@ def main() -> None:
     if args.all and args.recipe:
         build_parser().error("--all cannot be used with recipe names")
 
+    if detector is None:
+        detector = VersionDetector()
+
+    if hash_updater is None:
+        hash_updater = NixHashUpdater(
+            dry_run=args.dry_run,
+            source_timeout=args.prefetch_timeout,
+        )
+
     names = (
         sorted(p.name for p in args.recipes_root.iterdir()) if args.all else args.recipe
     )
 
     parser = RecipeParser(args.recipes_root)
-    detector = VersionDetector()
-    hash_updater = NixHashUpdater(
-        dry_run=args.dry_run,
-        source_timeout=args.prefetch_timeout,
-    )
 
     for i, name in enumerate(names):
         if i > 0:
@@ -195,7 +204,8 @@ def main() -> None:
             print(style(name, Fore.YELLOW + Style.BRIGHT))
             print(f"  {style(str(e), Fore.RED)}")
             continue
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
