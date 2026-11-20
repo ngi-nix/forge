@@ -19,7 +19,7 @@ viewRuntimeBadge runtime =
         ]
 
 
-viewBrokenBadge : Html msg
+viewBrokenBadge : Html Update
 viewBrokenBadge =
     viewStatusBadge
         "bg-danger-subtle text-danger-emphasis border-danger-subtle"
@@ -27,7 +27,7 @@ viewBrokenBadge =
         "Package, application, or one of their dependencies are broken."
 
 
-viewUnfreeBadge : Html msg
+viewUnfreeBadge : Html Update
 viewUnfreeBadge =
     viewStatusBadge
         "bg-warning-subtle text-warning-emphasis border-warning-subtle"
@@ -35,14 +35,19 @@ viewUnfreeBadge =
         "Package, application, or one of their dependencies are unfree."
 
 
-viewStatusBadge : String -> String -> String -> Html msg
+-- TODO
+-- - Unfree badge should go down on mobile below displayName
+-- - Clicking on Unfree should give clear information
+-- - Tooltips variable width without gaps and should be in viewport
+
+viewStatusBadge : String -> String -> String -> Html Update
 viewStatusBadge colorClasses label description =
-    Html.span
-        [ class ("badge rounded-pill border " ++ colorClasses)
-        , attribute "title" description
-        , attribute "aria-label" description
+    Html.span [ class "has-tooltip d-inline-block me-1", stopPropagationOn "click" (Json.Decode.succeed ( Update_NoOp, True )) ]
+        [ Html.span [ class ("badge rounded-pill border " ++ colorClasses) ] [ Html.text label ]
+        , div [ class "tooltip bs-tooltip-top", attribute "role" "tooltip" ]
+            [ div [ class "tooltip-inner" ] [ Html.text description ]
+            ]
         ]
-        [ Html.text label ]
 
 
 mdResolveLangCodeAlias : String -> String
