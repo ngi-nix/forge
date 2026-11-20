@@ -1,3 +1,5 @@
+@import "fonts.css";
+
 html,
 body {
   height: 100%;
@@ -40,7 +42,7 @@ body {
   background-color: transparent;
   display: block;
   color: #f8f9fa;
-  font-family: "Courier New", Courier, monospace;
+  font-family: "Fira Code Variable", var(--bs-font-monospace);
   font-size: 0.95em;
   line-height: 1.5;
 }
@@ -853,7 +855,7 @@ details.markdown-content > summary {
   background-color: #1e1e1e;
   color: #f8f9fa;
   border-radius: 0.375rem 0.375rem 0 0;
-  font-family: "Courier New", Courier, monospace;
+  font-family: "Fira Code Variable", var(--bs-font-monospace);
   font-size: 0.95em;
 }
 

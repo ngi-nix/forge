@@ -1,0 +1,172 @@
+/* Route 159 */
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-UltraLight.otf") format("opentype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-UltraLightItalic.otf") format("opentype");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-LightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-SemiBoldItalic.otf") format("opentype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-Heavy.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Route 159";
+  src: url("../fonts/Route159-HeavyItalic.otf") format("opentype");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Roboto Flex (Variable Font: weights 100-1000) */
+@font-face {
+  font-family: "Roboto Flex Variable";
+  src:
+    url("../fonts/RobotoFlex.ttf") format("truetype-variations"),
+    url("../fonts/RobotoFlex.ttf") format("truetype");
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fira Code (Variable Font: weights 300-700) */
+@font-face {
+  font-family: "Fira Code Variable";
+  src:
+    url("../fonts/FiraCode-VF.ttf") format("truetype-variations"),
+    url("../fonts/FiraCode-VF.ttf") format("truetype");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font Assignments */
+:root {
+  --bs-font-sans-serif: "Roboto Flex Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+  --bs-body-font-family: var(--bs-font-sans-serif);
+  --bs-font-monospace: "Fira Code Variable", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body {
+  font-family: var(--bs-body-font-family);
+}
+
+/* Headings and logos use Route 159 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+.display-1,
+.display-2,
+.display-3,
+.display-4,
+.display-5,
+.display-6,
+.brand-text,
+.brand-title,
+.navbar-brand,
+.modal-title {
+  font-family: "Route 159", var(--bs-font-sans-serif);
+}
+
+/* Code blocks use Fira Code */
+pre,
+code,
+kbd,
+samp,
+.font-monospace,
+highlightjs-code,
+highlightjs-code pre,
+highlightjs-code code,
+.markdown-content pre,
+.markdown-content pre code,
+.markdown-content code,
+details.markdown-content > summary {
+  font-family: "Fira Code Variable", var(--bs-font-monospace);
+  font-variant-ligatures: normal;
+}

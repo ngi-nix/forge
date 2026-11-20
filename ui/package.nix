@@ -11,6 +11,11 @@
 
   _forge,
   highlight-js,
+
+  route159,
+  roboto-flex,
+  fira-code,
+  runCommand,
   ...
 }:
 
@@ -26,6 +31,13 @@ let
     useTerser = true;
     enableOptimizations = true;
   };
+
+  fonts = runCommand "forge-fonts" { } ''
+    mkdir -p $out
+    cp ${route159}/share/fonts/opentype/*.otf $out/
+    cp ${roboto-flex}/share/fonts/truetype/*.ttf $out/RobotoFlex.ttf
+    cp ${fira-code}/share/fonts/truetype/*.ttf $out/FiraCode-VF.ttf
+  '';
 
   defaultIcon = ./src/app-icon.svg;
 
@@ -46,14 +58,16 @@ symlinkJoin {
     # Copy static files
     cp ${./src/index.html} index.html
     cp ${./src/404.html} 404.html
-    cp ${./src/favicon.svg} favicon.svg
+    cp ${./src/assets/favicon.svg} favicon.svg
 
-    mkdir -p css js/src
+    mkdir -p css js/src fonts assets
 
     cp -aR ${./src/css}/. css
     cp -aR ${./src/js}/. js/src
+    cp -aR ${./src/assets}/. assets/
+    cp -aR ${fonts}/. fonts/
 
-    chmod -R u+w css js
+    chmod -R u+w css js fonts assets
 
     install -D ${bootstrapCss}/css/bootstrap.min.css bootstrap/css/bootstrap.min.css
     install -D ${highlight-js}/theme.css css/highlightjs-theme.css
@@ -106,5 +120,5 @@ symlinkJoin {
 
     popd
   '';
-  passthru = { inherit bootstrapCss; };
+  passthru = { inherit bootstrapCss fonts; };
 }
