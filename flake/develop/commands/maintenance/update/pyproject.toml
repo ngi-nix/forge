@@ -16,3 +16,9 @@ packages = ["forge_update"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+addopts = "-m 'not contract and not integration'"
+markers = [
+  "contract: parses the repository's real recipes",
+  "integration: needs network and/or nix",
+  "git: needs a real git binary",
+]
