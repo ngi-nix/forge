@@ -1,0 +1,306 @@
+# serializer version: 1
+# name: test_snapshot_update[basic][recipe-basic]
+  '''
+  {
+    lib,
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.basic = {
+      version = "9.9.9";
+      description = "Minimal forge-host recipe used by the snapshot tests.";
+      homePage = "https://github.com/example/basic";
+      mainProgram = "basic";
+      license = lib.licenses.mit;
+  
+      source = {
+        git = "github:example/basic/v9.9.9";
+        hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+      };
+  
+      build.builders.standard = {
+        enable = true;
+        packages.build = [ pkgs.pkg-config ];
+      };
+  
+      test.script = ''
+        basic --version
+      '';
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[generic-git-bare][recipe-generic_git_bare]
+  '''
+  {
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.generic-git-bare = {
+      version = "9.9.9";
+      description = "Generic git source without a rev or tag query parameter.";
+  
+      source = {
+        git = "git:https://example.com/generic-git-bare.git";
+        hash = "sha256-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=";
+      };
+  
+      build.builders.standard = {
+        enable = true;
+      };
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[generic-git][recipe-generic_git]
+  '''
+  {
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.generic-git = {
+      version = "9.9.9";
+      description = "Generic git source with a tag query parameter.";
+      license = {
+        spdx = "MIT";
+        fullText = "MIT License";
+      };
+  
+      source = {
+        git = "git:https://example.com/generic-git.git?tag=v9.9.9&depth=1";
+        hash = "sha256-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=";
+      };
+  
+      build.builders.standard = {
+        enable = true;
+      };
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[go][recipe-go]
+  '''
+  {
+    lib,
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.go-demo = {
+      version = "9.9.9";
+      description = "Go recipe with a vendorHash pinned by the snapshot test.";
+      homePage = "https://github.com/example/go-demo";
+      mainProgram = "go-demo";
+      license = lib.licenses.bsd3;
+  
+      source = {
+        git = "github:example/go-demo/v9.9.9";
+        hash = "sha256-FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF=";
+      };
+  
+      build.builders.go = {
+        enable = true;
+        vendorHash = "sha256-GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG=";
+        packages.build = [ pkgs.go ];
+      };
+  
+      test.script = ''
+        go-demo --version
+      '';
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[multi-package][recipe-multi_package]
+  '''
+  {
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.a = {
+      version = "9.9.9";
+      description = "First package: updated by the snapshot test.";
+      source = {
+        git = "github:example/a/v9.9.9";
+        hash = "sha256-IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII=";
+      };
+      build.builders.standard = {
+        enable = true;
+      };
+    };
+  
+    pkgs.b = {
+      version = "4.5.6";
+      description = "Second package: must be left untouched.";
+      source = {
+        git = "github:example/b/v4.5.6";
+        hash = "sha256-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ=";
+      };
+      build.builders.standard = {
+        enable = true;
+      };
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[nested][recipe-nested]
+  '''
+  {
+    lib,
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.nested = {
+      version = "9.9.9";
+      description = "Recipe with nested builder config and a version literal in scripts.";
+      homePage = "https://github.com/example/nested";
+      license = lib.licenses.gpl3Only;
+  
+      source = {
+        git = "github:example/nested/v9.9.9";
+        hash = "sha256-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH=";
+      };
+  
+      build.builders.standard = {
+        enable = true;
+        packages.build = [
+          pkgs.cmake
+          pkgs.ninja
+          pkgs.pkg-config
+        ];
+      };
+  
+      build.extraAttrs = {
+        postPatch = ''
+          substituteInPlace meson.build \
+            --replace-fail "version = \"1.2.3\"" "version = \"${version}\""
+        '';
+  
+        cmakeFlags = [
+          (lib.cmakeBool "ENABLE_TESTS" true)
+        ];
+      };
+  
+      build.phases = {
+        check.enable = true;
+      };
+  
+      test.script = ''
+        echo 'version = "1.2.3"'
+        nested --version
+      '';
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[rust][recipe-rust]
+  '''
+  {
+    lib,
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.rust-demo = {
+      version = "9.9.9";
+      description = "Rust recipe with a cargoHash pinned by the snapshot test.";
+      homePage = "https://github.com/example/rust-demo";
+      mainProgram = "rust-demo";
+      license = lib.licenses.asl20;
+  
+      source = {
+        git = "github:example/rust-demo/v9.9.9";
+        hash = "sha256-DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD=";
+      };
+  
+      build.builders.rust = {
+        enable = true;
+        cargoHash = "sha256-EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE=";
+        packages.build = [ pkgs.pkg-config ];
+        packages.run = [ pkgs.openssl ];
+      };
+  
+      build.extraAttrs = {
+        doCheck = false;
+      };
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_update[self-ref][recipe-self_ref]
+  '''
+  {
+    pkgs,
+    config,
+    ...
+  }:
+  let
+    recipe = config.pkgs.self-ref;
+  in
+  {
+    pkgs.self-ref = {
+      version = "9.9.9";
+      description = "Recipe whose git revision references its own version.";
+      mainProgram = "self-ref";
+  
+      source = {
+        git = "github:example/self-ref/v${recipe.version}";
+        hash = "sha256-KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK=";
+      };
+  
+      build.builders.standard = {
+        enable = true;
+      };
+  
+      test.script = ''
+        self-ref --version | grep -q ${recipe.version}
+      '';
+    };
+  }
+  
+  '''
+# ---
+# name: test_snapshot_url_version_only[recipe-url-version-only]
+  '''
+  {
+    pkgs,
+    ...
+  }:
+  
+  {
+    pkgs.url = {
+      version = "9.9.9";
+      description = "URL source, updated with --version rather than detection.";
+  
+      source = {
+        url = "https://example.com/url-1.2.3.tar.gz";
+        hash = "sha256-LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL=";
+      };
+  
+      build.builders.standard = {
+        enable = true;
+      };
+    };
+  }
+  
+  '''
+# ---

@@ -37,6 +37,7 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
   optional-dependencies = {
     dev = with python3.pkgs; [
       pytest
+      syrupy
     ];
   };
 
