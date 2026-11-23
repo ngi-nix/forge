@@ -4,7 +4,7 @@ import argparse
 import os
 import subprocess
 import sys
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -35,7 +35,7 @@ def _print_changes(writer: RecipeWriter, before: int) -> None:
 
 
 @contextmanager
-def _progress(label: str) -> Iterator[None]:
+def _progress(label: str) -> Generator[None]:
     print(f"  {style(label, Style.BRIGHT)} (in progress)", end="\r", flush=True)
     try:
         yield
