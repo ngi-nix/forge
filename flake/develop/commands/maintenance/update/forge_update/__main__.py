@@ -12,11 +12,12 @@ from pathlib import Path
 from colorama import Fore, Style
 from colorama import init as colorama_init
 
-from .builder import NixHashUpdater
+from .builder import NixBuildHashUpdater
 from .errors import ForgeUpdateError
+from .interfaces import NixHashUpdater, VersionDetector
 from .recipe import RecipeParser, RecipeWriter
 from .types import PackageEntry, Recipe
-from .version import VersionDetector, VersionResult
+from .version import GitVersionDetector, VersionResult
 
 colorama_init()
 
@@ -118,10 +119,10 @@ def main(
         build_parser().error("--all cannot be used with recipe names")
 
     if detector is None:
-        detector = VersionDetector()
+        detector = GitVersionDetector()
 
     if hash_updater is None:
-        hash_updater = NixHashUpdater(
+        hash_updater = NixBuildHashUpdater(
             dry_run=args.dry_run,
             source_timeout=args.prefetch_timeout,
         )

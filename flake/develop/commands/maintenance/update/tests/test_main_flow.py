@@ -367,7 +367,7 @@ def test_all_treats_plain_files_as_recipes(
 def test_prefetch_timeout_reaches_updater(
     make_recipe, run_main, fake_detector, fake_updater, basic_recipe_text, monkeypatch
 ):
-    """--prefetch-timeout is forwarded to NixHashUpdater as an int."""
+    """--prefetch-timeout is forwarded to NixBuildHashUpdater as an int."""
     _path = make_recipe("demo", basic_recipe_text)
     detector = fake_detector(BUMP)
     updater = fake_updater(field=None)
@@ -377,7 +377,7 @@ def test_prefetch_timeout_reaches_updater(
         captured.update(kwargs)
         return updater
 
-    monkeypatch.setattr(main_module, "NixHashUpdater", factory)
+    monkeypatch.setattr(main_module, "NixBuildHashUpdater", factory)
 
     code, _out, _err = run_main(["demo", "--prefetch-timeout", "42"], detector=detector)
 
