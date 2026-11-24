@@ -543,6 +543,10 @@ service after a failure and stops the service when the container stops.
 Each _component_ runs in separate single-process container, while _resources_
 run in a full NixOS systemd container.
 
+The container of a component contains the CA certificates in `/etc/ssl/certs`
+and sets the `SSL_CERT_FILE` environment variable to them, unless the recipe
+sets it.
+
 Both _components_ and _resources_ can be extended with container
 runtime-specific configuration.
 
