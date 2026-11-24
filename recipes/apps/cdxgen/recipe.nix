@@ -194,6 +194,7 @@ in
             "-fs"
             "http://localhost:${toString app.parameters.port}/health"
           ];
+          packages = [ pkgs.curl ];
           interval = "3s";
           timeout = "3s";
           startPeriod = "10s";

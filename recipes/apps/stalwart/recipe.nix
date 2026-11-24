@@ -145,6 +145,7 @@ in
             "-fs"
             "http://localhost:${webPort}/healthz/live"
           ];
+          packages = [ pkgs.curl ];
           startPeriod = "30s";
         };
       };
