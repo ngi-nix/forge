@@ -58,6 +58,11 @@ in
       The web browsers send audio and video through the built-in TURN server on the address `${turnAddress}` and the port `${toString endpoints.turn.forwardedPort}` (UDP and TCP).
 
       This configuration is for evaluation only. Before you use Galene in production, change the `operatorPassword` parameter, set the `turnAddress` parameter to the public IPv4 address of the server and configure a TLS certificate.
+
+      > [!CAUTION]
+      > In default configuration, the password of the `demo` user is `${operatorPassword}`.
+      > The group definition with this password is stored in the Nix store, which is world-readable.
+      > In production configuration, use a group directory outside the Nix store, and use password hashes from `galenectl hash-password`.
     '';
 
     categories = with forge-lib.categories; [ VideoConference ];
