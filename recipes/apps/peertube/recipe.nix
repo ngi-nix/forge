@@ -10,7 +10,18 @@ let
   endpoints = app.services.components.peertube.endpoints;
   stateDir = "/var/lib/peertube";
 
-  inherit (app.parameters) port hostname adminPassword;
+  inherit (app.parameters)
+    port
+    hostname
+    adminPassword
+    smtpHostname
+    smtpPort
+    ;
+  smtpFromAddress =
+    if app.parameters.smtpFromAddress == "" then
+      "peertube@${hostname}"
+    else
+      app.parameters.smtpFromAddress;
 
   peertube = pkgs.pkgsOriginal.peertube;
 
@@ -37,6 +48,14 @@ let
     redis = {
       hostname = "redis";
       port = 6379;
+    };
+    # If the host name is `null`, PeerTube does not send emails.
+    smtp = {
+      hostname = if smtpHostname == "" then null else smtpHostname;
+      port = smtpPort;
+      # Port 465 uses TLS. Other ports, for example 587, use StartTLS.
+      tls = smtpPort == 465;
+      from_address = smtpFromAddress;
     };
     # For evaluation only: this secret is in the world-readable Nix store.
     # In production, use a secret that is not in the Nix store.
@@ -85,7 +104,8 @@ in
       The web interface is available on [http://${hostname}:${toString endpoints.web.forwardedPort}](http://${hostname}:${toString endpoints.web.forwardedPort}).
       Log in with the user `root` and the password `${adminPassword}`.
 
-      This configuration is for evaluation only. Before you use PeerTube in production, change the `adminPassword` and `hostname` parameters, replace the `secrets.peertube` value and configure TLS, a reverse proxy and SMTP.
+      This configuration is for evaluation only. Before you use PeerTube in production, change the `adminPassword` and `hostname` parameters, replace the `secrets.peertube` value and configure TLS and a reverse proxy.
+      To send emails, set the `smtpHostname`, `smtpPort` and `smtpFromAddress` parameters. If the SMTP server requires a login, give it in the `NODE_CONFIG` environment variable of the `peertube` service component, for example `{"smtp":{"username":"...","password":"..."}}`. Do not put the SMTP password in a parameter, because parameters are stored in the Nix store.
     '';
 
     categories = with forge-lib.categories; [ Video ];
@@ -104,6 +124,18 @@ in
       adminPassword = {
         value = "peertube";
         description = "Initial password of the `root` user. PeerTube uses it only when it creates the `root` user.";
+      };
+      smtpHostname = {
+        value = "";
+        description = "Host name of the SMTP server that sends the emails. If empty, PeerTube does not send emails.";
+      };
+      smtpPort = {
+        value = 465;
+        description = "Port of the SMTP server. Port 465 uses TLS. Other ports, for example 587, use StartTLS.";
+      };
+      smtpFromAddress = {
+        value = "";
+        description = "Sender address of the emails. If empty, it is `peertube@` with the host name.";
       };
     };
 
