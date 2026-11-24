@@ -34,5 +34,23 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
     colorama
   ];
 
+  optional-dependencies = {
+    dev = with python3.pkgs; [
+      pytest
+    ];
+  };
+
+  pythonImportsCheck = [
+    "forge_update"
+  ];
+
+  nativeCheckInputs =
+    with python3.pkgs;
+    [
+      gitMinimal
+      pytestCheckHook
+    ]
+    ++ lib.concatAttrValues finalAttrs.passthru.optional-dependencies;
+
   meta.description = "update Forge packages to the latest upstream version";
 })

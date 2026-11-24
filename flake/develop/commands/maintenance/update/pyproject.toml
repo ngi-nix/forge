@@ -12,3 +12,7 @@ forge-update = "forge_update.__main__:main"
 
 [tool.setuptools]
 packages = ["forge_update"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
