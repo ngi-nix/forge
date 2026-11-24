@@ -15,10 +15,17 @@ let
     httpPort
     sshPort
     hostname
-    publicUrl
     adminUser
     adminPassword
     ;
+
+  # An empty `publicUrl` parameter gives an address with the host name and the forwarded port.
+  # Thus a changed `hostname` or `httpPort` parameter also changes the address.
+  publicUrl =
+    if app.parameters.publicUrl == "" then
+      "http://${hostname}:${toString endpoints.web.forwardedPort}/"
+    else
+      app.parameters.publicUrl;
 
   forgejo = pkgs.pkgsOriginal.forgejo;
   forgejoExe = lib.getExe forgejo;
@@ -103,8 +110,8 @@ in
         description = "Host name of the server. Forgejo uses it in the SSH clone URLs.";
       };
       publicUrl = {
-        value = "http://${hostname}:${toString endpoints.web.forwardedPort}/";
-        description = "Public address of the web interface, for example the address of a reverse proxy. Forgejo uses it in links and HTTP clone URLs.";
+        value = "";
+        description = "Public address of the web interface, for example the address of a reverse proxy. Forgejo uses it in links and HTTP clone URLs. If empty, it is `http://` with the host name and the port of the web interface.";
       };
       adminUser = {
         value = "demo";
