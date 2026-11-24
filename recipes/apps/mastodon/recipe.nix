@@ -154,11 +154,16 @@ in
       This account has the `Owner` role.
 
       This configuration is for evaluation only. It uses plain HTTP, thus live updates over WebSocket do not operate and the server cannot federate with other servers.
-      It also uses fixed secret keys, which are public.
-      The uploaded media files are in a Garage object storage, which uses a fixed access key.
+      The uploaded media files are in a Garage object storage.
       The default configuration does not have an SMTP server, thus Mastodon cannot send emails.
       Before you use Mastodon in production, change the `domain`, `publicUrl`, `adminEmail` and `adminPassword` parameters, and configure TLS and new secret keys.
       To send emails, set the `smtpServer`, `smtpPort` and `smtpFromAddress` parameters. If the SMTP server requires a login, set the `SMTP_LOGIN` and `SMTP_PASSWORD` environment variables of the service components. Do not put the SMTP password in a parameter, because parameters are stored in the Nix store.
+
+      > [!CAUTION]
+      > In default configuration, the secret keys, the Garage access key and the administrator password are fixed values, which are public.
+      > They are stored in the Nix store, which is world-readable.
+      > In production configuration, set new values in the environment variables of the service components, for example `SECRET_KEY_BASE`, `AWS_SECRET_ACCESS_KEY` and the `ACTIVE_RECORD_ENCRYPTION_*` and `VAPID_*` variables.
+      > After the first login, change the administrator password in the web interface.
     '';
 
     icon = ./icon.svg;
