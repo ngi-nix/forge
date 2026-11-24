@@ -23,7 +23,12 @@
                 name: parameters:
                 (extendModules {
                   modules = [
-                    { apps.${name}.parameters = lib.mapAttrs (_: value: { value = lib.mkForce value; }) parameters; }
+                    {
+                      apps.${name} = {
+                        parameters = lib.mapAttrs (_: value: { value = lib.mkForce value; }) parameters;
+                        overriddenParameters = parameters;
+                      };
+                    }
                   ];
                 }).config.apps.${name};
             };
@@ -117,7 +122,9 @@
 
               # Keep the parameters set by earlier `override` calls,
               # because `appWithParameters` starts again from the recipe.
-              allParameters = oldParameters // checkedParameters;
+              # Keep only these, not all values, so that the value of a
+              # parameter can use the values of other parameters.
+              allParameters = app.overriddenParameters // checkedParameters;
 
               newApp = bundle (config.forge.appWithParameters app.name allParameters);
             in

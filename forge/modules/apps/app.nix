@@ -185,6 +185,10 @@
 
         Users can change the values with the `override` function of the
         application output, for example `apps.<name>.override { port = 9090; }`.
+
+        The value of a parameter can use the values of other parameters, for
+        example `config.apps.<name>.parameters.hostname`, as long as they do
+        not depend on each other.
       '';
       example = lib.literalExpression ''
         {
@@ -208,6 +212,12 @@
       defaultText = lib.literalMD "the `description` of each parameter";
       description = "Descriptions of the parameters, for the UI.";
       readOnly = true;
+      internal = true;
+    };
+    overriddenParameters = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      default = { };
+      description = "Parameters set by the `override` function of the application output.";
       internal = true;
     };
     data = lib.mkOption {
