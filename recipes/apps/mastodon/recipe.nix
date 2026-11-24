@@ -14,7 +14,14 @@ let
     domain
     adminEmail
     adminPassword
+    smtpServer
+    smtpPort
     ;
+  smtpFromAddress =
+    if app.parameters.smtpFromAddress == "" then
+      "mastodon@${domain}"
+    else
+      app.parameters.smtpFromAddress;
 
   # An empty `publicUrl` parameter gives an address with the domain and the forwarded port.
   # Thus a changed `domain` or `port` parameter also changes the address.
@@ -64,9 +71,9 @@ let
     DB_NAME = "mastodon";
     REDIS_HOST = "redis";
     REDIS_PORT = 6379;
-    SMTP_SERVER = "localhost";
-    SMTP_PORT = 25;
-    SMTP_FROM_ADDRESS = "mastodon@${domain}";
+    SMTP_SERVER = smtpServer;
+    SMTP_PORT = smtpPort;
+    SMTP_FROM_ADDRESS = smtpFromAddress;
     S3_ENABLED = "true";
     S3_BUCKET = s3.bucket;
     S3_ENDPOINT = "http://garage:${toString ports.garage-s3}";
@@ -149,7 +156,9 @@ in
       This configuration is for evaluation only. It uses plain HTTP, thus live updates over WebSocket do not operate and the server cannot federate with other servers.
       It also uses fixed secret keys, which are public.
       The uploaded media files are in a Garage object storage, which uses a fixed access key.
-      Before you use Mastodon in production, change the `domain`, `publicUrl`, `adminEmail` and `adminPassword` parameters, and configure TLS, email delivery and new secret keys.
+      The default configuration does not have an SMTP server, thus Mastodon cannot send emails.
+      Before you use Mastodon in production, change the `domain`, `publicUrl`, `adminEmail` and `adminPassword` parameters, and configure TLS and new secret keys.
+      To send emails, set the `smtpServer`, `smtpPort` and `smtpFromAddress` parameters. If the SMTP server requires a login, set the `SMTP_LOGIN` and `SMTP_PASSWORD` environment variables of the service components. Do not put the SMTP password in a parameter, because parameters are stored in the Nix store.
     '';
 
     icon = ./icon.svg;
@@ -180,6 +189,18 @@ in
       adminPassword = {
         value = "mastodon-admin";
         description = "Password of the administrator account. The first start sets this password.";
+      };
+      smtpServer = {
+        value = "localhost";
+        description = "Host name of the SMTP server that sends the emails.";
+      };
+      smtpPort = {
+        value = 25;
+        description = "Port of the SMTP server.";
+      };
+      smtpFromAddress = {
+        value = "";
+        description = "Sender address of the emails. If empty, it is `mastodon@` with the domain.";
       };
     };
 
