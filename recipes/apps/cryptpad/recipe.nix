@@ -13,9 +13,14 @@ let
   inherit (app.parameters)
     webPort
     sandboxPort
-    publicUrl
-    sandboxUrl
     ;
+
+  # An empty URL parameter gives an address on `localhost` with the forwarded port.
+  # Thus a changed port parameter also changes the address.
+  urlOrLocalhost =
+    url: endpoint: if url == "" then "http://localhost:${toString endpoint.forwardedPort}" else url;
+  publicUrl = urlOrLocalhost app.parameters.publicUrl endpoints.web;
+  sandboxUrl = urlOrLocalhost app.parameters.sandboxUrl app.services.resources.sandbox-proxy.endpoints.sandbox;
 
   cryptpad = pkgs.pkgsOriginal.cryptpad;
 
@@ -64,6 +69,9 @@ in
 
       CryptPad uses a second origin as a sandbox: [${sandboxUrl}](${sandboxUrl}). The web browser must be able to reach it.
 
+      Use exactly these addresses in the web browser. CryptPad does not open documents from a different address, for example `127.0.0.1` in place of `localhost`, or a different port.
+      If you change the `webPort` or `sandboxPort` parameter, keep the `publicUrl` and `sandboxUrl` parameters empty, or change them to the same ports.
+
       This configuration is for evaluation only. Before you use CryptPad in production, configure TLS and two different domain names, and change the `publicUrl` and `sandboxUrl` parameters.
     '';
 
@@ -81,12 +89,12 @@ in
         description = "Port of the CryptPad sandbox origin.";
       };
       publicUrl = {
-        value = "http://localhost:${toString endpoints.web.forwardedPort}";
-        description = "Public address of the CryptPad web interface (`httpUnsafeOrigin`).";
+        value = "";
+        description = "Public address of the CryptPad web interface (`httpUnsafeOrigin`). If empty, it is `http://localhost:` with the port of the web interface.";
       };
       sandboxUrl = {
-        value = "http://localhost:${toString app.services.resources.sandbox-proxy.endpoints.sandbox.forwardedPort}";
-        description = "Public address of the CryptPad sandbox (`httpSafeOrigin`). It must be different from `publicUrl`.";
+        value = "";
+        description = "Public address of the CryptPad sandbox (`httpSafeOrigin`). It must be different from `publicUrl`. If empty, it is `http://localhost:` with the port of the sandbox.";
       };
     };
 
