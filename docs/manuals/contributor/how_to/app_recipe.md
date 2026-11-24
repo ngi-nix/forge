@@ -419,6 +419,8 @@ before starting.
 
 The `test` command is executed directly (no shell) so binary paths must be
 fully specified. Use string interpolation to reference Nix store paths.
+Add the packages of the `test` command to `packages`, so that the container
+image contains them.
 
 ```nix
 services = {
@@ -430,6 +432,7 @@ services = {
     healthcheck = {
       enable = true;
       test = [ "${lib.getExe pkgs.curl}" "-fs" "http://localhost:8080/health" ];
+      packages = [ pkgs.curl ];
       interval = "3s";
       timeout = "3s";
       startPeriod = "10s";
