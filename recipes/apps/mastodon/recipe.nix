@@ -12,10 +12,17 @@ let
   inherit (app.parameters)
     port
     domain
-    publicUrl
     adminEmail
     adminPassword
     ;
+
+  # An empty `publicUrl` parameter gives an address with the domain and the forwarded port.
+  # Thus a changed `domain` or `port` parameter also changes the address.
+  publicUrl =
+    if app.parameters.publicUrl == "" then
+      "http://${domain}:${toString endpoint.forwardedPort}"
+    else
+      app.parameters.publicUrl;
 
   # The scheme and the host of the public address, for example `http` and `localhost:8080`.
   publicScheme = lib.head (lib.splitString "://" publicUrl);
@@ -163,8 +170,8 @@ in
         description = "Domain name of the server. It is part of the user addresses, for example `@alice@localhost`. Do not change it after the first start.";
       };
       publicUrl = {
-        value = "http://${domain}:${toString endpoint.forwardedPort}";
-        description = "Public address of the web interface, for example the address of a reverse proxy. The media file URLs use this address.";
+        value = "";
+        description = "Public address of the web interface, for example the address of a reverse proxy. The media file URLs use this address. If empty, it is `http://` with the domain and the port of the web interface.";
       };
       adminEmail = {
         value = "admin@localhost";
