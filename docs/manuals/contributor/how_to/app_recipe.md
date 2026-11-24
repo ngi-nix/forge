@@ -64,6 +64,45 @@ Start the recipe with the following content:
 Ensure that the remainder of the application recipe is done within the `apps.app-name` block to avoid nasty infinite recursion errors.
 :::
 
+### Usage snippets
+
+Use the snippets of `forge-lib.snippets.usage` for common instructions in the
+`usage` text, for example the links to launch the application:
+
+````nix
+{
+  config,
+  forge-lib,
+  ...
+}:
+
+let
+  app = config.apps.my-app;
+  usageSnippets = forge-lib.snippets.usage app;
+in
+{
+  apps.my-app = {
+    usage = ''
+      First, ${usageSnippets.run-container} or ${usageSnippets.run-nixos}.
+
+      Create an admin account in the container:
+
+      ```bash
+      ${usageSnippets.container-exec "my-service"} my-app create-admin
+      ```
+
+      ${usageSnippets.see-docs}
+    '';
+  };
+}
+````
+
+- `run-program`, `run-shell`, `run-container` and `run-nixos`: links to launch
+  the application in each runtime.
+- `container-exec "<service-name>"`: command to run a command in the running
+  container of the service, for use in a code block.
+- `see-docs`: link to the documentation of the project (`links.docs`).
+
 ### Links
 
 Add a
@@ -184,6 +223,11 @@ in
   };
 }
 ```
+
+The default value of a parameter can use other parameters, for example
+`publicUrl = { value = "https://${app.parameters.hostname}"; ... };`. When users
+change `hostname`, the default value of `publicUrl` changes too. Parameters
+must not depend on each other in a loop.
 
 Users can change the application parameters with the `override` function of the
 application output. It accepts only the parameters that the recipe sets, with
@@ -363,16 +407,20 @@ services = {
 };
 ```
 
-Endpoints can be referenced by name, for example in the `usage` text:
+Endpoints can be referenced by name, for example in the `usage` text.
+`forwardedUrl` is the address of the endpoint on the host, made of its
+`appProtocol` and `forwardedPort` (eg. `http://localhost:8080`):
 
 ```nix
 let
   app = config.apps.my-app;
+  endpoints = app.services.components.my-service.endpoints;
 in
 {
   apps.my-app = {
     usage = ''
-      Web interface: http://localhost:''${toString app.services.components.my-service.endpoints.web.forwardedPort}
+      Open the [web interface](${endpoints.web.forwardedUrl}).
+      The API listens on the port ${toString endpoints.api.forwardedPort}.
     '';
   };
 }
@@ -494,6 +542,10 @@ service after a failure and stops the service when the container stops.
 
 Each _component_ runs in separate single-process container, while _resources_
 run in a full NixOS systemd container.
+
+The container of a component contains the CA certificates in `/etc/ssl/certs`
+and sets the `SSL_CERT_FILE` environment variable to them, unless the recipe
+sets it.
 
 Both _components_ and _resources_ can be extended with container
 runtime-specific configuration.
@@ -680,12 +732,16 @@ test.programs = {
 
 test.services = {
   script = ''
-    curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-    $curl --location localhost:8180 | grep --quiet "My App" >/dev/null
+    curl_retry --location localhost:8180 | grep "My App" >/dev/null
   '';
 };
 ```
+
+The service test script runs with `set -euo pipefail`. Use the `curl_retry`
+function to wait for the service: it runs `curl --fail --silent --show-error`
+and retries until the service answers. With `pipefail`, `grep --quiet` can stop
+reading early and make the command before it fail, so redirect the output of
+`grep` to `/dev/null` instead.
 
 Run all tests:
 

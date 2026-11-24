@@ -34,6 +34,8 @@
       name = "runtime-bins";
       paths = [
         etcFiles
+        # CA certificates in `/etc/ssl/certs`, for TLS connections of the service.
+        pkgs.cacert
       ]
       ++ service.process.packages
       ++ runtimeConfig.packages
@@ -55,7 +57,13 @@
       let
         envAttrsToList = attrs: lib.mapAttrsToList (n: v: "${n}=${v}") attrs;
       in
-      envAttrsToList service.process.environment;
+      envAttrsToList (
+        {
+          # For programs which don't read the CA certificates from `/etc/ssl/certs`.
+          SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+        }
+        // service.process.environment
+      );
     Labels = {
       ngi-forge = "true";
       "ngi-forge.type" = "component";

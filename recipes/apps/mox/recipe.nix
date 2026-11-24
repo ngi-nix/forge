@@ -8,6 +8,7 @@
 }:
 let
   app = config.apps.mox;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 {
   pkgs.mox = {
@@ -29,7 +30,7 @@ in
       If running inside a container, connect to it with:
 
       ```bash
-      podman-compose -f result/mox/compose.yaml exec mox bash
+      ${usageSnippets.container-exec "mox"} bash
       ```
 
       Set admin password:
@@ -41,9 +42,9 @@ in
 
       ##### URLs
 
-      * Account web interface: [http://localhost:${toString app.services.components.mox.endpoints.account.forwardedPort}](http://localhost:${toString app.services.components.mox.endpoints.account.forwardedPort})
-      * Admin web interface: [http://localhost:${toString app.services.components.mox.endpoints.admin.forwardedPort}/admin](http://localhost:${toString app.services.components.mox.endpoints.admin.forwardedPort}/admin)
-      * Webmail interface: [http://localhost:${toString app.services.components.mox.endpoints.webmail.forwardedPort}/webmail](http://localhost:${toString app.services.components.mox.endpoints.webmail.forwardedPort}/webmail)
+      * Account web interface: [${app.services.components.mox.endpoints.account.forwardedUrl}](${app.services.components.mox.endpoints.account.forwardedUrl})
+      * Admin web interface: [${app.services.components.mox.endpoints.admin.forwardedUrl}/admin](${app.services.components.mox.endpoints.admin.forwardedUrl}/admin)
+      * Webmail interface: [${app.services.components.mox.endpoints.webmail.forwardedUrl}/webmail](${app.services.components.mox.endpoints.webmail.forwardedUrl}/webmail)
 
     '';
     maintainers = with lib.maintainers; [
@@ -158,11 +159,9 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 20 --retry-max-time 120 --retry-all-errors"
-
-      $curl --location localhost:${toString app.parameters.accountPort} | grep "Mox Account"
-      $curl --location localhost:${toString app.parameters.adminPort}/admin | grep "Mox Admin"
-      $curl --location localhost:${toString app.parameters.webmailPort}/webmail | grep "Mox Webmail"
+      curl_retry --location localhost:${toString app.parameters.accountPort} | grep "Mox Account"
+      curl_retry --location localhost:${toString app.parameters.adminPort}/admin | grep "Mox Admin"
+      curl_retry --location localhost:${toString app.parameters.webmailPort}/webmail | grep "Mox Webmail"
     '';
   };
 }

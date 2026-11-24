@@ -28,7 +28,7 @@ in
 
       #### Access
 
-      Ironcalc will be available on [http://localhost:${toString app.services.components.ironcalc.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.ironcalc.endpoints.web.forwardedPort}).
+      Ironcalc will be available on [${app.services.components.ironcalc.endpoints.web.forwardedUrl}](${app.services.components.ironcalc.endpoints.web.forwardedUrl}).
 
       You can specify a different database path with the `IRONCALC_DB_PATH` environment variable.
 
@@ -86,8 +86,7 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 8 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:${toString app.parameters.port} | grep -q "IronCalc"
+      curl_retry localhost:${toString app.parameters.port} | grep "IronCalc" >/dev/null
     '';
   };
 }

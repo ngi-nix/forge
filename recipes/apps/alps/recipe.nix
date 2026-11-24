@@ -26,7 +26,7 @@ in
       Update `provider.imap.server` and `smtp.server` in the recipe to point to
       a real IMAP/SMTP server before using it.
 
-      Webmail interface: [http://localhost:${toString app.services.components.alps.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.alps.endpoints.web.forwardedPort})
+      Webmail interface: [${app.services.components.alps.endpoints.web.forwardedUrl}](${app.services.components.alps.endpoints.web.forwardedUrl})
     '';
 
     ngi.grants = {
@@ -83,8 +83,7 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-      $curl -fs localhost:${toString app.parameters.port}/ | grep -i "alps"
+      curl_retry localhost:${toString app.parameters.port}/ | grep -i "alps"
     '';
   };
 }

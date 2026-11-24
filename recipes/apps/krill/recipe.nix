@@ -36,7 +36,7 @@ in
 
       #### Web Interface
 
-      Open the [web interface](https://localhost:${toString app.services.components.krill.endpoints.web.forwardedPort}) and log in with the
+      Open the [web interface](${app.services.components.krill.endpoints.web.forwardedUrl}) and log in with the
       admin token, which by default is set to `${app.data.adminToken}`.
 
       > [!CAUTION]
@@ -49,7 +49,7 @@ in
       Enter the running container
 
       ```bash
-      podman exec -it krill_krill_1 bash
+      ${usageSnippets.container-exec "krill"} bash
       ```
 
       or log in to the NixOS VM (the console logs in automatically as root),
@@ -138,7 +138,7 @@ in
     test.services = {
       packages = [ pkgs.krill ];
       script = ''
-        curl --insecure -f --retry 10 --retry-max-time 120 --retry-all-errors \
+        curl_retry --insecure \
           https://localhost:${toString app.parameters.port}/health
 
         # The Unix socket is not reachable from the host in the container runtime

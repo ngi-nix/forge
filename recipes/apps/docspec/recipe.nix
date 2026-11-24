@@ -149,7 +149,8 @@ in
         ${app.data.testProgram}
       '';
       services.script = ''
-        alias curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
+        # `testService` is also in the usage text, thus it calls `curl`.
+        curl() { curl_retry "$@"; }
         ${app.data.testService}
       '';
     };

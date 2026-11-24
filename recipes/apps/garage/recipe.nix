@@ -155,7 +155,7 @@ in
     };
 
     test.services.script = ''
-      curl -s -f --retry 10 --retry-max-time 120 --retry-all-errors http://localhost:${toString app.parameters.adminApiPort}/metrics > /dev/null
+      curl_retry http://localhost:${toString app.parameters.adminApiPort}/metrics >/dev/null
 
       if command -v podman >/dev/null 2>&1; then
         EXEC="podman exec garage_garage_1"

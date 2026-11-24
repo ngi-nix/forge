@@ -115,7 +115,7 @@ in
         pkgs.netcat
       ];
       script = ''
-        curl -f --retry 10 --retry-max-time 120 --retry-all-errors \
+        curl_retry \
           http://localhost:${toString app.parameters.apiPort}/
 
         nc -z localhost ${toString app.parameters.bmpPort}

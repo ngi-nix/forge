@@ -24,7 +24,7 @@ in
       dokieli is a clientside editor for authoring, annotating, and sharing
       articles in a decentralised way.
 
-      Web interface: [http://localhost:${toString app.services.components.web.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.web.endpoints.web.forwardedPort})
+      Web interface: [${app.services.components.web.endpoints.web.forwardedUrl}](${app.services.components.web.endpoints.web.forwardedUrl})
 
       Open any HTML document in the interface to start authoring, or open an
       existing dokieli document to annotate or edit it directly in the browser.
@@ -74,8 +74,7 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:${toString app.parameters.port} | grep "dokieli" > /dev/null
+      curl_retry localhost:${toString app.parameters.port} | grep "dokieli" > /dev/null
     '';
 
   };

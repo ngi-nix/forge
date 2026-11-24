@@ -21,7 +21,7 @@ in
     usage = ''
       Goupile is a tool for creating secure forms, especially Clinical Report Forms (eCRF).
 
-      It runs as a web service. It has been configured to run on [http://localhost:${toString app.services.components.goupile.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.goupile.endpoints.web.forwardedPort}).
+      It runs as a web service. It has been configured to run on [${app.services.components.goupile.endpoints.web.forwardedUrl}](${app.services.components.goupile.endpoints.web.forwardedUrl}).
     '';
 
     icon = ./icon.svg;
@@ -73,9 +73,7 @@ in
 
     test.services = {
       script = ''
-        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-        $curl --location localhost:${toString app.parameters.port} | grep "Goupile" >/dev/null
+        curl_retry --location localhost:${toString app.parameters.port} | grep "Goupile" >/dev/null
       '';
     };
   };

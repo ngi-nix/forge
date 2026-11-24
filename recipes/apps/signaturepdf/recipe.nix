@@ -27,7 +27,7 @@ in
       others, as well as organizing pages (merge, sort, rotate, delete,
       extract), editing metadata, and compressing PDF files.
 
-      Web interface: [http://localhost:${toString app.services.components.signaturepdf.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.signaturepdf.endpoints.web.forwardedPort})
+      Web interface: [${app.services.components.signaturepdf.endpoints.web.forwardedUrl}](${app.services.components.signaturepdf.endpoints.web.forwardedUrl})
     '';
 
     links = {
@@ -78,8 +78,7 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:${toString app.parameters.port} | grep "Signature PDF"
+      curl_retry localhost:${toString app.parameters.port} | grep "Signature PDF"
     '';
   };
 }

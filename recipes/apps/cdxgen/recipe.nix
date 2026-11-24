@@ -228,8 +228,7 @@ in
         grep -q '"bomFormat"' bom.json
       '';
       services.script = ''
-        curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-        $curl "http://localhost:${toString app.parameters.port}/sbom?path=${pkgs.cdxgen.src}/test/repotests/npm-smoke&type=npm"
+        curl_retry "http://localhost:${toString app.parameters.port}/sbom?path=${pkgs.cdxgen.src}/test/repotests/npm-smoke&type=npm"
       '';
     };
   };

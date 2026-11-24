@@ -10,7 +10,7 @@ let
   app = config.apps.livebook;
   usageSnippets = forge-lib.snippets.usage app;
 
-  forwardedUrl = "http://localhost:${toString app.services.components.livebook.endpoints.web.forwardedPort}";
+  forwardedUrl = app.services.components.livebook.endpoints.web.forwardedUrl;
 
   caCertFile = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
 
@@ -179,15 +179,13 @@ in
       ]
       ++ runtimePackages;
       script = /* bash */ ''
-        curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-
-        $curl -fs "localhost:${toString app.parameters.port}/public/health" | grep '"application":"livebook"'
-        $curl -fs "localhost:${toString app.parameters.port}" | grep '<title>'
+        curl_retry "localhost:${toString app.parameters.port}/public/health" | grep '"application":"livebook"'
+        curl_retry "localhost:${toString app.parameters.port}" | grep '<title>'
 
         # Create a new notebook and verify it is accessible and can be exported
-        SESSION_URL=$($curl -s -i "localhost:${toString app.parameters.port}/new" | tr -d '\r' | awk -F': ' '/^location:/{print $2}')
-        $curl -fs "localhost:${toString app.parameters.port}$SESSION_URL" | grep 'Untitled notebook - Livebook'
-        $curl -fs "localhost:${toString app.parameters.port}$SESSION_URL/download/export/livemd" | grep '# Untitled notebook'
+        SESSION_URL=$(curl_retry -i "localhost:${toString app.parameters.port}/new" | tr -d '\r' | awk -F': ' '/^location:/{print $2}')
+        curl_retry "localhost:${toString app.parameters.port}$SESSION_URL" | grep 'Untitled notebook - Livebook'
+        curl_retry "localhost:${toString app.parameters.port}$SESSION_URL/download/export/livemd" | grep '# Untitled notebook'
 
         # Set up SSL certificates and glibc dynamic loader for pythonx/uv
         ${fhsCompatSetup}
