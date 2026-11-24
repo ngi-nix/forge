@@ -28,10 +28,10 @@ in
   apps.stalwart = {
     displayName = "Stalwart";
     description = "All-in-one mail and collaboration server.";
-    categories = with forge-lib.categories; [ Email ];
-    usage = ''
+    longDescription = ''
       Stalwart is a mail and collaboration server with SMTP, IMAP, JMAP, POP3, CalDAV, CardDAV and WebDAV support.
-
+    '';
+    usage = ''
       The web administration interface is available on [${publicUrl}/admin](${publicUrl}/admin).
       Stalwart uses a self-signed TLS certificate, thus the web browser shows a security warning.
       Log in with the user `admin` and the password `${adminPassword}`.
@@ -47,6 +47,8 @@ in
 
       This configuration is for evaluation only. Before you use Stalwart in production, change the `adminPassword`, `hostname` and `publicUrl` parameters and configure TLS and DNS.
     '';
+
+    categories = with forge-lib.categories; [ Email ];
 
     icon = ./icon.svg;
 
