@@ -30,19 +30,23 @@
         echo 'hosts: files dns' > $out/etc/nsswitch.conf
       '';
     in
-    pkgs.buildEnv {
-      name = "runtime-bins";
-      paths = [
-        etcFiles
-      ]
-      ++ service.process.packages
-      ++ runtimeConfig.packages
-      ++ service.healthcheck.packages;
-      pathsToLink = [
-        "/bin"
-        "/etc"
-      ];
-    };
+    [
+      (pkgs.buildEnv {
+        name = "runtime-bins";
+        paths = [
+          etcFiles
+        ]
+        ++ service.process.packages
+        ++ runtimeConfig.packages
+        ++ service.healthcheck.packages;
+        pathsToLink = [
+          "/bin"
+          "/etc"
+        ];
+      })
+      # Many scripts use `#!/usr/bin/env` in the shebang.
+      pkgs.dockerTools.usrBinEnv
+    ];
 
   config = {
     Entrypoint = [ (lib.getExe runner) ];
