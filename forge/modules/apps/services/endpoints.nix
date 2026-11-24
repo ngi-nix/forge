@@ -97,6 +97,18 @@ in
                 '';
                 example = lib.literalExpression ''"postgresql"'';
               };
+
+              forwardedUrl = lib.mkOption {
+                type = lib.types.str;
+                default = "${config.appProtocol}://localhost:${toString config.forwardedPort}";
+                defaultText = lib.literalExpression ''"''${appProtocol}://localhost:''${toString forwardedPort}"'';
+                readOnly = true;
+                description = ''
+                  Address of the endpoint on the host of the container and NixOS VM
+                  runtimes, for example to use in the `usage` text.
+                '';
+                example = "http://localhost:8080";
+              };
             };
           }
         )

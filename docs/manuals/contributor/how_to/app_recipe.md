@@ -368,16 +368,20 @@ services = {
 };
 ```
 
-Endpoints can be referenced by name, for example in the `usage` text:
+Endpoints can be referenced by name, for example in the `usage` text.
+`forwardedUrl` is the address of the endpoint on the host, made of its
+`appProtocol` and `forwardedPort` (eg. `http://localhost:8080`):
 
 ```nix
 let
   app = config.apps.my-app;
+  endpoints = app.services.components.my-service.endpoints;
 in
 {
   apps.my-app = {
     usage = ''
-      Web interface: http://localhost:''${toString app.services.components.my-service.endpoints.web.forwardedPort}
+      Open the [web interface](${endpoints.web.forwardedUrl}).
+      The API listens on the port ${toString endpoints.api.forwardedPort}.
     '';
   };
 }
