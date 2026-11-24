@@ -38,7 +38,7 @@ in
 
       Once Ties is running, open the web interface:
 
-      [http://localhost:${toString app.services.components.ties.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.ties.endpoints.web.forwardedPort})
+      [${app.services.components.ties.endpoints.web.forwardedUrl}](${app.services.components.ties.endpoints.web.forwardedUrl})
 
       Optionally setup the administrator credentials for this instance:
 

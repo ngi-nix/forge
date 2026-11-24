@@ -154,11 +154,9 @@ in
     };
 
     test.services.script = ''
-      curl="curl --fail --silent --retry 10 --retry-max-time 120 --retry-all-errors"
-
       # The service is up and the admin can log in.
-      $curl localhost:${webPort}/healthz/live
-      $curl --user ${lib.escapeShellArg adminCredentials} localhost:${webPort}/jmap/session \
+      curl_retry localhost:${webPort}/healthz/live
+      curl_retry --user ${lib.escapeShellArg adminCredentials} localhost:${webPort}/jmap/session \
         | grep "urn:ietf:params:jmap:core" >/dev/null
     '';
   };

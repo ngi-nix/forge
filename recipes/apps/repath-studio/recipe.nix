@@ -31,7 +31,7 @@ in
       #### Web Application & Schema Explorer
 
       The _repath-studio-web_ service serves the browser-based web application and schema explorer at
-      [http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.forwardedPort}) and [http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.forwardedPort}/schema-explorer](http://localhost:${toString app.services.components.repath-studio-web.endpoints.web.forwardedPort}/schema-explorer).
+      [${app.services.components.repath-studio-web.endpoints.web.forwardedUrl}](${app.services.components.repath-studio-web.endpoints.web.forwardedUrl}) and [${app.services.components.repath-studio-web.endpoints.web.forwardedUrl}/schema-explorer](${app.services.components.repath-studio-web.endpoints.web.forwardedUrl}/schema-explorer).
     '';
 
     icon = ./icon.svg;
@@ -88,9 +88,8 @@ in
 
     test = {
       services.script = ''
-        curl="curl --retry 10 --retry-max-time 60 --retry-all-errors"
-        $curl localhost:${toString app.parameters.port} | grep -i "Repath Studio" > /dev/null
-        $curl localhost:${toString app.parameters.port}/schema-explorer/ | grep -i "Schema Explorer" > /dev/null
+        curl_retry localhost:${toString app.parameters.port} | grep -i "Repath Studio" > /dev/null
+        curl_retry localhost:${toString app.parameters.port}/schema-explorer/ | grep -i "Schema Explorer" > /dev/null
       '';
     };
   };

@@ -98,9 +98,7 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-      $curl localhost:${toString app.parameters.broadcastPort} | grep "Audio Stream"
+      curl_retry localhost:${toString app.parameters.broadcastPort} | grep "Audio Stream"
     '';
   };
 }

@@ -43,7 +43,7 @@ in
       ## PMTiles Viewer
 
       The _pmtiles-viewer_ service serves a web-based map viewer at
-      [http://localhost:${toString app.services.components.pmtiles-viewer.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.pmtiles-viewer.endpoints.web.forwardedPort}).
+      [${app.services.components.pmtiles-viewer.endpoints.web.forwardedUrl}](${app.services.components.pmtiles-viewer.endpoints.web.forwardedUrl}).
     '';
 
     icon = ./icon.svg;
@@ -105,12 +105,11 @@ in
 
     test = {
       programs.script = ''
-        pmtiles version 2>&1 | grep -qi "pmtiles"
+        pmtiles version 2>&1 | grep -i "pmtiles" >/dev/null
       '';
 
       services.script = ''
-        curl="curl --retry 10 --retry-max-time 60 --retry-all-errors"
-        $curl localhost:${toString app.parameters.port} | grep -qi "PMTiles viewer"
+        curl_retry localhost:${toString app.parameters.port} | grep -i "PMTiles viewer" >/dev/null
       '';
     };
   };

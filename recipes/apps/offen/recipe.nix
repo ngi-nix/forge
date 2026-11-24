@@ -7,6 +7,7 @@
 
 let
   app = config.apps.offen;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 {
   apps.offen = {
@@ -27,7 +28,7 @@ in
       1. Enter the running container
 
       ```bash
-      podman exec -it offen_offen_1 bash
+      ${usageSnippets.container-exec "offen"} bash
       ```
 
       or log in to the NixOS VM (the console logs in automatically as root).
@@ -41,7 +42,7 @@ in
 
       #### Web Interface
 
-      Open the [web interface](http://localhost:${toString app.services.components.offen.endpoints.web.forwardedPort}) and log in as
+      Open the [web interface](${app.services.components.offen.endpoints.web.forwardedUrl}) and log in as
       the operator using the account created in the previous step.
     '';
 
@@ -122,12 +123,10 @@ in
     test.services = {
       packages = [ pkgs.offen ];
       script = ''
-        curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
         mkdir --parent /var/lib/offen
         export OFFEN_DATABASE_CONNECTIONSTRING="/var/lib/offen/offen.db"
         offen setup -name test -email test@localhost -password test123456
-        $curl localhost:${toString app.parameters.port} | grep "Offen Fair Web Analytics"
+        curl_retry localhost:${toString app.parameters.port} | grep "Offen Fair Web Analytics"
       '';
     };
   };

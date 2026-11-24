@@ -29,7 +29,7 @@ in
       with collaborators peer-to-peer over WebRTC, so editing keeps working
       offline.
 
-      Web interface: [http://localhost:${toString app.services.components.texlyre.endpoints.web.forwardedPort}](http://localhost:${toString app.services.components.texlyre.endpoints.web.forwardedPort})
+      Web interface: [${app.services.components.texlyre.endpoints.web.forwardedUrl}](${app.services.components.texlyre.endpoints.web.forwardedUrl})
     '';
 
     links = {
@@ -73,8 +73,7 @@ in
     };
 
     test.services.script = ''
-      curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-      $curl localhost:${toString app.parameters.port} | grep "TeXlyre"
+      curl_retry localhost:${toString app.parameters.port} | grep "TeXlyre"
     '';
   };
 }

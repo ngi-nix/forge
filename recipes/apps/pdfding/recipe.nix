@@ -8,6 +8,7 @@
 
 let
   app = config.apps.pdfding;
+  usageSnippets = forge-lib.snippets.usage app;
 in
 {
   pkgs.pdfding = {
@@ -35,7 +36,7 @@ in
       - In container:
 
         ```bash
-        podman exec -it pdfding_pdfding_1 pdfding-manage createsuperuser
+        ${usageSnippets.container-exec "pdfding"} pdfding-manage createsuperuser
         ```
 
       - In NixOS VM (logged in as root):
@@ -46,7 +47,7 @@ in
 
       ##### Web Interface
 
-      Open the [web interface](http://localhost:${toString app.services.components.pdfding.endpoints.web.forwardedPort}) and log in using the account created in the previous step.
+      Open the [web interface](${app.services.components.pdfding.endpoints.web.forwardedUrl}) and log in using the account created in the previous step.
     '';
 
     links = {
@@ -139,10 +140,8 @@ in
         pkgs.pdfding
       ];
       script = ''
-        curl="curl --retry 10 --retry-max-time 120 --retry-all-errors"
-
-        $curl -fsL localhost:${toString app.parameters.port} | grep "<title>PdfDing</title>"
-        $curl -fs localhost:${toString app.parameters.port}/accountlogin/ | grep "PdfDing"
+        curl_retry --location localhost:${toString app.parameters.port} | grep "<title>PdfDing</title>"
+        curl_retry localhost:${toString app.parameters.port}/accountlogin/ | grep "PdfDing"
       '';
     };
   };
