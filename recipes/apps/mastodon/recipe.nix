@@ -342,17 +342,19 @@ in
 
       # Mastodon forces HTTPS in production.
       # The proxy tells Mastodon that the request uses HTTPS and changes the redirects back to HTTP.
+      # The proxy also changes the scheme of the `Origin` header to HTTPS, because the CSRF protection of Rails compares it to the scheme of the request.
+      # The proxy sends the public host and port in the `Host` header, because Rails does not use the `X-Forwarded-Port` header to make the base URL.
       resources.nginx = {
         role = "frontend";
         endpoints.web.port = port;
         nixosConfig =
           let
             proxyConfig = ''
-              proxy_set_header Host $host;
-              proxy_set_header X-Forwarded-Port $server_port;
+              proxy_set_header Host ${publicHost};
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
               proxy_set_header X-Forwarded-Proto https;
+              proxy_set_header Origin $mastodon_origin;
               proxy_redirect https:// http://;
               proxy_hide_header Strict-Transport-Security;
             '';
@@ -360,6 +362,12 @@ in
           {
             services.nginx = {
               enable = true;
+              appendHttpConfig = ''
+                map $http_origin $mastodon_origin {
+                  default $http_origin;
+                  "~^http://(?<origin_host>.+)$" https://$origin_host;
+                }
+              '';
               virtualHosts.localhost = {
                 listen = [
                   {
@@ -445,7 +453,9 @@ in
       jar=$(mktemp)
       token=$($curl --cookie-jar "$jar" $base/auth/sign_in \
         | grep -o 'name="authenticity_token" value="[^"]*"' | sed 's/.*value="//; s/"$//')
+      # Send the `Origin` header like a web browser.
       $curl --cookie "$jar" --cookie-jar "$jar" $base/auth/sign_in \
+        -H "Origin: http://$base" \
         --data-urlencode authenticity_token="$token" \
         --data-urlencode user[email]=${lib.escapeShellArg adminEmail} \
         --data-urlencode user[password]=${lib.escapeShellArg adminPassword} >/dev/null
