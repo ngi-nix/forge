@@ -75,6 +75,11 @@ in
       The backend uses the currency `${currency}`. To receive payments, add a bank account to the instance and connect to an exchange for this currency.
 
       This configuration is for evaluation only. Before you use the merchant backend in production, change the `adminPassword` and `currency` parameters, add a bank account and configure TLS.
+
+      > [!CAUTION]
+      > In default configuration, the password of the `admin` instance is `${adminPassword}`.
+      > It is stored in the Nix store, which is world-readable.
+      > After the first login, change the password in the web interface.
     '';
 
     categories = with forge-lib.categories; [ Finance ];
@@ -92,7 +97,7 @@ in
       };
       adminPassword = {
         value = "admin-password";
-        description = "Password of the `admin` instance.";
+        description = "Initial password of the `admin` instance. The first start sets this password.";
       };
     };
 
@@ -122,10 +127,14 @@ in
           process.preStart = ''
             ${lib.getExe' taler-merchant "taler-merchant-dbinit"} -c "$XDG_CONFIG_HOME/taler.conf"
 
-            # Make the `admin` instance with a demo password.
-            # The `taler-merchant-passwd` command makes this instance if it does not exist.
+            # Make the `admin` instance with the initial password, if the instance does not exist.
+            # Later starts do not change the password, thus a password change in the web interface stays.
+            # The `taler-merchant-passwd` command makes the instance if it does not exist.
             # The password is an argument, because the `TALER_MERCHANT_PASSWORD` variable does not work in version 1.3.0.
-            ${lib.getExe' taler-merchant "taler-merchant-passwd"} -c "$XDG_CONFIG_HOME/taler.conf" -i admin ${lib.escapeShellArg adminPassword}
+            if ! psql ${lib.escapeShellArg "postgres://${dbName}@database/${dbName}"} --tuples-only --no-align \
+              --command "SELECT 1 FROM merchant.merchant_instances WHERE merchant_id = 'admin'" | ${lib.getExe pkgs.gnugrep} -q 1; then
+              ${lib.getExe' taler-merchant "taler-merchant-passwd"} -c "$XDG_CONFIG_HOME/taler.conf" -i admin ${lib.escapeShellArg adminPassword}
+            fi
           '';
           endpoints.web.port = port;
           healthcheck = {
