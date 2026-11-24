@@ -106,6 +106,12 @@ in
 
       This configuration is for evaluation only. Before you use PeerTube in production, change the `adminPassword` and `hostname` parameters, replace the `secrets.peertube` value and configure TLS and a reverse proxy.
       To send emails, set the `smtpHostname`, `smtpPort` and `smtpFromAddress` parameters. If the SMTP server requires a login, give it in the `NODE_CONFIG` environment variable of the `peertube` service component, for example `{"smtp":{"username":"...","password":"..."}}`. Do not put the SMTP password in a parameter, because parameters are stored in the Nix store.
+
+      > [!CAUTION]
+      > In default configuration, the `secrets.peertube` value and the password of the `root` user are fixed values, which are public.
+      > They are stored in the Nix store, which is world-readable.
+      > In production configuration, give a new `secrets.peertube` value in the `NODE_CONFIG` environment variable, for example `{"secrets":{"peertube":"..."}}`.
+      > After the first login, change the password of the `root` user in the web interface.
     '';
 
     categories = with forge-lib.categories; [ Video ];
