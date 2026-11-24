@@ -728,12 +728,16 @@ test.programs = {
 
 test.services = {
   script = ''
-    curl="curl --retry 5 --retry-max-time 120 --retry-all-errors"
-
-    $curl --location localhost:8180 | grep --quiet "My App" >/dev/null
+    curl_retry --location localhost:8180 | grep "My App" >/dev/null
   '';
 };
 ```
+
+The service test script runs with `set -euo pipefail`. Use the `curl_retry`
+function to wait for the service: it runs `curl --fail --silent --show-error`
+and retries until the service answers. With `pipefail`, `grep --quiet` can stop
+reading early and make the command before it fail, so redirect the output of
+`grep` to `/dev/null` instead.
 
 Run all tests:
 

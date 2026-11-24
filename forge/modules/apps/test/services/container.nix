@@ -55,10 +55,7 @@
           machine.start()
           machine.wait_for_unit("multi-user.target")
           machine.succeed("COMPOSE_OVERRIDE_FILE=${composeOverrideFile} ${lib.getExe containerRuntime.result.build} --detach")
-          machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" ''
-            set -euo pipefail
-            ${config.script}
-          ''}")
+          machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" config.scriptWithPreamble}")
         '';
       }).overrideTestDerivation
         (_: lib.optionalAttrs (!config.sandbox) { __noChroot = true; })

@@ -2,6 +2,7 @@
   getTestOptions,
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -29,6 +30,9 @@ in
       description = ''
         Script to test application services inside a NixOS machine or container.
 
+        The script runs with `set -euo pipefail`. The `curl_retry` function runs
+        `curl --fail` and retries until the service answers.
+
         Launch tests with:
 
         ```
@@ -37,8 +41,26 @@ in
         ```
       '';
       example = ''
-        curl --fail http://localhost:5000 | grep "Hello"
+        curl_retry http://localhost:5000 | grep "Hello"
       '';
+    };
+
+    scriptWithPreamble = lib.mkOption {
+      type = lib.types.str;
+      internal = true;
+      readOnly = true;
+      default = ''
+        set -euo pipefail
+
+        # Run curl, retrying until the service answers.
+        curl_retry() {
+          ${lib.getExe pkgs.curl} --fail --silent --show-error \
+            --retry 10 --retry-max-time 120 --retry-all-errors "$@"
+        }
+
+        ${config.script}
+      '';
+      description = "The `script` with the shell options and the helper functions.";
     };
 
     result = {
