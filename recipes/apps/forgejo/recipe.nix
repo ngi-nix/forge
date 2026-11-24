@@ -90,6 +90,11 @@ in
       ```
 
       This configuration is for evaluation only. Before you use Forgejo in production, change the `adminPassword`, `hostname` and `publicUrl` parameters and configure TLS, for example with a reverse proxy.
+
+      > [!CAUTION]
+      > In default configuration, the password of the administrator user is `${adminPassword}`.
+      > It is stored in the Nix store, which is world-readable.
+      > After the first login, change the password in the web interface.
     '';
 
     categories = with forge-lib.categories; [ Development ];
@@ -119,7 +124,7 @@ in
       };
       adminPassword = {
         value = "demo1234";
-        description = "Password of the administrator user. Forgejo requires at least 8 characters.";
+        description = "Initial password of the administrator user. The first start sets this password. Forgejo requires at least 8 characters.";
       };
     };
 
@@ -169,11 +174,9 @@ in
             ${forgejoExe} migrate
             ${forgejoExe} admin regenerate hooks
 
-            # Make the administrator, or set the password from the parameter.
-            if ${forgejoExe} admin user list --admin | ${lib.getExe pkgs.gnugrep} -qw ${lib.escapeShellArg adminUser}; then
-              ${forgejoExe} admin user change-password --username ${lib.escapeShellArg adminUser} \
-                --password ${lib.escapeShellArg adminPassword} --must-change-password=false
-            else
+            # Make the administrator at the first start. Later starts do not change the user,
+            # thus a password change in the web interface stays.
+            if ! ${forgejoExe} admin user list | ${lib.getExe pkgs.gnugrep} -qw ${lib.escapeShellArg adminUser}; then
               ${forgejoExe} admin user create --admin --username ${lib.escapeShellArg adminUser} \
                 --password ${lib.escapeShellArg adminPassword} --email ${lib.escapeShellArg "${adminUser}@${hostname}"} \
                 --must-change-password=false
