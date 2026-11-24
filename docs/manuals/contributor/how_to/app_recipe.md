@@ -185,6 +185,11 @@ in
 }
 ```
 
+The default value of a parameter can use other parameters, for example
+`publicUrl = { value = "https://${app.parameters.hostname}"; ... };`. When users
+change `hostname`, the default value of `publicUrl` changes too. Parameters
+must not depend on each other in a loop.
+
 Users can change the application parameters with the `override` function of the
 application output. It accepts only the parameters that the recipe sets, with
 the same type.
