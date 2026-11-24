@@ -64,6 +64,45 @@ Start the recipe with the following content:
 Ensure that the remainder of the application recipe is done within the `apps.app-name` block to avoid nasty infinite recursion errors.
 :::
 
+### Usage snippets
+
+Use the snippets of `forge-lib.snippets.usage` for common instructions in the
+`usage` text, for example the links to launch the application:
+
+````nix
+{
+  config,
+  forge-lib,
+  ...
+}:
+
+let
+  app = config.apps.my-app;
+  usageSnippets = forge-lib.snippets.usage app;
+in
+{
+  apps.my-app = {
+    usage = ''
+      First, ${usageSnippets.run-container} or ${usageSnippets.run-nixos}.
+
+      Create an admin account in the container:
+
+      ```bash
+      ${usageSnippets.container-exec "my-service"} my-app create-admin
+      ```
+
+      ${usageSnippets.see-docs}
+    '';
+  };
+}
+````
+
+- `run-program`, `run-shell`, `run-container` and `run-nixos`: links to launch
+  the application in each runtime.
+- `container-exec "<service-name>"`: command to run a command in the running
+  container of the service, for use in a code block.
+- `see-docs`: link to the documentation of the project (`links.docs`).
+
 ### Links
 
 Add a
