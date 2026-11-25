@@ -23,30 +23,27 @@ in
     build.builders.npm = {
       enable = true;
       npmDepsHash = "sha256-RWLtRUKNPXqjALc2WNDvRriUSgdcwbon4LivZC/CIeo=";
-    };
-
-    build.extraAttrs = {
-      nativeBuildInputs = with pkgs; [
+      packages.build = with pkgs; [
         pkg-config
       ];
-
-      buildInputs = with pkgs; [
+      packages.run = with pkgs; [
         libzim
         vips
       ];
-      env.SHARP_FORCE_GLOBAL_LIBVIPS = 1;
+    };
 
-      prePatch = ''
+    build.env.SHARP_FORCE_GLOBAL_LIBVIPS = 1;
+
+    build.phases = {
+      patch.script.pre = ''
         patchShebangs dev/build.sh
       '';
 
-      patches = [
+      patch.patches = [
         ./001-fix-file-type-deps.patch
       ];
 
-      npmRebuildFlags = [ "--ignore-scripts" ];
-
-      preConfigure = ''
+      configure.script.pre = ''
         # see https://github.com/nix-community/nur-combined/blob/48e39a64b9a2f61f613c325b9743bcc6e46e0fb5/repos/milahu/pkgs/by-name/pr/project-nomad/package.nix#L66-L84
         # patch libzim to use the system libzim
         pushd node_modules/@openzim/libzim
@@ -78,6 +75,10 @@ in
         linkBin ${lib.getExe' pkgs.pngquant "pngquant"} node_modules/pngquant-bin/vendor/pngquant
         linkBin ${lib.getExe' pkgs.libwebp "cwebp"} node_modules/cwebp-bin/vendor/cwebp
       '';
+    };
+
+    build.extraAttrs = {
+      npmRebuildFlags = [ "--ignore-scripts" ];
     };
 
     test.script = ''
