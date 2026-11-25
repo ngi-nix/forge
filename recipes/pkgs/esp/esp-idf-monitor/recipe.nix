@@ -35,11 +35,12 @@
       importsCheck = [ "esp_idf_monitor" ];
     };
 
+    build.phases.install.script.post = ''
+      ln -s $out/bin/idf-monitor $out/bin/esp-idf-monitor
+    '';
+
     build.extraAttrs = {
       pythonRemoveDeps = [ "esp-coredump" ];
-      postInstall = ''
-        ln -s $out/bin/idf-monitor $out/bin/esp-idf-monitor
-      '';
     };
 
     test.script = ''
