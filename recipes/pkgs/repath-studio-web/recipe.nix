@@ -23,20 +23,16 @@
       ];
     };
 
-    build.extraAttrs = {
-      dontUnpack = true;
-      dontConfigure = true;
-      dontBuild = true;
+    build.phases = {
+      unpack.enable = false;
+      configure.enable = false;
+      build.enable = false;
 
-      installPhase = ''
-        runHook preInstall
-
+      install.script.main = ''
         mkdir -p $out/share/repath-studio-web
         asar extract "${pkgs.repath-studio}/share/repath-studio/app.asar" extracted
         cp -r extracted/resources/public/* $out/share/repath-studio-web/
         cp -r $src/schema-explorer $out/share/repath-studio-web/schema-explorer
-
-        runHook postInstall
       '';
     };
 
