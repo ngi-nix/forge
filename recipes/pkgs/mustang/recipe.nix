@@ -35,6 +35,66 @@ in
       ];
     };
 
+    build.phases = {
+      patch.script.post = ''
+        (cd app/build && sh mustang-brand.sh);
+
+        cp ${./yarn.lock} "$PWD/yarn.lock"
+        chmod u+rw "$PWD/yarn.lock"
+        fixup-yarn-lock "$PWD/yarn.lock"
+
+        for d in app desktop desktop/backend lib; do
+          ln -sf "$PWD/yarn.lock" "$d/yarn.lock"
+        done
+      '';
+
+      build.script.main = ''
+        yarn config set yarn-offline-mirror "${recipe.build.extraAttrs.yarnDeps}"
+
+        for d in app desktop desktop/backend lib; do
+          (cd "$d" && yarn install --offline --frozen-lockfile --ignore-engines --ignore-scripts)
+          patchShebangs "$d/node_modules"
+        done
+
+        # V2 versions are deprecated and renamed to original methods in electron45
+        substituteInPlace desktop/node_modules/better-sqlite3/src/util/macros.cpp \
+          --replace-fail 'HolderV2()' 'Holder()' \
+          --replace-fail 'GetPrototypeV2()' 'GetPrototype()'
+
+        pushd desktop
+
+        export npm_config_nodedir="${electron.headers}"
+        npx electron-rebuild \
+          --version "${electron.version}" \
+          --build-from-source \
+          --force
+
+        npx electron-vite build
+
+        npx electron-builder \
+          --linux dir \
+          -c.asar=true \
+          -c.npmRebuild=false \
+          -c.electronDist="${electron.dist}" \
+          -c.electronVersion="${electron.version}"
+
+        popd
+      '';
+
+      install.script.main = ''
+        mkdir -p $out/opt/mustang
+        cp -a desktop/dist/linux-unpacked/resources/ $out/opt/mustang/
+        makeWrapper "${lib.getExe electron}" "$out/bin/mustang" \
+          --inherit-argv0 \
+          --set ELECTRON_FORCE_IS_PACKAGED 1 \
+          --add-flags "$out/opt/mustang/resources/app.asar"
+
+        install -Dm644 desktop/build/icon.svg "$out/share/icons/hicolor/scalable/apps/mustang.svg"
+
+        copyDesktopItems
+      '';
+    };
+
     build.extraAttrs = {
       # None of app/, desktop/, desktop/backend/, lib/ ship a yarn.lock
       # upstream.
@@ -67,71 +127,6 @@ in
         yarnLock = ./yarn.lock;
         hash = "sha256-n7HBQbZSYbWlMcxIhfVNniE6lnJONxUdeTCNW14uggA=";
       };
-
-      postPatch = ''
-        (cd app/build && sh mustang-brand.sh);
-
-        cp ${./yarn.lock} "$PWD/yarn.lock"
-        chmod u+rw "$PWD/yarn.lock"
-        fixup-yarn-lock "$PWD/yarn.lock"
-
-        for d in app desktop desktop/backend lib; do
-          ln -sf "$PWD/yarn.lock" "$d/yarn.lock"
-        done
-      '';
-
-      buildPhase = ''
-        runHook preBuild
-        yarn config set yarn-offline-mirror "${recipe.build.extraAttrs.yarnDeps}"
-
-        for d in app desktop desktop/backend lib; do
-          (cd "$d" && yarn install --offline --frozen-lockfile --ignore-engines --ignore-scripts)
-          patchShebangs "$d/node_modules"
-        done
-
-        # V2 versions are deprecated and renamed to original methods in electron45
-        substituteInPlace desktop/node_modules/better-sqlite3/src/util/macros.cpp \
-          --replace-fail 'HolderV2()' 'Holder()' \
-          --replace-fail 'GetPrototypeV2()' 'GetPrototype()'
-
-        pushd desktop
-
-        export npm_config_nodedir="${electron.headers}"
-        npx electron-rebuild \
-          --version "${electron.version}" \
-          --build-from-source \
-          --force
-
-        npx electron-vite build
-
-        npx electron-builder \
-          --linux dir \
-          -c.asar=true \
-          -c.npmRebuild=false \
-          -c.electronDist="${electron.dist}" \
-          -c.electronVersion="${electron.version}"
-
-        popd
-
-        runHook postBuild
-      '';
-
-      installPhase = ''
-        runHook preInstall
-
-        mkdir -p $out/opt/mustang
-        cp -a desktop/dist/linux-unpacked/resources/ $out/opt/mustang/
-        makeWrapper "${lib.getExe electron}" "$out/bin/mustang" \
-          --inherit-argv0 \
-          --set ELECTRON_FORCE_IS_PACKAGED 1 \
-          --add-flags "$out/opt/mustang/resources/app.asar"
-
-        install -Dm644 desktop/build/icon.svg "$out/share/icons/hicolor/scalable/apps/mustang.svg"
-
-        copyDesktopItems
-
-        runHook postInstall
-      '';
 
       desktopItems = [
         (pkgs.makeDesktopItem {
