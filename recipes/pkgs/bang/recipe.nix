@@ -69,8 +69,8 @@ in
       importsCheck = [ "bang" ];
     };
 
-    build.extraAttrs = {
-      postPatch = ''
+    build.phases = {
+      patch.script.post = ''
         # setup.cfg lists python-tlsh but nixpkgs provides it as tlsh
         substituteInPlace setup.cfg \
           --replace-fail "python-tlsh" "tlsh"
@@ -85,7 +85,7 @@ in
           --replace-fail $'\tpytest\n' ""
       '';
 
-      preBuild = ''
+      build.script.pre = ''
         # Compile Kaitai Struct .ksy parsers to Python (bang/parsers/**/*.py)
         make -C src
       '';
