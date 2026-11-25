@@ -31,9 +31,8 @@ in
       packages.build = with pkgs; [ pkg-config ];
     };
 
-    build.extraAttrs = {
-      checkType = "debug";
-      preCheck = ''
+    build.phases = {
+      check.script.pre = ''
         # spin up a temporary postgres server for testing
         export PGDATA="$TMPDIR/pgdata"
         export PGHOST="$TMPDIR/pgsocket"
@@ -49,9 +48,13 @@ in
         trap 'pg_ctl -D "$PGDATA" stop -m immediate || true' EXIT
       '';
 
-      postCheck = ''
+      check.script.post = ''
         pg_ctl -D "$PGDATA" stop -m immediate || true
       '';
+    };
+
+    build.extraAttrs = {
+      checkType = "debug";
     };
 
     test.script = ''
