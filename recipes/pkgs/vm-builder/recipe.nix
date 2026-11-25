@@ -28,12 +28,12 @@ in
       ];
     };
 
-    build.extraAttrs = {
+    build.phases = {
       # Tests are disabled until fixed upstream
-      doCheck = false;
+      check.enable = false;
 
       # Only using QEMU as the backend; VirtualBox backend is only supported on macOS.
-      postFixup = ''
+      fixup.script.post = ''
         wrapProgram $out/bin/vm-builder \
           --prefix PATH : ${lib.makeBinPath [ pkgs.qemu_kvm ]} \
           --prefix XDG_DATA_DIRS : ${pkgs.qemu_kvm}/share
