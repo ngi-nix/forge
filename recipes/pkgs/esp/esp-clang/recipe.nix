@@ -28,10 +28,10 @@
       ];
     };
 
-    build.extraAttrs = {
-      dontBuild = true;
+    build.phases = {
+      build.enable = false;
 
-      installPhase = ''
+      install.script.main = ''
         mkdir -p $out
         cp -a . $out/
       '';
