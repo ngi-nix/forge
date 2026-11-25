@@ -47,14 +47,14 @@
 
     build.phases = {
       check.enable = true;
+      patch.script.post = ''
+        find thirdparty/naja/thirdparty/slang \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec sed -i 's|#include <fmt/core.h>|#include <fmt/core.h>\n#include <fmt/format.h>\n#include <fmt/ranges.h>|g' {} +
+      '';
     };
 
     build.extraAttrs = {
       # Tests use shared tmpDir paths and are not safe to run in parallel
       ctestFlags = [ "-j1" ];
-      postPatch = ''
-        find thirdparty/naja/thirdparty/slang \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec sed -i 's|#include <fmt/core.h>|#include <fmt/core.h>\n#include <fmt/format.h>\n#include <fmt/ranges.h>|g' {} +
-      '';
     };
 
     test.script = ''
