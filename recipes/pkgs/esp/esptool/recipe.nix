@@ -36,8 +36,8 @@
       importsCheck = [ "esptool" ];
     };
 
-    build.extraAttrs = {
-      postInstall = ''
+    build.phases = {
+      install.script.post = ''
         rm -f $out/bin/*.py
       '';
     };
