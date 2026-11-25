@@ -32,11 +32,12 @@ in
       ];
     };
 
+    build.phases.patch.script.post = ''
+      #remove the binary shipped with the source
+      rm -rf prismafs
+    '';
+
     build.extraAttrs = {
-      postPatch = ''
-        #remove the binary shipped with the source
-        rm -rf prismafs
-      '';
       installFlags = [ "PREFIX=$(out)" ];
     };
 
