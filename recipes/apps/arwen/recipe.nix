@@ -113,7 +113,7 @@ in
 
     links = {
       source = "https://github.com/nichmor/arwen";
-      website = "https://nichmor.github.io/arwen";
+      website = "https://nichmor.github.io/arwen/";
       docs = "https://github.com/nichmor/arwen#usage";
     };
 
