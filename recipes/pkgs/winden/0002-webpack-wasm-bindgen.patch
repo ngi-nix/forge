@@ -1,0 +1,28 @@
+diff --git a/src/app/sagas.ts b/src/app/sagas.ts
+index eca60e2..9e248b9 100644
+--- a/src/app/sagas.ts
++++ b/src/app/sagas.ts
+@@ -177,7 +177,7 @@ export function* wormholeSaga(): any {
+ }
+ 
+ export function* wormholeSaga(): any {
+-  const pkgImport = import("../../pkg").then((pkg) => pkg.default);
++  const pkgImport = import("../../pkg").then(async (pkg) => { await pkg.default(); return Object.assign({}, pkg, { init: () => {} }); });
+   pkg = yield pkgImport;
+   pkg.init();
+   client = pkg.Client.new(
+diff --git a/webpack.config.js b/webpack.config.js
+index 4b95f19..b3b9b0d 100644
+--- a/webpack.config.js
++++ b/webpack.config.js
+@@ -32,10 +32,6 @@ module.exports = {
+     ],
+   },
+   plugins: [
+-    new WasmPackPlugin({
+-      crateDirectory: path.resolve(__dirname, "./wasm"),
+-      outDir: path.resolve(__dirname, "./pkg"),
+-    }),
+     new Dotenv(),
+   ],
+   optimization: {
