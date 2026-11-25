@@ -39,15 +39,26 @@ input and defines:
 [disko](https://github.com/nix-community/disko) describes disk partitioning,
 formatting and mounting declaratively as a part of the NixOS configuration.
 
-Following example configuration creates a GPT partition table on the `/dev/sda`
-disk with three partitions and support to boot on both legacy BIOS and UEFI
-machines.
+The deployment configuration uses the `deployFlakeDefaultDiskoConfig` function
+from NGI Forge, which creates a GPT partition table on the `device` disk with
+three partitions and support to boot on both legacy BIOS and UEFI machines.
+
+```nix
+modules = [
+  inputs.disko.nixosModules.disko
+  (inputs.forge.lib.deployFlakeDefaultDiskoConfig { device = "/dev/sda"; })
+  ...
+];
+```
 
 | Partition | Size            | Purpose                                                               |
 | --------- | --------------- | --------------------------------------------------------------------- |
 | `boot`    | 1 MB            | BIOS boot partition (`EF02`) used by GRUB on legacy BIOS systems      |
 | `ESP`     | 512 MB          | EFI system partition (`EF00`) formatted as `vfat`, mounted to `/boot` |
 | `root`    | remaining space | root filesystem formatted as `ext4`, mounted to `/`                   |
+
+For a custom layout, replace the function with your own disko configuration.
+The function is equivalent to:
 
 ```nix
 disko.devices.disk.main = {
@@ -82,6 +93,18 @@ disko.devices.disk.main = {
   };
 };
 ```
+
+The boot loader configuration matching this layout is in the
+`deployFlakeDefaultBootLoaderConfig` module from NGI Forge:
+
+```nix
+modules = [
+  inputs.forge.lib.deployFlakeDefaultBootLoaderConfig
+  ...
+];
+```
+
+It is equivalent to:
 
 ```nix
 boot.loader.grub = {
