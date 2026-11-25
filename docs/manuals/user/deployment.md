@@ -154,6 +154,24 @@ environment.
 
 ## Deployment
 
+### SSH host key
+
+Generate the SSH host key of the target machine before the deployment. It is
+installed on the target machine together with the NixOS system (see
+[NixOS deployment](#nixos-deployment)), so that the
+[application secrets](#application-secrets) can be encrypted for it, also
+later after the deployment.
+
+```bash
+mkdir -p host-keys/etc/ssh
+ssh-keygen -t ed25519 -N "" -C root@my-app -f host-keys/etc/ssh/ssh_host_ed25519_key
+```
+
+```{warning}
+Keep the private key `host-keys/etc/ssh/ssh_host_ed25519_key` safe and don't
+commit it to git. Anyone with the key can decrypt the secrets.
+```
+
 ### Bare metal preparation
 
 1. Download the NixOS **Minimal ISO image** for your machine architecture from
@@ -193,6 +211,299 @@ hcloud server create \
   --ssh-key <ssh-key-name>
 ```
 
+### Application secrets
+
+Some applications need secrets, such as an admin password or a key for signing
+session cookies. Application recipe provides an insecure default value, so
+that the application works out of the box in a VM or in containers. Example
+deployment configuration uses these default values too, so that it can be
+deployed without any further steps.
+
+```{warning}
+The default values are publicly known and stored in the Nix store, where all
+users of the machine can read them. Replace them before deploying the
+application to production. Until then, the evaluation of the NixOS system prints
+a warning which lists the secrets that still use their default values.
+```
+
+Manage the secrets with a secrets management tool, such as
+[agenix](https://github.com/ryantm/agenix) or
+[sops-nix](https://github.com/Mic92/sops-nix). Both tools store the secrets
+encrypted next to `flake.nix`, so they can be committed to git, and decrypt them
+on the target machine with its SSH host key. The application services read the
+decrypted secret files using systemd's `LoadCredential`.
+
+The secrets are encrypted for the SSH host key of the target machine, generated
+before the deployment (see [SSH host key](#ssh-host-key)).
+
+#### agenix
+
+1. Add the agenix input and its NixOS module to `flake.nix`:
+
+   ```nix
+   inputs.agenix.url = "github:ryantm/agenix";
+   inputs.agenix.inputs.nixpkgs.follows = "forge/nixpkgs";
+   ```
+
+   ```nix
+   modules = [
+     inputs.agenix.nixosModules.default
+     ...
+   ];
+   ```
+
+2. In an `agenix-rules.nix` file, list the public keys which can decrypt each secret:
+   the SSH host key of the target machine
+   (`host-keys/etc/ssh/ssh_host_ed25519_key.pub`), and your own SSH key to be
+   able to edit the secret later:
+
+   ```nix
+   {
+     "my-app-secret-key.age".publicKeys = [
+       "ssh-ed25519 AAAA... root@my-app"
+       "ssh-ed25519 AAAA... user@host"
+     ];
+   }
+   ```
+
+3. In the directory with the `agenix-rules.nix` file, create the encrypted
+   secret file and add both files to git:
+
+   ```bash
+   nix run github:ryantm/agenix -- -e my-app-secret-key.age
+   git add agenix-rules.nix my-app-secret-key.age
+   ```
+
+4. Add a module for the secrets to the `modules` list in `flake.nix`. It
+   declares the encrypted secret file, and sets the application secret to the
+   path of the decrypted secret (`config` gives access to the path):
+
+   ```nix
+   modules = [
+     ...
+
+     # Application secrets
+     (
+       { config, ... }:
+       {
+         age.secrets.my-app-secret-key.file = ./my-app-secret-key.age;
+
+         forge.apps.my-app.secrets.my-service.secret-key = config.age.secrets.my-app-secret-key.path;
+       }
+     )
+   ];
+   ```
+
+The deployment directory then contains:
+
+```text
+.
+├── flake.nix
+├── agenix-rules.nix
+├── my-app-secret-key.age    # encrypted secret
+└── host-keys/               # SSH host key of the target machine (not in git)
+    └── etc/ssh/
+        ├── ssh_host_ed25519_key
+        └── ssh_host_ed25519_key.pub
+```
+
+and the agenix configuration is in these parts of `flake.nix`:
+
+```nix
+# flake.nix
+{
+  inputs.agenix.url = "github:ryantm/agenix";
+  inputs.agenix.inputs.nixpkgs.follows = "forge/nixpkgs";
+  ...
+
+  outputs =
+    inputs@{ self, ... }:
+    inputs.forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      ...
+
+      # NixOS system configuration
+      flake.nixosConfigurations.my-app = inputs.forge.inputs.nixpkgs.lib.nixosSystem {
+        ...
+        modules = [
+          ...
+
+          # Application module
+          self.packages.x86_64-linux.apps.my-app.nixosModules.default
+
+          # Secrets management
+          inputs.agenix.nixosModules.default
+
+          # Application secrets
+          (
+            { config, ... }:
+            {
+              age.secrets.my-app-secret-key.file = ./my-app-secret-key.age;
+
+              forge.apps.my-app.secrets.my-service.secret-key = config.age.secrets.my-app-secret-key.path;
+            }
+          )
+        ];
+      };
+
+      ...
+    };
+}
+```
+
+#### sops-nix
+
+1. Add the sops-nix input and its NixOS module to `flake.nix`:
+
+   ```nix
+   inputs.sops-nix.url = "github:Mic92/sops-nix";
+   inputs.sops-nix.inputs.nixpkgs.follows = "forge/nixpkgs";
+   ```
+
+   ```nix
+   modules = [
+     inputs.sops-nix.nixosModules.sops
+     ...
+   ];
+   ```
+
+2. sops-nix uses age keys. Convert the SSH host key of the target machine to an
+   age key:
+
+   ```bash
+   nix run nixpkgs#ssh-to-age < host-keys/etc/ssh/ssh_host_ed25519_key.pub
+   ```
+
+   To be able to edit the secrets later, create your own age key, and print its
+   public key:
+
+   ```bash
+   mkdir -p ~/.config/sops/age
+   nix shell nixpkgs#age --command age-keygen -o ~/.config/sops/age/keys.txt
+   nix shell nixpkgs#age --command age-keygen -y ~/.config/sops/age/keys.txt
+   ```
+
+3. In a `.sops.yaml` file, list the age keys which can decrypt the secrets: the
+   key of the target machine and your own key:
+
+   ```yaml
+   creation_rules:
+     - path_regex: secrets\.yaml$
+       age: age1...,age1...
+   ```
+
+4. Create the encrypted `secrets.yaml` file with the secret, and add both files
+   to git. The command opens an editor with a YAML file, where you add the
+   secret (e.g. `my-service: { secret-key: <value> }`):
+
+   ```bash
+   nix run nixpkgs#sops -- secrets.yaml
+   git add .sops.yaml secrets.yaml
+   ```
+
+5. Add a module for the secrets to the `modules` list in `flake.nix`. It
+   declares the encrypted secrets file and the secret, and sets the application
+   secret to the path of the decrypted secret (`config` gives access to the
+   path):
+
+   ```nix
+   modules = [
+     ...
+
+     # Application secrets
+     (
+       { config, ... }:
+       {
+         sops.defaultSopsFile = ./secrets.yaml;
+         sops.secrets."my-service/secret-key" = { };
+
+         forge.apps.my-app.secrets.my-service.secret-key = config.sops.secrets."my-service/secret-key".path;
+       }
+     )
+   ];
+   ```
+
+The deployment directory then contains:
+
+```text
+.
+├── flake.nix
+├── .sops.yaml
+├── secrets.yaml             # encrypted secrets
+└── host-keys/               # SSH host key of the target machine (not in git)
+    └── etc/ssh/
+        ├── ssh_host_ed25519_key
+        └── ssh_host_ed25519_key.pub
+```
+
+and the sops-nix configuration is in these parts of `flake.nix`:
+
+```nix
+# flake.nix
+{
+  inputs.sops-nix.url = "github:Mic92/sops-nix";
+  inputs.sops-nix.inputs.nixpkgs.follows = "forge/nixpkgs";
+  ...
+
+  outputs =
+    inputs@{ self, ... }:
+    inputs.forge.inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      ...
+
+      # NixOS system configuration
+      flake.nixosConfigurations.my-app = inputs.forge.inputs.nixpkgs.lib.nixosSystem {
+        ...
+        modules = [
+          ...
+
+          # Application module
+          self.packages.x86_64-linux.apps.my-app.nixosModules.default
+
+          # Secrets management
+          inputs.sops-nix.nixosModules.sops
+
+          # Application secrets
+          (
+            { config, ... }:
+            {
+              sops.defaultSopsFile = ./secrets.yaml;
+              sops.secrets."my-service/secret-key" = { };
+
+              forge.apps.my-app.secrets.my-service.secret-key = config.sops.secrets."my-service/secret-key".path;
+            }
+          )
+        ];
+      };
+
+      ...
+    };
+}
+```
+
+#### Containers
+
+When the application runs in containers (`nix run .#apps.my-app.container`),
+each secret is mounted read-only to `/run/secrets/<secret>` in the container of
+its service component. Set the path of each secret file on the host in the
+`file` of the secret in the application configuration:
+
+```nix
+forge.apps.my-app = {
+  enable = true;
+
+  services.components.my-service.secrets.secret-key.file = "/run/agenix/my-app-secret-key";
+};
+```
+
+```{note}
+With rootless podman, the user in the container must be able to read the secret
+files. Set an owner or a mode of the files which allows it, or run podman as
+`root`.
+```
+
+When a secret uses its default value, the containers print a warning on start.
+To use the default values of all secrets without the warning, for example for
+testing, set `FORGE_USE_DEFAULT_SECRETS=1`.
+
 ### NixOS deployment
 
 1. Replace Ubuntu with NixOS by running the nixos-anywhere command above with
@@ -211,8 +522,11 @@ system configuration and reboots into it.
 All data on the target machine disk will be erased.
 ```
 
+The `--extra-files` option installs the generated SSH host key (see
+[SSH host key](#ssh-host-key)) together with the system:
+
 ```bash
-nixos-anywhere --flake .#my-app --target-host root@<ip-address>
+nixos-anywhere --extra-files host-keys --flake .#my-app --target-host root@<ip-address>
 ```
 
 After the deployment finishes, log in to the machine with:

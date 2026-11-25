@@ -236,13 +236,30 @@ in
           "--chdir"
           stateDir
         ];
+
+        # Give the secrets, as in the container (after the `/run` tmpfs).
+        secretFlags =
+          secretFile:
+          lib.concatLists (
+            lib.mapAttrsToList (secretName: secret: [
+              "--ro-bind"
+              (secretFile secret)
+              "/run/secrets/${secretName}"
+            ]) service.secrets
+          );
       in
       pkgs.writeShellApplication {
         name = "${runner.name}-sandbox";
         runtimeInputs = [ pkgs.bubblewrap ];
         text = ''
+          secret_flags=(${lib.escapeShellArgs (secretFlags (secret: secret.path))})
+          if [ -n "''${FORGE_USE_DEFAULT_SECRETS:-}" ]; then
+            secret_flags=(${lib.escapeShellArgs (secretFlags (secret: "${secret.defaultFile}"))})
+          fi
+
           exec bwrap \
             ${lib.escapeShellArgs flags} \
+            "''${secret_flags[@]}" \
             -- ${lib.getExe runner} "$@"
         '';
         meta.badPlatforms = lib.platforms.darwin; # bubblewrap is not available on macOS
@@ -360,6 +377,13 @@ in
             volumes = [ "${name}-data:${service.process.stateDir}" ];
             labels = [ "ngi-forge.type=component" ];
           }
+          // lib.optionalAttrs (service.secrets != { }) {
+            # Mounted to `/run/secrets/<secret>`.
+            secrets = lib.mapAttrsToList (secretName: secret: {
+              source = secret.composeName;
+              target = secretName;
+            }) service.secrets;
+          }
           // lib.optionalAttrs service.healthcheck.enable {
             healthcheck = {
               test = [ "CMD" ] ++ service.healthcheck.test;
@@ -416,17 +440,79 @@ in
           healthcheck = resourceDefaultHealthcheck;
         }) enabledResources;
 
-        composeFile = pkgs.writeText "${app.name}-compose.yaml" (
-          lib.generators.toYAML { } {
-            services = lib.foldl lib.recursiveUpdate { } [
-              resourcesComponents
-              serviceComponents
-            ];
-            volumes = lib.genAttrs' (componentNames ++ resourceNames) (
-              name: lib.nameValuePair "${name}-data" { }
-            );
-          }
+        # Secrets of all components, with their names.
+        allSecrets = lib.concatLists (
+          lib.mapAttrsToList (
+            componentName: component:
+            lib.mapAttrsToList (
+              secretName: secret: secret // { inherit componentName secretName; }
+            ) component.secrets
+          ) app.services.components
         );
+
+        # Secrets which use the insecure default value, because the recipe does not set their `file`.
+        insecureSecrets = lib.filter (secret: secret.file == null) allSecrets;
+
+        # Compose file of the application. With `useDefaultSecrets`, all secrets use
+        # their insecure default values, also when the recipe sets their `file`.
+        mkComposeFile =
+          { name, useDefaultSecrets }:
+          pkgs.writeText name (
+            lib.generators.toYAML { } (
+              {
+                services = lib.foldl lib.recursiveUpdate { } [
+                  resourcesComponents
+                  serviceComponents
+                ];
+                volumes = lib.genAttrs' (componentNames ++ resourceNames) (
+                  name: lib.nameValuePair "${name}-data" { }
+                );
+              }
+              // lib.optionalAttrs (allSecrets != [ ]) {
+                secrets = lib.listToAttrs (
+                  map (
+                    secret:
+                    lib.nameValuePair secret.composeName {
+                      file = if useDefaultSecrets then "${secret.defaultFile}" else secret.path;
+                    }
+                  ) allSecrets
+                );
+              }
+            )
+          );
+
+        composeFile = mkComposeFile {
+          name = "${app.name}-compose.yaml";
+          useDefaultSecrets = false;
+        };
+
+        # Used with `FORGE_USE_DEFAULT_SECRETS` (e.g. in tests, where the secret files do not exist).
+        # It is the same as `composeFile`, when the recipe sets no `file` of the secrets.
+        composeFileDefaultSecrets =
+          if lib.all (secret: secret.file == null) allSecrets then
+            composeFile
+          else
+            mkComposeFile {
+              name = "${app.name}-compose-default-secrets.yaml";
+              useDefaultSecrets = true;
+            };
+
+        # Warn about secrets which use the insecure default value,
+        # unless the default values are explicitly requested with `FORGE_USE_DEFAULT_SECRETS`.
+        warnInsecureSecrets = lib.optionalString (insecureSecrets != [ ]) ''
+          if [ -z "''${FORGE_USE_DEFAULT_SECRETS:-}" ]; then
+            ${lib.concatMapStringsSep "\n" (
+              secret:
+              "echo ${
+                lib.escapeShellArg (
+                  "WARNING: ${app.name}: secret '${secret.componentName}.${secret.secretName}' uses the insecure default value. "
+                  + "Set 'services.components.${secret.componentName}.secrets.${secret.secretName}.file' in the application configuration to a secret file. "
+                  + "See https://ngi.nixos.org/docs/manuals/user/deployment.html#application-secrets"
+                )
+              } >&2"
+            ) insecureSecrets}
+          fi
+        '';
 
         cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${
           lib.substring 0 8 (lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl)
@@ -453,9 +539,12 @@ in
 
         compose-file = pkgs.runCommand "compose-file" { } ''
           install -D ${composeFile} $out/${app.name}/compose.yaml
+          # In the same directory, which gives the name of the compose project.
+          install -D ${composeFileDefaultSecrets} $out/${app.name}/compose-default-secrets.yaml
         '';
 
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
+          ${warnInsecureSecrets}
           CACHE_DIR="${cacheDir}"
           ${lib.getExe build-oci-images}
 
@@ -464,8 +553,13 @@ in
             podman tag ${app.name}-${name}:${image.tag} ${app.name}-${name}:latest
           '') config.result.images}
 
+          compose_file=${compose-file}/${app.name}/compose.yaml
+          if [ -n "''${FORGE_USE_DEFAULT_SECRETS:-}" ]; then
+            compose_file=${compose-file}/${app.name}/compose-default-secrets.yaml
+          fi
+
           ${lib.getExe pkgs.podman-compose} \
-            -f ${compose-file}/${app.name}/compose.yaml \
+            -f "$compose_file" \
             ''${COMPOSE_OVERRIDE_FILE:+-f "$COMPOSE_OVERRIDE_FILE"} \
             up --force-recreate --remove-orphans "$@"
         '';

@@ -54,7 +54,7 @@
         testScript = ''
           machine.start()
           machine.wait_for_unit("multi-user.target")
-          machine.succeed("COMPOSE_OVERRIDE_FILE=${composeOverrideFile} ${lib.getExe containerRuntime.result.build} --detach")
+          machine.succeed("FORGE_USE_DEFAULT_SECRETS=1 COMPOSE_OVERRIDE_FILE=${composeOverrideFile} ${lib.getExe containerRuntime.result.build} --detach")
           machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" ''
             set -euo pipefail
             ${config.script}
