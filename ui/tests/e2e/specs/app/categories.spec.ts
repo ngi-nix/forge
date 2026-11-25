@@ -241,6 +241,73 @@ test.describe("App Categories Filtering", () => {
     await expect(clearButton).toBeHidden();
   });
 
+  test("large desktop screen shows categories as radio buttons instead of dropdown", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await expect(page.getByTestId("app-result").first()).toBeVisible();
+
+    await expect(page.getByTestId("category-radios")).toBeVisible();
+    await expect(page.getByTestId("category-dropdown-button")).not.toBeVisible();
+
+    const initialResultsCount = await getVisibleAppResultsCount(page);
+    await expect(page.getByTestId("category-radio-All")).toBeChecked();
+
+    // Filter by a category
+    const radios = page.getByTestId("category-radios");
+    const categoryRadio = radios.locator("[data-testid^=\"category-radio-\"]:not([data-testid=\"category-radio-All\"])")
+      .first();
+    const category = (await categoryRadio.getAttribute("data-testid")).replace("category-radio-", "");
+
+    // Elm sets the checked state after the route changes, hence `click` and the retrying `toBeChecked`.
+    await categoryRadio.click();
+    await expect(categoryRadio).toBeChecked();
+    await expect(page).toHaveURL(new RegExp(`.*c=${category}.*`));
+    await page.waitForTimeout(500);
+
+    const filteredResultsCount = await getVisibleAppResultsCount(page);
+    expect(filteredResultsCount).toBeGreaterThan(0);
+    expect(filteredResultsCount).toBeLessThanOrEqual(initialResultsCount);
+
+    // Back to all categories
+    await page.getByTestId("category-radio-All").click();
+    await expect(page.getByTestId("category-radio-All")).toBeChecked();
+    await expect(page).not.toHaveURL(/.*c=.*/);
+    await page.waitForTimeout(500);
+
+    expect(await getVisibleAppResultsCount(page)).toEqual(initialResultsCount);
+  });
+
+  test("large desktop screen shows all categories with app counts", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await expect(page.getByTestId("app-result").first()).toBeVisible();
+
+    // The radio buttons list the same categories as the dropdown
+    const radios = page.getByTestId("category-radios").locator("input[type=radio]");
+    const radioIds = await radios.evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-testid").replace("category-radio-", ""))
+    );
+
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.getByTestId("category-dropdown-button").click();
+    const dropdownIds = await page.locator("[data-testid^=\"category-filter-\"]").evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-testid").replace("category-filter-", ""))
+    );
+    expect([...radioIds].sort()).toEqual([...dropdownIds].sort());
+
+    // Each category shows its number of apps
+    await page.setViewportSize({ width: 1600, height: 900 });
+    for (const label of await page.getByTestId("category-radios").locator("label").allTextContents()) {
+      expect(label).toMatch(/\(\d+\)$/);
+    }
+  });
+
+  test("category radio buttons are hidden on smaller screens", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await expect(page.getByTestId("app-result").first()).toBeVisible();
+
+    await expect(page.getByTestId("category-radios")).not.toBeVisible();
+    await expect(page.getByTestId("category-dropdown-button")).toBeVisible();
+  });
+
   test("category dropdown search matches category descriptions", async ({ page }) => {
     const dropdownButton = page.getByTestId("category-dropdown-button");
     await dropdownButton.click();

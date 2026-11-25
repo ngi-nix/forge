@@ -37,14 +37,17 @@ viewPageApps model pageApps =
                     }
     in
     div [ class "row" ]
-        [ div [ class "col-md-12 mt-1 mb-1" ]
-            [ div
-                [ class "d-flex flex-column flex-md-row align-items-center my-2 gap-3 w-100" ]
+        [ -- On large desktop screens, the categories are radio buttons on the left of the apps
+          -- (instead of the dropdown), aligned with the top of the apps (see `.m-apps-layout`).
+          div [ class "col-md-12 mt-1 mb-1 m-apps-layout" ]
+            [ viewCategoryRadios model pageApps
+            , div
+                [ class "d-flex flex-column flex-md-row align-items-center my-2 gap-3 w-100 m-apps-layout-toolbar" ]
                 [ div
                     [ class "d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start align-items-center gap-2 flex-grow-1 w-100"
                     , style "flex-basis" "0"
                     ]
-                    [ viewCategoryDropdown model pageApps
+                    [ div [ class "d-xxl-none" ] [ viewCategoryDropdown model pageApps ]
                     , viewSortDropdown model pageApps
                     ]
                 , div [ class "flex-shrink-0" ]
@@ -55,10 +58,12 @@ viewPageApps model pageApps =
                     ]
                     []
                 ]
-            , viewPageAppsPagination
-                pageApps.pageApps_pagination
-                (viewPageAppsApp model pageApps)
-                reRoute
+            , div [ class "m-apps-layout-apps" ]
+                [ viewPageAppsPagination
+                    pageApps.pageApps_pagination
+                    (viewPageAppsApp model pageApps)
+                    reRoute
+                ]
             ]
         , let
             nextPageApps =
@@ -552,6 +557,84 @@ viewCategoryDropdown model pageApps =
                 )
             ]
         ]
+
+
+{-| Categories as radio buttons, shown only on large desktop screens.
+-}
+viewCategoryRadios : Model -> PageApps -> Html Update
+viewCategoryRadios model pageApps =
+    let
+        -- Number of apps in each category.
+        categoryCounts =
+            model.model_config.config_apps
+                |> Dict.values
+                |> List.concatMap .app_categories
+                |> List.sort
+                |> List.Extra.group
+                |> List.map (\( c, rest ) -> ( c, 1 + List.length rest ))
+
+        -- Categories with the most apps first, then by name.
+        categoriesByCount =
+            categoryCounts
+                |> List.sortBy (\( c, count ) -> ( negate count, c ))
+                |> List.map Tuple.first
+
+        countOf catMaybe =
+            case catMaybe of
+                Nothing ->
+                    Dict.size model.model_config.config_apps
+
+                Just c ->
+                    categoryCounts
+                        |> List.Extra.find (\( name, _ ) -> name == c)
+                        |> Maybe.map Tuple.second
+                        |> Maybe.withDefault 0
+
+        viewRadio catMaybe =
+            let
+                ( catText, catId ) =
+                    case catMaybe of
+                        Nothing ->
+                            ( "All Categories", "category-radio-All" )
+
+                        Just c ->
+                            ( c, "category-radio-" ++ c )
+
+                catDesc =
+                    catMaybe
+                        |> Maybe.andThen (\c -> Dict.get c model.model_config.config_categories)
+                        |> Maybe.map .category_description
+                        |> Maybe.withDefault "All applications without category filter"
+            in
+            div [ class "form-check mb-1", title catDesc ]
+                [ Html.input
+                    [ class "form-check-input"
+                    , Html.Attributes.type_ "radio"
+                    , Html.Attributes.name "category-radio"
+                    , Html.Attributes.id catId
+                    , attribute "data-testid" catId
+                    , Html.Attributes.checked (pageApps.pageApps_route.routeApps_category == catMaybe)
+                    , onClick (Update_CategoryFilter catMaybe)
+                    ]
+                    []
+                , Html.label
+                    [ class "form-check-label"
+                    , Html.Attributes.for catId
+                    , style "cursor" "pointer"
+                    ]
+                    [ text catText
+                    , span [ class "text-body-secondary" ]
+                        [ text (" (" ++ String.fromInt (countOf catMaybe) ++ ")") ]
+                    ]
+                ]
+    in
+    Html.fieldset
+        [ class "d-none d-xxl-block mb-2 m-apps-layout-categories"
+        , attribute "data-testid" "category-radios"
+        ]
+        (Html.legend [ class "fs-6 fw-bold mb-2" ] [ text "Categories" ]
+            :: List.map viewRadio (Nothing :: List.map Just categoriesByCount)
+        )
 
 
 decodeCategoryKey : Decode.Decoder ( Update, Bool )

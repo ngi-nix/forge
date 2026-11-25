@@ -145,7 +145,7 @@ defaultPagePagination : RoutePagination -> List a -> PagePagination a
 defaultPagePagination routePagination items =
     let
         maxResultsPerPage =
-            routePagination.routePagination_MaxSize |> Maybe.withDefault 16
+            routePagination.routePagination_MaxSize |> Maybe.withDefault 12
     in
     { pagePagination_current = routePagination.routePagination_current |> Maybe.withDefault 1
     , pagePagination_list =
