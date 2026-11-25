@@ -420,6 +420,21 @@
           '';
         }
       ) components
+      ++ lib.mapAttrsToList (
+        componentName: component:
+        let
+          invalidSecretNames = lib.filter (name: builtins.match "[A-Za-z0-9_.-]+" name == null) (
+            lib.attrNames component.secrets
+          );
+        in
+        {
+          condition = invalidSecretNames == [ ];
+          message = ''
+            App '${config.name}': services.components.${componentName}.secrets has invalid names: ${prettyPrint invalidSecretNames}.
+            Names can contain only letters, digits, '_', '.' and '-'.
+          '';
+        }
+      ) components
       ++ [
         {
           condition = clashingNames == [ ];

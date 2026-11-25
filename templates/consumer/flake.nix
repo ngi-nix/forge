@@ -34,6 +34,9 @@
             imports = [ (inputs.ngi-forge.inputs.import-tree ./recipes) ];
             apps.himalaya.enable = true;
             apps.offen.enable = true;
+            # Application secrets. Replace the insecure default values with secret
+            # files, for example from agenix or sops-nix.
+            # apps.offen.services.components.offen.secrets.secret.file = "/run/agenix/offen-secret";
             pkgs.himalaya.enable = true;
 
             # Uncomment this to enable unfree packages.
@@ -55,6 +58,10 @@
           }
           # Application module. See: recipes/apps/offen/recipe.nix
           self.packages.x86_64-linux.apps.offen.nixosModules.default
+          # Application secrets can be also set in the NixOS configuration.
+          # {
+          #   forge.apps.offen.secrets.offen.secret = config.age.secrets.offen-secret.path;
+          # }
         ];
       };
     };

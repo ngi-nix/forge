@@ -19,5 +19,9 @@
     firewall.enable = lib.mkForce false;
   };
 
+  # The VM is for evaluation, the default values of secrets are used
+  # (the secret files of a deployment do not exist in the VM).
+  forge.apps.${app.name}.useDefaultSecrets = true;
+
   system.stateVersion = "25.11";
 }

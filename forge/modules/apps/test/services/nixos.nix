@@ -44,6 +44,8 @@
           # Pass entropy from host to VM to prevent slow service startup due to entropy starvation.
           virtualisation.qemu.options = [ "-device virtio-rng-pci" ];
           system.stateVersion = "25.11";
+          # Tests use the default values of secrets.
+          forge.apps.${app.name}.useDefaultSecrets = true;
           environment.systemPackages = app.programs.packages ++ config.packages;
         };
         inherit (config) testScript;

@@ -354,8 +354,9 @@ viewPageAppDeployFlake model pageApp deployTarget =
             , ""
             , "            # Remote access (SSH) configuration"
             , "            services.openssh.enable = true;"
+            , ""
+            , "            # TODO: Replace following line with your public SSH key, and remove `throw` line below ..."
             , "            users.users.root.openssh.authorizedKeys.keys = ["
-            , "              # TODO: Replace following line with your public SSH key, and remove `throw` line below ..."
             , "              # \"ssh-ed25519 AAAA... user@host\""
             , "              (throw \"SSH key is not set in users.users.root.openssh.authorizedKeys.keys in flake.nix\")"
             , "            ];"
@@ -379,6 +380,39 @@ viewPageAppDeployFlake model pageApp deployTarget =
                                 )
                        )
                     ++ [ "" ]
+
+        secretsConfig =
+            case listAppSecrets pageApp.pageApp_app of
+                [] ->
+                    []
+
+                secrets ->
+                    -- `parametersConfig` already separates it from `enable`.
+                    (if Dict.isEmpty pageApp.pageApp_app.app_parameters then
+                        [ "" ]
+
+                     else
+                        []
+                    )
+                        ++ [ "            # Application secrets"
+                           , "            # TODO: The insecure default values are used until the secret files are set"
+                           , "            # (e.g. with agenix or sops-nix)."
+                           , "            # See https://ngi.nixos.org/docs/manuals/user/deployment.html#application-secrets"
+                           , ""
+                           ]
+                        ++ (secrets
+                                |> List.concatMap
+                                    (\( componentName, secretName, secret ) ->
+                                        [ "            # " ++ secret.appSecret_description
+                                        , "            # services.components."
+                                            ++ componentName
+                                            ++ ".secrets."
+                                            ++ secretName
+                                            ++ ".file = \"/path/to/secret-file\";"
+                                        ]
+                                    )
+                           )
+                        ++ [ "" ]
 
         flakeAppModule =
             [ "          }"
@@ -423,7 +457,7 @@ viewPageAppDeployFlake model pageApp deployTarget =
         , style "resize" "vertical"
         ]
         [ nixCodeBlock <|
-            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ flakeAppModule ++ parametersConfig ++ flakeAppConfig ++ devShellTargetPackages ++ flakeEnd)
+            String.join "\n" (flakeHead ++ flakeTargetModules ++ flakeTail ++ flakeAppModule ++ parametersConfig ++ secretsConfig ++ flakeAppConfig ++ devShellTargetPackages ++ flakeEnd)
         ]
 
 

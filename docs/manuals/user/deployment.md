@@ -116,6 +116,139 @@ forge.apps.my-app = {
 
 The application recipe sets the default values too, hence `lib.mkForce`.
 
+### Application secrets
+
+If the application has secrets, for example an admin password, the application
+configuration lists them. Until they are set, the application uses insecure
+default values, which are stored in the Nix store and are readable by all users.
+The evaluation of the system prints a warning about them.
+
+The services load the secrets from files using systemd's `LoadCredential`. Set
+the `file` of each secret in the application configuration:
+
+```nix
+forge.apps.my-app = {
+  enable = true;
+
+  # Secret key for signing session cookies.
+  services.components.my-service.secrets.secret-key.file = "/run/agenix/my-app-secret-key";
+};
+```
+
+Alternatively, set the secret files in the NixOS system configuration, which
+overrides the application configuration:
+
+```nix
+forge.apps.my-app.secrets.my-service.secret-key = config.age.secrets.my-app-secret-key.path;
+```
+
+The secret file must not be in the Nix store. Create it with a secrets
+management tool, for example [agenix](https://github.com/ryantm/agenix) or
+[sops-nix](https://github.com/Mic92/sops-nix). Both tools encrypt the secrets
+with the SSH host key of the target machine, so the encrypted files can be
+committed to git. To get the key of the prepared machine, run:
+
+```bash
+ssh-keyscan -t ed25519 <ip-address>
+```
+
+#### agenix
+
+Add the `agenix` input and its NixOS module to `flake.nix`:
+
+```nix
+inputs.agenix.url = "github:ryantm/agenix";
+inputs.agenix.inputs.nixpkgs.follows = "forge/nixpkgs";
+```
+
+```nix
+modules = [
+  inputs.agenix.nixosModules.default
+  ...
+];
+```
+
+Allow the machine key (and your own key, to edit the secrets later) to decrypt
+the secret in `secrets.nix` file:
+
+```nix
+{
+  "my-app-secret-key.age".publicKeys = [
+    "ssh-ed25519 AAAA... root@my-app"
+    "ssh-ed25519 AAAA... user@host"
+  ];
+}
+```
+
+Create the secret and add it to git:
+
+```bash
+nix run github:ryantm/agenix -- -e my-app-secret-key.age
+git add my-app-secret-key.age
+```
+
+Then declare the secret in the system configuration:
+
+```nix
+age.secrets.my-app-secret-key.file = ./my-app-secret-key.age;
+```
+
+and set its file in the application configuration:
+
+```nix
+services.components.my-service.secrets.secret-key.file = "/run/agenix/my-app-secret-key";
+```
+
+#### sops-nix
+
+Add the `sops-nix` input and its NixOS module to `flake.nix`:
+
+```nix
+inputs.sops-nix.url = "github:Mic92/sops-nix";
+inputs.sops-nix.inputs.nixpkgs.follows = "forge/nixpkgs";
+```
+
+```nix
+modules = [
+  inputs.sops-nix.nixosModules.sops
+  ...
+];
+```
+
+Convert the machine key to an age key, and allow it (and your own age key, to
+edit the secrets later) to decrypt the secrets in `.sops.yaml` file:
+
+```bash
+ssh-keyscan -t ed25519 <ip-address> | nix run nixpkgs#ssh-to-age
+```
+
+```yaml
+creation_rules:
+  - path_regex: secrets\.yaml$
+    age: age1...,age1...
+```
+
+Create the secrets file with the secret (e.g. `my-service: { secret-key: <value> }`)
+and add it to git:
+
+```bash
+nix run nixpkgs#sops -- secrets.yaml
+git add .sops.yaml secrets.yaml
+```
+
+Then declare the secret in the system configuration:
+
+```nix
+sops.defaultSopsFile = ./secrets.yaml;
+sops.secrets."my-service/secret-key" = { };
+```
+
+and set its file in the application configuration:
+
+```nix
+services.components.my-service.secrets.secret-key.file = "/run/secrets/my-service/secret-key";
+```
+
 ### Test configuration
 
 Evaluate the configuration to quickly check it for errors:

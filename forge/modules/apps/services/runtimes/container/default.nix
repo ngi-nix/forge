@@ -204,6 +204,14 @@ in
               "/var"
               "/etc"
             ]
+        # Give the secrets, as in the container.
+        ++ lib.concatLists (
+          lib.mapAttrsToList (secretName: secret: [
+            "--ro-bind"
+            secret.path
+            "/run/secrets/${secretName}"
+          ]) service.secrets
+        )
         ++ [
           # Make new `/dev` and `/proc` file systems for the sandbox.
           "--dev"
@@ -360,6 +368,13 @@ in
             volumes = [ "${name}-data:${service.process.stateDir}" ];
             labels = [ "ngi-forge.type=component" ];
           }
+          // lib.optionalAttrs (service.secrets != { }) {
+            # Mounted to `/run/secrets/<secret>`.
+            secrets = lib.mapAttrsToList (secretName: _: {
+              source = "${name}-${secretName}";
+              target = secretName;
+            }) service.secrets;
+          }
           // lib.optionalAttrs service.healthcheck.enable {
             healthcheck = {
               test = [ "CMD" ] ++ service.healthcheck.test;
@@ -416,17 +431,57 @@ in
           healthcheck = resourceDefaultHealthcheck;
         }) enabledResources;
 
-        composeFile = pkgs.writeText "${app.name}-compose.yaml" (
-          lib.generators.toYAML { } {
-            services = lib.foldl lib.recursiveUpdate { } [
-              resourcesComponents
-              serviceComponents
-            ];
-            volumes = lib.genAttrs' (componentNames ++ resourceNames) (
-              name: lib.nameValuePair "${name}-data" { }
-            );
-          }
+        # Compose secrets of all components, named `<component>-<secret>`.
+        secrets = lib.concatMapAttrs (
+          name: service:
+          lib.mapAttrs' (
+            secretName: secret: lib.nameValuePair "${name}-${secretName}" { file = secret.path; }
+          ) service.secrets
+        ) app.services.components;
+
+        # Compose secrets which use the insecure default value,
+        # because the recipe does not set their `file`.
+        insecureSecrets = lib.attrNames (
+          lib.concatMapAttrs (
+            name: service:
+            lib.mapAttrs' (secretName: secret: lib.nameValuePair "${name}-${secretName}" secret) (
+              lib.filterAttrs (_: secret: secret.file == null) service.secrets
+            )
+          ) app.services.components
         );
+
+        composeFile = pkgs.writeText "${app.name}-compose.yaml" (
+          lib.generators.toYAML { } (
+            {
+              services = lib.foldl lib.recursiveUpdate { } [
+                resourcesComponents
+                serviceComponents
+              ];
+              volumes = lib.genAttrs' (componentNames ++ resourceNames) (
+                name: lib.nameValuePair "${name}-data" { }
+              );
+            }
+            // lib.optionalAttrs (secrets != { }) { inherit secrets; }
+          )
+        );
+
+        # Warn about secrets which use the insecure default value,
+        # unless the compose override file sets them to another file.
+        warnInsecureSecrets = lib.optionalString (insecureSecrets != [ ]) ''
+          if [ -z "''${FORGE_ALLOW_INSECURE_SECRETS:-}" ]; then
+            for secret in ${lib.escapeShellArgs insecureSecrets}; do
+              if [ -n "''${COMPOSE_OVERRIDE_FILE:-}" ] \
+                && SECRET="$secret" ${lib.getExe pkgs.yq-go} --exit-status \
+                  '.secrets[strenv(SECRET)].file' "$COMPOSE_OVERRIDE_FILE" >/dev/null 2>&1; then
+                continue
+              fi
+              echo "WARNING: ${app.name}: secret '$secret' uses the insecure default value." \
+                "Set 'services.components.<component>.secrets.<secret>.file' in the application configuration," \
+                "or 'secrets.$secret.file' in the COMPOSE_OVERRIDE_FILE compose file, to a secret file." \
+                "See https://ngi.nixos.org/docs/manuals/user/deployment.html#application-secrets" >&2
+            done
+          fi
+        '';
 
         cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${
           lib.substring 0 8 (lib.hashString "md5" specialArgs.forgeConfig.forge.repositoryUrl)
@@ -456,6 +511,7 @@ in
         '';
 
         run-podman = pkgs.writeShellScriptBin "run-podman" ''
+          ${warnInsecureSecrets}
           CACHE_DIR="${cacheDir}"
           ${lib.getExe build-oci-images}
 

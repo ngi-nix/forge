@@ -6,6 +6,9 @@
   lib,
   ...
 }:
+let
+  componentName = name;
+in
 {
   imports = [ ./endpoints.nix ];
 
@@ -131,6 +134,100 @@
         ];
       };
       description = "Process configuration.";
+    };
+
+    secrets = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule (
+          { name, config, ... }:
+          let
+            secretName = name;
+          in
+          {
+            options = {
+              value = lib.mkOption {
+                type = lib.types.str;
+                description = ''
+                  Insecure default value of the secret.
+
+                  The value is stored in the Nix store. It is used in the NixOS VM, in containers
+                  and in tests. Replace it in production deployments.
+                '';
+                example = "insecure-default-key-change-in-production";
+              };
+
+              description = lib.mkOption {
+                type = lib.types.str;
+                description = "Description of the secret.";
+                example = "Application admin password.";
+              };
+
+              environment = lib.mkOption {
+                type = lib.types.nullOr (lib.types.strMatching "[A-Za-z_][A-Za-z0-9_]*");
+                default = null;
+                description = ''
+                  Name of the environment variable which gets the value of the secret.
+
+                  Set to `null` to only provide the secret as a file.
+                '';
+                example = "SECRET_KEY";
+              };
+
+              file = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+                description = ''
+                  Path to the file with the secret, on the machine which runs the application.
+
+                  Set it in production deployments to a file which is not in the Nix store,
+                  for example from agenix or sops-nix.
+                  Set to `null` to use the insecure default `value`.
+                '';
+                example = "/run/agenix/my-app-secret-key";
+              };
+
+              defaultFile = lib.mkOption {
+                type = lib.types.package;
+                internal = true;
+                readOnly = true;
+                default = pkgs.writeText "${componentName}-${secretName}" config.value;
+                defaultText = lib.literalMD "Nix store file with the `value`";
+                description = "Nix store file with the default value of the secret.";
+              };
+
+              path = lib.mkOption {
+                type = lib.types.str;
+                internal = true;
+                readOnly = true;
+                default = if config.file != null then config.file else "${config.defaultFile}";
+                defaultText = lib.literalMD "`file`, or the Nix store file with the `value`";
+                description = "Path to the file with the secret used by the runtimes.";
+              };
+            };
+          }
+        )
+      );
+      default = { };
+      description = ''
+        Secrets of the service.
+
+        Each secret is a file in the `$CREDENTIALS_DIRECTORY` directory, named after the secret.
+        On NixOS runtime, the secret is loaded with systemd's `LoadCredential`.
+        On container runtime, the secret is mounted to `/run/secrets`.
+
+        Until `file` is set, the insecure default `value` is used.
+
+        Names of secrets can contain only letters, digits, `_`, `.` and `-`.
+      '';
+      example = lib.literalExpression ''
+        {
+          secret-key = {
+            value = "insecure-default-key-change-in-production";
+            description = "Secret key for signing session cookies.";
+            environment = "SECRET_KEY";
+          };
+        }
+      '';
     };
 
     healthcheck = lib.mkOption {
