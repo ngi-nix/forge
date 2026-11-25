@@ -31,9 +31,7 @@
       packages.build = with pkgs; [ pkg-config ];
     };
 
-    build.extraAttrs = {
-      doCheck = false;
-    };
+    build.phases.check.enable = false;
 
     test = {
       packages = [ pkgs.zip ];
