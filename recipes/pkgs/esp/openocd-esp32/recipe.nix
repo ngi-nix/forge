@@ -28,9 +28,16 @@
       ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.udev ];
     };
 
-    build.extraAttrs = {
-      dontBuild = true;
+    build.phases = {
+      build.enable = false;
 
+      install.script.main = ''
+        mkdir -p $out
+        cp -a . $out/
+      '';
+    };
+
+    build.extraAttrs = {
       # Pre-built binaries crash if stripped
       dontStrip = true;
       # Disable Nix's default patching to prevent breaking the binary
@@ -41,11 +48,6 @@
         "--page-size"
         "2097152"
       ];
-
-      installPhase = ''
-        mkdir -p $out
-        cp -a . $out/
-      '';
     };
 
     test.script = ''
