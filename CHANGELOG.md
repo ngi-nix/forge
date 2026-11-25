@@ -6,81 +6,179 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+- *forge-screenshots:* Print help when launched without any arguments - ([48b7426](https://github.com/ngi-nix/forge/commit/48b74269cf8fa8630fd9b69eef38294161c15e13))
+- *forge-screenshots:* Don't set VERBOSE as constant - ([5c93def](https://github.com/ngi-nix/forge/commit/5c93defd5b363fee302e334426bb204d4a82b1ea))
+- *forge-update:* Missing pkgs namespace - ([067f71b](https://github.com/ngi-nix/forge/commit/067f71b7383800b4a820d98276d20b6d1e238e3d))
+- *forge-update:* Improve self-ref regex - ([97416b0](https://github.com/ngi-nix/forge/commit/97416b054d0b0d4a4a78984426393ffa1f424292))
+- *forge-update:* Fetch sources without `nix-prefetch-git` - ([632b03a](https://github.com/ngi-nix/forge/commit/632b03a6b5fe3dd8ef548f1abcf9959fba8d240a))
+- *lib:* Keep forge metadata of unfree apps - ([2e41e04](https://github.com/ngi-nix/forge/commit/2e41e04ab2ec8505a5ee84f472a16700e04af23f))
+- *screenshots:* Fix config attribute for unfree apps - ([791b3cd](https://github.com/ngi-nix/forge/commit/791b3cd746fb8e44bd320b3d18158fe55f8db991))
+- *ui:* Make the screenshot scroll buttons scroll - ([f001720](https://github.com/ngi-nix/forge/commit/f001720c0fd43c25d181b33fa9e226afbc40cf0c))
+- *ui:* Make each screenshot as wide as its image - ([41c0668](https://github.com/ngi-nix/forge/commit/41c0668292c3490820ffa9b2ad8f7445a8687d8d))
+- *ui:* Keep the screenshot modal buttons at the sides - ([9250f85](https://github.com/ngi-nix/forge/commit/9250f85bb8c3b1998b0320e401df857b307c9e0c))
+- *ui:* Ignore a screenshot URL fragment without a screenshot - ([e53ba1a](https://github.com/ngi-nix/forge/commit/e53ba1ac1edca3e4efe40cdffa6cf25958969cca))
 - Skip all blocked endpoint ports - ([6a11a2c](https://github.com/ngi-nix/forge/commit/6a11a2c0cfd0c859bd561584ffd24d82cbc61277))
+
+
+### CI/CD
+
+- *weekly-screenshots-check:* Simplify and write summary - ([9b74894](https://github.com/ngi-nix/forge/commit/9b74894a6268bbafe97a3b6bbd14915e7312572f))
+
+
+### Documentation
+
+- Simplify the screenshots instructions - ([424f63a](https://github.com/ngi-nix/forge/commit/424f63a3c344f16431bf28c2cac81404d71858d2))
+- Update screenshots configuration instructions - ([9cd040d](https://github.com/ngi-nix/forge/commit/9cd040de94c65b3e5fe1b168fde3928706ce9aa6))
 
 
 ### Features
 
+- *forge-cli:* Add application parameters and forge-cli - ([288481f](https://github.com/ngi-nix/forge/commit/288481f832569809fd8c8525ed3d3338b87c1539))
+- *forge-screenshots:* Use metainfo of default branch, use URL hints last - ([76caf5f](https://github.com/ngi-nix/forge/commit/76caf5f83158ddb32cb043f93e237b575e0e2ac0))
+- *forge-screenshots:* Find Flathub apps by homepage - ([b49b8a2](https://github.com/ngi-nix/forge/commit/b49b8a236a00d5781367f60b701662e0e6add262))
+- *forge-screenshots:* Pin Git forge URLs to a commit - ([986c01e](https://github.com/ngi-nix/forge/commit/986c01eafc95e986c09a323279ca952db900d666))
+- *forge-screenshots:* Add `--check` and a weekly check workflow - ([542df40](https://github.com/ngi-nix/forge/commit/542df40074ceedbb500c267991cb899824bcd145))
+- *forge-screenshots:* Remove Flathub support - ([80b1d3d](https://github.com/ngi-nix/forge/commit/80b1d3d3b82782086afdb0ebeb548e548353bcee))
+- *forge-screenshots:* Remove `screenshotSources` - ([78ee984](https://github.com/ngi-nix/forge/commit/78ee984cc3356e36f84bbdf790912c64b0a375ab))
+- *forge-screenshots:* Keep hand-written `screenshots.nix` files - ([f024619](https://github.com/ngi-nix/forge/commit/f02461973f30dbe1974e66a27913a4e157f87305))
+- *forge-screenshots:* Add verbose option - ([995e3f5](https://github.com/ngi-nix/forge/commit/995e3f5c7fee9f6b83d167996e8ebf8999bf3e70))
+- *forge-screenshots:* Simplified screenshot URLs pinning - ([ba2181d](https://github.com/ngi-nix/forge/commit/ba2181d2ad54ca70228c28878df7c8ab871c681f))
+- *forge-screenshots:* Write summary in check mode - ([237bbab](https://github.com/ngi-nix/forge/commit/237bbab2b54d6932fe14a2ef82f8582d0a01ba1d))
+- *forge-screenshots:* Improve help and verbose output - ([f1d6365](https://github.com/ngi-nix/forge/commit/f1d6365fa8bf316db87f1412387999da519c3a9c))
+- *forge-update:* Build as a proper python application - ([4037c90](https://github.com/ngi-nix/forge/commit/4037c908a47d7a07d5fc51f6a910108e188ca19e))
+- *forge-update:* Allow recipe text to be passed recipe writer - ([28d94cb](https://github.com/ngi-nix/forge/commit/28d94cb5c9d0b766e67761b17465f68ef4bcc9e1))
+- *forge-update:* Restore original recipe on failure - ([ef32fc3](https://github.com/ngi-nix/forge/commit/ef32fc3d5d95b31b1dd325553fb324a8bfa216b1))
+- *forge-update:* Print stderr message with build failure - ([e0c53a1](https://github.com/ngi-nix/forge/commit/e0c53a188b9fd2c3150dd7af23c8b8c29ded8b69))
+- *forge-update:* Skip updating source when self-referencing - ([2e2d6db](https://github.com/ngi-nix/forge/commit/2e2d6dbe0bcc0397fb1d19f482b436baa3b5b1fa))
+- *forge-update:* Improve version-matching - ([7a2666e](https://github.com/ngi-nix/forge/commit/7a2666e201d5d9c1560d07b7b1b8f0904c9c4c70))
 - *test/services/container:* Use original service ports for testing - ([9721a81](https://github.com/ngi-nix/forge/commit/9721a81bcc2b082c2dbf58a2a2da841f48fdcfa8))
 - *ui:* Run commands from local source code when running on localhost - ([c6b3cd7](https://github.com/ngi-nix/forge/commit/c6b3cd7e4ffbe2bd9c06487200901f33d7259f86))
+- *ui:* Show app screenshots - ([d275664](https://github.com/ngi-nix/forge/commit/d2756640e8365c5aea3c3b332ade1770a00cf864))
+- *ui:* Show screenshots in full size in a modal - ([dee8d26](https://github.com/ngi-nix/forge/commit/dee8d26d5fc17c306749b05ae9b0a31855efa8f4))
+- *ui:* Add instructions how to run customized service using available parameters - ([263c98b](https://github.com/ngi-nix/forge/commit/263c98b08ae8ffe8e4e7101c03a3160243d35a3a))
 - Add endpoints option for service components and resources - ([65264bc](https://github.com/ngi-nix/forge/commit/65264bc72b57e698b24c81fbd990c5c51e4a5f55))
 - Make endpoint forwardedPort configurable - ([c319495](https://github.com/ngi-nix/forge/commit/c3194952c7bcf8fa2768ce679e6e19e115cf0ff5))
 - Expose recipe types in derivations - ([b12af0d](https://github.com/ngi-nix/forge/commit/b12af0d3e7a57daf8c5784001002c68a5a55202a))
 - Add allowUnfree option and pass it to default pkgs - ([08c39f9](https://github.com/ngi-nix/forge/commit/08c39f984ecd2267d18a7383f06849f2d59e2a39))
 - Wrap unfree packages and apps with a warning - ([e323316](https://github.com/ngi-nix/forge/commit/e32331691818da459790bdb68f372ace618fc1b6))
+- Add `apps.<name>.screenshots` option - ([38da537](https://github.com/ngi-nix/forge/commit/38da537cec0d0d7e4d2c705e25fd7da740246a58))
+- Add `forge-screenshots` command and weekly update workflow - ([37b56bd](https://github.com/ngi-nix/forge/commit/37b56bdca0e11a26da6eff1613e6dc0954a1e6c8))
+- Update screenshots option description - ([ee6ffa9](https://github.com/ngi-nix/forge/commit/ee6ffa9565fea884f1816ed49005265534e0749f))
+- Accept both string and int values in services environment variables - ([5fff431](https://github.com/ngi-nix/forge/commit/5fff4317d8eb6a53f2426b0b292386fae10d3a7c))
+- Open application firewall ports automatically in nixos runtime - ([5cd6747](https://github.com/ngi-nix/forge/commit/5cd6747692cc6cc93f630c1b35104c21f127e503))
 
 
 ### Flake
 
 - Weekly nix flake update - ([cb4e4ac](https://github.com/ngi-nix/forge/commit/cb4e4aca919ae17da0a1101be55f09fa9960d46e))
+- Weekly nix flake update - ([4b0fb35](https://github.com/ngi-nix/forge/commit/4b0fb35af45b4fa539a79ef89b73d80360182fe9))
+- Weekly nix flake update - ([bc6b65a](https://github.com/ngi-nix/forge/commit/bc6b65ad3af8f2aac3c973f657092d430ed89650))
 
 
 ### Miscellaneous Tasks
 
 - *BEAM:* Init `forge.pkgs.${pkg}.build.builders.beam` ([#636](https://github.com/ngi-nix/forge/issues/636)) - ([03cc4c7](https://github.com/ngi-nix/forge/commit/03cc4c7e72043981f0c60d4eac2a1ad591fa26fd))
+- *forge.pkgs:* Fix `description` to match current option - ([7775d6e](https://github.com/ngi-nix/forge/commit/7775d6e3d6db2bb1a9d7bfc137dfcd5c1d048fff))
 - Skip changelog-updating commits in changelog - ([72f2e2e](https://github.com/ngi-nix/forge/commit/72f2e2eb0309681206243a8a78a4905880eb03b5))
 - Drop unused let binding - ([117062e](https://github.com/ngi-nix/forge/commit/117062eaba2c7fa0b3c36c211e25ce1baac11758))
 
 
 ### Other
 
+- *goupile:* Disable screenshots - ([651b8b9](https://github.com/ngi-nix/forge/commit/651b8b97e895f4d7be165e2dda8f8fcec90b714c))
+- *ui:* Remove Screenshots heading - ([967470f](https://github.com/ngi-nix/forge/commit/967470fcf88de203630624881cf3bfd37612bcfa))
+- *ui:* Remove manual instructions to build container images - ([58383f1](https://github.com/ngi-nix/forge/commit/58383f1e01b15f5625a25444bd5bcef93af91971))
 - Move forge-update command to maintenance category - ([d638b3c](https://github.com/ngi-nix/forge/commit/d638b3cb6f79752d8ba7300a6ebc71fb38be7759))
 - Move Website information to the bottom - ([af1087b](https://github.com/ngi-nix/forge/commit/af1087b133aea45816c6a1b2168e177367ab8949))
 - Update commands descriptions - ([71e2019](https://github.com/ngi-nix/forge/commit/71e2019494f168c1f2fa338f453659c6c01d5df1))
 - Run docs server using dev-docs command - ([be5d006](https://github.com/ngi-nix/forge/commit/be5d006acc47ceb13a225ac19e23e8361e37ce54))
 - Switch to reproducible 'Fast' profile ([#1129](https://github.com/ngi-nix/forge/issues/1129)) - ([b65d6fe](https://github.com/ngi-nix/forge/commit/b65d6fef63c3593ff51ebbf55023d7daccf9c669))
+- Move forge-screenshots to the maintenance category - ([1de1b0d](https://github.com/ngi-nix/forge/commit/1de1b0de2d763390467c1b20c9462e08bd08f683))
+- Simplify main command file detection - ([f84adac](https://github.com/ngi-nix/forge/commit/f84adac682fb2614c5cd059041f5577819c0ce34))
+- Add Forge logos - ([c9f36d6](https://github.com/ngi-nix/forge/commit/c9f36d691d880e947e86463c6efa700a90b19be5))
+- Import nineish wallpaper from NixOS/nixos-artwork@da01f68 - ([1a1e936](https://github.com/ngi-nix/forge/commit/1a1e93601f9cba8bab7b6dfe350f508d88667e91))
+- Edit nineish wallpaper into Forge social banner - ([4997ade](https://github.com/ngi-nix/forge/commit/4997adecf76c4cdeb0deb90f582f4b168af0b96f))
 
 
 ### Recipes
 
+- *apps.*:* Update all screenshots configuration - ([4ca419a](https://github.com/ngi-nix/forge/commit/4ca419a39530c321dcef974e72217b07180541ec))
 - *apps.datalab:* Add new grant - ([95c8553](https://github.com/ngi-nix/forge/commit/95c85534a240679031738279fcbd25bdd0110778))
+- *apps.goupile:* Drop override - ([e261109](https://github.com/ngi-nix/forge/commit/e26110968a98cda17f98583e73a8db5fa9107f18))
+- *apps.graphite:* Init - ([7445747](https://github.com/ngi-nix/forge/commit/7445747ae1e90277dc82b231f9929008504a24fe))
+- *apps.himalaya:* Use from nixpkgs - ([7b2839d](https://github.com/ngi-nix/forge/commit/7b2839dff1be4c7363914ea0fe205d30ac91f7e0))
 - *apps.ironcalc:* Fix subgrants - ([bde1de3](https://github.com/ngi-nix/forge/commit/bde1de33d1937e9efb3f650c744f158544415228))
+- *apps.kicad:* Fix screenshot hashes - ([c1cf88e](https://github.com/ngi-nix/forge/commit/c1cf88e229cbb2969d83eb2200c940c7e4b9a2a2))
 - *apps.livebook:* Init ([#1117](https://github.com/ngi-nix/forge/issues/1117)) - ([aa35fa8](https://github.com/ngi-nix/forge/commit/aa35fa886dbea00dfed61efde0be71ec07b5dcc4))
 - *apps.livebook:* Fix config evaluation - ([f6959b6](https://github.com/ngi-nix/forge/commit/f6959b65c27f4b081af8dc4760adeafa95211a87))
 - *apps.livebook:* Add endpoints configuration - ([0da9eb2](https://github.com/ngi-nix/forge/commit/0da9eb29c089c34c2ae35f620b29348f69a199f2))
+- *apps.livebook:* Add port parameter - ([faff59e](https://github.com/ngi-nix/forge/commit/faff59e1efe1c8910a8920adbf7ad7ff80baa22e))
+- *apps.offen:* Add port parameter - ([51d9006](https://github.com/ngi-nix/forge/commit/51d900643551b979194433bc2978a46190e8c75b))
 - *apps.pdfding:* Init - ([d1737e1](https://github.com/ngi-nix/forge/commit/d1737e16e2d5375eb9bf8cb7187e7b01a8a98aa0))
+- *apps.qlever:* Fix grant - ([26c3012](https://github.com/ngi-nix/forge/commit/26c30124bb4d73287a58caf706c8cc36b7f3e2e7))
 - *apps.ricochet-refresh:* Init - ([959c4d2](https://github.com/ngi-nix/forge/commit/959c4d2ac8ed3e83db456329040ffa3e436dc0e7))
 - *apps.ricochet-refresh:* Update icon - ([229c43a](https://github.com/ngi-nix/forge/commit/229c43a25349788c0145cb18dca0a11f85e90147))
 - *apps.ricochet-refresh:* Fix usage - ([ff51e5d](https://github.com/ngi-nix/forge/commit/ff51e5dcba951d43639d61efd10d9d38ed51c4fa))
+- *apps.tau:* Add port parameters - ([a8f68d1](https://github.com/ngi-nix/forge/commit/a8f68d147ccf83cb5612525d6376fd4b59247da6))
 - *bang:* 0-unstable-2026-10-26 -> 0-unstable-2026-11-04 - ([0f22f87](https://github.com/ngi-nix/forge/commit/0f22f870f9b150dca5576eca3e58f8f79ae749ec))
 - *beacondb:* Fix version - ([ece72e8](https://github.com/ngi-nix/forge/commit/ece72e844357d4dd72e9ab45e54e0b45c1dad560))
 - *kikit:* Mark package and app as broken - ([2fc039b](https://github.com/ngi-nix/forge/commit/2fc039b4fa7f9f89339ca1c92e624eed0a73d8a6))
 - *offen:* Drop reverse-proxy resource - ([2016f2a](https://github.com/ngi-nix/forge/commit/2016f2aabb12686b1a841cc9abfba897eaade235))
 - *pkgs.bang:* 0-unstable-2026-11-04 -> 0-unstable-2026-11-12 - ([af671d9](https://github.com/ngi-nix/forge/commit/af671d9240260c184bb8356311d2ffe67fb2a65c))
+- *pkgs.beacondb:* Fix build - ([66ba961](https://github.com/ngi-nix/forge/commit/66ba9612adc51f2126fcd8c6ae40319fef443715))
 - *pkgs.calendula:* 0.1.0 -> 0.2.0 - ([b0c4d11](https://github.com/ngi-nix/forge/commit/b0c4d11458299ebf6c90eb4e8625bf2ad985768d))
+- *pkgs.calendula:* Fix build - ([90403bd](https://github.com/ngi-nix/forge/commit/90403bd4fa061d20fa8b6fc71ae454266f417730))
 - *pkgs.cardamum:* 0.1.0 -> 0.3.0 - ([6623ef1](https://github.com/ngi-nix/forge/commit/6623ef1a10b7b99ee9e6b3875fb4191243ed9a25))
+- *pkgs.cardamum:* Fix build - ([d422679](https://github.com/ngi-nix/forge/commit/d422679bdfc27215dba52d38ca338feb64a3f67e))
 - *pkgs.docspec:* 1.21.9 -> 1.21.11 - ([89a884c](https://github.com/ngi-nix/forge/commit/89a884cea8d70a07973f4a272a10ab8c5f0dfe53))
+- *pkgs.docspec:* Fix build - ([fbb4ef1](https://github.com/ngi-nix/forge/commit/fbb4ef10d8d757791940cb834fcf5cc7c8876fa6))
 - *pkgs.himalaya:* 1.2.0 -> 2.2.1 - ([a337db1](https://github.com/ngi-nix/forge/commit/a337db17ee4e046569cd1a6954dc4e65cbd59c77))
+- *pkgs.himalaya:* Fix build - ([a78ef47](https://github.com/ngi-nix/forge/commit/a78ef4712e98d49c70a9679f30c0d6bfd0189b02))
+- *pkgs.mustang:* Fix build - ([485af6b](https://github.com/ngi-nix/forge/commit/485af6b54c6aee1db338d3544654636fe3e27d6f))
 - *pkgs.offen:* 1.4.2-unstable-2026-06-11 -> 1.4.2-unstable-2026-03-04 - ([1ef4785](https://github.com/ngi-nix/forge/commit/1ef478544f0c9987512e51fcfb8cb6afc7df20bc))
 - *pkgs.prismafs:* 1.8.0 -> 1.9.0 - ([57b8a75](https://github.com/ngi-nix/forge/commit/57b8a757cbd4ad524a64dfac1b34d9c7914950aa))
 - *pkgs.repath-studio:* Use from nixpkgs - ([bbe848a](https://github.com/ngi-nix/forge/commit/bbe848aad37351349ec2f3b39abdfa835b826920))
 - *pkgs.sequoia-pgp:* 1.4.0-pqc.1 -> 1.5.0 - ([282e230](https://github.com/ngi-nix/forge/commit/282e230019b24e087f804e19ad34d95472d5b933))
+- *pkgs.snix:* Fix build - ([e9f2dcc](https://github.com/ngi-nix/forge/commit/e9f2dcc8a62cc488de45d677561bb53d50d70e9b))
 - *pkgs.tau-radio:* 0.2.101-unstable-2026-06-11 -> 0.2.101-unstable-2026-08-23 - ([5a07101](https://github.com/ngi-nix/forge/commit/5a07101867d0acbbef137a0874ca5392a6ed932f))
 - *pkgs.tau-tower:* 0.2.101-unstable-2026-06-11 -> 0.2.101-unstable-2026-08-23 - ([d30559e](https://github.com/ngi-nix/forge/commit/d30559e86cb987be9d9ac5eeafbf39cded69dd96))
+- *pkgs.tau-tower:* Fix build - ([875eeab](https://github.com/ngi-nix/forge/commit/875eeab4708d67e26172cebfefa73d8f32726f9b))
 - *pkgs.ties:* 0.3.0 -> 0.4.0 - ([acd2692](https://github.com/ngi-nix/forge/commit/acd2692c7d3954edebec43cb62fd5ee5fa2e1638))
+- *pkgs.ties:* Fix build - ([cbabee8](https://github.com/ngi-nix/forge/commit/cbabee8ffa7067ae056789c0973f79b5f32749c1))
+- *pkgs.xtensa-esp32-elf:* Fix build - ([7d2cb6d](https://github.com/ngi-nix/forge/commit/7d2cb6db8001165f71d6922def309f65eb623d98))
+- *pkgs.ziplinter:* Fix build - ([3e481a8](https://github.com/ngi-nix/forge/commit/3e481a84d7fa5d2d09fbad7ce999cea23fa72643))
 - *{pkgs,apps}.licomp-toolkit:* Init - ([b59997f](https://github.com/ngi-nix/forge/commit/b59997f8c2210facd338eca9737c60732707e186))
+- *{pkgs,apps}.neuropil:* Init - ([ac765e1](https://github.com/ngi-nix/forge/commit/ac765e1051ae488312849e3a6358fa2e048dbe97))
+- *{pkgs,apps}.zelph:* Init - ([48c1dcb](https://github.com/ngi-nix/forge/commit/48c1dcbf6538d28aa617bc328cf1640f7d8e538b))
 - Add endpoints configuration - ([fa18274](https://github.com/ngi-nix/forge/commit/fa182740d3f32ea9c2e0a5fd74b710fcfd860d8d))
 - Remove ports configuration - ([d6d07bb](https://github.com/ngi-nix/forge/commit/d6d07bb621c9c86e1e11cd7195fb17a071fd85e4))
 - Remove private endpoints configuration - ([7f0e090](https://github.com/ngi-nix/forge/commit/7f0e0900c5f158c8aba1b02c6a10dc6bd9ea31d0))
 - Update to use endpoint appProtocol - ([c87c0d2](https://github.com/ngi-nix/forge/commit/c87c0d246dfe536f3a24f1e36970593f4be87ab6))
+- Add screenshots - ([9f127f4](https://github.com/ngi-nix/forge/commit/9f127f4ff973364b1b71f9c2aa4c917e69c388d5))
+- Align screenshot hints with upstream metainfo - ([eb9b889](https://github.com/ngi-nix/forge/commit/eb9b88965d8d7bf3f6bfb3299ec55dd7d00572a0))
+- Update screenshots - ([003cf8b](https://github.com/ngi-nix/forge/commit/003cf8bcfd11302d8079c7e230b0bf4d3b4f0473))
+- Add Flathub screenshots of deltachat and mitmproxy - ([783e681](https://github.com/ngi-nix/forge/commit/783e681e5173649369f694563a938e31d5b667ad))
+- Pin screenshot URLs to a commit - ([defc114](https://github.com/ngi-nix/forge/commit/defc114c5c1bc3c994862946f64b7121d4091300))
+- Update screenshot hashes of freecad, kicad and mustang - ([a67b19f](https://github.com/ngi-nix/forge/commit/a67b19f16f421b2c7bc6e5f404fe859bde253c04))
+- Make default-branch screenshots manual - ([267c47c](https://github.com/ngi-nix/forge/commit/267c47c4f5dad22359454e3834ef79e1207686d2))
+- Use parameters for ports - ([7910f89](https://github.com/ngi-nix/forge/commit/7910f8900ef642dbe7e6ac1c840a0d763309875a))
 
 
 ### Refactor
 
+- *forge-screenshots:* Properly package screenshots script - ([a2e0d3e](https://github.com/ngi-nix/forge/commit/a2e0d3ed52e99edb9d74a21e92de5c355e20e4f2))
+- *forge-screenshots:* Split code to multiple python modules - ([f404b4b](https://github.com/ngi-nix/forge/commit/f404b4bbd27b66b3b49930ad6a2e66e4ac6afc8a))
+- *forge-screenshots:* Remove support of remote screenshots - ([16955be](https://github.com/ngi-nix/forge/commit/16955be93c4353f2a756577895bb4d224c5636c2))
+- *forge-screenshots:* Sort apps and small refactor of variable names - ([3702d26](https://github.com/ngi-nix/forge/commit/3702d2641450a7d392c010932fa03b86bb5096a0))
+- *forge-screenshots:* Refactor nix eval script - ([480b8ea](https://github.com/ngi-nix/forge/commit/480b8ea78d649d0d2e4fffcdc9f6ab565db8f671))
+- *forge-ui:* Write `ExecStart=` for the screenshots command in the unit - ([a831018](https://github.com/ngi-nix/forge/commit/a8310186073d47d5c66ff1489637f0bfc9057692))
+- *forge-update:* Rename things for better readability - ([9e320b6](https://github.com/ngi-nix/forge/commit/9e320b6edf9b4dbb2a274ba83ab56dcd17b198ac))
+- *forge-update:* Make regexes more readable - ([a8269bf](https://github.com/ngi-nix/forge/commit/a8269bfbb453622abbf8ecffd24f81811348d141))
 - *ui:* Show list of endpoints in separate section - ([fe87fe2](https://github.com/ngi-nix/forge/commit/fe87fe2d95911cd12b2343a8ab432118db2efdbe))
 - *ui:* Refactor endpoints functions - ([62c7c6a](https://github.com/ngi-nix/forge/commit/62c7c6a698f23b38f76de6316a08d2a569b9c78a))
 - *ui:* Move packages and apps count to search - ([37077cf](https://github.com/ngi-nix/forge/commit/37077cfd86054d6a8288a3043b591865cb956081))
 - *ui:* Add function to test if app belongs to category - ([f6cd5b1](https://github.com/ngi-nix/forge/commit/f6cd5b142aa6a4c5d5a7d3c368e3400ddf1ad2d5))
+- *ui:* Use `onClickStopPropagation` in place of `onClickOnly` - ([bd9cd71](https://github.com/ngi-nix/forge/commit/bd9cd718fce5bac4e49956eea51a41d041e7b37a))
 - Replace service component and resource ports option with forwardedPort option - ([b2d1c3a](https://github.com/ngi-nix/forge/commit/b2d1c3a34c01b979f437372b5d9482d6a6370ad4))
 - Remove visibility endpoints option - ([cd18a87](https://github.com/ngi-nix/forge/commit/cd18a87b1e2b6d6d0558a535674adaeda053497c))
 - Add internal services endpoints option - ([b2fe275](https://github.com/ngi-nix/forge/commit/b2fe27549cebe0dab7823f35dce7955f20df05b0))
@@ -88,6 +186,10 @@ All notable changes to this project will be documented in this file.
 - Add appProtocol and re-purpose protocol enpoint options - ([83860ef](https://github.com/ngi-nix/forge/commit/83860ef2b271789432233a5564667eab23ac06aa))
 - Use 10000 offset for privileged endpoints port forwarding - ([4d84d83](https://github.com/ngi-nix/forge/commit/4d84d83965889fa6b75fbec42f5890412173a679))
 - Remove `nimi` dependency - ([ba7065a](https://github.com/ngi-nix/forge/commit/ba7065a0add779628f75db3279f289b4c8a9bce1))
+- Consistent screenshot package name - ([46f2482](https://github.com/ngi-nix/forge/commit/46f248201cb44c558d1d3eb4b8c350d8fd22e28a))
+- Use only source provided by Nix - ([0ce8034](https://github.com/ngi-nix/forge/commit/0ce8034bbf0abe20ce3a852dfadfcfe2ae1cbd0c))
+- Drop screenshots pinning - ([671408f](https://github.com/ngi-nix/forge/commit/671408fa715432b6da80cc9dbf6182012ea50a6e))
+- Fetch screenshots locally - ([be4dd40](https://github.com/ngi-nix/forge/commit/be4dd40548c3786460c0ca098bbdc935b18f5329))
 
 
 ### Templates
@@ -108,6 +210,8 @@ All notable changes to this project will be documented in this file.
 - Add broken and unfree labels to apps and pkgs ([#1109](https://github.com/ngi-nix/forge/issues/1109)) - ([ee31be0](https://github.com/ngi-nix/forge/commit/ee31be0d8673bc135d5bcba5cdc15f121101aeed))
 - Change hover message for broken and unfree - ([d57075e](https://github.com/ngi-nix/forge/commit/d57075e64e791caaac1f27ebd122c5745ab0c286))
 - Update deployment done message - ([f53d9a3](https://github.com/ngi-nix/forge/commit/f53d9a3723c173b983daa69f4dfb25a0fafe0f9e))
+- Add link to verify Mastodon account - ([39e65ff](https://github.com/ngi-nix/forge/commit/39e65ff051b74b307d56aefbd4ded79294771779))
+- Replace favicon with new Forge logo - ([79633ae](https://github.com/ngi-nix/forge/commit/79633aec7d195707876fc18fdedc85515bff475b))
 
 
 ## [0.3.0](https://github.com/ngi-nix/forge/compare/0.2.0..0.3.0) - 2026-11-05
