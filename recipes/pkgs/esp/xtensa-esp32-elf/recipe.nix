@@ -30,9 +30,16 @@
       ];
     };
 
-    build.extraAttrs = {
-      dontBuild = true;
+    build.phases = {
+      build.enable = false;
 
+      install.script.main = ''
+        mkdir -p $out
+        cp -a . $out/
+      '';
+    };
+
+    build.extraAttrs = {
       # Pre-built binaries crash if stripped
       dontStrip = true;
       # Disable Nix's default patching to prevent breaking the binary
@@ -47,11 +54,6 @@
       autoPatchelfIgnoreMissingDeps = [
         "libpython2.7.so.1.0"
       ];
-
-      installPhase = ''
-        mkdir -p $out
-        cp -a . $out/
-      '';
     };
 
     test.script = ''
