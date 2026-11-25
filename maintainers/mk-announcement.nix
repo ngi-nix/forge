@@ -110,15 +110,16 @@ lib.mapAttrs (
 
       We are the Nix@NGI team, an NLnet partner for packaging NGI-funded projects.
 
-      We'd like to inform you that ${NAME} has been packaged and is now available
-      in: ${APP_URL}. There you can find instructions to run ${NAME}
-      in a <AVAILABLE_RUNTIMES> <IF_DEPLOY_INSTRUCTIONS, and/or deploy it>.
+      We'd like to inform you that ${NAME} has been packaged and is now available in:
+      ${APP_URL}.
+      There you can find instructions to run ${NAME} in a <AVAILABLE_RUNTIMES>
+      <IF_DEPLOY_INSTRUCTIONS, and/or deploy it>.
 
       We'd value your feedback through the survey linked in the application page,
       but no action is needed from your side.
 
       Thank you for your work on ${NAME}. We hope this packaging effort makes it
-      more accessible to a broader audience.
+      more accessible to a broader user base.
 
       Kind regards'';
 
@@ -148,8 +149,6 @@ lib.mapAttrs (
 
       Post:
 
-      <ADD_SCREENSHOT + ALT_TEXT>
-
       ${NAME} / <@IF_PROJECTS_FEDIVERSE_ADD_HANDLE> packaged with Nix <PROJECT_RELATED_ICON>!
 
       ${NAME} is a ${SUMMARY}.
@@ -157,6 +156,8 @@ lib.mapAttrs (
       <WHAT_CAN_PEOPLE_DO_WITH_IT>
 
       Visit ${APP_URL} and follow the instructions to try it out!
+
+      <ADD_SCREENSHOT + ALT_TEXT>
 
       #NixOS #Nix #NGI <#OTHER_RELATED_CATEGORY>'';
   in
