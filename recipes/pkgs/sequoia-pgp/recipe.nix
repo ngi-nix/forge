@@ -32,9 +32,7 @@
       ];
     };
 
-    build.extraAttrs = {
-      doCheck = false;
-    };
+    build.phases.check.enable = false;
 
     test.script = ''
       sq version 2>&1 | grep 'sq ${config.pkgs.sequoia-pgp.version}'
