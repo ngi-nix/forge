@@ -43,8 +43,8 @@ in
       };
     };
 
-    build.extraAttrs = {
-      postPatch = ''
+    build.phases = {
+      patch.script.post = ''
         # using typecode-libmagic instead of typecode-libmagic-system-provided
         # as typecode-libmagic nix packages already uses system provided library from pkgs.file
         substituteInPlace requirements.txt \
