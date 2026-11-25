@@ -15,7 +15,6 @@ type alias Pkg =
     , pkg_homePage : String
     , pkg_mainProgram : String
     , pkg_licenses : List PkgLicense
-    , pkg_source : PkgSource
     , pkg_recipePath : String
     , pkg_maintainers : List Maintainer
     , pkg_broken : Bool
@@ -34,7 +33,6 @@ decodePkg =
         |> Decode.andMap (Decode.field "homePage" Decode.string)
         |> Decode.andMap (Decode.field "mainProgram" Decode.string)
         |> Decode.andMap (Decode.field "license" decodeLicenses)
-        |> Decode.andMap (Decode.field "source" decodeSource)
         |> Decode.andMap (Decode.field "recipePath" Decode.string)
         |> Decode.andMap (Decode.field "maintainers" (Decode.list decodeMaintainer))
         |> Decode.andMap (Decode.field "broken" Decode.bool)
@@ -43,25 +41,6 @@ decodePkg =
 
 type alias PkgName =
     String
-
-
-type alias PkgSource =
-    { source_git : Maybe String
-    , source_url : Maybe String
-    , source_path : Maybe String
-    , source_hash : String
-    , source_patches : List String
-    }
-
-
-decodeSource : Decoder PkgSource
-decodeSource =
-    Decode.map5 PkgSource
-        (Decode.field "git" (Decode.maybe Decode.string))
-        (Decode.field "url" (Decode.maybe Decode.string))
-        (Decode.field "path" (Decode.maybe Decode.string))
-        (Decode.field "hash" Decode.string)
-        (Decode.field "patches" (Decode.list Decode.string))
 
 
 type alias PkgLicense =
