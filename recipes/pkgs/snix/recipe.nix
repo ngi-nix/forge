@@ -30,29 +30,31 @@ in
         run = [
           zstd
         ];
+        check = [ cacert ];
       };
     };
 
-    build.extraAttrs = {
-      patches = [
+    build.phases = {
+      unpack.script.post = ''
+        sourceRoot="$sourceRoot/snix"
+      '';
+
+      patch.patches = [
         ./0001-fix-ui-test.patch
       ];
 
-      nativeCheckInputs = [ pkgs.cacert ];
-
-      preCheck = ''
+      check.script.pre = ''
         export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
         export NIX_SSL_CERT_FILE="$SSL_CERT_FILE"
       '';
-
-      # Pulled from the snix dev shell
-      env.SNIX_BUILD_SANDBOX_SHELL =
-        if pkgs.stdenv.hostPlatform.isLinux then
-          lib.getExe' pkgs.busybox-sandbox-shell "busybox"
-        else
-          "/bin/sh";
-      sourceRoot = "${recipe.result.derivation.src.name}/snix";
     };
+
+    # Pulled from the snix dev shell
+    build.env.SNIX_BUILD_SANDBOX_SHELL =
+      if pkgs.stdenv.hostPlatform.isLinux then
+        lib.getExe' pkgs.busybox-sandbox-shell "busybox"
+      else
+        "/bin/sh";
 
     test.script = ''
       snix --version | grep -q "${recipe.version}"
