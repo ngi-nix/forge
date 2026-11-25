@@ -80,13 +80,8 @@ in
       ];
     };
 
-    build.extraAttrs = {
-      cmakeFlags = [
-        "-DENABLE_TESTS=OFF"
-        "-DLOCAL_VECTOR_BLF=ON"
-      ];
-
-      patches = [
+    build.phases = {
+      patch.patches = [
         # fixes build with qt6.10
         (pkgs.fetchpatch {
           url = "https://invent.kde.org/education/labplot/-/commit/b0e233b6b20134177af40e8904b593b8dbc18ada.patch";
@@ -104,10 +99,17 @@ in
         })
       ];
 
-      postFixup = ''
+      fixup.script.post = ''
         wrapProgram $out/bin/labplot \
           --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ pkgs.pipewire ]}
       '';
+    };
+
+    build.extraAttrs = {
+      cmakeFlags = [
+        "-DENABLE_TESTS=OFF"
+        "-DLOCAL_VECTOR_BLF=ON"
+      ];
     };
 
     test = {
