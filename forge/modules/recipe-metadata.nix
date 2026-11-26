@@ -26,7 +26,16 @@
             def: builtins.unsafeGetAttrPos name def.value
           ) specialArgs.forgeOptions.${config._recipeType}.definitionsWithLocations;
           validLocs = builtins.filter (loc: loc != null) locs;
-          absPath = if validLocs != [ ] then (builtins.head validLocs).file else "";
+          # An app or package can have multiple files defining attributes (e.g. `screenshots.nix`),
+          # but prioritize `recipe.nix` if present
+          recipeLocs = builtins.filter (loc: builtins.baseNameOf loc.file == "recipe.nix") validLocs;
+          absPath =
+            if recipeLocs != [ ] then
+              (builtins.head recipeLocs).file
+            else if validLocs != [ ] then
+              (builtins.head validLocs).file
+            else
+              "";
         in
         if absPath == "" then
           ""
