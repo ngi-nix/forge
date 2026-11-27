@@ -9,14 +9,8 @@ lib.mapAttrs (
 
   let
     info = {
-      APP_URL = "https://ngi.nixos.org/app/${app.name}";
-      JITSI_URL = "https://jitsi.lassul.us/ngi-nix-office-hours";
-      CALENDAR_URL = "https://calendar.google.com/calendar/u/0/embed?src=b9o52fobqjak8oq8lfkhg3t0qg@group.calendar.google.com";
-      MATRIX_URL = "https://matrix.to/#/#ngipkgs:matrix.org";
-      TEAM_URL = "https://nixos.org/community/teams/ngi";
-      NIX_URL = "https://nix.dev";
-      SURVEY_URL = "https://cryptpad.ngi.nixos.org/form/#/2/form/view/3X1lzb3+XxsLUq-TygwGn-R3aHcvwuNo3L7Ya8Z1VWo/";
       NAME = app.displayName;
+      APP_URL = "https://ngi.nixos.org/app/${app.name}";
 
       SUMMARY = lib.pipe app.description [
         (lib.strings.removeSuffix ".")
@@ -53,66 +47,119 @@ lib.mapAttrs (
           else
             value
         ) appLinks;
+
+      JITSI_URL = "https://jitsi.lassul.us/ngi-nix-office-hours";
+      CALENDAR_URL = "https://calendar.google.com/calendar/u/0/embed?src=b9o52fobqjak8oq8lfkhg3t0qg@group.calendar.google.com";
+      MATRIX_URL = "https://matrix.to/#/#ngi-forge:matrix.org";
+      TEAM_URL = "https://nixos.org/community/teams/ngi";
+      NIX_URL = "https://nix.dev";
+      SURVEY_URL = "https://cryptpad.ngi.nixos.org/form/#/2/form/view/3X1lzb3+XxsLUq-TygwGn-R3aHcvwuNo3L7Ya8Z1VWo/";
+      MASTODON_URL = "https://mastodon.social/@ngiforge";
     };
 
     discourse = with info; ''
-      Title: [Nix@NGI] ${NAME} packaged for NGI Forge
+      Target audience: NixOS community (is it in Nixpkgs? is there a module?)
 
-      [**${NAME}**](${HOMEPAGE_URL}) is a ${SUMMARY}.
+      Title: ${NAME} packaged in Nixpkgs and NGI Forge
+
+      Category: NGI Zero
+
+      Body:
+
+      [${NAME}](${HOMEPAGE_URL}) is a ${SUMMARY}.
+
+      <ADD_SCREENSHOT>
 
       <WHAT_CAN_PEOPLE_DO_WITH_IT>
 
-      ### Try it out
+      <RUN_COMMANDS, e.g. Run it with:
 
-      Visit the [application page](${APP_URL}), launch ${NAME} in a shell environment, container, or NixOS VM and follow the usage instructions.
+      # nix shell github:ngi-nix/forge#${app.outputName}
+      >
+
+      Or visit the [application page](${APP_URL}) for more instructions.
 
       ### Links
 
       ${lib.optionalString (app.links != { }) "- Project Details\n${LINKS}"}
-      - [NGI Forge Tracking Issue](<LINK_TO_TRACKING_ISSUE>)
+      - [NGI Forge tracking issue](<LINK_TO_TRACKING_ISSUE>)
       - [Nixpkgs PR](<LINK_TO_NIXPKGS_PR>)
 
-      ### Share your feedback
+      You can join this effort by:
 
-      We’d like to hear from you, so please leave your feedback using this [short survey](${SURVEY_URL}).
-
-      Alternatively, you can join the:
-
-      - [office hours on Jitsi](${JITSI_URL}) every [Tuesday and Thursday from 15:00--16:00 CET/CEST](${CALENDAR_URL})
-      - [NGIpkgs Matrix channel](${MATRIX_URL})
-
-      for any further comments or questions.
+      - attending the [office hours on Jitsi](${JITSI_URL}) every [Tuesday and Thursday from 15:00--16:00 CET/CEST](${CALENDAR_URL})
+      - contributing to the conversation in the [NGI Forge Matrix channel](${MATRIX_URL})
+      - following [NGI Forge on the Fediverse](${MASTODON_URL})
+      - participating in [Summer of Nix](https://github.com/ngi-nix/summer-of-nix).
 
       ---
 
-      This work has been done by @<PACKAGER_NAME> as part of the [Nix@NGI packaging effort](https://nixos.org/community/teams/ngi), funded by [NLnet](https://nlnet.nl) under the NGI0 ${GRANT_STR} grant(s).
+      This work has been done by @<PACKAGER_DISCOURSE_HANDLE> as part of the [Nix@NGI packaging effort](${TEAM_URL}), funded by [NLnet](https://nlnet.nl) under the NGI0 ${GRANT_STR} grant(s).
 
       <OTHER_COMMENTS> <THANKS_PEOPLE_INVOLVED>'';
 
     project-author = with info; ''
-      Subject: [Nix@NGI] ${NAME} packaged for NGI Forge
+      To: Project author
+      Cc: NLnet project's email
+
+      Subject: ${NAME} packaged with Nix
 
       Body:
 
       Dear <PROJECT_AUTHOR>,
 
-      We are the Nix@NGI team, an NLnet partner for packaging NGI0-funded projects.
+      We are the Nix@NGI team, an NLnet partner for packaging NGI-funded projects.
 
-      We are pleased to inform you that ${NAME} has been successfully packaged for NixOS and is now available in our NGI Forge repository:
-      ${APP_URL}
+      We'd like to inform you that ${NAME} has been packaged and is now available in:
+      ${APP_URL}.
+      There you can find instructions to run ${NAME} in a <AVAILABLE_RUNTIMES>
+      <IF_DEPLOY_INSTRUCTIONS, and/or deploy it>.
 
-      From there, it can be launch in a shell environment, container, or NixOS VM with a single command.
+      We'd value your feedback through the survey linked in the application page,
+      but no action is needed from your side.
 
-      As the project authors, your feedback is invaluable to us. If you have a few minutes, we would greatly appreciate your thoughts through this short survey:
-      ${SURVEY_URL}
+      Thank you for your work on ${NAME}. We hope this packaging effort makes it
+      more accessible to a broader user base.
 
-      Thank you for your work on ${NAME}. We hope this packaging effort makes it more accessible to the broader NixOS community.
+      Kind regards'';
 
-      For more information about Nix, see: ${NIX_URL}.
+    github-discussion = with info; ''
+      Target audience: Project author(s).
 
-      Kind regards,
-      The Nix@NGI Team
-      ${TEAM_URL}'';
+      Category: Packaged projects
+
+      Title: ${NAME} packaged with Nix
+
+      Body:
+
+      Hi @<PROJECT_MAINTAINER_GH-HANDLE_1..N>,
+
+      ${NAME} is now packaged and available on [NGI Forge](${APP_URL}).
+
+      From the application page, you can follow the instructions to run ${NAME} in a <AVAILABLE_RUNTIMES> <IF_DEPLOY_INSTRUCTIONS, and/or deploy it>.
+
+      You know ${NAME} best: <SPECIFIC_QUESTION, e.g. "did we enable the features you'd expect?" or "are the default settings what you'd recommend?">
+
+      For specific requests, comment on <LINK_TO_TRACKING_ISSUE>. If you'd rather not be pinged, just say so.
+
+      Thank you all for your work on ${NAME}!'';
+
+    mastodon-post = with info; ''
+      Target audience: Broader open source community
+
+      Post:
+
+      ${NAME} / <@IF_PROJECTS_FEDIVERSE_ADD_HANDLE> packaged with Nix <PROJECT_RELATED_ICON>!
+
+      ${NAME} is a ${SUMMARY}.
+
+      <WHAT_CAN_PEOPLE_DO_WITH_IT>
+
+      Visit ${APP_URL} and follow the instructions to try it out!
+
+      <ADD_SCREENSHOT + ALT_TEXT>
+
+      #NixOS #NLnet #NGI <#OTHER_RELATED_TAGS: use 3 to 5 tags total as more are considered spam>'';
   in
 
   pkgs.writeShellApplication {
@@ -130,6 +177,20 @@ lib.mapAttrs (
 
       \`\`\`text
       ${project-author}
+      \`\`\`
+
+
+      # GitHub Discussions
+
+      \`\`\`text
+      ${github-discussion}
+      \`\`\`
+
+
+      # Mastodon post
+
+      \`\`\`text
+      ${mastodon-post}
       \`\`\`
       EOF
     '';
