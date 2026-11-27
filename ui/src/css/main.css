@@ -388,6 +388,40 @@ highlightjs-code pre {
   }
 }
 
+/* 1400px+ (categories shown on the left): 3 columns (12 / 3 = 4 full rows) */
+@media (min-width: 1400px) {
+  .m-item-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Apps page: the toolbar (sort, pagination) above the apps.
+   On 1400px+, the categories are on the left of the apps, aligned with their top,
+   and the toolbar stays above the apps only. */
+.m-apps-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 1.5rem;
+}
+
+@media (min-width: 1400px) {
+  .m-apps-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .m-apps-layout-toolbar {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .m-apps-layout-apps {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .m-apps-layout-categories {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
 /* hide the native summary icon */
 details.accordion-item > summary {
   list-style: none;

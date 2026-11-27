@@ -228,6 +228,7 @@ viewPageAppRunContainer model pageApp =
                 , ".container"
                 ]
         , viewPageAppRunParameters model pageApp "run" "container"
+        , viewPageAppRunSecrets pageApp
         ]
 
 
@@ -287,6 +288,45 @@ viewPageAppRunParameters model pageApp command output =
             ]
 
 
+{-| The secrets of the app with their insecure default values,
+if the app has secrets.
+-}
+viewPageAppRunSecrets : PageApp -> Html Update
+viewPageAppRunSecrets pageApp =
+    case listAppSecrets pageApp.pageApp_app of
+        [] ->
+            text ""
+
+        secrets ->
+            div []
+                [ hr [] []
+                , details []
+                    [ summary [] [ text "Secrets" ]
+                    , ul []
+                        (secrets
+                            |> List.map
+                                (\( componentName, secretName, secret ) ->
+                                    li []
+                                        [ code [] [ text (componentName ++ "." ++ secretName) ]
+                                        , text (" – " ++ secret.appSecret_description ++ " (default: ")
+                                        , code [] [ text secret.appSecret_value ]
+                                        , text ")"
+                                        ]
+                                )
+                        )
+                    , p [ class "text-body-secondary small mb-0" ]
+                        [ text "Default secrets are insecure and must be changed in "
+                        , a
+                            [ href "docs/manuals/user/deployment.html#application-secrets"
+                            , target "_blank"
+                            ]
+                            [ text "production" ]
+                        , text "."
+                        ]
+                    ]
+                ]
+
+
 {-| Quote the argument for the shell, if needed.
 -}
 shellQuote : String -> String
@@ -312,6 +352,7 @@ viewPageAppRunNixOS model pageApp =
                 , ".vm"
                 ]
         , viewPageAppRunParameters model pageApp "run" "vm"
+        , viewPageAppRunSecrets pageApp
         ]
 
 

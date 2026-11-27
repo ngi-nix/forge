@@ -411,6 +411,79 @@ services = {
 };
 ```
 
+### Secrets
+
+Secrets of a service component, like passwords, tokens or keys, are configured
+using the `secrets` option. Each secret has an insecure default `value`, which
+is used in the NixOS VM, in containers and in tests. Production deployments
+replace the secrets with secret files, for example from
+[agenix](https://github.com/ryantm/agenix) or
+[sops-nix](https://github.com/Mic92/sops-nix).
+
+The service reads each secret from the `$CREDENTIALS_DIRECTORY/<secret>` file.
+If `environment` is set, the secret is also exported in this environment
+variable.
+
+```nix
+services = {
+  components.my-service = {
+    ...
+    secrets.secret-key = {
+      value = "insecure-default-key-change-in-production";
+      description = "Secret key for signing session cookies.";
+      environment = "SECRET_KEY";
+    };
+  };
+};
+```
+
+> [!WARNING]
+> The default values are stored in the Nix store and are readable by all users.
+
+Production deployments set the `file` of the secret in the application
+configuration. It is used by both NixOS and container runtimes:
+
+```nix
+forge.apps.my-app = {
+  enable = true;
+  services.components.my-service.secrets.secret-key.file = "/run/agenix/my-app-key";
+};
+```
+
+The NixOS VM and the service tests always use the default values.
+
+On NixOS runtime, secrets are loaded with systemd's `LoadCredential`. The
+`forge.apps.<app>.secrets.<component>.<secret>` option of the application
+NixOS module overrides the `file` in the NixOS system configuration:
+
+```nix
+forge.apps.my-app.secrets.my-service.secret-key = config.age.secrets.my-app-key.path;
+```
+
+A NixOS system which uses a default value prints an evaluation warning. Set
+`forge.apps.<app>.allowInsecureSecrets = true` to disable the warning.
+
+On container runtime, secrets are mounted to `/run/secrets/<secret>`. The
+secret files can also be set in a compose file in the `COMPOSE_OVERRIDE_FILE`
+environment variable. The secrets are named `<component>-<secret>`:
+
+```yaml
+secrets:
+  my-service-secret-key:
+    file: /run/agenix/my-app-key
+```
+
+```bash
+COMPOSE_OVERRIDE_FILE=compose-override.yaml nix run .#apps.my-app.container
+```
+
+The container user must be able to read the files. With rootless podman, set a
+file owner or mode which the user in the container can read.
+
+The container runtime prints a warning for each secret without a `file`, which
+the compose override file does not set either.
+Set `FORGE_ALLOW_INSECURE_SECRETS=1` to disable the warning.
+
 ### Health checks
 
 A health check can be configured for a service component using the `healthcheck`

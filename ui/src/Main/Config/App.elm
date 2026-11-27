@@ -252,12 +252,43 @@ decodeAppResource =
 
 type alias AppComponent =
     { appComponent_endpoints : List AppEndpoint
+    , appComponent_secrets : Dict String AppSecret
     }
 
 
 decodeAppComponent : Decoder AppComponent
 decodeAppComponent =
-    Decode.map AppComponent decodeAppEndpoints
+    Decode.map2 AppComponent
+        decodeAppEndpoints
+        (Decode.field "secrets" (Decode.dict decodeAppSecret))
+
+
+type alias AppSecret =
+    { -- Insecure default value.
+      appSecret_value : String
+    , appSecret_description : String
+    }
+
+
+decodeAppSecret : Decoder AppSecret
+decodeAppSecret =
+    Decode.map2 AppSecret
+        (Decode.field "value" Decode.string)
+        (Decode.field "description" Decode.string)
+
+
+{-| Secrets of all service components, with their component names.
+-}
+listAppSecrets : App -> List ( String, String, AppSecret )
+listAppSecrets app =
+    app.app_services.appServices_components
+        |> Dict.toList
+        |> List.concatMap
+            (\( componentName, component ) ->
+                component.appComponent_secrets
+                    |> Dict.toList
+                    |> List.map (\( secretName, secret ) -> ( componentName, secretName, secret ))
+            )
 
 
 type alias AppServices =

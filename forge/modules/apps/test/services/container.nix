@@ -31,12 +31,24 @@
             + lib.optionalString (endpoint.protocol == "udp") "/udp"
           ) (lib.filter (endpoint: endpoint.forwardedPort != endpoint.port) endpoints);
 
+        # Tests use the default values of secrets
+        # (the secret files of a deployment do not exist in the test).
+        defaultSecrets = lib.concatMapAttrs (
+          name: service:
+          lib.mapAttrs' (
+            secretName: secret: lib.nameValuePair "${name}-${secretName}" { file = "${secret.defaultFile}"; }
+          ) service.secrets
+        ) app.services.components;
+
         composeOverrideFile = pkgs.writeText "${app.name}-compose-test.yaml" (
-          lib.generators.toYAML { } {
-            services = lib.filterAttrs (_: service: service.ports != [ ]) (
-              lib.mapAttrs (_: endpoints: { ports = originalPorts endpoints; }) app.services.result.endpoints
-            );
-          }
+          lib.generators.toYAML { } (
+            {
+              services = lib.filterAttrs (_: service: service.ports != [ ]) (
+                lib.mapAttrs (_: endpoints: { ports = originalPorts endpoints; }) app.services.result.endpoints
+              );
+            }
+            // lib.optionalAttrs (defaultSecrets != { }) { secrets = defaultSecrets; }
+          )
         );
       in
       (pkgs.testers.runNixOSTest {
@@ -54,7 +66,7 @@
         testScript = ''
           machine.start()
           machine.wait_for_unit("multi-user.target")
-          machine.succeed("COMPOSE_OVERRIDE_FILE=${composeOverrideFile} ${lib.getExe containerRuntime.result.build} --detach")
+          machine.succeed("FORGE_ALLOW_INSECURE_SECRETS=1 COMPOSE_OVERRIDE_FILE=${composeOverrideFile} ${lib.getExe containerRuntime.result.build} --detach")
           machine.succeed("${pkgs.writeShellScript "${app.name}-container-test-script" ''
             set -euo pipefail
             ${config.script}
