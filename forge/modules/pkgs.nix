@@ -15,7 +15,7 @@
             options.pkgs = lib.mkOption {
               default = { };
               description = ''
-                Packages indexed by their `pname`.
+                Packages indexed by their attribute names.
 
                 Each package uses one of the available builders.
                 Only one builder can be enabled per package by setting `build.builders.''${builder}.enable = true`.
@@ -45,9 +45,14 @@
 
       handleUnfree = forge-lib.handleUnfree pkgs;
 
+      scopedPkgs = forge-lib.scopeAttrs {
+        type = "pkgs";
+        values = lib.mapAttrs (_packageName: handleUnfree) enabledPkgs;
+      };
+
       packagesWithNamespace = pkgs.callPackage (forge-lib.flakePackagesWithNamespace {
         namespace = "pkgs";
-        derivations = lib.mapAttrs (_packageName: handleUnfree) enabledPkgs;
+        derivations = scopedPkgs;
       }) { };
     in
     {
