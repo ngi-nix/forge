@@ -1,8 +1,8 @@
 module Main.View exposing (..)
 
 import Dict
-import Html exposing (Html, a, button, div, footer, header, img, input, li, main_, section, span, text, ul)
-import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, src, style, target, title, type_, value)
+import Html exposing (Html, a, button, div, footer, header, hr, img, input, li, main_, section, span, text, ul)
+import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, rel, src, style, target, title, type_, value)
 import Html.Events exposing (onBlur, onFocus, onInput, preventDefaultOn)
 import Json.Decode as Decode
 import Main.Config exposing (..)
@@ -85,8 +85,11 @@ view model =
             [ class "flex-grow-1" ]
             [ section [] [ viewPage model ] ]
         , footer
-            [ class "mt-3 py-3 border-top" ]
-            [ viewPoweredBy model ]
+            [ class "mt-3 py-3 border-top d-flex flex-column gap-3" ]
+            [ viewPoweredBy model
+            , hr [ class "my-0 opacity-25" ] []
+            , viewContactLinks model
+            ]
         ]
 
 
@@ -310,5 +313,58 @@ viewPoweredBy model =
                     ]
                     []
                 ]
+            ]
+        ]
+
+
+viewContactLinks : Model -> Html update
+viewContactLinks model =
+    div
+        [ class "text-secondary d-flex flex-wrap justify-content-center align-items-center gap-3 text-center"
+        , style "font-size" "0.85em"
+        ]
+        [ span [ class "my-auto fw-semibold" ] [ text "Connect with us:" ]
+        , div [ class "my-auto d-flex align-items-center gap-3" ]
+            [ a
+                [ href "https://matrix.to/#/#ngi-forge:matrix.org"
+                , target "_blank"
+                , attribute "aria-label" "Connect with us on Matrix"
+                , title "Matrix"
+                , style "color" "inherit"
+                ]
+                [ iconMatrix ]
+            , a
+                [ href "https://discourse.nixos.org/c/dev/ngi-zero/45"
+                , target "_blank"
+                , attribute "aria-label" "Connect with us on Discourse"
+                , title "Discourse"
+                , style "color" "inherit"
+                ]
+                [ iconDiscourse ]
+            , a
+                [ href "https://mastodon.social/@ngiforge"
+                , target "_blank"
+                , rel "me"
+                , attribute "aria-label" "Connect with us on Mastodon"
+                , title "Mastodon"
+                , style "color" "inherit"
+                ]
+                [ iconMastodon ]
+            , a
+                [ href "https://github.com/orgs/ngi-nix/discussions"
+                , target "_blank"
+                , attribute "aria-label" "Connect with us on GitHub Discussions"
+                , title "GitHub Discussions"
+                , style "color" "inherit"
+                ]
+                [ iconGitHub ]
+            , a
+                [ href "mailto:ngi@nixos.org"
+                , target "_blank"
+                , attribute "aria-label" "Connect with us over Email"
+                , title "Email"
+                , style "color" "inherit"
+                ]
+                [ iconEmail ]
             ]
         ]

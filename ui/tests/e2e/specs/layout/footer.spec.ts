@@ -23,4 +23,11 @@ test.describe("Footer", () => {
       await expect(versionLink).toHaveAttribute("href", new RegExp(`.*/tree/.*${versionText}`));
     }
   });
+
+  test("contains contact links in second footer", async ({ page }) => {
+    const footer = page.locator("footer");
+    await expect(footer).toBeVisible();
+
+    await expect(footer.getByText("Connect with us:")).toBeVisible();
+  });
 });
