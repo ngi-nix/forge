@@ -16,17 +16,32 @@
         inherit formatter;
       };
 
-      sphinxEnv = pkgs.python3.withPackages (pyPkgs: [
-        pyPkgs.linkify-it-py
-        pyPkgs.sphinx
-        pyPkgs.sphinx-autobuild
-        pyPkgs.myst-parser
-        pyPkgs.sphinx-book-theme
-        pyPkgs.sphinx-copybutton
-        pyPkgs.sphinx-design
-        pyPkgs.sphinx-sitemap
-        pyPkgs.sphinx-notfound-page
-      ]);
+      # Attribute set containing packages from ./commands
+      devCommands = lib.pipe devShell.commands [
+        (lib.map (x: {
+          name = x.package.pname or x.package.name or x.name;
+          value = x.package or x.command;
+        }))
+        (lib.listToAttrs)
+      ];
+
+      devPython = pkgs.python3.withPackages (
+        pyPkgs:
+        [
+          # docs
+          pyPkgs.linkify-it-py
+          pyPkgs.sphinx
+          pyPkgs.sphinx-autobuild
+          pyPkgs.myst-parser
+          pyPkgs.sphinx-book-theme
+          pyPkgs.sphinx-copybutton
+          pyPkgs.sphinx-design
+          pyPkgs.sphinx-sitemap
+          pyPkgs.sphinx-notfound-page
+        ]
+        ++ devCommands.forge-update.passthru.dependencies
+        ++ lib.concatAttrValues devCommands.forge-update.passthru.optional-dependencies
+      );
 
       devPkgs = {
         tools = [
@@ -51,6 +66,7 @@
         ];
 
         dev = [
+          devPython
           pkgs.dive
           pkgs.git-cliff
           pkgs.podman-compose
@@ -59,7 +75,7 @@
         ];
 
         docs = [
-          sphinxEnv
+          devPython
           pkgs.gnumake
         ];
       };
@@ -116,5 +132,6 @@
     {
       formatter = formatter.package;
       devShells = lib.mapAttrs (_: shell: shell.finalPackage) devShells;
+      packages.forge-update = devCommands.forge-update;
     };
 }

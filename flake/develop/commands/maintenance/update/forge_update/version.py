@@ -17,7 +17,9 @@ class VersionResult:
     self_ref: bool = False
 
 
-class VersionDetector:
+class GitVersionDetector:
+    """Resolve versions by querying git remotes, tags, and commit hashes."""
+
     def detect(self, recipe: Recipe) -> VersionResult:
         pkg = recipe.packages[0]
         current_version = pkg.version

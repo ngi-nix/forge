@@ -36,6 +36,50 @@ jobs:
           nix build --accept-flake-config .#formatter.x86_64-linux
           ./result/bin/treefmt --ci
 
+  test-forge-update:
+    name: Test forge-update
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
+        with:
+          name: ngi-forge
+
+      - name: Build and run tests
+        run: nix build --no-link --accept-flake-config .#checks.x86_64-linux.forge-update
+
+  test-repo-contract:
+    name: Test repository recipes
+    runs-on: ubuntu-latest
+    # Non-gating by design: an unsupported recipe must not block unrelated PRs.
+    # The tests in test_repo_contract.py parametrize over every recipe.nix, so a
+    # new recipe that the parser rejects fails there until it is allowlisted.
+    continue-on-error: true
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
+        with:
+          name: ngi-forge
+
+      - name: Run contract tests
+        run: nix develop --accept-flake-config --command python3 -m pytest -q -m contract flake/develop/commands/maintenance/update
+
   build-preview-ui:
     name: Build UI artifact
     runs-on: ubuntu-latest

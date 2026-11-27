@@ -7,7 +7,9 @@ from .recipe import RecipeWriter
 from .types import BuilderType, PackageEntry, Recipe
 
 
-class NixHashUpdater:
+class NixBuildHashUpdater:
+    """Fetch recipe hashes by running ``nix build`` and reading the mismatch."""
+
     source_timeout: int
 
     def __init__(self, dry_run: bool = False, source_timeout: int = 180) -> None:
