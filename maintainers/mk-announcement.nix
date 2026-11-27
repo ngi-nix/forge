@@ -145,7 +145,7 @@ lib.mapAttrs (
       Thank you all for your work on ${NAME}!'';
 
     mastodon-post = with info; ''
-      Target audience: Broader open source community (max. 4 #'s)
+      Target audience: Broader open source community
 
       Post:
 
@@ -159,7 +159,7 @@ lib.mapAttrs (
 
       <ADD_SCREENSHOT + ALT_TEXT>
 
-      #NixOS #Nix #NGI <#OTHER_RELATED_CATEGORY>'';
+      #NixOS #NLnet #NGI <#OTHER_RELATED_TAGS: use 3 to 5 tags total as more are considered spam>'';
   in
 
   pkgs.writeShellApplication {
