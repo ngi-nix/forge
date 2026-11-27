@@ -235,7 +235,15 @@ in
           stateDir
           "--chdir"
           stateDir
-        ];
+        ]
+        # Give the default values of the secrets, as in the container (after the `/run` tmpfs).
+        ++ lib.concatLists (
+          lib.mapAttrsToList (secretName: secret: [
+            "--ro-bind"
+            "${secret.defaultFile}"
+            "/run/secrets/${secretName}"
+          ]) service.secrets
+        );
       in
       pkgs.writeShellApplication {
         name = "${runner.name}-sandbox";
@@ -360,6 +368,13 @@ in
             volumes = [ "${name}-data:${service.process.stateDir}" ];
             labels = [ "ngi-forge.type=component" ];
           }
+          // lib.optionalAttrs (service.secrets != { }) {
+            # Mounted to `/run/secrets/<secret>`.
+            secrets = lib.mapAttrsToList (secretName: secret: {
+              source = secret.composeName;
+              target = secretName;
+            }) service.secrets;
+          }
           // lib.optionalAttrs service.healthcheck.enable {
             healthcheck = {
               test = [ "CMD" ] ++ service.healthcheck.test;
@@ -416,16 +431,28 @@ in
           healthcheck = resourceDefaultHealthcheck;
         }) enabledResources;
 
+        # Compose secrets of all components, with their insecure default values
+        # (containers are for evaluation and tests, deployments use NixOS).
+        secrets = lib.concatMapAttrs (
+          _: component:
+          lib.mapAttrs' (
+            _: secret: lib.nameValuePair secret.composeName { file = "${secret.defaultFile}"; }
+          ) component.secrets
+        ) app.services.components;
+
         composeFile = pkgs.writeText "${app.name}-compose.yaml" (
-          lib.generators.toYAML { } {
-            services = lib.foldl lib.recursiveUpdate { } [
-              resourcesComponents
-              serviceComponents
-            ];
-            volumes = lib.genAttrs' (componentNames ++ resourceNames) (
-              name: lib.nameValuePair "${name}-data" { }
-            );
-          }
+          lib.generators.toYAML { } (
+            {
+              services = lib.foldl lib.recursiveUpdate { } [
+                resourcesComponents
+                serviceComponents
+              ];
+              volumes = lib.genAttrs' (componentNames ++ resourceNames) (
+                name: lib.nameValuePair "${name}-data" { }
+              );
+            }
+            // lib.optionalAttrs (secrets != { }) { inherit secrets; }
+          )
         );
 
         cacheDir = "\${XDG_CACHE_HOME:-$HOME/.cache}/ngi-forge/${

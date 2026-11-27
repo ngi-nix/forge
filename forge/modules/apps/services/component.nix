@@ -6,6 +6,9 @@
   lib,
   ...
 }:
+let
+  componentName = name;
+in
 {
   imports = [ ./endpoints.nix ];
 
@@ -131,6 +134,38 @@
         ];
       };
       description = "Process configuration.";
+    };
+
+    secrets = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submoduleWith {
+          specialArgs = { inherit pkgs componentName; };
+          modules = [ ./secret.nix ];
+        }
+      );
+      default = { };
+      description = ''
+        Secrets of the service.
+
+        Each secret is a file in the `$CREDENTIALS_DIRECTORY` directory, named after the secret.
+        On NixOS runtime, the secret is loaded with systemd's `LoadCredential`.
+        On container runtime, the secret is mounted to `/run/secrets`.
+
+        The NixOS VM, containers and tests use the insecure default `value`.
+        NixOS deployments replace it with the `forge.apps.<app>.secrets.<component>.<secret>`
+        option of the application NixOS module.
+
+        Names of secrets can contain only letters, digits, `_`, `.` and `-`.
+      '';
+      example = lib.literalExpression ''
+        {
+          secret-key = {
+            value = "insecure-default-key-change-in-production";
+            description = "Secret key for signing session cookies.";
+            environment = "SECRET_KEY";
+          };
+        }
+      '';
     };
 
     healthcheck = lib.mkOption {

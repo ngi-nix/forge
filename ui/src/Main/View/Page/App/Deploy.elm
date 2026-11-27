@@ -124,13 +124,20 @@ viewPageAppDeployInstructions model pageApp deployTarget =
             , viewPageAppDeployCheck pageApp
             ]
         , viewPageAppDeploySection "Deployment"
-            [ viewPageAppDeployEnvironment
-            , viewPageAppDeployPreparation pageApp deployTarget
-            , viewPageAppDeployNixOSAnywhere pageApp
-            ]
+            ([ viewPageAppDeployEnvironment
+             , viewPageAppDeployHostKey pageApp
+             , viewPageAppDeployPreparation pageApp deployTarget
+             , viewPageAppDeployNixOSAnywhere pageApp
+             ]
+                ++ (if List.isEmpty (listAppSecrets pageApp.pageApp_app) then
+                        []
+
+                    else
+                        [ viewPageAppDeploySecrets ]
+                   )
+            )
         , viewPageAppDeploySection "Update"
             [ viewPageAppDeployUpdate pageApp
-            , viewPageAppDeployHardening
             ]
         ]
 
@@ -148,6 +155,21 @@ viewPageAppDeployConfiguration model pageApp deployTarget =
     div []
         [ viewPageAppDeployStep "Create a NixOS system configuration in flake.nix file" "configuration"
         , viewPageAppDeployFlake model pageApp deployTarget
+        ]
+
+
+{-| Warning about the insecure default values of the secrets,
+which the deployment configuration uses.
+-}
+viewPageAppDeploySecrets : Html Update
+viewPageAppDeploySecrets =
+    div []
+        [ viewPageAppDeployStep "Install secure application secrets" "application-secrets"
+        , div [ class "alert alert-warning mb-0", attribute "role" "alert" ]
+            [ text "This configuration is using insecure default secrets. "
+            , text "They are publicly listed in NGI Forge and stored in Nix store. "
+            , text "Replace default secrets with your own secrets managed by a secrets management tool, such as agenix or sops-nix!"
+            ]
         ]
 
 
@@ -217,10 +239,29 @@ viewPageAppDeployNixOSAnywhere pageApp =
     div []
         [ viewPageAppDeployStep "Deploy NixOS system" "nixos-deployment"
         , bashCodeBlock <|
-            "nixos-anywhere --flake .#"
+            "nixos-anywhere --extra-files host-keys --flake .#"
                 ++ pageApp.pageApp_app.app_name
                 ++ " --target-host root@<ip-address>"
         , viewPageAppDeployDone pageApp
+        ]
+
+
+{-| Generate the SSH host key of the target machine before the deployment,
+so that the application secrets can be encrypted for it later.
+-}
+viewPageAppDeployHostKey : PageApp -> Html Update
+viewPageAppDeployHostKey pageApp =
+    div []
+        [ viewPageAppDeployStep "Generate SSH host key of the target machine" "ssh-host-key"
+        , bashCodeBlock <|
+            String.join "\n"
+                [ "mkdir -p host-keys/etc/ssh"
+                , "ssh-keygen -t ed25519 -N \"\" -C root@"
+                    ++ pageApp.pageApp_app.app_name
+                    ++ " -f host-keys/etc/ssh/ssh_host_ed25519_key"
+                ]
+        , p [ class "text-body-secondary small mb-0" ]
+            [ text "The key is installed on the target machine during the deployment. Application secrets can be encrypted for it later. Keep the private key safe and don't commit it to git." ]
         ]
 
 
@@ -238,19 +279,6 @@ viewPageAppDeployDone pageApp =
             ]
             [ text "available endpoints" ]
         , text "."
-        ]
-
-
-viewPageAppDeployHardening : Html Update
-viewPageAppDeployHardening =
-    p [ style "margin-bottom" "0em" ]
-        [ text "Don't forget to apply additional "
-        , a
-            [ href "docs/manuals/user/deployment.html#security-hardening"
-            , target "_blank"
-            ]
-            [ text "security hardening" ]
-        , text " configuration !"
         ]
 
 
@@ -295,6 +323,7 @@ viewPageAppDeployFlake model pageApp deployTarget =
                 DeployTarget_Hetzner ->
                     [ "          # Hetzner Cloud virtual machine support"
                     , "          (inputs.forge.inputs.nixpkgs + \"/nixos/modules/profiles/qemu-guest.nix\")"
+                    , ""
                     ]
 
         devShellTargetPackages =
@@ -306,59 +335,26 @@ viewPageAppDeployFlake model pageApp deployTarget =
                     [ "              pkgs.hcloud" ]
 
         flakeTail =
-            [ ""
-            , "          # Disk configuration"
+            [ "          # Disk configuration"
             , "          inputs.disko.nixosModules.disko"
-            , "          {"
-            , "            disko.devices.disk.main = {"
-            , "              type = \"disk\";"
-            , "              device = \"/dev/sda\";"
-            , "              content = {"
-            , "                type = \"gpt\";"
-            , "                partitions = {"
-            , "                  boot = {"
-            , "                    size = \"1M\";"
-            , "                    type = \"EF02\";"
-            , "                  };"
-            , "                  ESP = {"
-            , "                    size = \"512M\";"
-            , "                    type = \"EF00\";"
-            , "                    content = {"
-            , "                      type = \"filesystem\";"
-            , "                      format = \"vfat\";"
-            , "                      mountpoint = \"/boot\";"
-            , "                      mountOptions = [ \"umask=0077\" ];"
-            , "                    };"
-            , "                  };"
-            , "                  root = {"
-            , "                    size = \"100%\";"
-            , "                    content = {"
-            , "                      type = \"filesystem\";"
-            , "                      format = \"ext4\";"
-            , "                      mountpoint = \"/\";"
-            , "                    };"
-            , "                  };"
-            , "                };"
-            , "              };"
-            , "            };"
-            , "          }"
+            , "          (inputs.forge.lib.deployFlakeDefaultDiskoConfig { device = \"/dev/sda\"; })"
+            , ""
+            , "          # Boot configuration (supports legacy BIOS and UEFI machines)"
+            , "          inputs.forge.lib.deployFlakeDefaultBootLoaderConfig"
             , ""
             , "          # System configuration"
             , "          {"
-            , "            # Boot configuration"
-            , "            boot.loader.grub = {"
-            , "              # support legacy BIOS and UEFI machines"
-            , "              efiSupport = true;"
-            , "              efiInstallAsRemovable = true;"
-            , "            };"
-            , ""
             , "            # Remote access (SSH) configuration"
             , "            services.openssh.enable = true;"
+            , ""
+            , "            # TODO: Replace following line with your public SSH key, and remove `throw` line below ..."
             , "            users.users.root.openssh.authorizedKeys.keys = ["
-            , "              # TODO: Replace following line with your public SSH key, and remove `throw` line below ..."
             , "              # \"ssh-ed25519 AAAA... user@host\""
             , "              (throw \"SSH key is not set in users.users.root.openssh.authorizedKeys.keys in flake.nix\")"
             , "            ];"
+            , ""
+            , "            # NixOS release of the first installation, keep it unchanged after updates"
+            , "            system.stateVersion = \"25.11\";"
             ]
 
         -- The recipe sets the parameters too, hence `lib.mkForce`.

@@ -551,6 +551,23 @@ viewPageAppConfiguration model pageApp =
                             )
                     )
                 ]
+        , case listAppSecrets pageApp.pageApp_app of
+            [] ->
+                text ""
+
+            secrets ->
+                div []
+                    [ div [ class "ms-2 mb-1" ]
+                        [ small [ class "text-body-secondary" ] [ text "Secrets" ] ]
+                    , viewBulletList
+                        (secrets
+                            |> List.map
+                                (\( _, secretName, secret ) ->
+                                    li [ title secret.appSecret_description ]
+                                        [ small [] [ text secretName ] ]
+                                )
+                        )
+                    ]
         , div [ class "ms-2 mb-1" ]
             [ small [ class "text-body-secondary" ] [ text "Runtimes" ] ]
         , div [ class "ms-2 mb-3" ]

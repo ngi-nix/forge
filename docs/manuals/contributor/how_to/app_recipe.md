@@ -411,6 +411,60 @@ services = {
 };
 ```
 
+### Secrets
+
+Secrets of a service component, like passwords, tokens or keys, are configured
+using the `secrets` option. Each secret has an insecure default `value`, which
+is used in the NixOS VM, in containers and in tests.
+
+Each secret is available for service to read from
+`$CREDENTIALS_DIRECTORY/<secret>` file. If `environment` is set, the secret is
+also exported in this environment variable.
+
+```nix
+services = {
+  components.my-service = {
+    ...
+    secrets.secret-key = {
+      value = "insecure-default-key-change-in-production";
+      description = "Secret key for signing session cookies.";
+      environment = "SECRET_KEY";
+    };
+  };
+};
+```
+
+The secrets are also available in the `process.preStart` script, for example to
+create a default admin account on the first start:
+
+```nix
+services = {
+  components.my-service = {
+    ...
+    secrets.admin-password = {
+      value = "insecure-default-password";
+      description = "Password of the default admin account.";
+    };
+
+    process.preStart = ''
+      if [ ! -e /var/lib/my-service/db.sqlite ]; then
+        my-service create-admin \
+          --password "$(< "$CREDENTIALS_DIRECTORY"/admin-password)"
+      fi
+    '';
+  };
+};
+```
+
+> [!WARNING]
+> Default secret values are stored in the Nix store and are readable by all users.
+
+For production deployments, replace default insecure secret values
+with secret files managed by [agenix](https://github.com/ryantm/agenix)
+or [sops-nix](https://github.com/Mic92/sops-nix), see
+[application secrets](../../user/deployment.md#application-secrets) in the
+deployment manual.
+
 ### Health checks
 
 A health check can be configured for a service component using the `healthcheck`
@@ -528,6 +582,9 @@ Run a configured service in bubblewrap:
 ```bash
 nix run .#apps.<app-name>.services.my-service
 ```
+
+The service gets the default values of its secrets in `/run/secrets`, as in the
+container.
 
 The service runner prints the configuration files and the command that it uses
 to start the service.

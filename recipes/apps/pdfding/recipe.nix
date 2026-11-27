@@ -81,7 +81,6 @@ in
             HOST_IP = "0.0.0.0";
             HOST_PORT = app.parameters.port;
             HOST_NAME = "localhost,127.0.0.1,0.0.0.0,pdfding";
-            SECRET_KEY = "insecure-default-key-change-in-production";
             CSRF_COOKIE_SECURE = "FALSE";
             SESSION_COOKIE_SECURE = "FALSE";
             ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http";
@@ -91,6 +90,12 @@ in
             pkgs.coreutils
             pkgs.pdfding
           ];
+        };
+
+        secrets.secret-key = {
+          value = "insecure-default-key-change-in-production";
+          description = "Secret key for signing sessions and tokens.";
+          environment = "SECRET_KEY";
         };
 
         endpoints = {

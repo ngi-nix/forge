@@ -55,6 +55,9 @@
           }
           # Application module. See: recipes/apps/offen/recipe.nix
           self.packages.x86_64-linux.apps.offen.nixosModules.default
+          # The application uses insecure default values of its secrets. To manage
+          # the secrets properly (e.g. with agenix or sops-nix), see
+          # https://ngi.nixos.org/docs/manuals/user/deployment.html#application-secrets
         ];
       };
     };

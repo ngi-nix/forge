@@ -84,7 +84,7 @@ in
       modules = lib.mkOption {
         internal = true;
         readOnly = true;
-        type = lib.types.attrsOf lib.types.anything;
+        type = lib.types.attrsOf lib.types.deferredModule;
         description = "NixOS modules for the application's services and extra configuration.";
       };
 
@@ -128,6 +128,7 @@ in
       firewall = import ./modules/firewall.nix args;
       setup = import ./modules/setup.nix args;
       services = import ./modules/services.nix args;
+      secrets = import ./modules/secrets.nix args;
       virt = import ./modules/virt.nix args;
       nixosConfig = config.nixosConfig;
       packages = {
@@ -152,6 +153,7 @@ in
         config.result.modules.firewall
         config.result.modules.setup
         config.result.modules.services
+        config.result.modules.secrets
         config.result.modules.packages
         config.result.modules.nixosConfig
         config.result.modules.resources

@@ -396,6 +396,15 @@
         # volumes, images and hostnames), their names must not clash.
         clashingNames = lib.intersectLists resourceNames componentNames;
 
+        # The container runtime names the secrets `<component>-<secret>`,
+        # which is ambiguous when the names contain `-`.
+        secretComposeNames = lib.concatMap (
+          component: lib.catAttrs "composeName" (lib.attrValues component.secrets)
+        ) (lib.attrValues components);
+        clashingSecretNames = lib.unique (
+          lib.filter (name: lib.count (other: other == name) secretComposeNames > 1) secretComposeNames
+        );
+
         containerRuntime = config.services.runtimes.container;
         unknownContainerComponents = lib.subtractLists componentNames (
           lib.attrNames containerRuntime.components
@@ -426,6 +435,13 @@
           message = ''
             App '${config.name}': services.resources names clash with services.components names: ${prettyPrint clashingNames}.
             Resources and components must have unique names.
+          '';
+        }
+        {
+          condition = clashingSecretNames == [ ];
+          message = ''
+            App '${config.name}': names of services.components.<component>.secrets.<secret> clash in the container runtime, which names them '<component>-<secret>': ${prettyPrint clashingSecretNames}.
+            Rename the secrets, so that the names are unique.
           '';
         }
         {

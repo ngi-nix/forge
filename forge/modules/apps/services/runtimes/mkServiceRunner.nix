@@ -40,7 +40,22 @@ let
     arg:
     ''"${lib.replaceStrings [ "\\" "\"" "`" "$(" "$$" ] [ "\\\\" "\\\"" "\\`" "\\$(" "\\$" ] arg}"'';
 
+  # systemd sets `CREDENTIALS_DIRECTORY`. Containers mount the secrets to `/run/secrets`.
+  # Fail if a secret cannot be read, instead of starting the service with an empty secret.
+  exportSecrets = ''
+    : "''${CREDENTIALS_DIRECTORY:=/run/secrets}"
+    export CREDENTIALS_DIRECTORY
+    ${lib.concatMapAttrsStringSep "\n" (
+      secretName: secret:
+      lib.optionalString (secret.environment != null) ''
+        ${secret.environment}="$(< "$CREDENTIALS_DIRECTORY"/${esc secretName})" || exit 1
+        export ${secret.environment}
+      ''
+    ) service.secrets}
+  '';
+
   startScript = pkgs.writeShellScript "${name}-start" ''
+    ${exportSecrets}
     command=${esc (if lib.isDerivation command then lib.getExe command else command)}
     args=(${lib.concatMapStringsSep " " quoteArg process.argv})
 

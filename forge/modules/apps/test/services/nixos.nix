@@ -45,6 +45,7 @@
           virtualisation.qemu.options = [ "-device virtio-rng-pci" ];
           system.stateVersion = "25.11";
           environment.systemPackages = app.programs.packages ++ config.packages;
+          forge.apps.${app.name}.useDefaultSecrets = true;
         };
         inherit (config) testScript;
       }).overrideTestDerivation
