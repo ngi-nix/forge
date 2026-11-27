@@ -583,9 +583,8 @@ Run a configured service in bubblewrap:
 nix run .#apps.<app-name>.services.my-service
 ```
 
-The service gets its secrets in `/run/secrets`, as in the container. Set
-`FORGE_USE_DEFAULT_SECRETS=1` to use the default values of the secrets, when the
-application configuration sets secret files which do not exist on your machine.
+The service gets the default values of its secrets in `/run/secrets`, as in the
+container.
 
 The service runner prints the configuration files and the command that it uses
 to start the service.

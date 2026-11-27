@@ -158,7 +158,7 @@ in
                   Insecure default value of the secret.
 
                   The value is stored in the Nix store. It is used in the NixOS VM, in containers
-                  and in tests. Replace it in production deployments.
+                  and in tests. Replace it in NixOS deployments.
                 '';
                 example = "insecure-default-key-change-in-production";
               };
@@ -180,19 +180,6 @@ in
                 example = "SECRET_KEY";
               };
 
-              file = lib.mkOption {
-                type = lib.types.nullOr (lib.types.strMatching "/.*");
-                default = null;
-                description = ''
-                  Absolute path to the file with the secret, on the machine which runs the application.
-
-                  Set it in production deployments to a file which is not in the Nix store,
-                  for example from agenix or sops-nix.
-                  Set to `null` to use the insecure default `value`.
-                '';
-                example = "/run/agenix/my-app-secret-key";
-              };
-
               defaultFile = lib.mkOption {
                 type = lib.types.package;
                 internal = true;
@@ -200,15 +187,6 @@ in
                 default = pkgs.writeText "${componentName}-${config.name}" config.value;
                 defaultText = lib.literalMD "Nix store file with the `value`";
                 description = "Nix store file with the default value of the secret.";
-              };
-
-              path = lib.mkOption {
-                type = lib.types.str;
-                internal = true;
-                readOnly = true;
-                default = if config.file != null then config.file else "${config.defaultFile}";
-                defaultText = lib.literalMD "`file`, or the Nix store file with the `value`";
-                description = "Path to the file with the secret used by the runtimes.";
               };
 
               composeName = lib.mkOption {
@@ -230,7 +208,9 @@ in
         On NixOS runtime, the secret is loaded with systemd's `LoadCredential`.
         On container runtime, the secret is mounted to `/run/secrets`.
 
-        Until `file` is set, the insecure default `value` is used.
+        The NixOS VM, containers and tests use the insecure default `value`.
+        NixOS deployments replace it with the `forge.apps.<app>.secrets.<component>.<secret>`
+        option of the application NixOS module.
 
         Names of secrets can contain only letters, digits, `_`, `.` and `-`.
       '';

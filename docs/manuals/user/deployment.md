@@ -502,30 +502,11 @@ and the sops-nix configuration is in these parts of `flake.nix`:
 }
 ```
 
-#### Containers
-
-When the application runs in containers (`nix run .#apps.my-app.container`),
-each secret is mounted read-only to `/run/secrets/<secret>` in the container of
-its service component. Set the path of each secret file on the host in the
-`file` of the secret in the application configuration:
-
-```nix
-forge.apps.my-app = {
-  enable = true;
-
-  services.components.my-service.secrets.secret-key.file = "/run/agenix/my-app-secret-key";
-};
-```
-
 ```{note}
-With rootless podman, the user in the container must be able to read the secret
-files. Set an owner or a mode of the files which allows it, or run podman as
-`root`.
+Containers (`nix run .#apps.my-app.container`) and the NixOS VM of the
+application (`nix run .#apps.my-app.vm`) always use the default values of the
+secrets. They are meant for evaluating and testing the application.
 ```
-
-When a secret uses its default value, the containers print a warning on start.
-To use the default values of all secrets without the warning, for example for
-testing, set `FORGE_USE_DEFAULT_SECRETS=1`.
 
 ### NixOS deployment
 

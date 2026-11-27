@@ -1,8 +1,8 @@
 # Secrets of the service components, loaded with systemd's `LoadCredential`.
 #
 # Each secret is a NixOS option, which deployments set to a secret file
-# (e.g. from agenix or sops-nix). By default, the option is the `file` of the
-# secret in the recipe, or a Nix store file with its insecure default value.
+# (e.g. from agenix or sops-nix). By default, the option is a Nix store file
+# with the insecure default value of the secret.
 {
   app,
 
@@ -38,8 +38,8 @@ in
         secretName: secret:
         lib.mkOption {
           type = lib.types.strMatching "/.*";
-          default = if cfg.useDefaultSecrets then "${secret.defaultFile}" else secret.path;
-          defaultText = lib.literalMD "`file` of the secret in the recipe, or a Nix store file with the insecure default value";
+          default = "${secret.defaultFile}";
+          defaultText = lib.literalMD "Nix store file with the insecure default value";
           description = ''
             Absolute path to the file with the `${secretName}` secret of the `${componentName}` service.
 
@@ -55,9 +55,8 @@ in
       internal = true;
       default = false;
       description = ''
-        Whether to use the insecure default values of the secrets, also when the
-        recipe sets their `file` (e.g. in the NixOS VM and in tests, where the
-        files do not exist).
+        Whether the insecure default values of the secrets are used on purpose
+        (e.g. in the NixOS VM and in tests), without a warning.
       '';
     };
   };
